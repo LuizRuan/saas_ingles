@@ -29,6 +29,19 @@ Tests live beside the code they cover (`src/utils/*.test.js`, `src/data/data.tes
 
 Static build on Vercel (`dist/`), auto-deployed from the GitHub repo. [vercel.json](vercel.json) rewrites every path to `/index.html` — routing is entirely client-side, so without that fallback a direct hit or refresh on `/games/memory` returns 404. Vercel matches real files before applying rewrites, so assets are unaffected. Any new host needs the same SPA fallback.
 
+## Security
+
+[vercel.json](vercel.json) also sets the security headers. Constraints worth knowing before you change things:
+
+- **CSP is `default-src 'self'`.** No third-party origin may be added without a matching directive — that's deliberate. If you find yourself adding a CDN, self-host it instead.
+- **Fonts are self-hosted** in `public/fonts` (variable woff2, generated into [src/fonts.css](src/fonts.css)). Do **not** point back at `fonts.googleapis.com`: it re-adds a third party to the critical path, leaks every visitor's IP to Google (LGPD), and the CSP would block it anyway.
+- **`style-src` still needs `'unsafe-inline'`** because the codebase uses `style={{ ... }}` heavily, which emits `style` attributes. That is the one real weakness left in the CSP; moving those inline styles to classes would let it go.
+- **`frame-ancestors 'none'` + `X-Frame-Options: DENY`** — the site cannot be embedded. Verified against production.
+- **`localStorage` is treated as untrusted input.** `loadProgress`/`loadSettings` coerce types, clamp ranges, drop over-long keys and ignore `__proto__`. Keep it that way, and note what it does *not* do: it is not authorization. **When accounts land, the server must re-validate everything** — never let a client-supplied score or entitlement be trusted.
+- **Known advisory:** `react-router` 7.18.1 carries GHSA-qwww-vcr4-c8h2 (RSC-mode CSRF bypass). Not exploitable here — no RSC, no data router, no actions/loaders — and no fixed release exists yet (npm's suggested "fix" is a downgrade to 7.11.0; don't). Re-assess before adding a server.
+
+Dependabot ([.github/dependabot.yml](.github/dependabot.yml)) opens weekly dependency PRs and immediate security ones.
+
 ## Stack
 
 React 19 + Vite 8 + react-router-dom 7. Plain JavaScript with JSX (**no TypeScript**), plain CSS (**no Tailwind, no CSS-in-JS, no component library**). Oxlint replaces ESLint.
