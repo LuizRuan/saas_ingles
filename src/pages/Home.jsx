@@ -48,7 +48,16 @@ const Home = () => {
             </Link>
           </div>
           <div className="hero-illustration animate-float">
-            <img src="/logo.png" alt="EnglishPlay" />
+            {/* Sem o wordmark: o <h1> ao lado já diz "EnglishPlay", e o texto
+                azul-marinho da arte sumia no tema escuro. */}
+            <img
+              src="/hero.webp"
+              alt="Controle de videogame cercado por balões de fala em inglês"
+              width="745"
+              height="598"
+              loading="eager"
+              fetchPriority="high"
+            />
           </div>
         </section>
 
