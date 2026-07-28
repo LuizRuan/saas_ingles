@@ -1,0 +1,33 @@
+# Blueprint do Render para a API de autenticação (backend/).
+#
+# Como usar: no Render, "New +" → "Blueprint" → aponte para este repositório.
+# Ele lê este arquivo e cria o serviço já configurado.
+#
+# NENHUM SEGREDO MORA AQUI. As variáveis marcadas com `sync: false` precisam ser
+# preenchidas no painel do Render (elas ficam em branco de propósito), e o
+# JWT_SECRET é gerado pelo próprio Render com `generateValue: true` — assim ele
+# nunca passa por este arquivo nem pelo Git.
+
+services:
+  - type: web
+    name: englishplay-api
+    runtime: node
+    plan: free
+    # backend/ é um pacote independente do frontend (Vite), com package.json próprio
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    # Rota sem banco e sem autenticação — serve para o Render saber se subiu
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Connection string do MongoDB Atlas — preencher no painel do Render
+      - key: MONGODB_URI
+        sync: false
+      # Gerado pelo Render, forte e único; nunca escrito no repositório
+      - key: JWT_SECRET
+        generateValue: true
+      # Domínio do frontend no Vercel — preencher no painel do Render
+      - key: FRONTEND_ORIGIN
+        sync: false

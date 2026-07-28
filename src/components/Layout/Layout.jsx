@@ -58,6 +58,7 @@ const Layout = ({ children }) => {
               <span>🔥</span>
               <span>{progress.dayStreak || 0}</span>
             </div>
+            <NavLink to="/login" className="btn btn-secondary btn-sm">Entrar</NavLink>
             <NavLink to="/settings" className="navbar-avatar">
               {progress.selectedAvatar || 'U'}
             </NavLink>

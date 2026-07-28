@@ -1,0 +1,3202 @@
+[
+  {
+    "en": "Hello",
+    "pt": "Olá",
+    "pronunciation": "rélou",
+    "example": "Hello! How are you?",
+    "examplePt": "Olá! Como você está?",
+    "tip": "The most common way to greet someone. Used worldwide in English."
+  },
+  {
+    "en": "Hi",
+    "pt": "Oi",
+    "pronunciation": "rái",
+    "example": "Hi, my name is Ana.",
+    "examplePt": "Oi, meu nome é Ana.",
+    "tip": "Shorter and more casual than 'Hello'. Used between friends."
+  },
+  {
+    "en": "Good morning",
+    "pt": "Bom dia",
+    "pronunciation": "gud mórning",
+    "example": "Good morning, teacher!",
+    "examplePt": "Bom dia, professor(a)!",
+    "tip": "Two words. Said before noon, when the day is just starting."
+  },
+  {
+    "en": "Good afternoon",
+    "pt": "Boa tarde",
+    "pronunciation": "gud afternún",
+    "example": "Good afternoon, everyone.",
+    "examplePt": "Boa tarde, todos.",
+    "tip": "Two words. Said after noon, when the sun starts going down."
+  },
+  {
+    "en": "Good night",
+    "pt": "Boa noite",
+    "pronunciation": "gud náit",
+    "example": "Good night, sleep well.",
+    "examplePt": "Boa noite, durma bem.",
+    "tip": "Said when parting at night or before going to sleep."
+  },
+  {
+    "en": "Goodbye",
+    "pt": "Tchau / Adeus",
+    "pronunciation": "gudbái",
+    "example": "Goodbye, see you tomorrow!",
+    "examplePt": "Tchau, te vejo amanhã!",
+    "tip": "A more formal farewell. Originated from 'God be with you'."
+  },
+  {
+    "en": "Bye",
+    "pt": "Tchau",
+    "pronunciation": "bái",
+    "example": "Bye! Have a nice day!",
+    "examplePt": "Tchau! Tenha um bom dia!",
+    "tip": "A quick, informal farewell. Very common among friends."
+  },
+  {
+    "en": "Please",
+    "pt": "Por favor",
+    "pronunciation": "plíz",
+    "example": "Can you help me, please?",
+    "examplePt": "Você pode me ajudar, por favor?",
+    "tip": "The magic word of politeness. Always makes a request sound nicer."
+  },
+  {
+    "en": "Thank you",
+    "pt": "Obrigado(a)",
+    "pronunciation": "ténk iú",
+    "example": "Thank you for your help.",
+    "examplePt": "Obrigado(a) pela sua ajuda.",
+    "tip": "'Thanks' is the shorter version. The reply is 'You're welcome'."
+  },
+  {
+    "en": "Sorry",
+    "pt": "Desculpa",
+    "pronunciation": "sóri",
+    "example": "Sorry, I'm late.",
+    "examplePt": "Desculpa, estou atrasado(a).",
+    "tip": "Said when you make a mistake or bump into someone accidentally."
+  },
+  {
+    "en": "Yes",
+    "pt": "Sim",
+    "pronunciation": "iés",
+    "example": "Yes, I understand.",
+    "examplePt": "Sim, eu entendo.",
+    "tip": "Positive answer. The opposite is 'no'."
+  },
+  {
+    "en": "No",
+    "pt": "Não",
+    "pronunciation": "nôu",
+    "example": "No, thank you.",
+    "examplePt": "Não, obrigado(a).",
+    "tip": "Negative answer. The opposite is 'yes'. Always polite to add 'thank you' after."
+  },
+  {
+    "en": "Welcome",
+    "pt": "Bem-vindo(a)",
+    "pronunciation": "uélcom",
+    "example": "Welcome to my house!",
+    "examplePt": "Bem-vindo(a) à minha casa!",
+    "tip": "Also used in 'You're welcome' as a reply when someone thanks you."
+  },
+  {
+    "en": "How are you?",
+    "pt": "Como você está?",
+    "pronunciation": "ráu ar iú",
+    "example": "Hi! How are you today?",
+    "examplePt": "Oi! Como você está hoje?",
+    "tip": "A classic conversation opener. The expected reply is 'Fine, thanks!'"
+  },
+  {
+    "en": "I'm fine",
+    "pt": "Estou bem",
+    "pronunciation": "aim fáin",
+    "example": "I'm fine, thank you!",
+    "examplePt": "Estou bem, obrigado(a)!",
+    "tip": "The standard reply to 'How are you?'. 'I'm' is short for 'I am'."
+  },
+  {
+    "en": "Zero",
+    "pt": "Zero",
+    "pronunciation": "zírou",
+    "example": "Zero comes before one.",
+    "examplePt": "Zero vem antes de um.",
+    "tip": "A mathematical placeholder and numerical digit representing a total absence of quantity, yet serving as the identity element for addition."
+  },
+  {
+    "en": "One",
+    "pt": "Um",
+    "pronunciation": "uan",
+    "example": "I have one brother.",
+    "examplePt": "Eu tenho um irmão.",
+    "tip": "The first whole number. Sounds like 'won' (past of win). Be careful!"
+  },
+  {
+    "en": "Two",
+    "pt": "Dois",
+    "pronunciation": "tchú",
+    "example": "She has two cats.",
+    "examplePt": "Ela tem dois gatos.",
+    "tip": "Sounds the same as 'too' (also) and 'to' (preposition). Three words, one sound!"
+  },
+  {
+    "en": "Three",
+    "pt": "Três",
+    "pronunciation": "thrí",
+    "example": "There are three chairs.",
+    "examplePt": "Há três cadeiras.",
+    "tip": "The 'th' sound requires you to put your tongue between your teeth."
+  },
+  {
+    "en": "Four",
+    "pt": "Quatro",
+    "pronunciation": "fór",
+    "example": "I have four friends.",
+    "examplePt": "Eu tenho quatro amigos.",
+    "tip": "Sounds like 'for' (purpose word). A table has this many legs."
+  },
+  {
+    "en": "Five",
+    "pt": "Cinco",
+    "pronunciation": "fáiv",
+    "example": "Give me five minutes.",
+    "examplePt": "Me dê cinco minutos.",
+    "tip": "You have this many fingers on one hand. 'High ___!' means let's celebrate!"
+  },
+  {
+    "en": "Six",
+    "pt": "Seis",
+    "pronunciation": "síks",
+    "example": "I wake up at six.",
+    "examplePt": "Eu acordo às seis.",
+    "tip": "Half of twelve. A cube (die) has this many faces."
+  },
+  {
+    "en": "Seven",
+    "pt": "Sete",
+    "pronunciation": "sévn",
+    "example": "There are seven days in a week.",
+    "examplePt": "Há sete dias na semana.",
+    "tip": "Considered a lucky number in many cultures. One week has this many days."
+  },
+  {
+    "en": "Eight",
+    "pt": "Oito",
+    "pronunciation": "êit",
+    "example": "School starts at eight.",
+    "examplePt": "A escola começa às oito.",
+    "tip": "The 'gh' is completely silent. A spider has this many legs."
+  },
+  {
+    "en": "Nine",
+    "pt": "Nove",
+    "pronunciation": "náin",
+    "example": "I go to bed at nine.",
+    "examplePt": "Eu vou dormir às nove.",
+    "tip": "One less than ten. Cats are said to have this many lives."
+  },
+  {
+    "en": "Ten",
+    "pt": "Dez",
+    "pronunciation": "tén",
+    "example": "Count to ten.",
+    "examplePt": "Conte até dez.",
+    "tip": "The base of our number system. You have this many fingers on both hands."
+  },
+  {
+    "en": "Number",
+    "pt": "Número",
+    "pronunciation": "nâmber",
+    "example": "Pick a lucky number.",
+    "examplePt": "Escolha um número da sorte.",
+    "tip": "An abstract mathematical object used to quantify, measure, and index entities within an existential or theoretical framework."
+  },
+  {
+    "en": "Red",
+    "pt": "Vermelho",
+    "pronunciation": "réd",
+    "example": "I like red roses.",
+    "examplePt": "Eu gosto de rosas vermelhas.",
+    "tip": "The color of fire and stop signs. Also used to say you feel embarrassed ('turn red')."
+  },
+  {
+    "en": "Blue",
+    "pt": "Azul",
+    "pronunciation": "blú",
+    "example": "The sky is blue.",
+    "examplePt": "O céu é azul.",
+    "tip": "The color of the sky and ocean. 'Feeling blue' means feeling sad."
+  },
+  {
+    "en": "Green",
+    "pt": "Verde",
+    "pronunciation": "grín",
+    "example": "The grass is green.",
+    "examplePt": "A grama é verde.",
+    "tip": "The color of plants and nature. Traffic lights use it to say 'go'."
+  },
+  {
+    "en": "Yellow",
+    "pt": "Amarelo",
+    "pronunciation": "iélou",
+    "example": "The sun is yellow.",
+    "examplePt": "O sol é amarelo.",
+    "tip": "The color of the sun and bananas. Used on caution signs."
+  },
+  {
+    "en": "Black",
+    "pt": "Preto",
+    "pronunciation": "blék",
+    "example": "I have a black cat.",
+    "examplePt": "Eu tenho um gato preto.",
+    "tip": "The absence of light. The opposite of white."
+  },
+  {
+    "en": "White",
+    "pt": "Branco",
+    "pronunciation": "uáit",
+    "example": "Snow is white.",
+    "examplePt": "A neve é branca.",
+    "tip": "The combination of all light colors. The opposite of black. Snow is this."
+  },
+  {
+    "en": "Orange",
+    "pt": "Laranja",
+    "pronunciation": "órendj",
+    "example": "I like orange juice.",
+    "examplePt": "Eu gosto de suco de laranja.",
+    "tip": "Both a color AND a fruit! The color was actually named after the fruit."
+  },
+  {
+    "en": "Pink",
+    "pt": "Rosa",
+    "pronunciation": "pínk",
+    "example": "She likes pink flowers.",
+    "examplePt": "Ela gosta de flores rosas.",
+    "tip": "A lighter, softer shade of red. Flamingos are famous for being this color."
+  },
+  {
+    "en": "Purple",
+    "pt": "Roxo",
+    "pronunciation": "pârpol",
+    "example": "Grapes are purple.",
+    "examplePt": "Uvas são roxas.",
+    "tip": "A mix of red and blue. Historically worn by kings and queens."
+  },
+  {
+    "en": "Brown",
+    "pt": "Marrom",
+    "pronunciation": "bráun",
+    "example": "The dog is brown.",
+    "examplePt": "O cachorro é marrom.",
+    "tip": "The color of soil and wood. Chocolate and coffee are this color."
+  },
+  {
+    "en": "Gray",
+    "pt": "Cinza",
+    "pronunciation": "grêi",
+    "example": "The clouds are gray.",
+    "examplePt": "As nuvens estão cinzas.",
+    "tip": "A mix of black and white. Clouds on a rainy day are this color."
+  },
+  {
+    "en": "Dog",
+    "pt": "Cachorro",
+    "pronunciation": "dóg",
+    "example": "I have three dogs.",
+    "examplePt": "Eu tenho três cachorros.",
+    "tip": "Called 'man's best friend'. Barks and wags its tail. Loves to fetch!"
+  },
+  {
+    "en": "Cat",
+    "pt": "Gato",
+    "pronunciation": "két",
+    "example": "The cat is sleeping.",
+    "examplePt": "O gato está dormindo.",
+    "tip": "A purring, independent pet. Has retractable claws and lands on its feet."
+  },
+  {
+    "en": "Bird",
+    "pt": "Pássaro",
+    "pronunciation": "bârd",
+    "example": "The bird is singing.",
+    "examplePt": "O pássaro está cantando.",
+    "tip": "A feathered animal with wings. Most can fly, but penguins and ostriches can't."
+  },
+  {
+    "en": "Fish",
+    "pt": "Peixe",
+    "pronunciation": "fích",
+    "example": "The fish is in the water.",
+    "examplePt": "O peixe está na água.",
+    "tip": "An ectothermic, aquatic vertebrate that extracts dissolved oxygen through branchial clefts and propels itself with caudal fins."
+  },
+  {
+    "en": "Horse",
+    "pt": "Cavalo",
+    "pronunciation": "hórs",
+    "example": "The horse is running.",
+    "examplePt": "O cavalo está correndo.",
+    "tip": "A large animal used for riding. Engine power is measured in '___power'."
+  },
+  {
+    "en": "Cow",
+    "pt": "Vaca",
+    "pronunciation": "cáu",
+    "example": "The cow gives milk.",
+    "examplePt": "A vaca dá leite.",
+    "tip": "A farm animal that produces milk. Makes a 'moo' sound."
+  },
+  {
+    "en": "Pig",
+    "pt": "Porco",
+    "pronunciation": "píg",
+    "example": "The pig is pink.",
+    "examplePt": "O porco é rosa.",
+    "tip": "A farm animal that rolls in mud to cool down. Makes an 'oink' sound."
+  },
+  {
+    "en": "Chicken",
+    "pt": "Galinha / Frango",
+    "pronunciation": "tchíken",
+    "example": "I like fried chicken.",
+    "examplePt": "Eu gosto de frango frito.",
+    "tip": "The living animal and its meat share this same English word."
+  },
+  {
+    "en": "Duck",
+    "pt": "Pato",
+    "pronunciation": "dâk",
+    "example": "The duck is in the lake.",
+    "examplePt": "O pato está no lago.",
+    "tip": "A bird that swims and makes a 'quack' sound. Waddled when it walks."
+  },
+  {
+    "en": "Rabbit",
+    "pt": "Coelho",
+    "pronunciation": "rébit",
+    "example": "The rabbit is fast.",
+    "examplePt": "O coelho é rápido.",
+    "tip": "A fluffy animal with long ears that hops. The Easter mascot."
+  },
+  {
+    "en": "Lion",
+    "pt": "Leão",
+    "pronunciation": "láion",
+    "example": "The lion is strong.",
+    "examplePt": "O leão é forte.",
+    "tip": "Called the 'king of the jungle'. The male has a thick mane of hair."
+  },
+  {
+    "en": "Elephant",
+    "pt": "Elefante",
+    "pronunciation": "élefant",
+    "example": "The elephant is big.",
+    "examplePt": "O elefante é grande.",
+    "tip": "The largest land animal. Uses its long trunk to eat and drink water."
+  },
+  {
+    "en": "Monkey",
+    "pt": "Macaco",
+    "pronunciation": "mânki",
+    "example": "The monkey likes bananas.",
+    "examplePt": "O macaco gosta de bananas.",
+    "tip": "A primate that swings through trees. One of our closest animal relatives."
+  },
+  {
+    "en": "Bear",
+    "pt": "Urso",
+    "pronunciation": "bér",
+    "example": "The bear is big and strong.",
+    "examplePt": "O urso é grande e forte.",
+    "tip": "A large mammal that sleeps through winter (hibernation). 'Teddy ___' is a toy."
+  },
+  {
+    "en": "Snake",
+    "pt": "Cobra / Serpente",
+    "pronunciation": "snêik",
+    "example": "The snake is long.",
+    "examplePt": "A cobra é comprida.",
+    "tip": "An elongated, legless, carnivorous reptile distinguished by a flexible skull that permits the deglutition of large prey."
+  },
+  {
+    "en": "Frog",
+    "pt": "Sapo / Rã",
+    "pronunciation": "fróg",
+    "example": "The frog jumps high.",
+    "examplePt": "O sapo pula alto.",
+    "tip": "A tailless carnivorous amphibian characterized by a semi-permeable cutaneous membrane and saltatory locomotion."
+  },
+  {
+    "en": "Butterfly",
+    "pt": "Borboleta",
+    "pronunciation": "bâterflái",
+    "example": "The butterfly is beautiful.",
+    "examplePt": "A borboleta é bonita.",
+    "tip": "A holometabolous insect of the order Lepidoptera, emerging from a chrysalis with scale-covered, vividly pigmented wings."
+  },
+  {
+    "en": "Turtle",
+    "pt": "Tartaruga",
+    "pronunciation": "târtol",
+    "example": "The turtle is slow.",
+    "examplePt": "A tartaruga é lenta.",
+    "tip": "A reptile that carries its shell home on its back. Very, very slow."
+  },
+  {
+    "en": "Spider",
+    "pt": "Aranha",
+    "pronunciation": "spáider",
+    "example": "The spider built a web.",
+    "examplePt": "A aranha construiu uma teia.",
+    "tip": "An eight-legged predatory arthropod equipped with chelicerae that modify silk glands to weave geometric traps."
+  },
+  {
+    "en": "Bat",
+    "pt": "Morcego",
+    "pronunciation": "bét",
+    "example": "A bat flies at night.",
+    "examplePt": "Um morcego voa à noite.",
+    "tip": "The only extant mammal capable of sustained, powered flight, navigating nocturnal environments via acoustic echolocation."
+  },
+  {
+    "en": "Owl",
+    "pt": "Coruja",
+    "pronunciation": "ául",
+    "example": "An owl watches from the tree.",
+    "examplePt": "Uma coruja observa da árvore.",
+    "tip": "A nocturnal avian predator characterized by a facial disc, binocular vision, binaural hearing, and feathers adapted for silent flight."
+  },
+  {
+    "en": "Bee",
+    "pt": "Abelha",
+    "pronunciation": "bí",
+    "example": "The bee makes honey.",
+    "examplePt": "A abelha faz mel.",
+    "tip": "A flying insect known for eusocial behavior, responsible for cross-pollination and the synthesis of a commercial wax."
+  },
+  {
+    "en": "Ant",
+    "pt": "Formiga",
+    "pronunciation": "ént",
+    "example": "An ant works hard.",
+    "examplePt": "Uma formiga trabalha duro.",
+    "tip": "A colonial, highly organized insect belonging to the family Formicidae, capable of lifting mass vastly exceeding its own."
+  },
+  {
+    "en": "Chameleon",
+    "pt": "Camaleão",
+    "pronunciation": "camílion",
+    "example": "The chameleon changes color.",
+    "examplePt": "O camaleão muda de cor.",
+    "tip": "A specialized clade of lizards featuring zygodactylous feet, independently mobile eyes, and rapid physiological color change."
+  },
+  {
+    "en": "Rice",
+    "pt": "Arroz",
+    "pronunciation": "ráis",
+    "example": "I eat rice every day.",
+    "examplePt": "Eu como arroz todo dia.",
+    "tip": "A small white grain. The staple food of more than half the world's population."
+  },
+  {
+    "en": "Bread",
+    "pt": "Pão",
+    "pronunciation": "bréd",
+    "example": "I want bread with butter.",
+    "examplePt": "Eu quero pão com manteiga.",
+    "tip": "A baked food made from flour. Toast is a browned, crunchy version of it."
+  },
+  {
+    "en": "Egg",
+    "pt": "Ovo",
+    "pronunciation": "ég",
+    "example": "I eat eggs for breakfast.",
+    "examplePt": "Eu como ovos no café da manhã.",
+    "tip": "Comes from a bird. Can be fried, boiled, scrambled, or poached for breakfast."
+  },
+  {
+    "en": "Meat",
+    "pt": "Carne",
+    "pronunciation": "mít",
+    "example": "Do you like meat?",
+    "examplePt": "Você gosta de carne?",
+    "tip": "Sounds identical to 'meet' (to encounter someone). Be careful in writing!"
+  },
+  {
+    "en": "Pizza",
+    "pt": "Pizza",
+    "pronunciation": "pítsa",
+    "example": "I love pizza!",
+    "examplePt": "Eu amo pizza!",
+    "tip": "Spelled the same as in Portuguese! Originated in Italy. Round with toppings."
+  },
+  {
+    "en": "Apple",
+    "pt": "Maçã",
+    "pronunciation": "épol",
+    "example": "An apple a day keeps the doctor away.",
+    "examplePt": "Uma maçã por dia mantém o médico longe.",
+    "tip": "A round fruit that can be red or green. Has seeds inside. Grows on trees."
+  },
+  {
+    "en": "Banana",
+    "pt": "Banana",
+    "pronunciation": "banéna",
+    "example": "Monkeys like bananas.",
+    "examplePt": "Macacos gostam de bananas.",
+    "tip": "Spelled the same as in Portuguese! A yellow curved fruit. Monkeys love them."
+  },
+  {
+    "en": "Cheese",
+    "pt": "Queijo",
+    "pronunciation": "tchíz",
+    "example": "I like cheese on my sandwich.",
+    "examplePt": "Eu gosto de queijo no meu sanduíche.",
+    "tip": "Made from milk. Photographers say 'Say ___!' to make people smile."
+  },
+  {
+    "en": "Cake",
+    "pt": "Bolo",
+    "pronunciation": "kêik",
+    "example": "The cake is delicious.",
+    "examplePt": "O bolo é delicioso.",
+    "tip": "A sweet baked dessert. Served with candles on it at birthday parties."
+  },
+  {
+    "en": "Candy",
+    "pt": "Doce / Bala",
+    "pronunciation": "kéndi",
+    "example": "Kids love candy.",
+    "examplePt": "Crianças amam doces.",
+    "tip": "A small, sweet treat. Children collect it going door-to-door on Halloween."
+  },
+  {
+    "en": "Fruit",
+    "pt": "Fruta",
+    "pronunciation": "frút",
+    "example": "Eat more fruit.",
+    "examplePt": "Coma mais frutas.",
+    "tip": "A natural sweet food that grows on trees or plants. Usually contains seeds."
+  },
+  {
+    "en": "Salad",
+    "pt": "Salada",
+    "pronunciation": "séled",
+    "example": "I want a salad, please.",
+    "examplePt": "Eu quero uma salada, por favor.",
+    "tip": "A cold dish made with raw vegetables. Often served with dressing on top."
+  },
+  {
+    "en": "Soup",
+    "pt": "Sopa",
+    "pronunciation": "súp",
+    "example": "The soup is hot.",
+    "examplePt": "A sopa está quente.",
+    "tip": "A warm liquid food cooked in a pot. Often eaten when sick or cold outside."
+  },
+  {
+    "en": "Sandwich",
+    "pt": "Sanduíche",
+    "pronunciation": "sénduitch",
+    "example": "I made a sandwich.",
+    "examplePt": "Eu fiz um sanduíche.",
+    "tip": "Two slices of bread with a filling between them. Named after an English earl."
+  },
+  {
+    "en": "Ice cream",
+    "pt": "Sorvete",
+    "pronunciation": "áis crim",
+    "example": "I want chocolate ice cream.",
+    "examplePt": "Eu quero sorvete de chocolate.",
+    "tip": "A frozen sweet treat. Made with milk and sugar. Melts fast in hot weather."
+  },
+  {
+    "en": "Water",
+    "pt": "Água",
+    "pronunciation": "uóter",
+    "example": "I need water.",
+    "examplePt": "Eu preciso de água.",
+    "tip": "The most essential drink. Covers 71% of the Earth's surface."
+  },
+  {
+    "en": "Milk",
+    "pt": "Leite",
+    "pronunciation": "mílk",
+    "example": "I drink milk every morning.",
+    "examplePt": "Eu bebo leite toda manhã.",
+    "tip": "A white drink produced by mammals. Used to make cheese, butter, and yogurt."
+  },
+  {
+    "en": "Coffee",
+    "pt": "Café",
+    "pronunciation": "cófi",
+    "example": "I want coffee, please.",
+    "examplePt": "Eu quero café, por favor.",
+    "tip": "A hot drink made from roasted beans. Contains caffeine. Very popular worldwide."
+  },
+  {
+    "en": "Tea",
+    "pt": "Chá",
+    "pronunciation": "tí",
+    "example": "Do you want tea?",
+    "examplePt": "Você quer chá?",
+    "tip": "A hot drink made by soaking leaves in hot water. Very popular in England."
+  },
+  {
+    "en": "Juice",
+    "pt": "Suco",
+    "pronunciation": "djús",
+    "example": "Orange juice is my favorite.",
+    "examplePt": "Suco de laranja é meu favorito.",
+    "tip": "A drink made by squeezing fruit. Orange ___ is the most popular kind."
+  },
+  {
+    "en": "Soda",
+    "pt": "Refrigerante",
+    "pronunciation": "sôuda",
+    "example": "I don't drink soda.",
+    "examplePt": "Eu não bebo refrigerante.",
+    "tip": "A sweet, fizzy drink. Also called 'pop' in parts of the USA."
+  },
+  {
+    "en": "Mother",
+    "pt": "Mãe",
+    "pronunciation": "mâder",
+    "example": "My mother is beautiful.",
+    "examplePt": "Minha mãe é bonita.",
+    "tip": "The informal version is 'mom'. The woman who raised you."
+  },
+  {
+    "en": "Father",
+    "pt": "Pai",
+    "pronunciation": "fáder",
+    "example": "My father works a lot.",
+    "examplePt": "Meu pai trabalha muito.",
+    "tip": "The informal version is 'dad'. The male parent in your family."
+  },
+  {
+    "en": "Brother",
+    "pt": "Irmão",
+    "pronunciation": "bráder",
+    "example": "I have one brother.",
+    "examplePt": "Eu tenho um irmão.",
+    "tip": "A male sibling. Someone who grew up in the same house with the same parents."
+  },
+  {
+    "en": "Sister",
+    "pt": "Irmã",
+    "pronunciation": "síster",
+    "example": "My sister is ten years old.",
+    "examplePt": "Minha irmã tem dez anos.",
+    "tip": "A female sibling. Someone who grew up in the same house with the same parents."
+  },
+  {
+    "en": "Son",
+    "pt": "Filho",
+    "pronunciation": "sân",
+    "example": "He is my son.",
+    "examplePt": "Ele é meu filho.",
+    "tip": "Sounds exactly like 'sun' (the star in the sky). Your male child."
+  },
+  {
+    "en": "Daughter",
+    "pt": "Filha",
+    "pronunciation": "dóter",
+    "example": "She is my daughter.",
+    "examplePt": "Ela é minha filha.",
+    "tip": "The 'gh' is completely silent. Your female child."
+  },
+  {
+    "en": "Baby",
+    "pt": "Bebê",
+    "pronunciation": "bêibi",
+    "example": "The baby is sleeping.",
+    "examplePt": "O bebê está dormindo.",
+    "tip": "A very young child who cannot walk or talk yet. Cries a lot and needs milk."
+  },
+  {
+    "en": "Family",
+    "pt": "Família",
+    "pronunciation": "fémili",
+    "example": "I love my family.",
+    "examplePt": "Eu amo minha família.",
+    "tip": "A group of people related by blood or marriage. Your closest circle."
+  },
+  {
+    "en": "Grandmother",
+    "pt": "Avó",
+    "pronunciation": "grénmader",
+    "example": "My grandmother makes great cake.",
+    "examplePt": "Minha avó faz ótimo bolo.",
+    "tip": "Informal: 'grandma'. Your mother's or father's mother."
+  },
+  {
+    "en": "Grandfather",
+    "pt": "Avô",
+    "pronunciation": "gréndfader",
+    "example": "My grandfather is 80 years old.",
+    "examplePt": "Meu avô tem 80 anos.",
+    "tip": "Informal: 'grandpa'. Your mother's or father's father."
+  },
+  {
+    "en": "Husband",
+    "pt": "Marido",
+    "pronunciation": "râzbend",
+    "example": "She loves her husband.",
+    "examplePt": "Ela ama seu marido.",
+    "tip": "The male partner in a marriage. The opposite of 'wife'."
+  },
+  {
+    "en": "Wife",
+    "pt": "Esposa",
+    "pronunciation": "uáif",
+    "example": "He loves his wife.",
+    "examplePt": "Ele ama sua esposa.",
+    "tip": "The female partner in a marriage. The opposite of 'husband'."
+  },
+  {
+    "en": "Uncle",
+    "pt": "Tio",
+    "pronunciation": "ânkol",
+    "example": "My uncle lives in São Paulo.",
+    "examplePt": "Meu tio mora em São Paulo.",
+    "tip": "Your parent's brother, or your aunt's husband."
+  },
+  {
+    "en": "Aunt",
+    "pt": "Tia",
+    "pronunciation": "ént",
+    "example": "My aunt is a teacher.",
+    "examplePt": "Minha tia é professora.",
+    "tip": "Your parent's sister, or your uncle's wife. Sometimes spelled 'auntie' informally."
+  },
+  {
+    "en": "Cousin",
+    "pt": "Primo(a)",
+    "pronunciation": "câzin",
+    "example": "My cousin is my best friend.",
+    "examplePt": "Meu(minha) primo(a) é meu(minha) melhor amigo(a).",
+    "tip": "The child of your uncle or aunt. Not a sibling, but still family!"
+  },
+  {
+    "en": "House",
+    "pt": "Casa",
+    "pronunciation": "ráus",
+    "example": "I live in a big house.",
+    "examplePt": "Eu moro em uma casa grande.",
+    "tip": "A building where people live. Different from 'home', which is more emotional."
+  },
+  {
+    "en": "Door",
+    "pt": "Porta",
+    "pronunciation": "dór",
+    "example": "Please close the door.",
+    "examplePt": "Por favor, feche a porta.",
+    "tip": "A hinged, sliding, or revolving barrier used to seal an aperture in a wall, regulating the physical passage between discrete spatial zones."
+  },
+  {
+    "en": "Window",
+    "pt": "Janela",
+    "pronunciation": "uíndou",
+    "example": "Open the window.",
+    "examplePt": "Abra a janela.",
+    "tip": "An architectural aperture lined with a transparent medium to allow the ingress of ambient electromagnetic radiation while preventing thermal exchange."
+  },
+  {
+    "en": "Kitchen",
+    "pt": "Cozinha",
+    "pronunciation": "kítchen",
+    "example": "I cook in the kitchen.",
+    "examplePt": "Eu cozinho na cozinha.",
+    "tip": "A specialized architectural zone equipped with thermal appliances designed for the chemical transformation and preparation of organic matter for consumption."
+  },
+  {
+    "en": "Bedroom",
+    "pt": "Quarto",
+    "pronunciation": "bédrum",
+    "example": "My bedroom is clean.",
+    "examplePt": "Meu quarto está limpo.",
+    "tip": "Made of two words: 'bed' + 'room'. The room where you sleep."
+  },
+  {
+    "en": "Bathroom",
+    "pt": "Banheiro",
+    "pronunciation": "béthrum",
+    "example": "Where is the bathroom?",
+    "examplePt": "Onde fica o banheiro?",
+    "tip": "Has a shower, sink, and toilet. In public places it is called 'restroom'."
+  },
+  {
+    "en": "Table",
+    "pt": "Mesa",
+    "pronunciation": "têibol",
+    "example": "The book is on the table.",
+    "examplePt": "O livro está na mesa.",
+    "tip": "A flat piece of furniture with legs. Used for eating, working, or studying."
+  },
+  {
+    "en": "Chair",
+    "pt": "Cadeira",
+    "pronunciation": "tchér",
+    "example": "Please sit on the chair.",
+    "examplePt": "Por favor, sente na cadeira.",
+    "tip": "A raised furniture unit designed to support a singular human body in a seated position, typically featuring a backrest and four structural pillars."
+  },
+  {
+    "en": "Bed",
+    "pt": "Cama",
+    "pronunciation": "béd",
+    "example": "I go to bed at ten.",
+    "examplePt": "Eu vou para a cama às dez.",
+    "tip": "A piece of furniture featuring a horizontal, padded substrate engineered to support a human body in a recumbent position during states of altered consciousness."
+  },
+  {
+    "en": "Sofa",
+    "pt": "Sofá",
+    "pronunciation": "sôufa",
+    "example": "I sit on the sofa.",
+    "examplePt": "Eu sento no sofá.",
+    "tip": "A large, comfortable seat for two or more people. Also called 'couch'."
+  },
+  {
+    "en": "TV",
+    "pt": "TV / Televisão",
+    "pronunciation": "tí ví",
+    "example": "I watch TV at night.",
+    "examplePt": "Eu assisto TV à noite.",
+    "tip": "Short for 'television'. The screen in the living room that shows movies and shows."
+  },
+  {
+    "en": "Clock",
+    "pt": "Relógio",
+    "pronunciation": "clók",
+    "example": "Look at the clock.",
+    "examplePt": "Olhe o relógio.",
+    "tip": "A device that shows the time. Hangs on the wall. A 'watch' is worn on the wrist."
+  },
+  {
+    "en": "Key",
+    "pt": "Chave",
+    "pronunciation": "kí",
+    "example": "Where is my key?",
+    "examplePt": "Onde está minha chave?",
+    "tip": "A precisely patterned or encoded token configured to align internal mechanical tumblers, thereby granting access or bypassing a security perimeter."
+  },
+  {
+    "en": "Lamp",
+    "pt": "Lâmpada / Abajur",
+    "pronunciation": "lémp",
+    "example": "Turn on the lamp.",
+    "examplePt": "Ligue a lâmpada.",
+    "tip": "A portable light source. In the story of Aladdin, a magic one had a genie inside."
+  },
+  {
+    "en": "Garden",
+    "pt": "Jardim",
+    "pronunciation": "gárden",
+    "example": "I have a beautiful garden.",
+    "examplePt": "Eu tenho um jardim bonito.",
+    "tip": "An outdoor area with plants, flowers, and grass. Common behind houses."
+  },
+  {
+    "en": "Roof",
+    "pt": "Telhado",
+    "pronunciation": "rúf",
+    "example": "Rain falls on the roof.",
+    "examplePt": "A chuva cai no telhado.",
+    "tip": "The uppermost structural covering of a building, engineered to withstand gravitational loads and deflect atmospheric precipitation away from the interior."
+  },
+  {
+    "en": "Wall",
+    "pt": "Parede / Muro",
+    "pronunciation": "uól",
+    "example": "Hang a picture on the wall.",
+    "examplePt": "Pendure um quadro na parede.",
+    "tip": "A continuous vertical structural element designed to delineate boundaries, bear structural loads, and divide an architectural space into distinct zones."
+  },
+  {
+    "en": "Staircase",
+    "pt": "Escadaria / Escada",
+    "pronunciation": "stércêis",
+    "example": "Walk up the staircase.",
+    "examplePt": "Suba pela escadaria.",
+    "tip": "A series of sequential vertical steps designed to facilitate bipedal locomotion between different elevations within an architectural matrix."
+  },
+  {
+    "en": "Hammer",
+    "pt": "Martelo",
+    "pronunciation": "rémer",
+    "example": "Strike with a hammer.",
+    "examplePt": "Bata com um martelo.",
+    "tip": "A handheld mechanical lever consisting of a heavy, hardened head attached perpendicularly to a handle, designed to deliver high-velocity kinetic impact."
+  },
+  {
+    "en": "Knife",
+    "pt": "Faca",
+    "pronunciation": "náif",
+    "example": "Cut with a knife.",
+    "examplePt": "Corte com uma faca.",
+    "tip": "A cutting instrument featuring a sharpened metallic edge or blade attached to a handle, utilizing concentrated pressure to sever molecular bonds in a substrate."
+  },
+  {
+    "en": "Needle",
+    "pt": "Agulha",
+    "pronunciation": "nídol",
+    "example": "Sew with a needle.",
+    "examplePt": "Costure com uma agulha.",
+    "tip": "A slender, elongated, and highly pointed instrument made of a rigid material, featuring an aperture at one end to guide a flexible filament through fabrics."
+  },
+  {
+    "en": "Scissors",
+    "pt": "Tesoura",
+    "pronunciation": "sízors",
+    "example": "Trim with scissors.",
+    "examplePt": "Apare com uma tesoura.",
+    "tip": "A dual-lever cutting tool operating on a central pivot, utilizing shearing forces where two opposing blades slide past one another to sever materials."
+  },
+  {
+    "en": "Ladder",
+    "pt": "Escada de mão",
+    "pronunciation": "léder",
+    "example": "Climb the ladder.",
+    "examplePt": "Suba a escada de mão.",
+    "tip": "A vertical or inclined structure consisting of two parallel stiles joined by a series of horizontal rungs, enabling bipedal ascent across gravitational planes."
+  },
+  {
+    "en": "Spoon",
+    "pt": "Colher",
+    "pronunciation": "spún",
+    "example": "Eat with a spoon.",
+    "examplePt": "Coma com uma colher.",
+    "tip": "A culinary utensil featuring a shallow, concave oval receptacle attached to a handle, optimized for the displacement and ingestion of fluids or loose particulates."
+  },
+  {
+    "en": "Lock",
+    "pt": "Fechadura / Cadeado",
+    "pronunciation": "lók",
+    "example": "Secure the lock.",
+    "examplePt": "Tranque o cadeado.",
+    "tip": "A mechanical or electronic fastening mechanism that restricts access to an enclosure until a matching cryptographic or physical token is introduced."
+  },
+  {
+    "en": "Drawing compass",
+    "pt": "Compasso",
+    "pronunciation": "dróin cômpas",
+    "example": "Draw with a drawing compass.",
+    "examplePt": "Desenhe com um compasso.",
+    "tip": "A technical drawing instrument consisting of two articulated legs, used for inscribing precise circles or measuring spatial distances on a two-dimensional surface."
+  },
+  {
+    "en": "Ball",
+    "pt": "Bola",
+    "pronunciation": "ból",
+    "example": "Kick the ball.",
+    "examplePt": "Chute a bola.",
+    "tip": "A perfectly spherical or oblate spheroidal projectile engineered to optimize aerodynamic trajectory and elastic bounce during athletic contests."
+  },
+  {
+    "en": "Chess",
+    "pt": "Xadrez",
+    "pronunciation": "tchés",
+    "example": "Play chess.",
+    "examplePt": "Jogue xadrez.",
+    "tip": "An abstract, zero-sum board game played on an 8x8 checkered grid, simulating asymmetrical military combat with perfect information."
+  },
+  {
+    "en": "Goal",
+    "pt": "Gol / Meta",
+    "pronunciation": "gôul",
+    "example": "Score a goal.",
+    "examplePt": "Marque um gol.",
+    "tip": "A delimited architectural frame or target zone that an athletic cohort must breach with a projectile to register a score against an opposing faction."
+  },
+  {
+    "en": "Dice",
+    "pt": "Dados",
+    "pronunciation": "dáis",
+    "example": "Roll the dice.",
+    "examplePt": "Jogue os dados.",
+    "tip": "Polyhedral generators of statistical randomness, featuring numbered facets used to introduce stochastic probability into ludic systems."
+  },
+  {
+    "en": "Whistle",
+    "pt": "Apito",
+    "pronunciation": "uíssol",
+    "example": "Blow the whistle.",
+    "examplePt": "Apite o apito.",
+    "tip": "A small aerodynamic instrument that converts high-velocity lung exhalation into a high-frequency acoustic wave to enforce regulatory authority."
+  },
+  {
+    "en": "Champion",
+    "pt": "Campeão",
+    "pronunciation": "tchémpion",
+    "example": "The true champion.",
+    "examplePt": "O verdadeiro campeão.",
+    "tip": "The singular individual or collective entity that achieves total supremacy within a competitive hierarchy by eliminating all rival contenders."
+  },
+  {
+    "en": "Running",
+    "pt": "Corrida",
+    "pronunciation": "râning",
+    "example": "Go for a running session.",
+    "examplePt": "Vá para uma sessão de corrida.",
+    "tip": "A method of terrestrial locomotion characterized by a regular, alternating gait cycle where both feet are simultaneously airborne for a brief phase."
+  },
+  {
+    "en": "Swimming",
+    "pt": "Natação",
+    "pronunciation": "suíming",
+    "example": "Enjoy swimming.",
+    "examplePt": "Aproveite a natação.",
+    "tip": "The self-propulsion of a biological organism through a fluid medium, utilizing coordinated appendicular movements to overcome hydrodynamic drag."
+  },
+  {
+    "en": "Team",
+    "pt": "Time / Equipe",
+    "pronunciation": "tím",
+    "example": "Work as a team.",
+    "examplePt": "Trabalhe como uma equipe.",
+    "tip": "A synergistic collective of individual agents bound by tactical interdependence to achieve a unified objective against a common adversary."
+  },
+  {
+    "en": "Card",
+    "pt": "Carta / Cartão",
+    "pronunciation": "cárd",
+    "example": "Draw a red card.",
+    "examplePt": "Tire um cartão vermelho.",
+    "tip": "A rectangular piece of laminated paperboard or plastic bearing symbolic signifiers, used for strategic gaming or administering disciplinary warnings."
+  },
+  {
+    "en": "Thief",
+    "pt": "Ladrão",
+    "pronunciation": "thíf",
+    "example": "Catch the thief.",
+    "examplePt": "Pegue o ladrão.",
+    "tip": "An opportunistic or calculated agent who illicitly expropriates the personal property of another entity without their consent or awareness."
+  },
+  {
+    "en": "Poison",
+    "pt": "Veneno",
+    "pronunciation": "póizon",
+    "example": "Lethal poison.",
+    "examplePt": "Veneno letal.",
+    "tip": "A chemically hazardous substance that induces severe physiological disruption, cellular lysis, or systemic mortality when introduced into an organism."
+  },
+  {
+    "en": "Weapon",
+    "pt": "Arma",
+    "pronunciation": "uépon",
+    "example": "Conceal a weapon.",
+    "examplePt": "Esconder uma arma.",
+    "tip": "An implement designed to amplify kinetic, chemical, or thermal energy delivery to inflict physical trauma or structural incapacitation on a target."
+  },
+  {
+    "en": "Prison",
+    "pt": "Prisão",
+    "pronunciation": "prízon",
+    "example": "Locked in prison.",
+    "examplePt": "Trancado na prisão.",
+    "tip": "An institutional facility designed to restrict spatial mobility and exercise disciplinary surveillance over individuals convicted of statutory violations."
+  },
+  {
+    "en": "Clue",
+    "pt": "Pista / Indício",
+    "pronunciation": "clú",
+    "example": "Find the missing clue.",
+    "examplePt": "Encontre a pista que falta.",
+    "tip": "A residual forensic artifact or epistemological trace that narrows a probability matrix, guiding investigators toward a latent truth."
+  },
+  {
+    "en": "Alibi",
+    "pt": "Álibi",
+    "pronunciation": "élibai",
+    "example": "Verify his alibi.",
+    "examplePt": "Verifique o álibi dele.",
+    "tip": "A forensic defense strategy demonstrating that an individual was positioned at a different set of spatial coordinates during the commission of an offense."
+  },
+  {
+    "en": "Fingerprint",
+    "pt": "Impressão digital",
+    "pronunciation": "fíngerprint",
+    "example": "Scan the fingerprint.",
+    "examplePt": "Escaneie a impressão digital.",
+    "tip": "The friction ridge detailing on a manual digit, leaving a highly unique, immutable biometric signature upon contact with a surface."
+  },
+  {
+    "en": "Murder",
+    "pt": "Assassinato",
+    "pronunciation": "mârder",
+    "example": "Investigate a murder.",
+    "examplePt": "Investigue um assassinato.",
+    "tip": "The unlawful, premeditated termination of one human being's biological life functions by the direct agency of another."
+  },
+  {
+    "en": "Witness",
+    "pt": "Testemunha",
+    "pronunciation": "uítnes",
+    "example": "Question the witness.",
+    "examplePt": "Interrogue a testemunha.",
+    "tip": "An individual who personally perceives an occurrence via ocular or auditory senses and subsequently delivers a forensic deposition regarding the event."
+  },
+  {
+    "en": "Trap",
+    "pt": "Armadilha",
+    "pronunciation": "trép",
+    "example": "Set up a trap.",
+    "examplePt": "Arme uma armadilha.",
+    "tip": "A concealed mechanical or psychological configuration engineered to exploit an agent's behavioral predictability to restrict their mobility."
+  },
+  {
+    "en": "Paint",
+    "pt": "Tinta / Pintura",
+    "pronunciation": "pêint",
+    "example": "Fresh paint dries.",
+    "examplePt": "Tinta fresca seca.",
+    "tip": "A pigmented liquid or liquefiable composition that converts into a solid, opaque film after application to a substrate, preserving visual data."
+  },
+  {
+    "en": "Theater",
+    "pt": "Teatro",
+    "pronunciation": "thíater",
+    "example": "Go to the theater.",
+    "examplePt": "Vá ao teatro.",
+    "tip": "An architectural space where live actors engage in simulated narratives, projecting artistic representations to a synchronized audience."
+  },
+  {
+    "en": "Poem",
+    "pt": "Poema",
+    "pronunciation": "pôuem",
+    "example": "Write a poem.",
+    "examplePt": "Escreva um poema.",
+    "tip": "A structured linguistic composition that prioritizes phonetic meter, acoustic cadence, and dense metaphorical imagery over literal semantic delivery."
+  },
+  {
+    "en": "Radio",
+    "pt": "Rádio",
+    "pronunciation": "rêidiou",
+    "example": "Turn on radio.",
+    "examplePt": "Ligue o rádio.",
+    "tip": "The technology of signaling and communicating using modulated electromagnetic waves within a specific low-frequency spectrum."
+  },
+  {
+    "en": "Sculpture",
+    "pt": "Escultura",
+    "pronunciation": "scâlptcher",
+    "example": "Carve a sculpture.",
+    "examplePt": "Esculpa uma escultura.",
+    "tip": "A three-dimensional artistic expression rendered by subtracting material from a rigid block or modeling a plastic medium."
+  },
+  {
+    "en": "Dance",
+    "pt": "Dança",
+    "pronunciation": "déns",
+    "example": "Enjoy the dance.",
+    "examplePt": "Aproveite a dança.",
+    "tip": "The systematic, rhythmic movement of the human anatomy through spatial dimensions, typically synchronized with acoustic frequencies."
+  },
+  {
+    "en": "Letter",
+    "pt": "Carta / Letra",
+    "pronunciation": "léter",
+    "example": "Mail a letter.",
+    "examplePt": "Envie uma carta.",
+    "tip": "A singular graphemic character within an alphabetic system, or an asynchronous text communication sent across physical distances."
+  },
+  {
+    "en": "School",
+    "pt": "Escola",
+    "pronunciation": "skúl",
+    "example": "I go to school every day.",
+    "examplePt": "Eu vou à escola todo dia.",
+    "tip": "An institutional facility designed to systematically inoculate a cohort of individuals with academic curricula and socio-cultural paradigms."
+  },
+  {
+    "en": "Teacher",
+    "pt": "Professor(a)",
+    "pronunciation": "títcher",
+    "example": "My teacher is nice.",
+    "examplePt": "Meu(minha) professor(a) é legal.",
+    "tip": "The person who explains lessons and evaluates students in a classroom."
+  },
+  {
+    "en": "Student",
+    "pt": "Estudante / Aluno(a)",
+    "pronunciation": "stiúdent",
+    "example": "I am a student.",
+    "examplePt": "Eu sou um(a) estudante.",
+    "tip": "A person who studies. If you are using this app, that is you!"
+  },
+  {
+    "en": "Book",
+    "pt": "Livro",
+    "pronunciation": "búk",
+    "example": "I read a book every week.",
+    "examplePt": "Eu leio um livro toda semana.",
+    "tip": "A portable chronological repository of graphemic symbols bound along a singular edge, acting as a historical external memory drive."
+  },
+  {
+    "en": "Pen",
+    "pt": "Caneta",
+    "pronunciation": "pén",
+    "example": "Give me a pen, please.",
+    "examplePt": "Me dê uma caneta, por favor.",
+    "tip": "A handheld device engineered to apply a fluid, pigment-rich ink onto a surface through a rolling mechanism or a capillary nib to leave a permanent graphemic record."
+  },
+  {
+    "en": "Pencil",
+    "pt": "Lápis",
+    "pronunciation": "pénsol",
+    "example": "I need a pencil.",
+    "examplePt": "Eu preciso de um lápis.",
+    "tip": "A writing tool with a gray graphite core. Can be erased with a rubber."
+  },
+  {
+    "en": "Paper",
+    "pt": "Papel",
+    "pronunciation": "pêiper",
+    "example": "Write on the paper.",
+    "examplePt": "Escreva no papel.",
+    "tip": "A thin, versatile web material synthesized by pressing together damp cellulose fibers derived from macerated vegetative matter."
+  },
+  {
+    "en": "Notebook",
+    "pt": "Caderno",
+    "pronunciation": "nôutbuk",
+    "example": "Open your notebook.",
+    "examplePt": "Abra seu caderno.",
+    "tip": "Made of two words: 'note' + 'book'. Many blank pages for writing notes."
+  },
+  {
+    "en": "Classroom",
+    "pt": "Sala de aula",
+    "pronunciation": "cléssrum",
+    "example": "The classroom is big.",
+    "examplePt": "A sala de aula é grande.",
+    "tip": "Made of two words: 'class' + 'room'. Where lessons take place at school."
+  },
+  {
+    "en": "Homework",
+    "pt": "Lição de casa",
+    "pronunciation": "hôum-uôrk",
+    "example": "I need to do my homework.",
+    "examplePt": "Eu preciso fazer minha lição de casa.",
+    "tip": "Made of two words: 'home' + 'work'. School tasks done outside of class."
+  },
+  {
+    "en": "Test",
+    "pt": "Prova / Teste",
+    "pronunciation": "tést",
+    "example": "I have a test tomorrow.",
+    "examplePt": "Eu tenho uma prova amanhã.",
+    "tip": "An evaluation that measures how much you know. Can make students nervous!"
+  },
+  {
+    "en": "Computer",
+    "pt": "Computador",
+    "pronunciation": "compiúter",
+    "example": "I use the computer.",
+    "examplePt": "Eu uso o computador.",
+    "tip": "An electronic machine that processes information. A 'laptop' is the portable version."
+  },
+  {
+    "en": "Work",
+    "pt": "Trabalho / Trabalhar",
+    "pronunciation": "uôrk",
+    "example": "I work from Monday to Friday.",
+    "examplePt": "Eu trabalho de segunda a sexta.",
+    "tip": "Can be a noun ('I have work to do') or a verb ('I work every day'). Very flexible!"
+  },
+  {
+    "en": "Office",
+    "pt": "Escritório",
+    "pronunciation": "ófis",
+    "example": "I go to the office every day.",
+    "examplePt": "Eu vou ao escritório todo dia.",
+    "tip": "A room or building where professional work happens. Has desks and computers."
+  },
+  {
+    "en": "Boss",
+    "pt": "Chefe",
+    "pronunciation": "bós",
+    "example": "My boss is friendly.",
+    "examplePt": "Meu chefe é amigável.",
+    "tip": "The person in charge at work. Everyone reports to this person."
+  },
+  {
+    "en": "Job",
+    "pt": "Emprego",
+    "pronunciation": "djób",
+    "example": "I have a good job.",
+    "examplePt": "Eu tenho um bom emprego.",
+    "tip": "A paid occupation. 'What is your ___?' is a common question when meeting someone."
+  },
+  {
+    "en": "Money",
+    "pt": "Dinheiro",
+    "pronunciation": "mâni",
+    "example": "I need to save money.",
+    "examplePt": "Eu preciso economizar dinheiro.",
+    "tip": "A collective cognitive illusion and medium of exchange that holds value only because a social matrix mutually agrees to its utility."
+  },
+  {
+    "en": "Meeting",
+    "pt": "Reunião",
+    "pronunciation": "míting",
+    "example": "I have a meeting at two.",
+    "examplePt": "Eu tenho uma reunião às duas.",
+    "tip": "A gathering where people discuss topics together. Very common in offices."
+  },
+  {
+    "en": "Phone",
+    "pt": "Telefone / Celular",
+    "pronunciation": "fôun",
+    "example": "Where is my phone?",
+    "examplePt": "Onde está meu celular?",
+    "tip": "A device for communication. A 'smartphone' is the modern pocket version."
+  },
+  {
+    "en": "Email",
+    "pt": "E-mail",
+    "pronunciation": "ímeiol",
+    "example": "I will send you an email.",
+    "examplePt": "Eu vou te enviar um e-mail.",
+    "tip": "An electronic message sent over the internet. Has largely replaced paper letters."
+  },
+  {
+    "en": "Shirt",
+    "pt": "Camisa",
+    "pronunciation": "chârt",
+    "example": "I like your shirt.",
+    "examplePt": "Eu gosto da sua camisa.",
+    "tip": "A garment for the upper body. A formal version has buttons. Often worn with a tie."
+  },
+  {
+    "en": "Pants",
+    "pt": "Calça",
+    "pronunciation": "pénts",
+    "example": "I need new pants.",
+    "examplePt": "Eu preciso de uma calça nova.",
+    "tip": "A garment that covers both legs. Called 'trousers' in British English."
+  },
+  {
+    "en": "Shoes",
+    "pt": "Sapatos",
+    "pronunciation": "chúz",
+    "example": "Where are my shoes?",
+    "examplePt": "Onde estão meus sapatos?",
+    "tip": "Foot coverings worn outside. Always come in pairs. You lace them up."
+  },
+  {
+    "en": "Shoe",
+    "pt": "Sapato",
+    "pronunciation": "chú",
+    "example": "Put on your shoe.",
+    "examplePt": "Coloque seu sapato.",
+    "tip": "A protective, durable covering for the human foot, featuring a rigid or semi-flexible sole to absorb kinetic impact from the terrain."
+  },
+  {
+    "en": "Hat",
+    "pt": "Chapéu",
+    "pronunciation": "rét",
+    "example": "Wear a hat in the sun.",
+    "examplePt": "Use um chapéu no sol.",
+    "tip": "A head covering shaped with a crown and a brim, serving the dual purpose of shielding the cranial region from solar radiation and projecting social status."
+  },
+  {
+    "en": "Dress",
+    "pt": "Vestido",
+    "pronunciation": "drés",
+    "example": "She is wearing a beautiful dress.",
+    "examplePt": "Ela está usando um vestido bonito.",
+    "tip": "A one-piece outfit worn by women that covers the top and bottom together."
+  },
+  {
+    "en": "Jacket",
+    "pt": "Jaqueta / Casaco",
+    "pronunciation": "djéket",
+    "example": "It's cold, wear a jacket.",
+    "examplePt": "Está frio, use uma jaqueta.",
+    "tip": "An outer garment worn over other clothes for warmth on cold days."
+  },
+  {
+    "en": "Socks",
+    "pt": "Meias",
+    "pronunciation": "sóks",
+    "example": "I need clean socks.",
+    "examplePt": "Eu preciso de meias limpas.",
+    "tip": "Soft fabric worn on feet inside shoes. Always sold in pairs."
+  },
+  {
+    "en": "Ring",
+    "pt": "Anel",
+    "pronunciation": "ríng",
+    "example": "She wears a silver ring.",
+    "examplePt": "Ela usa um anel de prata.",
+    "tip": "A circular, toroidal band typically forged from precious metal, worn on a digit to symbolize marital allegiance, status, or esoteric affiliation."
+  },
+  {
+    "en": "Mask",
+    "pt": "Máscara",
+    "pronunciation": "mésk",
+    "example": "Put on a face mask.",
+    "examplePt": "Coloque uma máscara facial.",
+    "tip": "A facial covering designed to conceal the wearer's identity, block respiratory pathogens, or assume an alternative theatrical persona."
+  },
+  {
+    "en": "Belt",
+    "pt": "Cinto",
+    "pronunciation": "bélt",
+    "example": "Fasten your leather belt.",
+    "examplePt": "Aperte seu cinto de couro.",
+    "tip": "A flexible band or strap, usually made of leather or woven fabric, worn around the waist to secure garments against gravitational displacement."
+  },
+  {
+    "en": "Mirror",
+    "pt": "Espelho",
+    "pronunciation": "míror",
+    "example": "Look in the mirror.",
+    "examplePt": "Olhe no espelho.",
+    "tip": "An object that tells the exact truth about what it sees, yet can only communicate it by completely reversing the spatial perspective."
+  },
+  {
+    "en": "Watch",
+    "pt": "Relógio de pulso",
+    "pronunciation": "uótch",
+    "example": "Check your wrist watch.",
+    "examplePt": "Olhe seu relógio de pulso.",
+    "tip": "A portable chronometer designed to be worn on a wrist, tracking the passage of the fourth dimension via micro-oscillations."
+  },
+  {
+    "en": "Clothes",
+    "pt": "Roupas / Vestuário",
+    "pronunciation": "clôuths",
+    "example": "Fold your clean clothes.",
+    "examplePt": "Dobre suas roupas limpas.",
+    "tip": "An array of synthetic or organic textiles worn on the body to provide thermal insulation, physical protection, and adhere to cultural modesty paradigms."
+  },
+  {
+    "en": "Glove",
+    "pt": "Luva",
+    "pronunciation": "glâv",
+    "example": "Wear warm gloves.",
+    "examplePt": "Use luvas quentes.",
+    "tip": "A fitted sheath for the hand, featuring individual chambers for digits to insulate or protect the manual extremity without fully compromising dexterity."
+  },
+  {
+    "en": "Pocket",
+    "pt": "Bolso",
+    "pronunciation": "póket",
+    "example": "Put it in your pocket.",
+    "examplePt": "Coloque no seu bolso.",
+    "tip": "A small, pouch-like fabric compartment integrated into a garment, serving as a built-in receptacle for carrying small, personal objects."
+  },
+  {
+    "en": "Head",
+    "pt": "Cabeça",
+    "pronunciation": "réd",
+    "example": "My head hurts.",
+    "examplePt": "Minha cabeça dói.",
+    "tip": "The top part of the body where the brain, face, and hair are located."
+  },
+  {
+    "en": "Eye",
+    "pt": "Olho",
+    "pronunciation": "ái",
+    "example": "She has blue eyes.",
+    "examplePt": "Ela tem olhos azuis.",
+    "tip": "A spherical sensory organ that detects electromagnetic radiation within the visible spectrum to initiate neural phototransduction."
+  },
+  {
+    "en": "Ear",
+    "pt": "Orelha / Ouvido",
+    "pronunciation": "ír",
+    "example": "I hear with my ears.",
+    "examplePt": "Eu ouço com meus ouvidos.",
+    "tip": "The organ used for hearing sounds. Also helps with balance."
+  },
+  {
+    "en": "Nose",
+    "pt": "Nariz",
+    "pronunciation": "nôuz",
+    "example": "My nose is cold.",
+    "examplePt": "Meu nariz está frio.",
+    "tip": "The organ for smelling and breathing. Located at the center of the face."
+  },
+  {
+    "en": "Mouth",
+    "pt": "Boca",
+    "pronunciation": "máuth",
+    "example": "Open your mouth.",
+    "examplePt": "Abra sua boca.",
+    "tip": "Used for eating, drinking, and speaking. Contains teeth and a tongue."
+  },
+  {
+    "en": "Hand",
+    "pt": "Mão",
+    "pronunciation": "rénd",
+    "example": "Wash your hands.",
+    "examplePt": "Lave suas mãos.",
+    "tip": "Has five fingers. At the end of the arm. Used to hold, write, and wave."
+  },
+  {
+    "en": "Foot",
+    "pt": "Pé",
+    "pronunciation": "fút",
+    "example": "My foot hurts.",
+    "examplePt": "Meu pé dói.",
+    "tip": "Its plural is irregular: 'feet'. At the end of the leg. Used for walking."
+  },
+  {
+    "en": "Arm",
+    "pt": "Braço",
+    "pronunciation": "árm",
+    "example": "I broke my arm.",
+    "examplePt": "Eu quebrei meu braço.",
+    "tip": "The limb from shoulder to hand. Used to carry things and hug people."
+  },
+  {
+    "en": "Leg",
+    "pt": "Perna",
+    "pronunciation": "lég",
+    "example": "My leg is tired.",
+    "examplePt": "Minha perna está cansada.",
+    "tip": "The limb from hip to foot. Used for walking, running, and kicking."
+  },
+  {
+    "en": "Heart",
+    "pt": "Coração",
+    "pronunciation": "rárt",
+    "example": "I love you with all my heart.",
+    "examplePt": "Eu te amo com todo meu coração.",
+    "tip": "A hollow, fibromuscular pump that drives the circulatory system via rhythmic, myogenic contractions."
+  },
+  {
+    "en": "Hair",
+    "pt": "Cabelo",
+    "pronunciation": "rér",
+    "example": "She has long hair.",
+    "examplePt": "Ela tem cabelo longo.",
+    "tip": "A filamentous biomaterial growing from follicles in the dermis, composed primarily of dead, keratinized cells."
+  },
+  {
+    "en": "Tooth",
+    "pt": "Dente",
+    "pronunciation": "túth",
+    "example": "Brush your teeth.",
+    "examplePt": "Escove seus dentes.",
+    "tip": "A calcified, non-bony structure embedded in the jaws, used for the mechanical breakdown of organic matter."
+  },
+  {
+    "en": "Tongue",
+    "pt": "Língua",
+    "pronunciation": "tâng",
+    "example": "Don't burn your tongue.",
+    "examplePt": "Não queime sua língua.",
+    "tip": "A muscular hydrostat on the floor of the mouth, covered in papillae, crucial for gustation and phonetic articulation."
+  },
+  {
+    "en": "Blood",
+    "pt": "Sangue",
+    "pronunciation": "blâd",
+    "example": "Blood carries oxygen.",
+    "examplePt": "O sangue carrega oxigênio.",
+    "tip": "A specialized bodily fluid delivering necessary substances to cells, primarily composed of erythrocytes suspended in plasma."
+  },
+  {
+    "en": "Brain",
+    "pt": "Cérebro",
+    "pronunciation": "brêin",
+    "example": "The brain processes information.",
+    "examplePt": "O cérebro processa informações.",
+    "tip": "The central organ of the nervous system, enclosed in the cranium, functioning as the primary seat of cognitive processing."
+  },
+  {
+    "en": "Skin",
+    "pt": "Pele",
+    "pronunciation": "skín",
+    "example": "Sunscreen protects skin.",
+    "examplePt": "Protetor solar protege a pele.",
+    "tip": "The largest organ of the integumentary system, acting as a flexible, waterproof barrier against external pathogens."
+  },
+  {
+    "en": "Bone",
+    "pt": "Osso",
+    "pronunciation": "bôun",
+    "example": "Milk strengthens bones.",
+    "examplePt": "Leite fortalece os ossos.",
+    "tip": "A rigid, mineralized structural element composed largely of calcium phosphate, forming the internal scaffolding of vertebrates."
+  },
+  {
+    "en": "Lung",
+    "pt": "Pulmão",
+    "pronunciation": "lâng",
+    "example": "Fresh air fills the lungs.",
+    "examplePt": "Ar fresco enche os pulmões.",
+    "tip": "A primary organ of respiration responsible for extracting oxygen from the atmosphere into the bloodstream via alveoli."
+  },
+  {
+    "en": "Internet",
+    "pt": "Internet",
+    "pronunciation": "ínternet",
+    "example": "We connect to the internet daily.",
+    "examplePt": "Nós nos conectamos à internet diariamente.",
+    "tip": "A global, decentralized system of interconnected computer networks utilizing the standard TCP/IP suite to exchange packet-switched data."
+  },
+  {
+    "en": "Battery",
+    "pt": "Bateria",
+    "pronunciation": "béteri",
+    "example": "My phone battery is low.",
+    "examplePt": "A bateria do meu celular está fraca.",
+    "tip": "A hardware component containing electrochemical cells that store potential energy to be discharged as direct electrical current."
+  },
+  {
+    "en": "Magnet",
+    "pt": "Ímã",
+    "pronunciation": "mégnet",
+    "example": "The magnet attracts iron.",
+    "examplePt": "O ímã atrai ferro.",
+    "tip": "A material that produces a vector field capable of exerting an attractive or repulsive force on ferromagnetic substances."
+  },
+  {
+    "en": "Laser",
+    "pt": "Laser",
+    "pronunciation": "lêizer",
+    "example": "The laser beam is bright.",
+    "examplePt": "O feixe de laser é brilhante.",
+    "tip": "An acronymic acronym representing a device that emits a highly coherent, monochromatic, and collimated beam of light."
+  },
+  {
+    "en": "Gravity",
+    "pt": "Gravidade",
+    "pronunciation": "gréviti",
+    "example": "Gravity pulls objects down.",
+    "examplePt": "A gravidade puxa objetos para baixo.",
+    "tip": "The geometric manifestation of mass warping the fabric of spacetime, dictating the orbital choreography of cosmic bodies."
+  },
+  {
+    "en": "Electricity",
+    "pt": "Eletricidade",
+    "pronunciation": "ilektrísiti",
+    "example": "Electricity powers appliances.",
+    "examplePt": "A eletricidade alimenta aparelhos.",
+    "tip": "The physical phenomenon associated with the presence and macroscopic flow of stationary or moving electric charges."
+  },
+  {
+    "en": "Camera",
+    "pt": "Câmera",
+    "pronunciation": "kémera",
+    "example": "She snapped a photo.",
+    "examplePt": "Ela tirou uma foto.",
+    "tip": "An optical system featuring a lightproof housing and a variable aperture designed to capture and index incoming photons on a permanent medium."
+  },
+  {
+    "en": "Microscope",
+    "pt": "Microscópio",
+    "pronunciation": "máikroscôup",
+    "example": "We see cells with a microscope.",
+    "examplePt": "Nós vemos células com um microscópio.",
+    "tip": "An optical or electron instrument designed to resolve features below the detection threshold of the unassisted human retina."
+  },
+  {
+    "en": "Algorithm",
+    "pt": "Algoritmo",
+    "pronunciation": "élgoridhem",
+    "example": "An algorithm sorts data.",
+    "examplePt": "Um algoritmo ordena dados.",
+    "tip": "A finite, unambiguous sequence of mathematically rigorous instructions used to solve a computational class of problems."
+  },
+  {
+    "en": "Compass",
+    "pt": "Bússola",
+    "pronunciation": "cômpas",
+    "example": "The compass points north.",
+    "examplePt": "A bússola aponta para o norte.",
+    "tip": "A navigational instrument utilizing a freely suspended magnetized indicator to align with the geomagnetic field."
+  },
+  {
+    "en": "Desert",
+    "pt": "Deserto",
+    "pronunciation": "dézert",
+    "example": "The Sahara is a vast desert.",
+    "examplePt": "O Saara é um vasto deserto.",
+    "tip": "An arid geographical biome characterized by severe moisture deficit, where annual evaporation vastly exceeds precipitation."
+  },
+  {
+    "en": "Volcano",
+    "pt": "Vulcão",
+    "pronunciation": "volkêinou",
+    "example": "Lava erupted from the volcano.",
+    "examplePt": "Lava erupcionou do vulcão.",
+    "tip": "A geological rupture in the crust of a planetary-mass object that allows hot lava, volcanic ash, and gases to escape from a magma chamber."
+  },
+  {
+    "en": "Ocean",
+    "pt": "Oceano",
+    "pronunciation": "ôuchen",
+    "example": "Whales swim in the ocean.",
+    "examplePt": "Baleias nadam no oceano.",
+    "tip": "A continuous body of saline water that blankets approximately seventy percent of the planet's lithosphere."
+  },
+  {
+    "en": "River",
+    "pt": "Rio",
+    "pronunciation": "ríver",
+    "example": "Water flows down the river.",
+    "examplePt": "A água flui rio abaixo.",
+    "tip": "A natural flowing ribbon of freshwater that drains continental basins, migrating toward a lower base level due to gravity."
+  },
+  {
+    "en": "Mountain",
+    "pt": "Montanha",
+    "pronunciation": "máunten",
+    "example": "They climbed the high mountain.",
+    "examplePt": "Eles escalaram a alta montanha.",
+    "tip": "A large landform that rises prominently above its surroundings, typically exhibiting steep slopes and formed through tectonic forces."
+  },
+  {
+    "en": "Wind",
+    "pt": "Vento",
+    "pronunciation": "uínd",
+    "example": "Strong wind blew the leaves.",
+    "examplePt": "Um vento forte soprou as folhas.",
+    "tip": "The bulk movement of atmospheric gases triggered by convection currents and variations in barometric pressure."
+  },
+  {
+    "en": "Lightning",
+    "pt": "Raio / Relâmpago",
+    "pronunciation": "láitning",
+    "example": "Lightning struck the tree.",
+    "examplePt": "O relâmpago atingiu a árvore.",
+    "tip": "An electrostatic discharge of atmospheric electricity that momentarily ionizes a path through the air, creating a plasma channel."
+  },
+  {
+    "en": "Star",
+    "pt": "Estrela",
+    "pronunciation": "stár",
+    "example": "Stars shine in the night sky.",
+    "examplePt": "Estrelas brilham no céu noturno.",
+    "tip": "A luminous spheroid of plasma held together by its own self-gravitation, sustained by continuous nuclear fusion in its core."
+  },
+  {
+    "en": "Island",
+    "pt": "Ilha",
+    "pronunciation": "áiland",
+    "example": "They spent summer on an island.",
+    "examplePt": "Eles passaram o verão em uma ilha.",
+    "tip": "A sub-continental landmass completely isolated from the mainland and entirely circumscribed by a marine or lacustrine matrix."
+  },
+  {
+    "en": "Earthquake",
+    "pt": "Terremoto",
+    "pronunciation": "êrth-kuêik",
+    "example": "The earthquake shook buildings.",
+    "examplePt": "O terremoto balançou prédios.",
+    "tip": "A sudden release of stored elastic strain energy along a geological fault, propagating destructive seismic waves through the lithosphere."
+  },
+  {
+    "en": "Thunder",
+    "pt": "Trovão",
+    "pronunciation": "thânder",
+    "example": "Hear the deep thunder.",
+    "examplePt": "Ouça o trovão profundo.",
+    "tip": "The acoustic shockwave generated by the rapid thermal expansion of plasma within the path of an electrostatic atmospheric discharge."
+  },
+  {
+    "en": "Fog",
+    "pt": "Nevoeiro / Neblina",
+    "pronunciation": "fóg",
+    "example": "Drive carefully in fog.",
+    "examplePt": "Dirija com cuidado no nevoeiro.",
+    "tip": "A low-altitude stratus cloud composed of microscopic water droplets suspended near the planet's surface, severely reducing visual range."
+  },
+  {
+    "en": "Ice",
+    "pt": "Gelo",
+    "pronunciation": "áis",
+    "example": "Ice covers the lake.",
+    "examplePt": "Gelo cobre o lago.",
+    "tip": "The solid, crystalline macroscopic phase of a common hydrogen oxide, achieved when thermal energy falls below 0 degrees Celsius."
+  },
+  {
+    "en": "Cloud",
+    "pt": "Nuvem",
+    "pronunciation": "cláud",
+    "example": "Dark clouds bring rain.",
+    "examplePt": "Nuvens escuras trazem chuva.",
+    "tip": "A visible atmospheric accumulation of condensed water vapor or ice crystals floating within the planetary troposphere."
+  },
+  {
+    "en": "Sand",
+    "pt": "Areia",
+    "pronunciation": "sénd",
+    "example": "Desert sand is warm.",
+    "examplePt": "A areia do deserto é quente.",
+    "tip": "A granular, loose particulate material resulting from the protracted erosion and weathering of siliceous rocks."
+  },
+  {
+    "en": "Wave",
+    "pt": "Onda",
+    "pronunciation": "uêiv",
+    "example": "Catch a big wave.",
+    "examplePt": "Pegue uma grande onda.",
+    "tip": "A disturbance or oscillation that travels through spacetime, accompanied by a transfer of energy without a permanent displacement of mass."
+  },
+  {
+    "en": "Law",
+    "pt": "Lei",
+    "pronunciation": "ló",
+    "example": "Everyone must follow the law.",
+    "examplePt": "Todos devem seguir a lei.",
+    "tip": "A systematized framework of codifiable rules established by a sovereign governing body to regulate human conduct and apply punitive sanctions."
+  },
+  {
+    "en": "Government",
+    "pt": "Governo",
+    "pronunciation": "gôvernment",
+    "example": "The government passed a policy.",
+    "examplePt": "O governo aprovou uma política.",
+    "tip": "The institutional apparatus or administrative oligarchy invested with the systemic authority to direct and control a geopolitical state."
+  },
+  {
+    "en": "War",
+    "pt": "Guerra",
+    "pronunciation": "uór",
+    "example": "Peace is better than war.",
+    "examplePt": "Paz é melhor do que guerra.",
+    "tip": "An intense, prolonged state of violent conflict between organized political entities, characterized by extreme aggression and systemic destruction."
+  },
+  {
+    "en": "Doctor",
+    "pt": "Médico",
+    "pronunciation": "dóctor",
+    "example": "The doctor examines patients.",
+    "examplePt": "O médico examina pacientes.",
+    "tip": "A highly trained professional licensed to practice clinical therapeutics, diagnosing and treating pathologies within biological organisms."
+  },
+  {
+    "en": "Judge",
+    "pt": "Juiz",
+    "pronunciation": "djâdj",
+    "example": "The judge announced the verdict.",
+    "examplePt": "O juiz anunciou o veredito.",
+    "tip": "A public official vested with legal authority to arbitrate forensic disputes, interpret statutory architecture, and deliver binding verdicts."
+  },
+  {
+    "en": "Music",
+    "pt": "Música",
+    "pronunciation": "miúzic",
+    "example": "I love listening to music.",
+    "examplePt": "Eu amo ouvir música.",
+    "tip": "A temporary arrangement of acoustic vibrations and silences organized over time, shifting emotional states without any physical contact."
+  },
+  {
+    "en": "Marriage",
+    "pt": "Casamento",
+    "pronunciation": "méridj",
+    "example": "They celebrated their marriage.",
+    "examplePt": "Eles celebraram seu casamento.",
+    "tip": "A legally or socially recognized covenant between individuals that establishes a domestic partnership, modifying their civil and economic status."
+  },
+  {
+    "en": "Police",
+    "pt": "Polícia",
+    "pronunciation": "polís",
+    "example": "The police maintain order.",
+    "examplePt": "A polícia mantém a ordem.",
+    "tip": "A state-sanctioned executive body tasked with maintaining public order, enforcing statutory compliance, and exercising a monopoly on legitimate force."
+  },
+  {
+    "en": "Gold",
+    "pt": "Ouro",
+    "pronunciation": "gôuld",
+    "example": "Gold is a precious metal.",
+    "examplePt": "Ouro é um metal precioso.",
+    "tip": "A highly dense, malleable transition metal with atomic number 79, immune to atmospheric corrosion and prized for its scarcity."
+  },
+  {
+    "en": "Iron",
+    "pt": "Ferro",
+    "pronunciation": "áiern",
+    "example": "Steel is made from iron.",
+    "examplePt": "Aço é feito de ferro.",
+    "tip": "A ubiquitous ferromagnetic element that constitutes the majority of Earth's core and forms the structural bedrock of industrial metallurgy."
+  },
+  {
+    "en": "Glass",
+    "pt": "Vidro",
+    "pronunciation": "gléss",
+    "example": "Windows are made of glass.",
+    "examplePt": "Janelas são feitas de vidro.",
+    "tip": "An amorphous, non-crystalline solid substance produced by rapidly cooling molten silica, characterized by brittle transparency."
+  },
+  {
+    "en": "Smoke",
+    "pt": "Fumaça",
+    "pronunciation": "smôuk",
+    "example": "Smoke rose from the chimney.",
+    "examplePt": "Fumaça subiu da chaminé.",
+    "tip": "An airborne suspension of fine solid particulate matter and gases resulting from the incomplete combustion of an organic substrate."
+  },
+  {
+    "en": "Wood",
+    "pt": "Madeira",
+    "pronunciation": "uúd",
+    "example": "The table is made of wood.",
+    "examplePt": "A mesa é feita de madeira.",
+    "tip": "A porous, fibrous structural tissue found in the stems of arborescent plants, consisting primarily of cellulose and lignin."
+  },
+  {
+    "en": "Steam",
+    "pt": "Vapor",
+    "pronunciation": "stím",
+    "example": "Steam rises from boiling water.",
+    "examplePt": "Vapor sobe da água fervente.",
+    "tip": "The gaseous phase of a common oxide, generated when thermal energy forces molecules to overcome atmospheric pressure."
+  },
+  {
+    "en": "Dust",
+    "pt": "Poeira",
+    "pronunciation": "dâst",
+    "example": "Dust settled on the shelf.",
+    "examplePt": "Poeira acumulou na prateleira.",
+    "tip": "Fine particles of matter in the atmosphere or on surfaces, consisting of sloughed skin cells, microscopic soil, and ambient debris."
+  },
+  {
+    "en": "Plastic",
+    "pt": "Plástico",
+    "pronunciation": "pléstic",
+    "example": "Recycle plastic bottles.",
+    "examplePt": "Recicle garrafas de plástico.",
+    "tip": "A highly adaptable synthetic or semi-synthetic organic polymer derived from petrochemical hydrocarbons, notorious for its environmental persistence."
+  },
+  {
+    "en": "Gas",
+    "pt": "Gás",
+    "pronunciation": "gés",
+    "example": "Oxygen is a vital gas.",
+    "examplePt": "Oxigênio é um gás vital.",
+    "tip": "A state of matter consisting of particles that have neither a defined volume nor a defined shape, expanding indefinitely to fill any container."
+  },
+  {
+    "en": "Hospital",
+    "pt": "Hospital",
+    "pronunciation": "róspitol",
+    "example": "She is in the hospital.",
+    "examplePt": "Ela está no hospital.",
+    "tip": "A large building where doctors and nurses take care of sick or injured people."
+  },
+  {
+    "en": "Store",
+    "pt": "Loja",
+    "pronunciation": "stór",
+    "example": "I go to the store.",
+    "examplePt": "Eu vou à loja.",
+    "tip": "A place where you go to buy things. Can also be used as a verb: 'to store'."
+  },
+  {
+    "en": "Restaurant",
+    "pt": "Restaurante",
+    "pronunciation": "réstaurant",
+    "example": "Let's eat at the restaurant.",
+    "examplePt": "Vamos comer no restaurante.",
+    "tip": "A place where you pay to eat meals prepared by professional cooks."
+  },
+  {
+    "en": "Park",
+    "pt": "Parque",
+    "pronunciation": "párk",
+    "example": "I play in the park.",
+    "examplePt": "Eu brinco no parque.",
+    "tip": "A public outdoor space with grass and trees. Great for picnics and walks."
+  },
+  {
+    "en": "Beach",
+    "pt": "Praia",
+    "pronunciation": "bítch",
+    "example": "I love the beach.",
+    "examplePt": "Eu amo a praia.",
+    "tip": "A sandy strip next to the ocean."
+  },
+  {
+    "en": "Airport",
+    "pt": "Aeroporto",
+    "pronunciation": "érport",
+    "example": "We are at the airport.",
+    "examplePt": "Nós estamos no aeroporto.",
+    "tip": "Where airplanes take off and land. Has check-in counters and departure gates."
+  },
+  {
+    "en": "Church",
+    "pt": "Igreja",
+    "pronunciation": "tchârtch",
+    "example": "She goes to church on Sunday.",
+    "examplePt": "Ela vai à igreja no domingo.",
+    "tip": "A building used for Christian worship. Usually has a tall steeple and bells."
+  },
+  {
+    "en": "Bank",
+    "pt": "Banco",
+    "pronunciation": "bénk",
+    "example": "I go to the bank.",
+    "examplePt": "Eu vou ao banco.",
+    "tip": "A financial institution where people save and withdraw money."
+  },
+  {
+    "en": "Library",
+    "pt": "Biblioteca",
+    "pronunciation": "láibreri",
+    "example": "I study at the library.",
+    "examplePt": "Eu estudo na biblioteca.",
+    "tip": "A quiet place full of books you can borrow for free. A 'bookstore' is where you buy books."
+  },
+  {
+    "en": "Street",
+    "pt": "Rua",
+    "pronunciation": "strít",
+    "example": "The street is busy.",
+    "examplePt": "A rua está movimentada.",
+    "tip": "A public road in a city with buildings on both sides. Has sidewalks for walking."
+  },
+  {
+    "en": "City",
+    "pt": "Cidade",
+    "pronunciation": "síti",
+    "example": "I live in a big city.",
+    "examplePt": "Eu moro em uma cidade grande.",
+    "tip": "A large, permanent human settlement characterized by high population density, complex infrastructure, and institutionalized administrative systems."
+  },
+  {
+    "en": "Country",
+    "pt": "País",
+    "pronunciation": "câuntri",
+    "example": "Brazil is a big country.",
+    "examplePt": "O Brasil é um país grande.",
+    "tip": "Can mean a nation OR a rural area ('the countryside'). The context decides which!"
+  },
+  {
+    "en": "Bridge",
+    "pt": "Ponte",
+    "pronunciation": "brídj",
+    "example": "Cross the stone bridge.",
+    "examplePt": "Cruze a ponte de pedra.",
+    "tip": "A structural span engineered to provide continuous passage over a physical obstacle, such as a chasm, watercourse, or thoroughfare."
+  },
+  {
+    "en": "Car",
+    "pt": "Carro",
+    "pronunciation": "cár",
+    "example": "I go by car.",
+    "examplePt": "Eu vou de carro.",
+    "tip": "A four-wheeled vehicle with an engine. One of the most common personal transports."
+  },
+  {
+    "en": "Bus",
+    "pt": "Ônibus",
+    "pronunciation": "bâs",
+    "example": "I take the bus to school.",
+    "examplePt": "Eu pego ônibus para a escola.",
+    "tip": "A large vehicle that carries many passengers along a fixed route. Public transport."
+  },
+  {
+    "en": "Bicycle",
+    "pt": "Bicicleta",
+    "pronunciation": "báisikol",
+    "example": "I ride my bicycle.",
+    "examplePt": "Eu ando de bicicleta.",
+    "tip": "A two-wheeled vehicle powered by pedaling. The informal version is 'bike'."
+  },
+  {
+    "en": "Train",
+    "pt": "Trem",
+    "pronunciation": "trêin",
+    "example": "The train is fast.",
+    "examplePt": "O trem é rápido.",
+    "tip": "A series of connected cars that travel on metal rails. Faster than buses."
+  },
+  {
+    "en": "Airplane",
+    "pt": "Avião",
+    "pronunciation": "érplein",
+    "example": "I fly by airplane.",
+    "examplePt": "Eu viajo de avião.",
+    "tip": "Made of 'air' + 'plane'. A winged machine that flies through the sky."
+  },
+  {
+    "en": "Boat",
+    "pt": "Barco",
+    "pronunciation": "bôut",
+    "example": "The boat is on the water.",
+    "examplePt": "O barco está na água.",
+    "tip": "A watercraft used on rivers and lakes. Smaller than a 'ship'."
+  },
+  {
+    "en": "Taxi",
+    "pt": "Táxi",
+    "pronunciation": "téksi",
+    "example": "Let's take a taxi.",
+    "examplePt": "Vamos pegar um táxi.",
+    "tip": "A car driven by a professional that takes you places for a fee."
+  },
+  {
+    "en": "To be",
+    "pt": "Ser / Estar",
+    "pronunciation": "tu bí",
+    "example": "I am happy.",
+    "examplePt": "Eu estou feliz.",
+    "tip": "The most important verb in English. Its forms are: am, is, are, was, were."
+  },
+  {
+    "en": "To have",
+    "pt": "Ter",
+    "pronunciation": "tu rév",
+    "example": "I have a dog.",
+    "examplePt": "Eu tenho um cachorro.",
+    "tip": "Expresses possession. Also used in perfect tenses: 'I have finished'."
+  },
+  {
+    "en": "To go",
+    "pt": "Ir",
+    "pronunciation": "tu gôu",
+    "example": "I go to school.",
+    "examplePt": "Eu vou à escola.",
+    "tip": "An irregular verb. Its past tense is 'went', which looks completely different!"
+  },
+  {
+    "en": "To eat",
+    "pt": "Comer",
+    "pronunciation": "tu ít",
+    "example": "I eat breakfast at seven.",
+    "examplePt": "Eu como café da manhã às sete.",
+    "tip": "The action of consuming food. Its past tense is 'ate'."
+  },
+  {
+    "en": "To drink",
+    "pt": "Beber",
+    "pronunciation": "tu drínk",
+    "example": "I drink water.",
+    "examplePt": "Eu bebo água.",
+    "tip": "To consume a liquid. Its past tense is 'drank'."
+  },
+  {
+    "en": "To sleep",
+    "pt": "Dormir",
+    "pronunciation": "tu slíp",
+    "example": "I sleep eight hours.",
+    "examplePt": "Eu durmo oito horas.",
+    "tip": "To rest with your eyes closed. Its past tense is 'slept'."
+  },
+  {
+    "en": "To read",
+    "pt": "Ler",
+    "pronunciation": "tu ríd",
+    "example": "I read books.",
+    "examplePt": "Eu leio livros.",
+    "tip": "Tricky! Present and past are spelled the same ('read'), but they sound different: 'reed' vs 'red'."
+  },
+  {
+    "en": "To write",
+    "pt": "Escrever",
+    "pronunciation": "tu ráit",
+    "example": "I write in my notebook.",
+    "examplePt": "Eu escrevo no meu caderno.",
+    "tip": "The 'w' is completely silent! Its past tense is 'wrote'."
+  },
+  {
+    "en": "To speak",
+    "pt": "Falar",
+    "pronunciation": "tu spík",
+    "example": "I speak Portuguese.",
+    "examplePt": "Eu falo português.",
+    "tip": "To use your voice to communicate. Its past tense is 'spoke'."
+  },
+  {
+    "en": "To listen",
+    "pt": "Ouvir / Escutar",
+    "pronunciation": "tu lísen",
+    "example": "Listen to the music.",
+    "examplePt": "Escute a música.",
+    "tip": "Active attention to a sound. Unlike 'to hear', which happens without effort."
+  },
+  {
+    "en": "To see",
+    "pt": "Ver",
+    "pronunciation": "tu sí",
+    "example": "I see the stars.",
+    "examplePt": "Eu vejo as estrelas.",
+    "tip": "Passive visual perception. 'To look' means you are actively choosing to direct your eyes."
+  },
+  {
+    "en": "To like",
+    "pt": "Gostar",
+    "pronunciation": "tu láik",
+    "example": "I like pizza.",
+    "examplePt": "Eu gosto de pizza.",
+    "tip": "To find something pleasant. Weaker than 'to love'. Also used on social media buttons!"
+  },
+  {
+    "en": "To love",
+    "pt": "Amar",
+    "pronunciation": "tu lâv",
+    "example": "I love my family.",
+    "examplePt": "Eu amo minha família.",
+    "tip": "A complex neurobiological and psychological state characterized by intense oxytocin release, deep attachment, and altruistic behavioral tendencies toward another entity."
+  },
+  {
+    "en": "To want",
+    "pt": "Querer",
+    "pronunciation": "tu uónt",
+    "example": "I want coffee.",
+    "examplePt": "Eu quero café.",
+    "tip": "To desire something. Different from 'to need' — wanting is a wish, needing is essential."
+  },
+  {
+    "en": "To need",
+    "pt": "Precisar",
+    "pronunciation": "tu níd",
+    "example": "I need help.",
+    "examplePt": "Eu preciso de ajuda.",
+    "tip": "To require something essential. Stronger than 'to want'. You NEED water; you WANT soda."
+  },
+  {
+    "en": "To know",
+    "pt": "Saber / Conhecer",
+    "pronunciation": "tu nôu",
+    "example": "I know the answer.",
+    "examplePt": "Eu sei a resposta.",
+    "tip": "The 'k' is completely silent! To have knowledge about something."
+  },
+  {
+    "en": "To make",
+    "pt": "Fazer / Preparar",
+    "pronunciation": "tu mêik",
+    "example": "I make breakfast.",
+    "examplePt": "Eu faço o café da manhã.",
+    "tip": "To create or produce something. Its past tense is 'made'."
+  },
+  {
+    "en": "To come",
+    "pt": "Vir",
+    "pronunciation": "tu câm",
+    "example": "Come here, please.",
+    "examplePt": "Venha aqui, por favor.",
+    "tip": "The opposite of 'to go'. Moving toward the speaker. Its past tense is 'came'."
+  },
+  {
+    "en": "To play",
+    "pt": "Brincar / Jogar / Tocar",
+    "pronunciation": "tu plêi",
+    "example": "I play soccer.",
+    "examplePt": "Eu jogo futebol.",
+    "tip": "Has three meanings: to play a sport, a game, OR a musical instrument. Context is key!"
+  },
+  {
+    "en": "To run",
+    "pt": "Correr",
+    "pronunciation": "tu rân",
+    "example": "I run every morning.",
+    "examplePt": "Eu corro toda manhã.",
+    "tip": "To move fast on foot. Its past tense is 'ran'. Also means to operate something."
+  },
+  {
+    "en": "To walk",
+    "pt": "Andar / Caminhar",
+    "pronunciation": "tu uók",
+    "example": "I walk to school.",
+    "examplePt": "Eu ando até a escola.",
+    "tip": "The 'l' is completely silent! To move at a normal pace on foot. Slower than 'to run'."
+  },
+  {
+    "en": "To open",
+    "pt": "Abrir",
+    "pronunciation": "tu ôupen",
+    "example": "Open the door.",
+    "examplePt": "Abra a porta.",
+    "tip": "The opposite of 'to close'. To make something accessible."
+  },
+  {
+    "en": "To close",
+    "pt": "Fechar",
+    "pronunciation": "tu clôuz",
+    "example": "Close the window.",
+    "examplePt": "Feche a janela.",
+    "tip": "The opposite of 'to open'. To shut something."
+  },
+  {
+    "en": "To buy",
+    "pt": "Comprar",
+    "pronunciation": "tu bái",
+    "example": "I want to buy a book.",
+    "examplePt": "Eu quero comprar um livro.",
+    "tip": "To get something by paying money. Its past tense is 'bought'."
+  },
+  {
+    "en": "To help",
+    "pt": "Ajudar",
+    "pronunciation": "tu rélp",
+    "example": "Can you help me?",
+    "examplePt": "Você pode me ajudar?",
+    "tip": "To assist someone in need. 'Can you ___ me?' is a very common request."
+  },
+  {
+    "en": "To study",
+    "pt": "Estudar",
+    "pronunciation": "tu stâdi",
+    "example": "I study English every day.",
+    "examplePt": "Eu estudo inglês todo dia.",
+    "tip": "To learn by reading and practicing. That is exactly what you are doing right now!"
+  },
+  {
+    "en": "To cook",
+    "pt": "Cozinhar",
+    "pronunciation": "tu cúk",
+    "example": "I cook dinner.",
+    "examplePt": "Eu cozinho o jantar.",
+    "tip": "To prepare food using heat. A 'cook' is also a noun for a person who does this."
+  },
+  {
+    "en": "To give",
+    "pt": "Dar",
+    "pronunciation": "tu guív",
+    "example": "Give me the book.",
+    "examplePt": "Me dê o livro.",
+    "tip": "To hand something to another person. Its past tense is 'gave'."
+  },
+  {
+    "en": "To take",
+    "pt": "Pegar / Levar",
+    "pronunciation": "tu têik",
+    "example": "Take your umbrella.",
+    "examplePt": "Leve seu guarda-chuva.",
+    "tip": "The opposite of 'to give'. To receive or carry something away. Past tense: 'took'."
+  },
+  {
+    "en": "To think",
+    "pt": "Pensar",
+    "pronunciation": "tu thínk",
+    "example": "I think you are right.",
+    "examplePt": "Eu acho que você está certo.",
+    "tip": "To use the mind. Its past tense is 'thought'. 'I think so' means you are not 100% sure."
+  },
+  {
+    "en": "Forget",
+    "pt": "Esquecer",
+    "pronunciation": "forgét",
+    "example": "Don't forget your keys.",
+    "examplePt": "Não se esqueça das suas chaves.",
+    "tip": "To experience the involuntary decay or retrieval failure of previously encoded engrams within long-term memory."
+  },
+  {
+    "en": "Forgive",
+    "pt": "Perdoar",
+    "pronunciation": "forgív",
+    "example": "It is good to forgive.",
+    "examplePt": "É bom perdoar.",
+    "tip": "The conscious, psychological decision to cease feelings of resentment or vengeance toward an offending entity."
+  },
+  {
+    "en": "Learn",
+    "pt": "Aprender",
+    "pronunciation": "lârn",
+    "example": "We learn every day.",
+    "examplePt": "Nós aprendemos todo dia.",
+    "tip": "To acquire novel behavioral patterns, cognitive schemata, or neurological adaptations through practice or exposure."
+  },
+  {
+    "en": "Lie",
+    "pt": "Mentir",
+    "pronunciation": "lái",
+    "example": "Never lie to friends.",
+    "examplePt": "Nunca minta para amigos.",
+    "tip": "The deliberate verbalization of a counterfactual proposition with the tactical intent of distorting another agent's epistemic reality."
+  },
+  {
+    "en": "Choose",
+    "pt": "Escolher",
+    "pronunciation": "tchúz",
+    "example": "Choose your path.",
+    "examplePt": "Escolha seu caminho.",
+    "tip": "To exercise agency by selecting a singular course of action or item from a matrix of mutually exclusive options."
+  },
+  {
+    "en": "Hide",
+    "pt": "Esconder",
+    "pronunciation": "ráid",
+    "example": "They hide in shadows.",
+    "examplePt": "Eles se escondem nas sombras.",
+    "tip": "To deliberately obscure an object or oneself from the visual trajectory or spatial detection of potential observers."
+  },
+  {
+    "en": "Believe",
+    "pt": "Acreditar",
+    "pronunciation": "bilív",
+    "example": "Believe in yourself.",
+    "examplePt": "Acredite em si mesmo.",
+    "tip": "To maintain a cognitive state of acceptance regarding the truth value of a proposition without empirical verification."
+  },
+  {
+    "en": "Promise",
+    "pt": "Prometer",
+    "pronunciation": "prómis",
+    "example": "Keep your promise.",
+    "examplePt": "Mantenha sua promessa.",
+    "tip": "A verbal or written pledge that binds the speaker to a specific future course of action, establishing an ethical obligation."
+  },
+  {
+    "en": "Doubt",
+    "pt": "Duvidar",
+    "pronunciation": "dáut",
+    "example": "I doubt that claim.",
+    "examplePt": "Eu duvido dessa afirmação.",
+    "tip": "To experience a state of cognitive dissonance characterized by a lack of conviction regarding the validity of a claim."
+  },
+  {
+    "en": "Search",
+    "pt": "Buscar / Pesquisar",
+    "pronunciation": "sârtch",
+    "example": "Search for answers.",
+    "examplePt": "Busque por respostas.",
+    "tip": "To execute a systematic investigation or spatial exploration to locate an elusive entity or retrieve specific data."
+  },
+  {
+    "en": "Build",
+    "pt": "Construir",
+    "pronunciation": "bíld",
+    "example": "They build new structures.",
+    "examplePt": "Eles constroem novas estruturas.",
+    "tip": "To assemble modular components or structural raw materials systematically to fabricate a complex architectural or mechanical entity."
+  },
+  {
+    "en": "Destroy",
+    "pt": "Destruir",
+    "pronunciation": "distrói",
+    "example": "Storms can destroy homes.",
+    "examplePt": "Tempestades podem destruir casas.",
+    "tip": "To inflict structural damage that irreversibly compromises the functional integrity or spatial organization of an object or system."
+  },
+  {
+    "en": "Jump",
+    "pt": "Pular / Saltar",
+    "pronunciation": "djâmp",
+    "example": "Athletes jump high.",
+    "examplePt": "Atletas pulam alto.",
+    "tip": "To exert a sudden, powerful muscular force against a surface to launch one's mass into a transient parabolic trajectory through space."
+  },
+  {
+    "en": "Push",
+    "pt": "Empurrar",
+    "pronunciation": "púch",
+    "example": "Push the door to open.",
+    "examplePt": "Empurre a porta para abrir.",
+    "tip": "To apply a vector force directed away from the origin of the catalyst, intending to displace an object or introduce kinetic energy."
+  },
+  {
+    "en": "Pull",
+    "pt": "Puxar",
+    "pronunciation": "púl",
+    "example": "Pull the handle to enter.",
+    "examplePt": "Puxe a maçaneta para entrar.",
+    "tip": "To exert a tensile force directed toward the origin of the mechanism, inducing kinetic displacement toward the manipulator."
+  },
+  {
+    "en": "Break",
+    "pt": "Quebrar",
+    "pronunciation": "brêik",
+    "example": "Be careful not to break glass.",
+    "examplePt": "Cuidado para não quebrar o vidro.",
+    "tip": "To subject a rigid material to mechanical stress that exceeds its structural threshold, forcing a separation into discrete fragments."
+  },
+  {
+    "en": "Burn",
+    "pt": "Queimar",
+    "pronunciation": "bârn",
+    "example": "Wood burns brightly.",
+    "examplePt": "A madeira queima brilhantemente.",
+    "tip": "The visible, luminescent signature of rapid exothermic oxidation, releasing thermal radiation and converting organic matter to carbonaceous ash."
+  },
+  {
+    "en": "Fall",
+    "pt": "Cair",
+    "pronunciation": "fól",
+    "example": "Leaves fall in autumn.",
+    "examplePt": "Folhas caem no outono.",
+    "tip": "To undergo downward vertical acceleration through space under the unresisted influence of a localized gravitational field."
+  },
+  {
+    "en": "Fly",
+    "pt": "Voar",
+    "pronunciation": "flái",
+    "example": "Birds fly above clouds.",
+    "examplePt": "Pássaros voam acima das nuvens.",
+    "tip": "To navigate an atmospheric fluid medium by exploiting aerodynamic principles of lift, thrust, and pressure differentials."
+  },
+  {
+    "en": "Melt",
+    "pt": "Derreter",
+    "pronunciation": "mélt",
+    "example": "Ice melts under heat.",
+    "examplePt": "O gelo derrete sob o calor.",
+    "tip": "To undergo a thermodynamic phase transition from a rigid crystalline structure to a fluid state via the introduction of thermal energy."
+  },
+  {
+    "en": "Secret",
+    "pt": "Segredo",
+    "pronunciation": "síkret",
+    "example": "Keep this secret.",
+    "examplePt": "Mantenha este segredo.",
+    "tip": "A localized packet of information whose strategic value varies inversely with the number of conscious nodes that possess it."
+  },
+  {
+    "en": "Silence",
+    "pt": "Silêncio",
+    "pronunciation": "sáilens",
+    "example": "Silence is golden.",
+    "examplePt": "O silêncio é de ouro.",
+    "tip": "An acoustic vacuum that ceases to exist the exact moment its nomenclature is articulated aloud."
+  },
+  {
+    "en": "Nothing",
+    "pt": "Nada",
+    "pronunciation": "nâthing",
+    "example": "There is nothing here.",
+    "examplePt": "Não há nada aqui.",
+    "tip": "The complete and absolute negation of all matter, energy, and spatial coordinates; a state representing zero existential parameters."
+  },
+  {
+    "en": "Time",
+    "pt": "Tempo",
+    "pronunciation": "táim",
+    "example": "Time moves fast.",
+    "examplePt": "O tempo passa rápido.",
+    "tip": "The non-spatial, continuous, and seemingly irreversible progression of events from a fixed past into an unmanifested future."
+  },
+  {
+    "en": "Death",
+    "pt": "Morte",
+    "pronunciation": "déth",
+    "example": "Life and death in nature.",
+    "examplePt": "Vida e morte na natureza.",
+    "tip": "The permanent, irreversible cessation of all biological functions that sustain a living organism."
+  },
+  {
+    "en": "History",
+    "pt": "História",
+    "pronunciation": "hístori",
+    "example": "Learn from history.",
+    "examplePt": "Aprenda com a história.",
+    "tip": "The systematic documentation and interpretative analysis of past events, typically curated by the dominant faction."
+  },
+  {
+    "en": "Shadow",
+    "pt": "Sombra",
+    "pronunciation": "chédou",
+    "example": "The tree casts a shadow.",
+    "examplePt": "A árvore projeta uma sombra.",
+    "tip": "The distinct localized region of relative darkness produced when an opaque physical obstacle intercepts a stream of photons."
+  },
+  {
+    "en": "Hole",
+    "pt": "Buraco",
+    "pronunciation": "hôul",
+    "example": "Dig a deep hole.",
+    "examplePt": "Cave um buraco fundo.",
+    "tip": "A localized absence of solid matter within a larger matrix, which paradoxically becomes larger as more material is extracted."
+  },
+  {
+    "en": "Fire",
+    "pt": "Fogo",
+    "pronunciation": "fáier",
+    "example": "Fire keeps us warm.",
+    "examplePt": "O fogo nos mantém aquecidos.",
+    "tip": "An insatiable chemical reaction that consumes oxygen, perishing instantly if starved, yet perishing also if submerged in liquid."
+  },
+  {
+    "en": "Noise",
+    "pt": "Barulho",
+    "pronunciation": "nóiz",
+    "example": "Loud noise outside.",
+    "examplePt": "Barulho alto lá fora.",
+    "tip": "An erratic, non-periodic acoustic wave configuration that disrupts communication channels or psychological tranquility."
+  },
+  {
+    "en": "Word",
+    "pt": "Palavra",
+    "pronunciation": "uôrd",
+    "example": "Every word matters.",
+    "examplePt": "Cada palavra importa.",
+    "tip": "A discrete linguistic unit composed of phonemes or graphemes that carries semantic meaning and can be isolated syntactically."
+  },
+  {
+    "en": "Name",
+    "pt": "Nome",
+    "pronunciation": "nêim",
+    "example": "State your full name.",
+    "examplePt": "Diga seu nome completo.",
+    "tip": "A specific linguistic label assigned to an entity or individual to establish a unique identity within a social or taxonic matrix."
+  },
+  {
+    "en": "Question",
+    "pt": "Pergunta",
+    "pronunciation": "kuéstchen",
+    "example": "Ask an important question.",
+    "examplePt": "Faça uma pergunta importante.",
+    "tip": "A linguistic utterance or written proposition designed to solicit information, spark inquiry, or provoke a cognitive response."
+  },
+  {
+    "en": "Answer",
+    "pt": "Resposta",
+    "pronunciation": "énser",
+    "example": "She knows the right answer.",
+    "examplePt": "Ela sabe a resposta certa.",
+    "tip": "A reactive linguistic proposition formulated to resolve an inquiry or fulfill the criteria set by an interrogative statement."
+  },
+  {
+    "en": "Truth",
+    "pt": "Verdade",
+    "pronunciation": "trúth",
+    "example": "The truth will prevail.",
+    "examplePt": "A verdade prevalecerá.",
+    "tip": "The state or quality of an epistemological statement being in perfect, unyielding alignment with objective reality."
+  },
+  {
+    "en": "Sound",
+    "pt": "Som",
+    "pronunciation": "sáund",
+    "example": "Sound travels in waves.",
+    "examplePt": "O som viaja em ondas.",
+    "tip": "A mechanical wave that propagates through a compressible medium as a sequence of pressure oscillations, triggering auditory perception."
+  },
+  {
+    "en": "Light",
+    "pt": "Luz",
+    "pronunciation": "láit",
+    "example": "Turn on the light.",
+    "examplePt": "Ligue a luz.",
+    "tip": "Electromagnetic radiation within a specific band of wavelengths that can be detected by the specialized photoreceptors of the retina."
+  },
+  {
+    "en": "Map",
+    "pt": "Mapa",
+    "pronunciation": "mép",
+    "example": "Check the map.",
+    "examplePt": "Verifique o mapa.",
+    "tip": "A scaled, two-dimensional abstraction of geographical space where cities exist without population and oceans exist without fluid."
+  },
+  {
+    "en": "Age",
+    "pt": "Idade",
+    "pronunciation": "êidj",
+    "example": "Age brings wisdom.",
+    "examplePt": "A idade traz sabedoria.",
+    "tip": "A unidirectional chronological metric that continuously increases for an entity while simultaneously reducing its remaining temporal longevity."
+  },
+  {
+    "en": "Future",
+    "pt": "Futuro",
+    "pronunciation": "fiútcher",
+    "example": "Plan for the future.",
+    "examplePt": "Planeje para o futuro.",
+    "tip": "The unmanifested portion of the temporal continuum that lies ahead of the current observer, characterized by maximum entropy and probability matrixes."
+  },
+  {
+    "en": "Past",
+    "pt": "Passado",
+    "pronunciation": "pést",
+    "example": "The past shapes us.",
+    "examplePt": "O passado nos molda.",
+    "tip": "The unalterable segment of the temporal dimension consisting of events that have already occurred, serving as the basis for causal memory."
+  },
+  {
+    "en": "Dream",
+    "pt": "Sonho",
+    "pronunciation": "drím",
+    "example": "I had a dream.",
+    "examplePt": "Eu tive um sonho.",
+    "tip": "A endogenous hallucinatory state occurring during specific neural cycles, creating a temporary, immersive reality that collapses upon waking."
+  },
+  {
+    "en": "Chaos",
+    "pt": "Caos",
+    "pronunciation": "kéios",
+    "example": "Chaos reigns.",
+    "examplePt": "O caos reina.",
+    "tip": "A state of utter confusion or randomness, though in physics it describes systems highly sensitive to initial conditions, making long-term prediction impossible."
+  },
+  {
+    "en": "Vacuum",
+    "pt": "Vácuo",
+    "pronunciation": "vékiuem",
+    "example": "A space vacuum.",
+    "examplePt": "Um vácuo do espaço.",
+    "tip": "A volume of space that is entirely devoid of matter, where the gaseous pressure is significantly lower than atmospheric pressure."
+  },
+  {
+    "en": "Evolution",
+    "pt": "Evolução",
+    "pronunciation": "evolúchen",
+    "example": "Evolution of life.",
+    "examplePt": "Evolução da vida.",
+    "tip": "The gradual, non-teleological process of change in the heritable characteristics of biological populations over successive generations."
+  },
+  {
+    "en": "Language",
+    "pt": "Língua / Idioma",
+    "pronunciation": "lénguidj",
+    "example": "Speak a new language.",
+    "examplePt": "Fale um novo idioma.",
+    "tip": "An institutionalized, highly structured system of arbitrary vocal signs or graphic symbols used by human cohorts to transmit abstract thoughts."
+  },
+  {
+    "en": "Reflection",
+    "pt": "Reflexão",
+    "pronunciation": "rifléchen",
+    "example": "Water reflection.",
+    "examplePt": "Reflexão da água.",
+    "tip": "The abrupt change in direction of a wavefront at an interface between two different media, returning it to its original medium."
+  },
+  {
+    "en": "Void",
+    "pt": "Vazio / Vácuo",
+    "pronunciation": "vóid",
+    "example": "Into the void.",
+    "examplePt": "Para dentro do vazio.",
+    "tip": "A localized spatial region containing zero atoms or particles, maintaining an absolute pressure of zero pascals."
+  },
+  {
+    "en": "End",
+    "pt": "Fim",
+    "pronunciation": "énd",
+    "example": "At the very end.",
+    "examplePt": "Bem no final.",
+    "tip": "The terminal threshold or final boundary condition where a continuous chronological sequence or structural process permanently ceases."
+  },
+  {
+    "en": "Happy",
+    "pt": "Feliz",
+    "pronunciation": "répi",
+    "example": "I am very happy today.",
+    "examplePt": "Eu estou muito feliz hoje.",
+    "tip": "Feeling joy and pleasure. The opposite is 'sad'. 'Happy birthday!' uses this word."
+  },
+  {
+    "en": "Sad",
+    "pt": "Triste",
+    "pronunciation": "séd",
+    "example": "She is sad.",
+    "examplePt": "Ela está triste.",
+    "tip": "Feeling sorrow or unhappiness. The opposite is 'happy'. Crying is a sign of this."
+  },
+  {
+    "en": "Angry",
+    "pt": "Irritado / Com raiva",
+    "pronunciation": "éngri",
+    "example": "He is angry.",
+    "examplePt": "Ele está com raiva.",
+    "tip": "An intense emotional response involving a strong uncomfortable and hostile response to a perceived provocation, hurt, or threat."
+  },
+  {
+    "en": "Fear",
+    "pt": "Medo",
+    "pronunciation": "fír",
+    "example": "Overcome your fear.",
+    "examplePt": "Supere seu medo.",
+    "tip": "An evolutionary survival mechanism triggered by a perceived threat, causing an immediate amygdala response and a cascade of adrenaline for a fight-or-flight reaction."
+  },
+  {
+    "en": "Sadness",
+    "pt": "Tristeza",
+    "pronunciation": "sédnes",
+    "example": "Express your sadness.",
+    "examplePt": "Expresse sua tristeza.",
+    "tip": "An emotional pain associated with, or characterized by, feelings of disadvantage, loss, despair, grief, helplessness, and disappointment."
+  },
+  {
+    "en": "Jealousy",
+    "pt": "Ciúme",
+    "pronunciation": "djélosi",
+    "example": "Avoid jealousy.",
+    "examplePt": "Evite o ciúme.",
+    "tip": "A complex negative emotion encompassing feelings ranging from suspicion to rage, triggered by the perceived threat of losing a valued relationship or status to a rival."
+  },
+  {
+    "en": "Pride",
+    "pt": "Orgulho",
+    "pronunciation": "práid",
+    "example": "Feel pride in work.",
+    "examplePt": "Sinta orgulho no trabalho.",
+    "tip": "An inwardly directed emotion that carries an inflated appraisal of one's own country, group, achievements, or personal worth."
+  },
+  {
+    "en": "Shame",
+    "pt": "Vergonha",
+    "pronunciation": "chêim",
+    "example": "No shame in trying.",
+    "examplePt": "Sem vergonha de tentar.",
+    "tip": "A painful, socially self-conscious emotion that arises from the comparison of one's actions or state with social standards or internal ideals."
+  },
+  {
+    "en": "Memory",
+    "pt": "Memória",
+    "pronunciation": "mémori",
+    "example": "A fond memory.",
+    "examplePt": "Uma memória querida.",
+    "tip": "The cognitive faculty and neurobiological apparatus by which information, experiences, and learned behaviors are encoded, stored, and subsequently retrieved."
+  },
+  {
+    "en": "Intelligence",
+    "pt": "Inteligência",
+    "pronunciation": "intélidjens",
+    "example": "High intelligence.",
+    "examplePt": "Alta inteligência.",
+    "tip": "The abstract capacity to acquire, process, synthesize, and apply knowledge to solve novel problems and adapt to changing environments."
+  },
+  {
+    "en": "Hungry",
+    "pt": "Com fome",
+    "pronunciation": "rângri",
+    "example": "I am hungry.",
+    "examplePt": "Eu estou com fome.",
+    "tip": "The feeling when your body needs food. Your stomach may make noise when you feel this."
+  },
+  {
+    "en": "Hunger",
+    "pt": "Fome",
+    "pronunciation": "rânger",
+    "example": "Satisfy your hunger.",
+    "examplePt": "Satisfaça sua fome.",
+    "tip": "A physiological sensation signaling a critical depletion of caloric reserves, mediated by the hormone ghrelin acting upon the hypothalamus."
+  },
+  {
+    "en": "Thirsty",
+    "pt": "Com sede",
+    "pronunciation": "thârsti",
+    "example": "I am thirsty.",
+    "examplePt": "Eu estou com sede.",
+    "tip": "The urge to drink liquid. Your throat and mouth feel dry when you feel this."
+  },
+  {
+    "en": "Scared",
+    "pt": "Com medo / Assustado",
+    "pronunciation": "skérd",
+    "example": "I am scared of snakes.",
+    "examplePt": "Eu tenho medo de cobras.",
+    "tip": "Feeling fear. Something frightening caused this feeling. Haunted houses make people feel this."
+  },
+  {
+    "en": "Sick",
+    "pt": "Doente",
+    "pronunciation": "sík",
+    "example": "I am sick today.",
+    "examplePt": "Eu estou doente hoje.",
+    "tip": "Not feeling well due to illness. 'Call in sick' means telling work you cannot come."
+  },
+  {
+    "en": "Cold",
+    "pt": "Frio / Com frio",
+    "pronunciation": "côuld",
+    "example": "I am cold.",
+    "examplePt": "Eu estou com frio.",
+    "tip": "Feeling a low temperature. Can describe the weather or how your body feels."
+  },
+  {
+    "en": "Hot",
+    "pt": "Quente / Com calor",
+    "pronunciation": "rót",
+    "example": "It is very hot today.",
+    "examplePt": "Está muito quente hoje.",
+    "tip": "Feeling high temperature. The opposite of cold. Summer days can feel this way."
+  },
+  {
+    "en": "Excited",
+    "pt": "Empolgado(a)",
+    "pronunciation": "eksáited",
+    "example": "I am excited about the trip.",
+    "examplePt": "Eu estou empolgado(a) com a viagem.",
+    "tip": "Feeling great enthusiasm and eagerness. You feel this before something you have been looking forward to."
+  },
+  {
+    "en": "Nervous",
+    "pt": "Nervoso(a)",
+    "pronunciation": "nârvos",
+    "example": "I am nervous about the test.",
+    "examplePt": "Eu estou nervoso(a) com a prova.",
+    "tip": "Feeling anxiety before something important. Your hands might shake and your heart beats faster."
+  },
+  {
+    "en": "Surprised",
+    "pt": "Surpreso(a)",
+    "pronunciation": "surpráizd",
+    "example": "I am surprised!",
+    "examplePt": "Eu estou surpreso(a)!",
+    "tip": "A sudden feeling caused by something unexpected. Birthday parties often cause this feeling!"
+  },
+  {
+    "en": "Bored",
+    "pt": "Entediado(a)",
+    "pronunciation": "bórd",
+    "example": "I am bored.",
+    "examplePt": "Eu estou entediado(a).",
+    "tip": "Feeling weary with nothing interesting to do. Long waits or dull classes cause this."
+  },
+  {
+    "en": "Proud",
+    "pt": "Orgulhoso(a)",
+    "pronunciation": "práud",
+    "example": "I am proud of you.",
+    "examplePt": "Eu estou orgulhoso(a) de você.",
+    "tip": "Deep satisfaction from an achievement. Parents feel this when their child does something great."
+  },
+  {
+    "en": "What?",
+    "pt": "O quê?",
+    "pronunciation": "uót",
+    "example": "What is your name?",
+    "examplePt": "Qual é o seu nome?",
+    "tip": "Asks about things or information. 'What is that?' is a very common question."
+  },
+  {
+    "en": "Where?",
+    "pt": "Onde?",
+    "pronunciation": "uér",
+    "example": "Where do you live?",
+    "examplePt": "Onde você mora?",
+    "tip": "Asks about location. 'Where are you from?' and 'Where is the bathroom?' are classics."
+  },
+  {
+    "en": "When?",
+    "pt": "Quando?",
+    "pronunciation": "uén",
+    "example": "When is your birthday?",
+    "examplePt": "Quando é seu aniversário?",
+    "tip": "Asks about time or the moment an event happens."
+  },
+  {
+    "en": "Who?",
+    "pt": "Quem?",
+    "pronunciation": "rú",
+    "example": "Who is your teacher?",
+    "examplePt": "Quem é seu(sua) professor(a)?",
+    "tip": "Asks about a person's identity. 'Whodunit?' is a classic mystery question."
+  },
+  {
+    "en": "Why?",
+    "pt": "Por quê?",
+    "pronunciation": "uái",
+    "example": "Why are you sad?",
+    "examplePt": "Por que você está triste?",
+    "tip": "Asks for a reason or cause. The answer almost always starts with 'because'."
+  },
+  {
+    "en": "How?",
+    "pt": "Como?",
+    "pronunciation": "ráu",
+    "example": "How are you?",
+    "examplePt": "Como você está?",
+    "tip": "Asks about manner or condition. 'How are you?' is the most common greeting question."
+  },
+  {
+    "en": "How much?",
+    "pt": "Quanto? (preço)",
+    "pronunciation": "ráu mâtch",
+    "example": "How much is this?",
+    "examplePt": "Quanto custa isso?",
+    "tip": "Used for prices and uncountable things. 'How many?' is used for countable things."
+  },
+  {
+    "en": "How many?",
+    "pt": "Quantos(as)?",
+    "pronunciation": "ráu méni",
+    "example": "How many brothers do you have?",
+    "examplePt": "Quantos irmãos você tem?",
+    "tip": "Used for things you can count individually. 'How much?' is for things you cannot count."
+  },
+  {
+    "en": "What time?",
+    "pt": "Que horas?",
+    "pronunciation": "uót táim",
+    "example": "What time is it?",
+    "examplePt": "Que horas são?",
+    "tip": "Asks about the current hour or when something is scheduled to happen."
+  },
+  {
+    "en": "Do you like?",
+    "pt": "Você gosta?",
+    "pronunciation": "du iú láik",
+    "example": "Do you like chocolate?",
+    "examplePt": "Você gosta de chocolate?",
+    "tip": "A yes/no question about preferences. 'Would you like?' is used when offering something."
+  },
+  {
+    "en": "Can you?",
+    "pt": "Você pode?",
+    "pronunciation": "kén iú",
+    "example": "Can you help me?",
+    "examplePt": "Você pode me ajudar?",
+    "tip": "Asks about ability or makes a polite request. 'Could you?' is more formal."
+  },
+  {
+    "en": "I don't know",
+    "pt": "Eu não sei",
+    "pronunciation": "ái dôunt nôu",
+    "example": "I don't know the answer.",
+    "examplePt": "Eu não sei a resposta.",
+    "tip": "'Don't' is a contraction of 'do not'. An honest response when you lack information."
+  },
+  {
+    "en": "I don't understand",
+    "pt": "Eu não entendo",
+    "pronunciation": "ái dôunt andersténd",
+    "example": "I don't understand this word.",
+    "examplePt": "Eu não entendo esta palavra.",
+    "tip": "A key phrase for language learners! Use it to ask for clarification politely."
+  },
+  {
+    "en": "Can you repeat?",
+    "pt": "Pode repetir?",
+    "pronunciation": "kén iú ripít",
+    "example": "Can you repeat, please?",
+    "examplePt": "Pode repetir, por favor?",
+    "tip": "A polite request to hear something again. Very useful in real conversations!"
+  },
+  {
+    "en": "I'm learning English",
+    "pt": "Estou aprendendo inglês",
+    "pronunciation": "aim lârning ínglish",
+    "example": "I'm learning English at home.",
+    "examplePt": "Estou aprendendo inglês em casa.",
+    "tip": "Uses the present continuous tense: 'I'm' + verb+ing. This is exactly what you are doing!"
+  },
+  {
+    "en": "Nice to meet you",
+    "pt": "Prazer em conhecê-lo(a)",
+    "pronunciation": "náis tu mít iú",
+    "example": "Hi! Nice to meet you.",
+    "examplePt": "Oi! Prazer em conhecê-lo(a).",
+    "tip": "Said when meeting someone for the first time. Reply with 'Nice to meet you too!'"
+  },
+  {
+    "en": "See you later",
+    "pt": "Até mais tarde",
+    "pronunciation": "sí iú lêiter",
+    "example": "Bye! See you later.",
+    "examplePt": "Tchau! Até mais tarde.",
+    "tip": "An informal goodbye. Implies you will see the person again soon. 'Later!' is even shorter."
+  },
+  {
+    "en": "Have a nice day",
+    "pt": "Tenha um bom dia",
+    "pronunciation": "rév a náis dêi",
+    "example": "Goodbye! Have a nice day!",
+    "examplePt": "Tchau! Tenha um bom dia!",
+    "tip": "A friendly farewell wish. Cashiers and service workers say it all the time."
+  },
+  {
+    "en": "I'm going home",
+    "pt": "Estou indo para casa",
+    "pronunciation": "aim gôing hôum",
+    "example": "It's late, I'm going home.",
+    "examplePt": "Está tarde, estou indo para casa.",
+    "tip": "Uses present continuous (I'm + going) to describe an action happening right now."
+  },
+  {
+    "en": "What are you doing?",
+    "pt": "O que você está fazendo?",
+    "pronunciation": "uót ar iú dúing",
+    "example": "Hey! What are you doing?",
+    "examplePt": "Ei! O que você está fazendo?",
+    "tip": "A present continuous question. Uses 'are + you + verb+ing'. Very natural in everyday speech."
+  },
+  {
+    "en": "I like it",
+    "pt": "Eu gosto disso",
+    "pronunciation": "ái láik it",
+    "example": "This is good, I like it.",
+    "examplePt": "Isso é bom, eu gosto disso.",
+    "tip": "'It' replaces the object already mentioned. A natural way to express approval."
+  },
+  {
+    "en": "Let's go",
+    "pt": "Vamos lá",
+    "pronunciation": "léts gôu",
+    "example": "Let's go to the park!",
+    "examplePt": "Vamos ao parque!",
+    "tip": "Short for 'let us go'. Suggests doing something together. A great motivational phrase!"
+  },
+  {
+    "en": "I'm sorry",
+    "pt": "Me desculpe",
+    "pronunciation": "aim sóri",
+    "example": "I'm sorry for being late.",
+    "examplePt": "Me desculpe por estar atrasado(a).",
+    "tip": "More sincere than just 'sorry'. The full phrase shows deeper regret."
+  },
+  {
+    "en": "Excuse me",
+    "pt": "Com licença",
+    "pronunciation": "ekskiúz mi",
+    "example": "Excuse me, where is the bathroom?",
+    "examplePt": "Com licença, onde fica o banheiro?",
+    "tip": "Used to politely get attention or pass by someone in a crowd."
+  },
+  {
+    "en": "Of course",
+    "pt": "Claro / Com certeza",
+    "pronunciation": "óv córs",
+    "example": "Can you help me? Of course!",
+    "examplePt": "Pode me ajudar? Claro!",
+    "tip": "A confident, positive response. Stronger than simply saying 'yes'."
+  },
+  {
+    "en": "I think so",
+    "pt": "Eu acho que sim",
+    "pronunciation": "ái thínk sôu",
+    "example": "Is it going to rain? I think so.",
+    "examplePt": "Vai chover? Eu acho que sim.",
+    "tip": "Expresses uncertainty. Means you believe something but are not 100% sure."
+  },
+  {
+    "en": "Wait a moment",
+    "pt": "Espere um momento",
+    "pronunciation": "uêit a môument",
+    "example": "Wait a moment, please.",
+    "examplePt": "Espere um momento, por favor.",
+    "tip": "Asking someone to pause briefly. 'Hold on' is a common informal alternative."
+  },
+  {
+    "en": "That's great",
+    "pt": "Que ótimo",
+    "pronunciation": "déts grêit",
+    "example": "You passed the test? That's great!",
+    "examplePt": "Você passou na prova? Que ótimo!",
+    "tip": "An enthusiastic response to good news. 'That's' is a contraction of 'that is'."
+  },
+  {
+    "en": "No problem",
+    "pt": "Sem problema",
+    "pronunciation": "nôu próblem",
+    "example": "Thank you! No problem!",
+    "examplePt": "Obrigado(a)! Sem problema!",
+    "tip": "A casual reply to 'thank you' or 'sorry'. Shows no inconvenience was caused."
+  },
+  {
+    "en": "I need help",
+    "pt": "Eu preciso de ajuda",
+    "pronunciation": "ái níd rélp",
+    "example": "I need help with my homework.",
+    "examplePt": "Eu preciso de ajuda com minha lição.",
+    "tip": "Uses 'need' + noun. A direct and polite way to ask for assistance."
+  },
+  {
+    "en": "It's time to go",
+    "pt": "É hora de ir",
+    "pronunciation": "its táim tu gôu",
+    "example": "It's late, it's time to go.",
+    "examplePt": "Está tarde, é hora de ir.",
+    "tip": "'It's time to' + verb. Signals that you need to leave or start something."
+  }
+]

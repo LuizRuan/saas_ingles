@@ -3,6 +3,7 @@ import { useProgress } from '../hooks/useProgress';
 import './Home.css';
 
 const gamesList = [
+  { id: 'whoKnowsMore', name: 'Quem Sabe Mais?', icon: '⚔️', path: '/games/who-knows-more', color: '#ec4899', desc: 'Duelo online! Teste quem responde mais rápido contra o Bot Inteligente em partidas ao vivo.' },
   { id: 'memory', name: 'Jogo da Memória', icon: '🃏', path: '/games/memory', color: '#8b5cf6', desc: 'Encontre os pares de palavras em inglês e português. Treine seu vocabulário de forma divertida!' },
   { id: 'hangman', name: 'Jogo da Forca', icon: '🎯', path: '/games/hangman', color: '#3b82f6', desc: 'Adivinhe a palavra em inglês letra por letra. Você tem 6 tentativas!' },
   { id: 'wordBuilder', name: 'Montar Palavras', icon: '🔤', path: '/games/word-builder', color: '#10b981', desc: 'Organize as letras embaralhadas para formar a palavra correta em inglês.' },

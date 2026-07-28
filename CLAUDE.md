@@ -4,13 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**EnglishPlay** — a free browser game platform that teaches English to Brazilian Portuguese speakers. No login, no signup, no backend: it is a purely client-side SPA and *all* user state lives in `localStorage`.
+**EnglishPlay** — a free browser game platform that teaches English to Brazilian Portuguese speakers. Game state is still 100% client-side: *all* progress/settings live in `localStorage` via `useProgress`/`storage.js`, exactly as before.
+
+**Authentication now exists as a separate system.** [Register.jsx](src/pages/Register.jsx) and [Login.jsx](src/pages/Login.jsx) are real screens backed by a [backend/](backend/) scaffold (Express + Mongoose) — see "Backend (scaffold)" below. As of this writing it is **not deployed and has no live `MONGODB_URI`**; the routes exist and are unit-tested, but a real register→login round trip hasn't been exercised yet. Don't conflate the two systems: auth is about *who is signed in*, progress/scoring is still untouched and still lives entirely in `localStorage`. Migrating progress to the server is explicit future work, not done.
 
 The UI is written in **Portuguese (pt-BR)**. English text only ever appears as learning content (the words/sentences being taught). Keep new UI strings in Portuguese.
 
-**One deliberate exception:** the Conversation screen ([Conversation.jsx](src/pages/Conversation.jsx)) has its chrome in English — the user asked for an immersive practice screen. Grammar corrections there stay in Portuguese, because explaining a mistake in English to someone who cannot yet read English teaches nothing. Don't "fix" either half by making the screen consistent.
+**Two deliberate exceptions to pt-BR-everywhere:**
+- The Conversation screen ([Conversation.jsx](src/pages/Conversation.jsx)) has its chrome in English — the user asked for an immersive practice screen. Grammar corrections there stay in Portuguese, because explaining a mistake in English to someone who cannot yet read English teaches nothing. Don't "fix" either half by making the screen consistent.
+- File/route names stay in English even where copy is Portuguese, matching every other page (`Settings.jsx`→`/settings`, `Shop.jsx`→`/shop`). This is why the new pages are `Register.jsx`/`/register` and `Login.jsx`/`/login`, not `Cadastro.jsx`/`/cadastro` — "Cadastro" only appears as visible text.
 
-Despite the repo name `saas_ingles`, there is no server, no auth, no payments, and no multi-tenancy.
+Despite the repo name `saas_ingles`, there is still no payments and no multi-tenancy. There *is* now a server scaffold — see below.
 
 ## Commands
 
@@ -39,10 +43,31 @@ Static build on Vercel (`dist/`), auto-deployed from the GitHub repo. [vercel.js
 - **Fonts are self-hosted** in `public/fonts` (variable woff2, generated into [src/fonts.css](src/fonts.css)). Do **not** point back at `fonts.googleapis.com`: it re-adds a third party to the critical path, leaks every visitor's IP to Google (LGPD), and the CSP would block it anyway.
 - **`style-src` still needs `'unsafe-inline'`** because the codebase uses `style={{ ... }}` heavily, which emits `style` attributes. That is the one real weakness left in the CSP; moving those inline styles to classes would let it go.
 - **`frame-ancestors 'none'` + `X-Frame-Options: DENY`** — the site cannot be embedded. Verified against production.
-- **`localStorage` is treated as untrusted input.** `loadProgress`/`loadSettings` coerce types, clamp ranges, drop over-long keys and ignore `__proto__`. Keep it that way, and note what it does *not* do: it is not authorization. **When accounts land, the server must re-validate everything** — never let a client-supplied score or entitlement be trusted.
-- **Known advisory:** `react-router` 7.18.1 carries GHSA-qwww-vcr4-c8h2 (RSC-mode CSRF bypass). Not exploitable here — no RSC, no data router, no actions/loaders — and no fixed release exists yet (npm's suggested "fix" is a downgrade to 7.11.0; don't). Re-assess before adding a server.
+- **`localStorage` is treated as untrusted input.** `loadProgress`/`loadSettings` coerce types, clamp ranges, drop over-long keys and ignore `__proto__`. Keep it that way, and note what it does *not* do: it is not authorization. **When progress/scoring migrates to the server, the server must re-validate everything** — never let a client-supplied score or entitlement be trusted. (Auth itself has now landed — see below — but progress hasn't moved yet.)
+- **Known advisory:** `react-router` 7.18.1 carries GHSA-qwww-vcr4-c8h2 (RSC-mode CSRF bypass). No fixed release exists yet (npm's suggested "fix" is a downgrade to 7.11.0; don't). **Re-assessed now that a backend exists:** still not exploitable — Register.jsx/Login.jsx use plain `useState` + `fetch` inside submit handlers, not the data router, not loaders/actions, not RSC. This conclusion holds only as long as that stays true; re-check if auth flows ever move to a data router.
+- **`connect-src 'self'` is unaffected by the new auth calls** — `authClient.js` only ever fetches relative `/api/...` paths. The intended production topology is a Vercel `rewrites` entry proxying `/api/*` to the Render backend (server-to-server, invisible to the browser), not an absolute cross-origin URL — that's *why* the CSP doesn't need to change now or later. Don't "fix" this by pointing the frontend at an absolute Render URL; that would force `connect-src` open to a third party and reintroduce cross-site cookie complexity this design deliberately avoids.
+- **Deliberate, narrow exception for WebSockets:** unlike `fetch`, the duel's Socket.IO client ([useDuelSocket.js](src/hooks/useDuelSocket.js)) connects **directly** to the Render backend's own origin (`VITE_REALTIME_URL`), not through a Vercel rewrite. A Vercel rewrite proxies plain HTTP request/response; there is no documented/verified guarantee it tunnels a WebSocket *upgrade* to an external origin, and this repo isn't going to build a security-relevant feature on an unverified assumption. When Render is deployed, `connect-src` gets exactly one more named host added (`wss://<render-host>`) — not a wildcard, not a real third party (it's this app's own backend, just a different subdomain), and `credentials: false` on the socket's CORS means the fragile cross-site-cookie case the `fetch` rule protects against never enters the picture here (duel identity is a throwaway nickname, not the session cookie). This is an addition specific to the WebSocket case, not a reversal of the `fetch`/`connect-src 'self'` rule above.
 
 Dependabot ([.github/dependabot.yml](.github/dependabot.yml)) opens weekly dependency PRs and immediate security ones.
+
+## Backend (scaffold)
+
+[backend/](backend/) is an Express + Mongoose API for the Register/Login screens — see [backend/README.md](backend/README.md) for the full rationale. Key points for future sessions:
+
+- **Independent package**, not a workspace: its own `package.json`/`node_modules`, excluded from root Vitest (`vite.config.js`'s `test.exclude`) and root oxlint (`.oxlintrc.json`'s `ignorePatterns`). Don't wire it into root tooling without revisiting that exclusion.
+- **Not deployed, no live `MONGODB_URI`.** `config/db.js` connects only if the env var is set; otherwise the process still boots and DB-dependent routes (`register`, `login`) answer `503` via the `requireDb` middleware rather than hanging or crashing. `logout` and `me` need no DB at all — they work off the JWT alone.
+- **Session = httpOnly cookie carrying a JWT**, never a token the client stores itself — matches the same "localStorage is untrusted" principle above. `SameSite=Lax` (not `None`) because the topology is same-origin by design; that also means no separate CSRF token is needed (cross-site POSTs don't carry the cookie).
+- **4 routes:** `POST /api/auth/register` (creates + logs in, 201), `POST /api/auth/login` (200, generic 401 on any mismatch — never reveals whether an email exists), `POST /api/auth/logout` (200), `GET /api/auth/me` (reads the JWT payload directly).
+- Root `vite.config.js` proxies `/api` to `http://localhost:5000` in dev, so `src/utils/authClient.js`'s relative fetches work locally without any origin configuration — the same relative-path story that will hold once the Vercel rewrite exists.
+
+### Realtime multiplayer ("Quem Sabe Mais?" human duel)
+
+[backend/realtime/](backend/realtime/) is a Socket.IO server attached to the same `http.Server` as Express (see `server.js`) — this is why `server.js`, not `app.js`, is the one file that had to change non-additively (it now builds a raw `http.Server` instead of calling `app.listen()` directly; `app.js` itself, and `app.test.js`'s supertest-based tests, are unaffected since supertest never calls `.listen()`).
+
+- **No MongoDB needed.** Matches last ~2 minutes; queue and match state live in memory in the Node process (`backend/realtime/state.js`). This is unrelated to the auth system's Mongo dependency.
+- **The server is authoritative for the question, the timing, and the correct answer — never the client.** It picks the word/game type, shuffles options, and only reveals `correctAnswer` after both players have answered (or the round times out). Timing is measured by when the answer *arrives at the server* (`backend/realtime/scoring.js`), never a client-reported elapsed time. This is a real (if proportionate — no money/ranking at stake) security property for the app's first cross-user real-time feature; see `backend/README.md`'s "Realtime" section for the full reasoning.
+- **`backend/data/words.json`** is a generated, deliberately duplicated slice of `src/data/words.js` (same spirit as `backend/utils/validators.js` duplicating frontend rules) — regenerate with `node backend/scripts/sync-words.mjs` whenever the word bank changes. The frontend's own `words.js` is never used for human-mode duels (only for Bot mode, which stays 100% client-side and unchanged).
+- **Guest identity (`progress.displayName` in `storage.js`) is deliberately separate from Register/Login.** Duel matchmaking must keep working without an account, the same way it always could as a Bot match.
 
 ## Stack
 

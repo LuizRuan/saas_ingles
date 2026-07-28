@@ -19,6 +19,15 @@ export const categories = [
   { id: "sentimentos", name: "Sentimentos", icon: "😊", color: "#a855f7", description: "Feliz, triste, cansado..." },
   { id: "perguntas", name: "Perguntas Comuns", icon: "❓", color: "#22c55e", description: "O quê, onde, quando..." },
   { id: "frases", name: "Frases do Cotidiano", icon: "💬", color: "#8b5cf6", description: "Frases úteis do dia a dia" },
+  { id: "tecnologia", name: "Tecnologia & Ciência", icon: "🛰️", color: "#06b6d4", description: "Internet, gravidade, código..." },
+  { id: "charadas", name: "Charadas & Enigmas", icon: "🧩", color: "#a855f7", description: "Segredo, tempo, fogo..." },
+  { id: "geografia", name: "Clima & Geografia", icon: "🌋", color: "#3b82f6", description: "Vulcão, oceano, estrelas..." },
+  { id: "sociedade", name: "Sociedade & Cultura", icon: "⚖️", color: "#64748b", description: "Governo, lei, música..." },
+  { id: "fisica", name: "Química & Materiais", icon: "🧪", color: "#10b981", description: "Ouro, vidro, plástico..." },
+  { id: "ferramentas", name: "Ferramentas & Utensílios", icon: "🛠️", color: "#f59e0b", description: "Martelo, faca, tesoura..." },
+  { id: "esportes", name: "Esportes & Jogos", icon: "⚽", color: "#ef4444", description: "Bola, xadrez, corrida..." },
+  { id: "crimes", name: "Crimes & Investigação", icon: "🕵️", color: "#64748b", description: "Ladrão, veneno, pista..." },
+  { id: "artes", name: "Artes & Mídia", icon: "🎨", color: "#ec4899", description: "Pintura, teatro, poema..." },
 ];
 
 // Níveis de progressão

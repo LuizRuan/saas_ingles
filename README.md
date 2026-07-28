@@ -1,8 +1,12 @@
 # EnglishPlay
 
-Plataforma gratuita para brasileiros aprenderem inglês jogando. Sem login, sem
-cadastro e sem servidor: é uma SPA que roda inteira no navegador e guarda o
-progresso no `localStorage`.
+Plataforma gratuita para brasileiros aprenderem inglês jogando. O progresso do
+jogo continua 100% no navegador, guardado no `localStorage` — isso não mudou.
+
+Agora existem telas de Cadastro e Login, com um esqueleto de backend em
+[`backend/`](backend/) (Express + Mongoose) pensado para ser implantado no
+Render mais adiante. Ainda não está no ar nem conectado a um banco — os
+detalhes estão em [backend/README.md](backend/README.md).
 
 ## Rodando
 

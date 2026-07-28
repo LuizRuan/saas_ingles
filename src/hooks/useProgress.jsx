@@ -255,6 +255,11 @@ export const ProgressProvider = ({ children }) => {
     setProgress(prev => ({ ...prev, selectedTheme: themeId }));
   }, []);
 
+  // Apelido de convidado para o duelo humano — não tem ligação com Login/Cadastro
+  const setDisplayName = useCallback((name) => {
+    setProgress(prev => ({ ...prev, displayName: name }));
+  }, []);
+
   // Lê pelo ref para manter a identidade estável, como as demais ações
   const consumeHint = useCallback(() => {
     if ((progressRef.current.hintsAvailable || 0) <= 0) return false;
@@ -297,6 +302,7 @@ export const ProgressProvider = ({ children }) => {
     incrementReviewed,
     buyShopItem,
     setTheme,
+    setDisplayName,
     consumeHint,
     consumeExtraTime,
     resetAllProgress,

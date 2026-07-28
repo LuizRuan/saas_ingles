@@ -39,6 +39,21 @@ const Settings = () => {
           <h1>⚙️ Configurações</h1>
         </div>
 
+        {/* Entrar/Cadastro — ponto de entrada mobile, já que o .mobile-nav não
+            tem folga para um 6º item. No desktop o mesmo link mora em .navbar-stats. */}
+        <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
+            <div>
+              <h4>👤 Conta</h4>
+              <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>Entre ou crie uma conta para salvar seu progresso</p>
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+              <Link to="/login" className="btn btn-secondary btn-sm">Entrar</Link>
+              <Link to="/register" className="btn btn-primary btn-sm">Cadastre-se</Link>
+            </div>
+          </div>
+        </div>
+
         {/* Sound */}
         <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

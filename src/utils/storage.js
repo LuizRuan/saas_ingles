@@ -31,6 +31,7 @@ const defaultProgress = {
     fillBlanks: 0,
     trueFalse: 0,
     listening: 0,
+    whoKnowsMore: 0,
   },
   // Vocabulário: { [word.en canônico]: { correct, wrong, lastSeen, timestamps, learned } }
   wordStats: {},
@@ -53,6 +54,10 @@ const defaultProgress = {
   extraTimeAvailable: 0,
   selectedAvatar: null,
   selectedTheme: 'default',
+  // Apelido de convidado para o duelo humano de "Quem Sabe Mais?" — não tem
+  // ligação com o sistema de Login/Cadastro (CLAUDE.md separa os dois de
+  // propósito). null até a pessoa entrar na fila pela primeira vez.
+  displayName: null,
   // Multiplicador comprado na Loja: vale pelas próximas `multiplierGames` partidas
   pointsMultiplier: 1,
   multiplierGames: 0,
@@ -160,6 +165,9 @@ const saneiaProgresso = (bruto) => {
     extraTimeAvailable: inteiro(p.extraTimeAvailable, 0, { min: 0, max: 100000 }),
     selectedAvatar: texto(p.selectedAvatar),
     selectedTheme: texto(p.selectedTheme, 'default') ?? 'default',
+    // Cap próprio de 20: este texto é mostrado a um estranho no duelo, não só
+    // usado localmente — mais estreito que o MAX_CHAVE genérico de 200.
+    displayName: texto(p.displayName)?.slice(0, 20) ?? null,
     // Multiplicador é o campo mais sensível a lixo: limitar a faixa evita
     // pontuação explodindo caso alguém escreva 1e9 aqui.
     pointsMultiplier: numero(p.pointsMultiplier, 1, { min: 1, max: 10 }),

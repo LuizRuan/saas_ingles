@@ -1,0 +1,553 @@
+.who-knows-more-page {
+  padding-top: var(--space-xl);
+  padding-bottom: var(--space-3xl);
+  min-height: calc(100vh - 80px);
+}
+
+/* LOBBY STYLES */
+.lobby-container {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.lobby-header {
+  margin-bottom: var(--space-2xl);
+}
+
+.lobby-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  padding: 0.4rem 1.2rem;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: var(--space-md);
+}
+
+.lobby-header h1 {
+  font-size: var(--fs-4xl);
+  background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-md);
+}
+
+.lobby-header p {
+  max-width: 650px;
+  margin: 0 auto;
+  font-size: var(--fs-md);
+}
+
+.mode-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-xl);
+  margin-top: var(--space-xl);
+}
+
+.mode-card {
+  position: relative;
+  padding: var(--space-2xl) var(--space-xl);
+  border-radius: var(--radius-xl);
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px solid transparent;
+}
+
+.mode-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(167, 139, 250, 0.4);
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.2);
+}
+
+.active-card {
+  background: linear-gradient(145deg, rgba(30, 27, 75, 0.6), rgba(49, 46, 129, 0.6));
+  border-color: rgba(167, 139, 250, 0.5);
+}
+
+/* Antes só existia para "parecer desabilitado" (o card dizia "Em Breve") —
+   agora que o duelo humano é real, ganha um gradiente próprio (verde-azulado),
+   no mesmo espírito do gradiente roxo que .active-card já dá ao card do Bot. */
+.human-mode {
+  background: linear-gradient(145deg, rgba(6, 78, 59, 0.5), rgba(8, 47, 73, 0.6));
+  border-color: rgba(52, 211, 153, 0.5);
+}
+
+.human-mode:hover {
+  border-color: rgba(52, 211, 153, 0.7);
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.2);
+}
+
+.mode-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-full);
+}
+
+.mode-icon {
+  font-size: 3.5rem;
+  margin-bottom: var(--space-md);
+}
+
+/* Contador de gente online, ao vivo — substitui o antigo badge estático
+   "Em Breve 🚀". O ponto pulsante é a única animação nova deste arquivo
+   (nenhuma das 6 já existentes no design system representa presença ao vivo). */
+.online-count-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+
+.mode-card h3 {
+  font-size: var(--fs-2xl);
+  margin-bottom: var(--space-xs);
+}
+
+.mode-card p {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+/* MODAL: usa .modal-overlay/.modal-content GLOBAIS (index.css), o mesmo
+   padrão que MemoryGame.jsx já usa de verdade. Este arquivo tinha suas
+   PRÓPRIAS .modal-overlay/.modal-box (valores diferentes: fundo mais escuro,
+   z-index maior) — como carregava depois de index.css, sombreava o padrão
+   global em vez de seguir ele. Era a causa provável do modal fora do padrão
+   no print. */
+.modal-icon {
+  font-size: 3.5rem;
+  margin-bottom: var(--space-md);
+}
+
+/* DUEL MATCH STYLES */
+.duel-match-container {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.duel-scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-md);
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.8), rgba(17, 24, 39, 0.8));
+}
+
+.player-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.player-profile .avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-purple-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.bot-avatar {
+  background: rgba(59, 130, 246, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+.profile-name {
+  display: block;
+  font-weight: 700;
+  font-size: var(--fs-md);
+}
+
+.profile-score {
+  font-size: var(--fs-sm);
+  color: var(--accent-primary-light);
+  font-weight: 800;
+}
+
+.vs-badge {
+  text-align: center;
+}
+
+.vs-badge span {
+  display: block;
+  font-size: var(--fs-xl);
+  font-weight: 900;
+  color: #f43f5e;
+  letter-spacing: 2px;
+}
+
+.vs-badge small {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+/* TIMER BAR */
+.timer-bar-container {
+  position: relative;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-xl);
+}
+
+.timer-bar-fill {
+  height: 100%;
+  transition: width 1s linear, background-color 0.3s ease;
+}
+
+.timer-text {
+  position: absolute;
+  right: 0;
+  top: -24px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* QUESTION CARD */
+.question-card {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-xl);
+  margin-bottom: var(--space-xl);
+  border-radius: var(--radius-xl);
+}
+
+.question-label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.target-word {
+  font-size: var(--fs-4xl);
+  font-weight: 900;
+  margin: var(--space-xs) 0;
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.pronunciation {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+/* OPTIONS GRID */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.option-btn:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+}
+
+.option-letter {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+}
+
+.option-btn.correct {
+  background: rgba(34, 197, 94, 0.25) !important;
+  border-color: #22c55e !important;
+  color: #4ade80 !important;
+}
+
+.option-btn.incorrect {
+  background: rgba(239, 68, 68, 0.25) !important;
+  border-color: #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
+/* Modo humano: eu já respondi, mas o servidor ainda não revelou o resultado
+   (aguardando o oponente responder ou o tempo acabar) — não é nem acerto nem
+   erro ainda, só "escolha registrada". */
+.option-btn.pending {
+  background: rgba(139, 92, 246, 0.2) !important;
+  border-color: var(--accent-primary) !important;
+}
+
+/* BOT STATUS BAR */
+.bot-status-bar {
+  padding: var(--space-md) var(--space-lg);
+  text-align: center;
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-sm);
+}
+
+.bot-thinking {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Modificador de tamanho sobre o .spinner que já existe — sem reinventar
+   uma segunda animação de carregamento. */
+.searching-spinner {
+  width: 40px;
+  height: 40px;
+  border-width: 3px;
+  margin: 0 auto var(--space-md);
+}
+
+.match-found-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.text-green { color: #4ade80; }
+.text-red { color: #fca5a5; }
+
+/* GAMEOVER STYLES */
+.gameover-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--space-3xl) var(--space-2xl);
+  text-align: center;
+  border-radius: var(--radius-2xl);
+}
+
+.result-icon {
+  font-size: 4.5rem;
+  margin-bottom: var(--space-sm);
+}
+
+.final-scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin: var(--space-2xl) 0;
+  padding: var(--space-lg);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-xl);
+}
+
+.final-score-box span {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.final-score-box h2 {
+  font-size: var(--fs-3xl);
+  color: var(--accent-primary-light);
+  margin-top: 4px;
+}
+
+.final-score-vs {
+  font-weight: 900;
+  color: #f43f5e;
+  font-size: var(--fs-xl);
+}
+
+.rewards-card {
+  display: flex;
+  justify-content: space-around;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+.reward-item strong {
+  display: block;
+  font-size: var(--fs-lg);
+  color: #f59e0b;
+}
+
+.gameover-actions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* SETUP MODAL & DIFFICULTY SELECTION */
+.setup-modal-box {
+  max-width: 540px !important;
+  text-align: left !important;
+}
+
+.setup-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.setup-label {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.setup-options-list,
+.setup-options-grid-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-height: 270px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.setup-option-card {
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.setup-option-card:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.setup-option-card.selected {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+}
+
+.setup-option-card strong {
+  display: block;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+}
+
+.setup-option-card span {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.diff-pills-row {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.diff-pill {
+  flex: 1;
+  padding: 0.6rem var(--space-xs);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.diff-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.diff-pill.active {
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+}
+
+/* TRUE / FALSE GRID */
+.tf-grid {
+  grid-template-columns: 1fr 1fr !important;
+}
+
+.tf-true.correct {
+  background: rgba(34, 197, 94, 0.3) !important;
+  border-color: #22c55e !important;
+}
+
+.tf-false.correct {
+  background: rgba(34, 197, 94, 0.3) !important;
+  border-color: #22c55e !important;
+}
+

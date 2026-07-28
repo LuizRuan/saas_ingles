@@ -1,0 +1,28 @@
+{
+  "name": "englishplay-backend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "API de autenticação do EnglishPlay — esqueleto para deploy futuro no Render + MongoDB Atlas. Pacote independente do frontend (ver README.md).",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "express-rate-limit": "^7.5.0",
+    "dotenv": "^16.4.7",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.10",
+    "supertest": "^7.0.0"
+  }
+}

@@ -11,6 +11,7 @@ import TranslationQuiz from './games/TranslationQuiz/TranslationQuiz';
 import FillBlanks from './games/FillBlanks/FillBlanks';
 import TrueFalse from './games/TrueFalse/TrueFalse';
 import ListeningGame from './games/ListeningGame/ListeningGame';
+import WhoKnowsMore from './games/WhoKnowsMore/WhoKnowsMore';
 import Conversation from './pages/Conversation';
 import DailyChallenge from './pages/DailyChallenge';
 import MyWords from './pages/MyWords';
@@ -19,6 +20,8 @@ import Levels from './pages/Levels';
 import Achievements from './pages/Achievements';
 import Settings from './pages/Settings';
 import Shop from './pages/Shop';
+import Register from './pages/Register';
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -36,6 +39,7 @@ function App() {
             <Route path="/games/fill-blanks" element={<FillBlanks />} />
             <Route path="/games/true-false" element={<TrueFalse />} />
             <Route path="/games/listening" element={<ListeningGame />} />
+            <Route path="/games/who-knows-more" element={<WhoKnowsMore />} />
             <Route path="/conversation" element={<Conversation />} />
             <Route path="/daily" element={<DailyChallenge />} />
             <Route path="/my-words" element={<MyWords />} />
@@ -44,6 +48,8 @@ function App() {
             <Route path="/achievements" element={<Achievements />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
           </Routes>
         </Layout>
       </BrowserRouter>

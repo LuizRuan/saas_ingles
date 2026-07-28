@@ -1,0 +1,67 @@
+import { User } from '../models/User.js';
+import { isValidEmailFormat, isValidPassword, MIN_PASSWORD_LENGTH } from '../utils/validators.js';
+import { hashPassword, comparePassword } from '../utils/password.js';
+import { signSessionToken, sessionCookieOptions, clearSessionCookieOptions, SESSION_COOKIE_NAME } from '../utils/token.js';
+
+const toPublicUser = (user) => ({ id: user._id.toString(), email: user.email });
+
+export const register = async (req, res) => {
+  const { email, password } = req.body || {};
+
+  if (!isValidEmailFormat(email)) {
+    return res.status(400).json({ error: 'Digite um e-mail válido.' });
+  }
+  if (!isValidPassword(password)) {
+    return res.status(400).json({ error: `A senha precisa de pelo menos ${MIN_PASSWORD_LENGTH} caracteres.` });
+  }
+
+  try {
+    const passwordHash = await hashPassword(password);
+    const user = await User.create({ email, passwordHash });
+
+    const token = signSessionToken(user);
+    res.cookie(SESSION_COOKIE_NAME, token, sessionCookieOptions());
+    res.status(201).json({ user: toPublicUser(user) });
+  } catch (err) {
+    // E11000 = índice único violado (e-mail já cadastrado). Também fecha a
+    // corrida que uma checagem prévia (find antes de create) sozinha não fecha.
+    if (err.code === 11000) {
+      return res.status(409).json({ error: 'Este e-mail já está cadastrado.' });
+    }
+    throw err;
+  }
+};
+
+export const login = async (req, res) => {
+  const { email, password } = req.body || {};
+
+  // Mesma resposta genérica em qualquer descompasso — e-mail não existe ou
+  // senha errada dão o MESMO 401, para não virar um oráculo de "esse e-mail
+  // existe ou não".
+  const invalidCredentials = () => res.status(401).json({ error: 'E-mail ou senha inválidos.' });
+
+  if (!isValidEmailFormat(email) || !password) return invalidCredentials();
+
+  const user = await User.findOne({ email: String(email).toLowerCase().trim() });
+  if (!user) return invalidCredentials();
+
+  const ok = await comparePassword(password, user.passwordHash);
+  if (!ok) return invalidCredentials();
+
+  const token = signSessionToken(user);
+  res.cookie(SESSION_COOKIE_NAME, token, sessionCookieOptions());
+  res.status(200).json({ user: toPublicUser(user) });
+};
+
+// Não precisa de requireDb — só limpa um cookie, não toca o Mongo. Funciona
+// hoje, sem MONGODB_URI nenhum.
+export const logout = (req, res) => {
+  res.clearCookie(SESSION_COOKIE_NAME, clearSessionCookieOptions());
+  res.status(200).json({ ok: true });
+};
+
+// requireAuth já populou req.user a partir do próprio JWT — sem round-trip
+// nem dependência de banco.
+export const me = (req, res) => {
+  res.status(200).json({ user: req.user });
+};

@@ -38,6 +38,13 @@ describe('progresso', () => {
     // Campo novo: quem já jogava antes do Tempo Extra existir tem que receber
     // o default em vez de undefined, senão o botão "+10s" quebra na conta.
     expect(p.extraTimeAvailable).toBe(0);
+    // Apelido do duelo humano de "Quem Sabe Mais?" — default null, não string vazia
+    expect(p.displayName).toBeNull();
+  });
+
+  it('corta o apelido de duelo em 20 caracteres (é mostrado a um estranho)', () => {
+    gravarProgresso({ displayName: 'a'.repeat(100) });
+    expect(loadProgress().displayName).toHaveLength(20);
   });
 
   it('faz ida e volta pelo saveProgress', () => {

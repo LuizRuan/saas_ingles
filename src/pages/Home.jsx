@@ -13,6 +13,7 @@ const quickLinks = [
 ];
 
 const gamesList = [
+  { id: 'whoKnowsMore', name: 'Quem Sabe Mais?', desc: 'Duelo de Vocabulário', icon: '⚔️', color: '#ec4899', bg: '#fdf2f8', path: '/games/who-knows-more' },
   { id: 'memory', name: 'Jogo da Memória', desc: 'Encontre os pares', icon: '🃏', color: '#6366f1', bg: '#ede9fe', path: '/games/memory' },
   { id: 'hangman', name: 'Jogo da Forca', desc: 'Adivinhe a palavra', icon: '🎯', color: '#ef4444', bg: '#fef2f2', path: '/games/hangman' },
   { id: 'wordBuilder', name: 'Montar Palavras', desc: 'Organize as letras', icon: '🔤', color: '#3b82f6', bg: '#eef4ff', path: '/games/word-builder' },
