@@ -1,0 +1,307 @@
+/* === HERO === */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xl);
+  padding: var(--space-2xl) 0;
+}
+
+.hero-content { flex: 1; }
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: var(--space-md);
+}
+
+.hero-english { color: var(--text-primary); }
+.hero-play { color: var(--accent-primary); font-style: italic; }
+
+.hero-subtitle {
+  font-size: var(--fs-lg);
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+.hero-desc {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xl);
+  max-width: 420px;
+  line-height: 1.7;
+}
+
+.hero-illustration {
+  flex: 0 0 380px;
+  max-width: 380px;
+}
+
+.hero-illustration img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 30px rgba(99, 102, 241, 0.15));
+}
+
+/* === STATS ROW === */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--space-md) var(--space-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  font-size: 1.3rem;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-family: var(--font-heading);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.stat-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* === LEVEL BAR === */
+.level-bar {
+  margin-bottom: var(--space-xl);
+}
+
+.level-bar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.level-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.level-bar-bottom {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+/* === SECTION HEADER === */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+
+/* === QUICK LINKS === */
+.quick-links {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+.quick-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  text-decoration: none;
+  color: inherit;
+}
+
+.quick-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  font-size: 1.3rem;
+}
+
+.quick-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-arrow {
+  color: var(--text-muted);
+  font-size: var(--fs-lg);
+}
+
+/* === REVIEW BANNER === */
+.review-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition-base);
+}
+
+.review-banner:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+/* === GAMES GRID === */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+.game-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  text-decoration: none;
+  color: inherit;
+}
+
+.game-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  font-size: 1.4rem;
+}
+
+.game-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* === GAME LIST (for Games page) === */
+.games-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.game-list-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  text-decoration: none;
+  color: inherit;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-base);
+}
+
+.game-list-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.game-list-icon {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  font-size: 2rem;
+}
+
+.game-list-info { flex: 1; }
+.game-list-info h3 { margin-bottom: 2px; }
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+  .games-grid { grid-template-columns: repeat(2, 1fr); }
+  .quick-links { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-xl) 0;
+  }
+  
+  .hero-desc { margin-left: auto; margin-right: auto; }
+  
+  .hero-illustration {
+    flex: none;
+    max-width: 280px;
+    order: -1;
+  }
+  
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+  .stat-card { padding: var(--space-sm) var(--space-md); }
+  .quick-links { grid-template-columns: 1fr; }
+  .games-grid { grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+  .game-card { padding: var(--space-sm) var(--space-md); }
+  
+  .review-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+  
+  .game-list-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}

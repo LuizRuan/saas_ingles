@@ -1,0 +1,10 @@
+/* Layout-specific styles beyond the global design system */
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}

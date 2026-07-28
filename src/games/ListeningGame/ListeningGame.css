@@ -1,0 +1,2 @@
+.listen-card { padding: var(--space-2xl); text-align: center; margin-bottom: var(--space-xl); }
+.listen-buttons { display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; }

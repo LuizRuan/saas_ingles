@@ -1,0 +1,113 @@
+// Sistema inteligente de revisão
+// Prioriza palavras com mais erros nos próximos jogos
+// Considera uma palavra "aprendida" após 3 acertos em momentos diferentes
+
+import { resolveWordKey } from './wordKey';
+
+export const LEARNED_THRESHOLD = 3; // Acertos necessários para considerar aprendida
+
+export const getWordStatus = (wordStats) => {
+  if (!wordStats) return 'nova';
+  if (wordStats.correct >= LEARNED_THRESHOLD) return 'aprendida';
+  if (wordStats.correct > 0 || wordStats.wrong > 0) return 'aprendendo';
+  return 'nova';
+};
+
+export const getWordsToReview = (progress, allWords) => {
+  const { wordStats = {} } = progress;
+  
+  // Get words that have been seen and have errors
+  const wordsWithErrors = allWords.filter(word => {
+    const stats = wordStats[word.en];
+    return stats && stats.wrong > 0 && stats.correct < LEARNED_THRESHOLD;
+  });
+  
+  // Sort by error rate (most errors first)
+  wordsWithErrors.sort((a, b) => {
+    const statsA = wordStats[a.en];
+    const statsB = wordStats[b.en];
+    const errorRateA = statsA.wrong / (statsA.correct + statsA.wrong);
+    const errorRateB = statsB.wrong / (statsB.correct + statsB.wrong);
+    return errorRateB - errorRateA;
+  });
+  
+  return wordsWithErrors;
+};
+
+export const getWordPriority = (wordStats) => {
+  if (!wordStats) return 0;
+  // Higher priority = should appear more often
+  const errorRate = wordStats.wrong / Math.max(1, wordStats.correct + wordStats.wrong);
+  return errorRate * 10;
+};
+
+// Mix review words into a game's word pool
+export const mixReviewWords = (gameWords, reviewWords, ratio = 0.3) => {
+  const reviewCount = Math.min(
+    Math.floor(gameWords.length * ratio),
+    reviewWords.length
+  );
+  
+  if (reviewCount === 0) return gameWords;
+  
+  const selectedReview = reviewWords.slice(0, reviewCount);
+  const remainingGame = gameWords.slice(0, gameWords.length - reviewCount);
+  
+  const mixed = [...remainingGame, ...selectedReview];
+  // Shuffle
+  for (let i = mixed.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [mixed[i], mixed[j]] = [mixed[j], mixed[i]];
+  }
+  
+  return mixed;
+};
+
+// PURA: não altera `progress` nem nada aninhado nele. A versão anterior fazia
+// push direto em errorHistory/wordStats, que são compartilhados com o estado
+// anterior — sob StrictMode o updater roda duas vezes e duplicava o registro.
+export const recordWordResult = (progress, rawKey, isCorrect) => {
+  const canonical = resolveWordKey(rawKey);
+  // Frases e lacunas não são vocabulário: vão para um balde separado, senão
+  // inflam "palavras estudadas" e distorcem o nível.
+  const bucketName = canonical ? 'wordStats' : 'phraseStats';
+  const key = canonical ?? String(rawKey);
+
+  const bucket = { ...(progress[bucketName] || {}) };
+  const prev = bucket[key] || { correct: 0, wrong: 0, lastSeen: null, timestamps: [] };
+  const now = Date.now();
+
+  const stats = {
+    ...prev,
+    correct: (prev.correct || 0) + (isCorrect ? 1 : 0),
+    wrong: (prev.wrong || 0) + (isCorrect ? 0 : 1),
+    timestamps: isCorrect ? [...(prev.timestamps || []), now] : [...(prev.timestamps || [])],
+    lastSeen: now,
+  };
+
+  // "Aprendida": acertos suficientes em pelo menos 2 dias distintos
+  if (stats.correct >= LEARNED_THRESHOLD) {
+    const uniqueDays = new Set(stats.timestamps.map(t => new Date(t).toDateString()));
+    if (uniqueDays.size >= 2) stats.learned = true;
+  }
+  bucket[key] = stats;
+
+  const updated = { ...progress, [bucketName]: bucket };
+
+  if (isCorrect) {
+    updated.totalCorrect = (progress.totalCorrect || 0) + 1;
+    updated.currentStreak = (progress.currentStreak || 0) + 1;
+    updated.bestStreak = Math.max(progress.bestStreak || 0, updated.currentStreak);
+  } else {
+    updated.totalWrong = (progress.totalWrong || 0) + 1;
+    updated.currentStreak = 0;
+    updated.errorHistory = [...(progress.errorHistory || []), { word: key, timestamp: now }].slice(-100);
+  }
+
+  // Só vocabulário conta como palavra estudada/aprendida
+  const vocab = updated.wordStats || {};
+  updated.wordsLearned = Object.values(vocab).filter(s => s.correct >= LEARNED_THRESHOLD).length;
+  updated.wordsStudied = Object.keys(vocab).length;
+
+  return updated;
+};

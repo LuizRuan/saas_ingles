@@ -1,0 +1,12 @@
+# Normaliza quebras de linha: LF no repositório, nativo no working copy.
+# Sem isso, cada commit feito no Windows aparece como "arquivo inteiro alterado".
+* text=auto eol=lf
+
+# Binários — nunca converter
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff  binary
+*.woff2 binary

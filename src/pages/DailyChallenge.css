@@ -1,0 +1,69 @@
+.daily-prompt {
+  padding: var(--space-xl);
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.daily-prompt-label {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.daily-prompt-word {
+  font-family: var(--font-heading);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--accent-purple-light);
+}
+
+.daily-verdict {
+  text-align: center;
+  font-weight: 700;
+  font-size: var(--fs-md);
+  margin-bottom: var(--space-md);
+}
+
+.daily-verdict.correct { color: var(--accent-green-dark); }
+.daily-verdict.wrong { color: var(--accent-red-light); }
+
+.daily-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.daily-option {
+  padding: var(--space-md) var(--space-lg);
+  text-align: left;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.daily-option:hover:not(:disabled) {
+  border-color: var(--accent-primary);
+  background: var(--bg-purple-subtle);
+}
+
+.daily-option:disabled {
+  cursor: default;
+}
+
+.daily-option.correct {
+  border-color: var(--accent-green);
+  background: var(--bg-green-subtle);
+  color: var(--accent-green-dark);
+}
+
+.daily-option.wrong {
+  border-color: var(--accent-red);
+  background: var(--bg-red-subtle);
+  color: var(--accent-red-light);
+  animation: shake 0.5s ease-out;
+}
+
+.daily-explanation {
+  margin-top: var(--space-lg);
+}
