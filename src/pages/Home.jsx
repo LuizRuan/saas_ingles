@@ -105,7 +105,7 @@ const Home = () => {
                   <span className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}> {currentLevel.name}</span>
                 </div>
               </div>
-              <Link to="/my-words" className="btn btn-ghost btn-sm">👁 Ver nível →</Link>
+              <Link to="/levels" className="btn btn-ghost btn-sm">📊 Ver níveis →</Link>
             </div>
             <div className="level-bar-bottom">
               <span className="text-muted" style={{ fontSize: 'var(--fs-xs)' }}>{currentLevel.name}</span>

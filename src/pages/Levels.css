@@ -1,0 +1,220 @@
+/* Tela de Níveis — a trilha de progressão.
+   Usa os tokens do design system; nada de cor solta aqui. */
+
+.levels-eyebrow {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent-primary);
+  margin-bottom: 2px;
+}
+
+/* === CABEÇALHO === */
+.levels-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xl);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-xl);
+}
+
+.levels-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.levels-title h1 { font-size: var(--fs-3xl); line-height: 1.1; }
+.levels-title p { font-size: var(--fs-sm); margin-top: 2px; }
+
+.levels-title-icon {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg-purple-subtle);
+}
+
+.levels-summary {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.levels-summary-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  min-width: 150px;
+}
+
+.levels-summary-card strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: var(--fs-xl);
+  line-height: 1.1;
+}
+
+.levels-summary-card span { font-size: var(--fs-sm); color: var(--text-secondary); }
+
+.levels-summary-icon {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.levels-summary-icon.concluido { background: var(--bg-green-subtle); color: var(--accent-green); }
+.levels-summary-icon.atual { background: var(--bg-orange-subtle); color: var(--accent-orange); }
+.levels-summary-icon.bloqueado { background: var(--bg-input); }
+
+/* === NÍVEL ATUAL EM DESTAQUE === */
+.levels-featured {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.levels-featured-icon {
+  width: 116px;
+  height: 116px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  font-size: 3rem;
+  border-radius: var(--radius-full);
+  background: var(--gradient-purple-soft);
+}
+
+.levels-featured-body { flex: 1; min-width: 0; }
+.levels-featured-body h2 { font-size: var(--fs-2xl); margin-bottom: 2px; }
+.levels-featured-body > p { font-size: var(--fs-sm); }
+
+.levels-featured-bar { margin-top: var(--space-lg); }
+
+.levels-featured-meta {
+  margin-top: var(--space-sm);
+  font-size: var(--fs-sm);
+  color: var(--accent-primary);
+}
+
+.levels-featured-cta { flex: none; }
+
+/* === TRILHA === */
+.levels-track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  counter-reset: nivel;
+}
+
+.levels-step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+.levels-step h3 { font-size: var(--fs-md); }
+.levels-step-body { flex: 1; min-width: 0; }
+.levels-step-body > p { font-size: var(--fs-sm); }
+
+.levels-step-number {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--border-color);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.levels-step-icon {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+}
+
+.levels-step-progress {
+  flex: 0 0 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  font-size: var(--fs-xs);
+  text-align: center;
+}
+
+.levels-step-progress .progress-bar { width: 100%; height: 6px; }
+
+.levels-step-status {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.levels-step-status.concluido { background: var(--bg-green-subtle); color: var(--accent-green-dark); }
+.levels-step-status.atual { background: var(--bg-purple-subtle); color: var(--accent-primary); }
+.levels-step-status.bloqueado { background: var(--bg-input); color: var(--text-muted); }
+
+/* Estados: o nível atual é o único que se destaca; os bloqueados recuam. */
+.levels-step.atual {
+  border-color: var(--border-purple);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.levels-step.atual .levels-step-number {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.levels-step.concluido .levels-step-number {
+  border-color: var(--accent-green);
+  background: var(--bg-green-subtle);
+  color: var(--accent-green-dark);
+}
+
+.levels-step.bloqueado { opacity: 0.6; }
+.levels-step.bloqueado .levels-step-icon { filter: grayscale(1); }
+
+/* === RESPONSIVO === */
+@media (max-width: 860px) {
+  .levels-header { flex-direction: column; align-items: flex-start; gap: var(--space-lg); }
+  .levels-summary { width: 100%; }
+  .levels-summary-card { flex: 1; min-width: 0; padding: var(--space-md); }
+
+  .levels-featured { flex-direction: column; text-align: center; }
+  .levels-featured-cta { width: 100%; }
+  .levels-featured-icon { width: 92px; height: 92px; font-size: 2.4rem; }
+
+  .levels-step { flex-wrap: wrap; }
+  .levels-step-body { flex: 1 1 100%; order: 3; }
+  .levels-step-progress { flex: 1 1 100%; order: 4; align-items: flex-start; text-align: left; }
+  .levels-step-status { order: 2; margin-left: auto; }
+}

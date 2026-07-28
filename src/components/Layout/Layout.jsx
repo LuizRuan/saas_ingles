@@ -15,23 +15,28 @@ const Layout = ({ children }) => {
             <span>EnglishPlay</span>
           </NavLink>
           
+          {/* O title não é decorativo: abaixo de 1040px o CSS esconde os rótulos
+              e deixa só o ícone, então ele passa a ser a única dica no hover. */}
           <div className="navbar-links">
-            <NavLink to="/" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`} end>
+            <NavLink to="/" title="Início" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`} end>
               <span>🏠</span> Início
             </NavLink>
-            <NavLink to="/games" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/games" title="Jogos" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>🎮</span> Jogos
             </NavLink>
-            <NavLink to="/daily" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/daily" title="Desafio" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>⚡</span> Desafio
             </NavLink>
-            <NavLink to="/conversation" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/conversation" title="Conversa" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>💬</span> Conversa
             </NavLink>
-            <NavLink to="/my-words" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/my-words" title="Palavras" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>📖</span> Palavras
             </NavLink>
-            <NavLink to="/achievements" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/levels" title="Níveis" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+              <span>📊</span> Níveis
+            </NavLink>
+            <NavLink to="/achievements" title="Conquistas" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>🏆</span> Conquistas
             </NavLink>
           </div>

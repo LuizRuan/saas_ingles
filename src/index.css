@@ -523,6 +523,23 @@ select {
   font-size: var(--fs-sm);
 }
 
+/* A navbar desktop aparece a partir de 769px, mas os 7 itens + logo + estatísticas
+   só cabem por volta de 1230px. Sem estes dois degraus os links transbordam o
+   .navbar-inner (todo .navbar-link é white-space: nowrap, então nada encolhe). */
+@media (max-width: 1230px) {
+  .navbar-inner { gap: var(--space-lg); }
+  .navbar-link { padding: 6px 10px; }
+  .navbar-stats { gap: var(--space-sm); }
+}
+
+/* Abaixo de ~1040px nem os rótulos cabem: sobra só o ícone. O texto continua no
+   DOM (leitores de tela leem normalmente) e o title vira dica no hover. */
+@media (max-width: 1040px) {
+  .navbar-links { gap: 2px; }
+  .navbar-links .navbar-link { font-size: 0; gap: 0; padding: 8px 10px; }
+  .navbar-links .navbar-link > span { font-size: 1.15rem; }
+}
+
 /* === MOBILE NAV === */
 .mobile-nav {
   position: fixed;

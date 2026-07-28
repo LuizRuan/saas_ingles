@@ -15,6 +15,7 @@ import Conversation from './pages/Conversation';
 import DailyChallenge from './pages/DailyChallenge';
 import MyWords from './pages/MyWords';
 import ReviewErrors from './pages/ReviewErrors';
+import Levels from './pages/Levels';
 import Achievements from './pages/Achievements';
 import Settings from './pages/Settings';
 import Shop from './pages/Shop';
@@ -39,6 +40,7 @@ function App() {
             <Route path="/daily" element={<DailyChallenge />} />
             <Route path="/my-words" element={<MyWords />} />
             <Route path="/review" element={<ReviewErrors />} />
+            <Route path="/levels" element={<Levels />} />
             <Route path="/achievements" element={<Achievements />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/shop" element={<Shop />} />
