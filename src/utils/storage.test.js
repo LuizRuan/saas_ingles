@@ -35,6 +35,9 @@ describe('progresso', () => {
     expect(p.totalScore).toBe(42);
     expect(p.hintsAvailable).toBe(0);
     expect(p.selectedTheme).toBe('default');
+    // Campo novo: quem já jogava antes do Tempo Extra existir tem que receber
+    // o default em vez de undefined, senão o botão "+10s" quebra na conta.
+    expect(p.extraTimeAvailable).toBe(0);
   });
 
   it('faz ida e volta pelo saveProgress', () => {
@@ -109,6 +112,17 @@ describe('saneamento (localStorage é entrada não confiável)', () => {
     const p = loadProgress();
     expect(p.pointsMultiplier).toBeLessThanOrEqual(10);
     expect(p.multiplierGames).toBeLessThanOrEqual(100);
+  });
+
+  it('saneia o estoque de Tempo Extra', () => {
+    gravarProgresso({ extraTimeAvailable: -5 });
+    expect(loadProgress().extraTimeAvailable).toBe(0);
+
+    gravarProgresso({ extraTimeAvailable: 'tres' });
+    expect(loadProgress().extraTimeAvailable).toBe(0);
+
+    gravarProgresso({ extraTimeAvailable: 3 });
+    expect(loadProgress().extraTimeAvailable).toBe(3);
   });
 
   it('rejeita tipos trocados sem quebrar', () => {

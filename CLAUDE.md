@@ -129,6 +129,16 @@ Both are applied in `main.jsx` before the first render to avoid a flash of the w
 
 ### Shop
 
-Inventory is defined inline in [Shop.jsx](src/pages/Shop.jsx), not in `src/data/`. Item `type` drives the effect in `buyShopItem`: `hints` (consumed by HangmanGame/WordBuilder), `avatar` (navbar), `theme` (see above), and `multiplier` — which sets `pointsMultiplier` for `multiplierGames` rounds. `completeGame` applies the multiplier, decrements the counter, and resets it to 1 when exhausted.
+Inventory is defined inline in [Shop.jsx](src/pages/Shop.jsx), not in `src/data/`. Item `type` drives the effect in `buyShopItem`, and **every type is wired** — adding an item with a `type` no branch handles means charging the player for nothing:
 
-`extra_time` (type `timer`) and the `confetti`/`fireworks` items (type `effect`) are still sold but have no implementation — the item descriptions say as much for `extra_time` ("futuro"), the two celebration effects do not.
+- `hints` → `hintsAvailable`, consumed by HangmanGame/WordBuilder.
+- `avatar` → navbar. `theme` → see above.
+- `multiplier` → sets `pointsMultiplier` for `multiplierGames` rounds; `completeGame` applies it, decrements, and resets to 1 when exhausted.
+- `timer` → `extraTimeAvailable`, which counts **uses of +10s**, not seconds. The conversion is the `EXTRA_TIME_SECONDS` export in `useProgress.jsx`; `consumeExtraTime()` spends one use and returns the seconds to add.
+- `effect` → stores nothing beyond the id in `shopItems`. `dispararCelebracao(tipo)` in the provider checks ownership by that exact id, so **`confetti`/`fireworks` ids must not be renamed** or the effect silently stops firing.
+
+Celebrations are global, like the achievement toast: the provider owns `celebration` state, `handleCorrectAnswer` fires `confetti` and `completeGame` fires `fireworks`, and `Layout` renders [Celebration](src/components/Celebration/Celebration.jsx) with `key={celebration.id}` — the remount is what re-randomizes the particles, so don't swap it for a plain prop. The effect is CSS/DOM only (the CSP forbids a CDN library), sits at `z-index: 260` with `pointer-events: none`, and hides itself under `data-animations="off"` and `prefers-reduced-motion`.
+
+Pricing is calibrated against `scoring.js`: a round yields roughly 200 stars, so items run 200–750. The 15-hint pack must stay cheaper *per hint* than the 5-pack.
+
+**TrueFalse is the only game with a clock.** Its mode-select screen offers "Tranquilo" and "Contra o Relógio" (75s for 12 rounds); the timer pauses while feedback/`WordExplanation` is on screen so reading the teaching moment costs nothing, and the `+10s` button spends `extraTimeAvailable`. Running out of time does **not** call `completeGame` — that would hand out the 50-point phase bonus for idling 75 seconds.

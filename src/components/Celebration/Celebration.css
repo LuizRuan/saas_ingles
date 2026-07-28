@@ -1,0 +1,73 @@
+/* Efeitos de celebração da Loja (confetti e fogos).
+
+   z-index 260: acima do modal (200) e do popup de pontos (250), abaixo do toast
+   de conquista (300). pointer-events: none é obrigatório — a camada cobre a tela
+   inteira e sem isso engoliria o clique no "Próxima" logo abaixo dela. */
+.celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* === CONFETTI === */
+.celebration-confete {
+  position: absolute;
+  top: -20px;
+  border-radius: 2px;
+  animation-name: celebracaoQueda;
+  animation-timing-function: cubic-bezier(0.25, 0.6, 0.5, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes celebracaoQueda {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  85% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--deriva), 105vh, 0) rotate(var(--giro));
+  }
+}
+
+/* === FOGOS ===
+   O burst é só o ponto de origem; quem anima (e quem carrega o atraso) são as
+   faíscas, porque animation-delay não passa de pai para filho. */
+.celebration-burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.celebration-faisca {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  animation: celebracaoFaisca 1.1s cubic-bezier(0.15, 0.75, 0.35, 1) both;
+}
+
+@keyframes celebracaoFaisca {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  70% { opacity: 1; }
+  100% {
+    opacity: 0;
+    /* +18px no eixo Y: as faíscas caem um pouco no fim, como fogos de verdade */
+    transform: translate3d(var(--dx), calc(var(--dy) + 18px), 0) scale(0.35);
+  }
+}
+
+/* Sem animação, não há efeito nenhum a mostrar: as partículas apareceriam
+   paradas na posição final. Melhor não renderizar. A regra global de
+   prefers-reduced-motion zera as durações, o que deixaria exatamente isso. */
+[data-animations="off"] .celebration { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .celebration { display: none; }
+}

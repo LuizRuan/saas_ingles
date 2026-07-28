@@ -12,10 +12,15 @@ const ProgressContext = createContext(null);
 const activeMultiplier = (progress) =>
   (progress.multiplierGames || 0) > 0 ? (progress.pointsMultiplier || 1) : 1;
 
+// Quanto vale cada uso do item "Tempo Extra" da Loja. progress.extraTimeAvailable
+// guarda USOS, não segundos — é esta constante que os converte.
+export const EXTRA_TIME_SECONDS = 10;
+
 export const ProgressProvider = ({ children }) => {
   const [progress, setProgress] = useState(() => loadProgress());
   const [newAchievement, setNewAchievement] = useState(null);
   const [scorePopup, setScorePopup] = useState(null);
+  const [celebration, setCelebration] = useState(null);
 
   // Leitura síncrona do progresso atual para as ações abaixo.
   // IMPORTANTE: as ações NÃO podem depender de `progress` diretamente — telas de
@@ -38,6 +43,25 @@ export const ProgressProvider = ({ children }) => {
   useEffect(() => {
     applyTheme(progress.selectedTheme);
   }, [progress.selectedTheme]);
+
+  // Efeitos comprados na Loja. Disparados SEMPRE fora do updater do setProgress:
+  // o updater é reexecutado pelo StrictMode e precisa continuar puro.
+  const celebrationTimer = useRef(null);
+  const idCelebracao = useRef(0);
+  const dispararCelebracao = useCallback((tipo) => {
+    const comprados = progressRef.current.shopItems || [];
+    if (!comprados.includes(tipo)) return;
+    // Um único timer: acertos em sequência trocam o efeito em vez de deixar um
+    // timeout antigo apagar o disparo mais recente no meio da animação.
+    if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
+    setCelebration({ tipo, id: idCelebracao.current++ });
+    celebrationTimer.current = setTimeout(
+      () => setCelebration(null),
+      tipo === 'fireworks' ? 2400 : 2000,
+    );
+  }, []);
+
+  useEffect(() => () => clearTimeout(celebrationTimer.current), []);
 
   // Check for new achievements
   const checkAchievements = useCallback((updatedProgress) => {
@@ -102,7 +126,8 @@ export const ProgressProvider = ({ children }) => {
     const streakBonusNow = checkStreakBonus((currentProgress.currentStreak || 0) + 1);
     setScorePopup((points + streakBonusNow) * activeMultiplier(currentProgress));
     setTimeout(() => setScorePopup(null), 1200);
-  }, [checkAchievements]);
+    dispararCelebracao('confetti');
+  }, [checkAchievements, dispararCelebracao]);
 
   const handleWrongAnswer = useCallback((word) => {
     setProgress(prev => {
@@ -148,7 +173,8 @@ export const ProgressProvider = ({ children }) => {
 
     setScorePopup(POINTS.PHASE_COMPLETION * activeMultiplier(progressRef.current));
     setTimeout(() => setScorePopup(null), 1200);
-  }, [checkAchievements]);
+    dispararCelebracao('fireworks');
+  }, [checkAchievements, dispararCelebracao]);
 
   const completeSentence = useCallback(() => {
     setProgress(prev => {
@@ -203,6 +229,11 @@ export const ProgressProvider = ({ children }) => {
       if (item.type === 'hints') {
         updated.hintsAvailable = (updated.hintsAvailable || 0) + item.value;
       }
+      if (item.type === 'timer') {
+        updated.extraTimeAvailable = (updated.extraTimeAvailable || 0) + item.value;
+      }
+      // type === 'effect' (confetti/fireworks) não grava nada além do id em
+      // shopItems: quem lê é dispararCelebracao(), que checa a posse ao animar.
       if (item.type === 'avatar') {
         updated.selectedAvatar = item.value;
       }
@@ -234,6 +265,17 @@ export const ProgressProvider = ({ children }) => {
     return true;
   }, []);
 
+  // Gasta um uso do Tempo Extra e devolve quantos segundos o jogo deve somar
+  // (0 quando não há estoque). Mesma forma de consumeHint, de propósito.
+  const consumeExtraTime = useCallback(() => {
+    if ((progressRef.current.extraTimeAvailable || 0) <= 0) return 0;
+    setProgress(prev => ({
+      ...prev,
+      extraTimeAvailable: Math.max(0, (prev.extraTimeAvailable || 0) - 1),
+    }));
+    return EXTRA_TIME_SECONDS;
+  }, []);
+
   const resetAllProgress = useCallback(() => {
     clearStorage();
     setProgress(loadProgress());
@@ -243,6 +285,7 @@ export const ProgressProvider = ({ children }) => {
     progress,
     newAchievement,
     scorePopup,
+    celebration,
     addPoints,
     handleCorrectAnswer,
     handleWrongAnswer,
@@ -255,6 +298,7 @@ export const ProgressProvider = ({ children }) => {
     buyShopItem,
     setTheme,
     consumeHint,
+    consumeExtraTime,
     resetAllProgress,
   };
 

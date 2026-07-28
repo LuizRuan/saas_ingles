@@ -1,9 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import { useProgress } from '../../hooks/useProgress';
+import Celebration from '../Celebration/Celebration';
 import './Layout.css';
 
 const Layout = ({ children }) => {
-  const { progress, newAchievement, scorePopup } = useProgress();
+  const { progress, newAchievement, scorePopup, celebration } = useProgress();
 
   return (
     <div className="layout">
@@ -92,6 +93,10 @@ const Layout = ({ children }) => {
           <span>Config</span>
         </NavLink>
       </nav>
+
+      {/* Efeitos comprados na Loja (confetti / fogos). A key remonta o
+          componente a cada disparo, que é o que re-sorteia as partículas. */}
+      {celebration && <Celebration key={celebration.id} tipo={celebration.tipo} />}
 
       {/* Score Popup */}
       {scorePopup && (

@@ -20,7 +20,8 @@ const shopItems = [
   // senão comprar em quantidade vira desvantagem.
   { id: 'hint_pack_5', name: 'Pacote de 5 Dicas', description: 'Ganhe 5 dicas extras para usar nos jogos', icon: '💡', price: 250, category: 'powerup', type: 'hints', value: 5 },
   { id: 'hint_pack_15', name: 'Pacote de 15 Dicas', description: 'Ganhe 15 dicas extras para usar nos jogos', icon: '💡', price: 600, category: 'powerup', type: 'hints', value: 15 },
-  { id: 'extra_time', name: 'Tempo Extra', description: '+10 segundos em jogos com timer (futuro)', icon: '⏰', price: 300, category: 'powerup', type: 'timer', value: 10 },
+  // value = USOS de +10s, não segundos (a conversão é EXTRA_TIME_SECONDS)
+  { id: 'extra_time', name: 'Tempo Extra', description: '3 usos de +10 segundos no modo Contra o Relógio', icon: '⏰', price: 300, category: 'powerup', type: 'timer', value: 3 },
   { id: 'double_points', name: 'Pontos Duplos', description: 'Sua próxima partida vale o dobro de pontos!', icon: '✨', price: 750, category: 'powerup', type: 'multiplier', value: 2 },
 
   // Avatares
@@ -32,8 +33,10 @@ const shopItems = [
   { id: 'avatar_unicorn', name: 'Avatar Unicórnio', description: 'Um unicórnio mágico como avatar', icon: '🦄', price: 400, category: 'avatar', type: 'avatar', value: '🦄' },
 
   // Celebrações
-  { id: 'confetti', name: 'Confetti 🎊', description: 'Animação de confetti ao acertar respostas', icon: '🎊', price: 350, category: 'efeito', type: 'effect', value: 'confetti' },
-  { id: 'fireworks', name: 'Fogos de Artifício', description: 'Fogos quando completar um jogo', icon: '🎆', price: 450, category: 'efeito', type: 'effect', value: 'fireworks' },
+  // O id é o que dispararCelebracao() procura em shopItems — não renomear sem
+  // ajustar useProgress.jsx, ou o efeito para de aparecer silenciosamente.
+  { id: 'confetti', name: 'Confetti', description: 'Chuva de confete a cada resposta certa', icon: '🎊', price: 350, category: 'efeito', type: 'effect', value: 'confetti' },
+  { id: 'fireworks', name: 'Fogos de Artifício', description: 'Fogos na tela ao terminar uma partida', icon: '🎆', price: 450, category: 'efeito', type: 'effect', value: 'fireworks' },
 ];
 
 const categories = [
@@ -101,6 +104,7 @@ const Shop = () => {
           </div>
           <div style={{ textAlign: 'right', fontSize: 'var(--fs-sm)', opacity: 0.9 }}>
             <div>💡 {progress.hintsAvailable || 0} Dicas disponíveis</div>
+            <div>⏰ {progress.extraTimeAvailable || 0} usos de Tempo Extra</div>
             <div style={{ opacity: 0.75, fontSize: 'var(--fs-xs)' }}>
               {purchased.length} {purchased.length === 1 ? 'item comprado' : 'itens comprados'}
             </div>

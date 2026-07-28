@@ -49,6 +49,8 @@ const defaultProgress = {
   shopItems: [],
   shopPurchases: 0,
   hintsAvailable: 0,
+  // Usos de +10s guardados para o modo Contra o Relógio (não segundos soltos)
+  extraTimeAvailable: 0,
   selectedAvatar: null,
   selectedTheme: 'default',
   // Multiplicador comprado na Loja: vale pelas próximas `multiplierGames` partidas
@@ -155,6 +157,7 @@ const saneiaProgresso = (bruto) => {
     shopItems: lista(p.shopItems).filter(i => typeof i === 'string').slice(0, 500),
     shopPurchases: inteiro(p.shopPurchases, 0),
     hintsAvailable: inteiro(p.hintsAvailable, 0, { min: 0, max: 100000 }),
+    extraTimeAvailable: inteiro(p.extraTimeAvailable, 0, { min: 0, max: 100000 }),
     selectedAvatar: texto(p.selectedAvatar),
     selectedTheme: texto(p.selectedTheme, 'default') ?? 'default',
     // Multiplicador é o campo mais sensível a lixo: limitar a faixa evita
