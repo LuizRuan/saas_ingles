@@ -8,11 +8,9 @@
     <meta name="keywords" content="aprender inglês, jogos educativos, inglês para iniciantes, EnglishPlay, aprender inglês grátis" />
     <!-- Matches --bg-body. src/utils/appearance.js rewrites this when the user picks a theme. -->
     <meta name="theme-color" content="#f4f2ff" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Single source of truth for fonts: Inter (--font-body), Space Grotesk
-         (--font-heading), JetBrains Mono (--font-mono). -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+    <!-- Fontes autohospedadas em /fonts (ver src/fonts.css). Pré-carregamos só
+         a Inter latina, usada no texto acima da dobra. -->
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>EnglishPlay — Aprenda Inglês Jogando</title>
   </head>
   <body>

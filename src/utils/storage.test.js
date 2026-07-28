@@ -94,6 +94,75 @@ describe('migração de wordStats', () => {
   });
 });
 
+describe('saneamento (localStorage é entrada não confiável)', () => {
+  it('descarta NaN e Infinity vindos do blob', () => {
+    gravarProgresso({ totalScore: 'NaN', bestStreak: null, dayStreak: 'abc' });
+    const p = loadProgress();
+    expect(p.totalScore).toBe(0);
+    expect(p.bestStreak).toBe(0);
+    expect(p.dayStreak).toBe(0);
+    expect(Number.isFinite(p.totalScore)).toBe(true);
+  });
+
+  it('limita o multiplicador de pontos', () => {
+    gravarProgresso({ pointsMultiplier: 1e9, multiplierGames: 99999 });
+    const p = loadProgress();
+    expect(p.pointsMultiplier).toBeLessThanOrEqual(10);
+    expect(p.multiplierGames).toBeLessThanOrEqual(100);
+  });
+
+  it('rejeita tipos trocados sem quebrar', () => {
+    gravarProgresso({
+      achievements: 'nao-e-array',
+      wordStats: 'nao-e-objeto',
+      gamesCompleted: [1, 2, 3],
+      errorHistory: { nao: 'array' },
+      shopItems: [{ objeto: true }, 'theme_dark'],
+    });
+    const p = loadProgress();
+    expect(p.achievements).toEqual([]);
+    expect(p.wordStats).toEqual({});
+    expect(p.errorHistory).toEqual([]);
+    expect(p.shopItems).toEqual(['theme_dark']); // objeto descartado
+    expect(typeof p.gamesCompleted.memory).toBe('number');
+  });
+
+  it('corta chaves absurdamente longas', () => {
+    gravarProgresso({ wordStats: { ['x'.repeat(5000)]: { correct: 1 } } });
+    expect(Object.keys(loadProgress().wordStats)).toEqual([]);
+  });
+
+  it('não deixa protótipo ser poluído via __proto__', () => {
+    localStorage.setItem('englishplay_progress',
+      '{"__proto__":{"poluido":true},"totalScore":5}');
+    const p = loadProgress();
+    expect({}.poluido).toBeUndefined();
+    expect(p.totalScore).toBe(5);
+  });
+
+  it('aceita um progresso legítimo sem alterá-lo', () => {
+    gravarProgresso({
+      totalScore: 250, bestStreak: 7, achievements: ['first_word'],
+      wordStats: { Hello: { correct: 2, wrong: 1, timestamps: [111], lastSeen: 111 } },
+    });
+    const p = loadProgress();
+    expect(p.totalScore).toBe(250);
+    expect(p.bestStreak).toBe(7);
+    expect(p.achievements).toEqual(['first_word']);
+    expect(p.wordStats.Hello).toMatchObject({ correct: 2, wrong: 1 });
+  });
+
+  it('configurações só aceitam booleanos', () => {
+    localStorage.setItem('englishplay_settings',
+      JSON.stringify({ soundEnabled: 'sim', animationsEnabled: 1, autoPronounce: false, extra: 'lixo' }));
+    const s = loadSettings();
+    expect(s.soundEnabled).toBe(true);       // volta ao padrão
+    expect(s.animationsEnabled).toBe(true);  // volta ao padrão
+    expect(s.autoPronounce).toBe(false);     // booleano legítimo preservado
+    expect(s).not.toHaveProperty('extra');   // chave desconhecida descartada
+  });
+});
+
 describe('configurações', () => {
   it('migra o typo autoPronouce preservando a escolha', () => {
     localStorage.setItem('englishplay_settings', JSON.stringify({ autoPronouce: false, soundEnabled: true }));

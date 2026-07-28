@@ -1,0 +1,29 @@
+version: 2
+
+updates:
+  # Avisa de CVEs e atualizações das dependências npm.
+  # Sem isto, um alerta de segurança só apareceria se alguém rodasse
+  # `npm audit` por conta própria.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # Agrupa atualizações de rotina num PR só; alertas de segurança
+      # continuam vindo separados e imediatos.
+      dependencias-de-desenvolvimento:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      dependencias-de-producao:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

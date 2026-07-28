@@ -3,8 +3,10 @@
    Clean, modern, airy design with lavender accents
    ======================================== */
 
-/* Fonts are loaded by the <link> in index.html (it gets the preconnect benefit
-   that a CSS @import cannot). Keep the two lists in sync. */
+/* Fontes autohospedadas em public/fonts (ver src/fonts.css).
+   Não voltar a carregar de fonts.googleapis.com: isso reintroduz um terceiro no
+   caminho crítico e expõe o IP do visitante. A CSP em vercel.json bloqueia. */
+@import './fonts.css';
 
 /* === CSS CUSTOM PROPERTIES === */
 :root {
