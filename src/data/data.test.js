@@ -93,11 +93,89 @@ describe('frases e quizzes', () => {
   });
 });
 
+// As conversas são um GRAFO: cada resposta aponta o id do próximo nó. Um `next`
+// com erro de digitação não quebra o build nem aparece no lint — a tela
+// simplesmente trava no meio do diálogo. Daí estes testes.
 describe('conversas', () => {
-  it('todo turno do usuário tem ao menos uma opção correta', () => {
-    const quebradas = conversations
-      .filter(c => c.messages.some(m => m.role === 'user' && !(m.options || []).some(o => o.correct)))
-      .map(c => c.id);
+  // Percorre o grafo a partir de `start` e devolve os ids alcançados
+  const alcancaveis = (convo) => {
+    const vistos = new Set();
+    const fila = [convo.start];
+    while (fila.length) {
+      const id = fila.shift();
+      if (!id || vistos.has(id) || !convo.nodes[id]) continue;
+      vistos.add(id);
+      for (const r of convo.nodes[id].replies || []) fila.push(r.next);
+    }
+    return vistos;
+  };
+
+  it('tem os campos que o seletor de temas mostra', () => {
+    const incompletas = conversations
+      .filter(c => !c.id || !c.topic || !c.topicPt || !c.icon || !c.level || !c.start || !c.nodes)
+      .map(c => c.id || '(sem id)');
+    expect(incompletas).toEqual([]);
+  });
+
+  it('não repete id de conversa', () => {
+    const ids = conversations.map(c => c.id);
+    expect(ids.filter((v, i, a) => a.indexOf(v) !== i)).toEqual([]);
+  });
+
+  it('o nó inicial existe', () => {
+    const quebradas = conversations.filter(c => !c.nodes[c.start]).map(c => c.id);
     expect(quebradas).toEqual([]);
+  });
+
+  it('todo next aponta para um nó existente', () => {
+    const quebrados = [];
+    for (const c of conversations) {
+      for (const [nodeId, node] of Object.entries(c.nodes)) {
+        for (const reply of node.replies || []) {
+          if (!c.nodes[reply.next]) quebrados.push(`${c.id}.${nodeId} → ${reply.next}`);
+        }
+      }
+    }
+    expect(quebrados).toEqual([]);
+  });
+
+  it('todo nó é alcançável a partir do início (nada de conteúdo órfão)', () => {
+    const orfaos = [];
+    for (const c of conversations) {
+      const vistos = alcancaveis(c);
+      for (const id of Object.keys(c.nodes)) {
+        if (!vistos.has(id)) orfaos.push(`${c.id}.${id}`);
+      }
+    }
+    expect(orfaos).toEqual([]);
+  });
+
+  it('toda conversa chega a um fim (nó sem replies)', () => {
+    const semFim = conversations
+      .filter(c => ![...alcancaveis(c)].some(id => (c.nodes[id].replies || []).length === 0))
+      .map(c => c.id);
+    expect(semFim).toEqual([]);
+  });
+
+  it('todo nó tem texto e tradução, e toda resposta também', () => {
+    const faltando = [];
+    for (const c of conversations) {
+      for (const [nodeId, node] of Object.entries(c.nodes)) {
+        if (!node.text || !node.translation) faltando.push(`${c.id}.${nodeId}`);
+        for (const reply of node.replies || []) {
+          if (!reply.text || !reply.translation) faltando.push(`${c.id}.${nodeId}.reply`);
+        }
+      }
+    }
+    expect(faltando).toEqual([]);
+  });
+
+  it('ramifica de verdade — o defeito antigo era avançar igual em toda escolha', () => {
+    // Cada tema precisa de ao menos um nó cujas respostas levem a lugares
+    // diferentes; senão a escolha do usuário volta a ser decorativa.
+    const semRamificacao = conversations
+      .filter(c => !Object.values(c.nodes).some(n => new Set((n.replies || []).map(r => r.next)).size > 1))
+      .map(c => c.id);
+    expect(semRamificacao).toEqual([]);
   });
 });

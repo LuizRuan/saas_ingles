@@ -1,8 +1,9 @@
+/* === SELEÇÃO DE TEMA === */
 .convo-topics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-md);
-  max-width: 700px;
+  max-width: 860px;
   margin: 0 auto;
 }
 
@@ -14,21 +15,33 @@
   cursor: pointer;
   color: inherit;
   text-align: left;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-/* Chat */
+.convo-topic-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.convo-topic-icon { font-size: 2rem; flex: none; }
+.convo-topic-body { flex: 1; min-width: 0; }
+.convo-topic-body h3 { font-size: var(--fs-base); }
+.convo-topic-body p { font-size: var(--fs-sm); }
+.convo-topic-level { flex: none; }
+
+/* === CHAT === */
 .chat-container {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  margin-bottom: var(--space-xl);
-  max-height: 400px;
+  margin-bottom: var(--space-lg);
+  max-height: 420px;
   overflow-y: auto;
   padding: var(--space-md);
 }
 
 .chat-bubble {
-  max-width: 80%;
+  max-width: 82%;
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
 }
@@ -46,15 +59,45 @@
   border-bottom-right-radius: 4px;
 }
 
-.chat-text {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
+.chat-text { font-weight: 600; }
 
 .chat-translation {
   font-size: var(--fs-sm);
-  opacity: 0.7;
+  opacity: 0.75;
+  margin-top: 4px;
 }
+
+/* Ações da mensagem (ouvir / ouvir devagar / traduzir).
+   Ficam discretas até o hover para não competirem com o texto em inglês, que é
+   o que a pessoa veio ler. Em toque não há hover, então nunca somem de todo. */
+.chat-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: var(--space-sm);
+  opacity: 0.55;
+  transition: opacity var(--transition-fast);
+}
+
+.chat-bubble:hover .chat-actions,
+.chat-bubble:focus-within .chat-actions { opacity: 1; }
+
+.chat-action {
+  border: none;
+  background: rgba(127, 127, 127, 0.15);
+  border-radius: var(--radius-full);
+  padding: 3px 8px;
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  cursor: pointer;
+  color: inherit;
+  transition: background var(--transition-fast);
+}
+
+.chat-action:hover { background: rgba(127, 127, 127, 0.3); }
+.chat-bubble.user .chat-action { background: rgba(255, 255, 255, 0.22); }
+.chat-bubble.user .chat-action:hover { background: rgba(255, 255, 255, 0.38); }
+.chat-action[aria-pressed="true"] { background: rgba(255, 255, 255, 0.45); }
+.chat-bubble.system .chat-action[aria-pressed="true"] { background: var(--bg-purple-subtle); }
 
 .chat-complete {
   text-align: center;
@@ -65,11 +108,18 @@
   gap: var(--space-sm);
 }
 
+/* === RESPOSTAS === */
 .chat-options {
   padding: var(--space-md);
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+}
+
+.chat-options-label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-bottom: 2px;
 }
 
 .chat-option {
@@ -82,9 +132,7 @@
   text-align: left;
 }
 
-.chat-option:hover {
-  border-color: var(--accent-purple);
-}
+.chat-option:hover { border-color: var(--accent-purple); }
 
 .chat-option-pt {
   font-size: var(--fs-sm);
@@ -97,22 +145,58 @@
   margin-top: var(--space-sm);
 }
 
-.chat-input {
-  flex: 1;
+.chat-input { flex: 1; min-width: 0; }
+
+/* === CORREÇÃO (sempre em português) === */
+.chat-feedback {
+  margin: 0 var(--space-md) var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--accent-orange);
+  background: var(--bg-orange-subtle);
+}
+
+.chat-feedback.quase {
+  border-color: var(--accent-green);
+  background: var(--bg-green-subtle);
+}
+
+.chat-feedback-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.chat-feedback-text {
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+
+.chat-feedback-fix {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.chat-feedback-en {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--accent-primary);
 }
 
 @media (max-width: 768px) {
-  .convo-topics {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .convo-topics { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 480px) {
-  .convo-topics {
-    grid-template-columns: 1fr;
-  }
-  
-  .chat-bubble {
-    max-width: 90%;
-  }
+  .convo-topics { grid-template-columns: 1fr; }
+  .chat-bubble { max-width: 92%; }
+  .chat-actions { opacity: 1; }
+  .chat-input-form { flex-wrap: wrap; }
 }

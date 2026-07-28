@@ -6,7 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **EnglishPlay** — a free browser game platform that teaches English to Brazilian Portuguese speakers. No login, no signup, no backend: it is a purely client-side SPA and *all* user state lives in `localStorage`.
 
-The entire UI is written in **Portuguese (pt-BR)**. English text only ever appears as learning content (the words/sentences being taught). Keep new UI strings in Portuguese.
+The UI is written in **Portuguese (pt-BR)**. English text only ever appears as learning content (the words/sentences being taught). Keep new UI strings in Portuguese.
+
+**One deliberate exception:** the Conversation screen ([Conversation.jsx](src/pages/Conversation.jsx)) has its chrome in English — the user asked for an immersive practice screen. Grammar corrections there stay in Portuguese, because explaining a mistake in English to someone who cannot yet read English teaches nothing. Don't "fix" either half by making the screen consistent.
 
 Despite the repo name `saas_ingles`, there is no server, no auth, no payments, and no multi-tenancy.
 
@@ -80,8 +82,27 @@ Settings are read ad-hoc (`loadSettings()` called inside `useSound`/`useSpeech`/
 
 - **`words.js`** — the canonical word bank. Every entry is `{ en, pt, category, pronunciation, example, examplePt, level, tip }`. `pronunciation` is a *Portuguese phonetic approximation* (e.g. `"Hello"` → `"rélou"`), not IPA. Also exports the shared `shuffleArray` helper that nearly every game imports.
 - **`sentences.js`** — four separate datasets for four different games: `sentences` (SentenceBuilder), `fillBlanks`, `trueFalse`, `translationQuizzes`.
-- **`conversations.js`** — branching dialogue scripts of alternating `system`/`user` message objects.
+- **`conversations.js`** — 18 dialogues as **node graphs**, not linear scripts (see below).
+- **`errorPatterns.js`** — declarative table of Portuguese-speaker mistakes, consumed by `answerCheck.js`. Adding a correction is appending one object; the regexes run against the *normalized* string (lowercase, no punctuation, contractions expanded), so a pattern written with `I'm` will never match.
 - **`categories.js`** — categories plus the level ladder (`wordsNeeded` thresholds).
+
+#### Conversation graphs
+
+```js
+{ id, topic, topicPt, icon, level, start: 'nodeId', nodes: { [id]: node } }
+node  = { text, translation, replies: [] }        // replies: [] ends the dialogue
+reply = { text, translation, next, accepts?: [] } // next = id of the following node
+```
+
+`next` is what makes branching real — an earlier version advanced by `messageIndex + 2` regardless of the choice, so every replay was identical. **`accepts` belongs to the reply, not the node**: a typed paraphrase then follows the same branch as the option it matches. On the node there would be no way to know which `next` to take.
+
+`data.test.js` pins graph integrity — every `next` resolves, every node is reachable from `start`, every conversation reaches a terminal node, and every topic branches somewhere. A typo'd `next` breaks nothing at build time and just strands the player mid-dialogue, which is exactly why those tests exist.
+
+#### Answer checking
+
+[answerCheck.js](src/utils/answerCheck.js) validates typed replies. There is no backend and the CSP forbids a grammar API, so it does **not** parse arbitrary English — it compares against the replies that are valid *at that node*, which is both tractable and more accurate. Pipeline: normalize → exact match → typo (`quase`) → `errorPatterns` → word-level diff → "not recognized". It is pure and node-testable.
+
+Two invariants: unrecognized input must **never** resolve to a reply (the old code did `handleResponse(match || currentOptions[0])`, silently scoring anything as the first option — a test pins this), and a wrong answer never blocks progress, matching `scoring.js`'s "never subtract" rule.
 
 `category` values in `words.js` must match a `categories` id, and `level` gates which words a game will draw (games filter with e.g. `words.filter(w => w.level <= 4)`).
 

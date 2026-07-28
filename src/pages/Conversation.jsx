@@ -1,89 +1,133 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { conversations } from '../data/conversations';
+import { verificarResposta } from '../utils/answerCheck';
 import { useProgress } from '../hooks/useProgress';
 import useSound from '../hooks/useSound';
+import useSpeech from '../hooks/useSpeech';
 import './Conversation.css';
 
-const Conversation = () => {
-  const [selectedConvo, setSelectedConvo] = useState(null);
-  const [messageIndex, setMessageIndex] = useState(0);
-  const [chatHistory, setChatHistory] = useState([]);
-  const [convoComplete, setConvoComplete] = useState(false);
-  const [freeText, setFreeText] = useState('');
-  const { completeConversation } = useProgress();
-  const { playClick, playCorrect } = useSound();
+// ATENÇÃO AO IDIOMA: esta é a única tela do app com a interface em inglês —
+// decisão de produto, para o treino ser imersivo. As CORREÇÕES gramaticais
+// continuam em português (vêm de answerCheck.js): explicar em inglês o erro de
+// quem ainda não lê inglês não ensinaria nada.
 
-  const startConversation = useCallback((convo) => {
-    setSelectedConvo(convo);
-    setMessageIndex(0);
-    setChatHistory([{ role: 'system', text: convo.messages[0].text, translation: convo.messages[0].translation }]);
-    setConvoComplete(false);
+const Conversation = () => {
+  const [convo, setConvo] = useState(null);
+  const [nodeId, setNodeId] = useState(null);
+  const [historico, setHistorico] = useState([]);
+  const [completa, setCompleta] = useState(false);
+  const [texto, setTexto] = useState('');
+  const [resultado, setResultado] = useState(null);
+  const [traduzirTudo, setTraduzirTudo] = useState(false);
+  const [traduzidas, setTraduzidas] = useState(() => new Set());
+
+  const entradaRef = useRef(null);
+  const { completeConversation, handleCorrectAnswer, handleWrongAnswer } = useProgress();
+  const { playClick, playCorrect, playWrong } = useSound();
+  const { speakNormal, speakSlow, isAvailable: temVoz } = useSpeech();
+
+  const noAtual = convo && nodeId ? convo.nodes[nodeId] : null;
+
+  const iniciar = useCallback((escolhida) => {
+    const inicial = escolhida.nodes[escolhida.start];
+    setConvo(escolhida);
+    setNodeId(escolhida.start);
+    setHistorico([{ role: 'system', text: inicial.text, translation: inicial.translation }]);
+    setCompleta(false);
+    setResultado(null);
+    setTexto('');
+    setTraduzidas(new Set());
   }, []);
 
-  const handleResponse = useCallback((option) => {
-    if (!selectedConvo) return;
-    playClick();
-    
-    const newHistory = [...chatHistory, { role: 'user', text: option.text, translation: option.translation }];
-    
-    // Find next system message
-    let nextIdx = messageIndex + 2; // Skip user options, go to next system message
-    
-    if (nextIdx < selectedConvo.messages.length) {
-      const nextMsg = selectedConvo.messages[nextIdx];
-      newHistory.push({ role: 'system', text: nextMsg.text, translation: nextMsg.translation });
-      setMessageIndex(nextIdx);
-    } else {
-      // Conversation complete
-      setConvoComplete(true);
+  const alternarTraducao = useCallback((i) => {
+    setTraduzidas(prev => {
+      const proximo = new Set(prev);
+      if (proximo.has(i)) proximo.delete(i);
+      else proximo.add(i);
+      return proximo;
+    });
+  }, []);
+
+  // `nota` sobrevive ao avanço: é como a correção de um "quase certo" continua
+  // visível depois que a conversa já seguiu em frente.
+  const avancar = useCallback((reply, nota = null) => {
+    if (!convo) return;
+    const proximo = convo.nodes[reply.next];
+    if (!proximo) return;
+
+    setHistorico(prev => [
+      ...prev,
+      { role: 'user', text: reply.text, translation: reply.translation },
+      { role: 'system', text: proximo.text, translation: proximo.translation },
+    ]);
+    setNodeId(reply.next);
+    setResultado(nota);
+    setTexto('');
+
+    // Nó sem respostas é o fim do diálogo
+    if (!(proximo.replies || []).length) {
+      setCompleta(true);
       completeConversation();
       playCorrect();
     }
-    
-    setChatHistory(newHistory);
-  }, [selectedConvo, chatHistory, messageIndex, playClick, playCorrect, completeConversation]);
+  }, [convo, completeConversation, playCorrect]);
 
-  const handleFreeTextSubmit = useCallback((e) => {
+  const escolherOpcao = useCallback((reply) => {
+    playClick();
+    avancar(reply);
+  }, [playClick, avancar]);
+
+  const enviarTexto = useCallback((e) => {
     e.preventDefault();
-    if (!freeText.trim()) return;
-    
-    const currentOptions = selectedConvo.messages[messageIndex + 1]?.options;
-    if (currentOptions) {
-      // Find closest match or accept any
-      const match = currentOptions.find(o => o.text.toLowerCase().includes(freeText.toLowerCase().trim()));
-      handleResponse(match || currentOptions[0]);
+    if (!noAtual || completa) return;
+
+    const r = verificarResposta(texto, noAtual);
+
+    if (r.status === 'certo') {
+      playCorrect();
+      handleCorrectAnswer(r.reply.text, 1);
+      avancar(r.reply);
+      return;
     }
-    setFreeText('');
-  }, [freeText, selectedConvo, messageIndex, handleResponse]);
 
-  const getCurrentOptions = () => {
-    if (!selectedConvo || convoComplete) return null;
-    const optionsMsg = selectedConvo.messages[messageIndex + 1];
-    if (optionsMsg?.role === 'user') return optionsMsg.options;
-    return null;
-  };
+    if (r.status === 'quase') {
+      // Erro de digitação não trava o diálogo, mas a forma certa fica na tela
+      playCorrect();
+      handleCorrectAnswer(r.reply.text, 2);
+      avancar(r.reply, r);
+      return;
+    }
 
-  // Topic selection
-  if (!selectedConvo) {
+    playWrong();
+    // Só registra o erro quando dá para saber o que a pessoa tentava dizer.
+    // Frase solta e irreconhecível não vira estatística de nada.
+    if (r.correcao) handleWrongAnswer(r.correcao);
+    setResultado(r);
+    entradaRef.current?.focus();
+  }, [noAtual, completa, texto, playCorrect, playWrong, handleCorrectAnswer, handleWrongAnswer, avancar]);
+
+  // ---------------------------------------------------------------- seleção
+  if (!convo) {
     return (
       <div className="page">
         <div className="container">
           <div className="text-center animate-fade-in-up" style={{ marginBottom: 'var(--space-2xl)' }}>
             <Link to="/" className="btn btn-ghost" style={{ marginBottom: 'var(--space-lg)' }}>← Voltar</Link>
-            <h1>💬 Treino de Conversação</h1>
+            <h1>💬 Conversation Practice</h1>
             <p className="text-secondary" style={{ marginTop: 'var(--space-sm)' }}>
-              Pratique diálogos do dia a dia em inglês. Escolha um tema:
+              Practice everyday dialogues in English. Pick a topic:
             </p>
           </div>
           <div className="convo-topics">
-            {conversations.map((convo) => (
-              <button key={convo.id} className="glass-card convo-topic-card" onClick={() => startConversation(convo)}>
-                <span style={{ fontSize: '2rem' }}>{convo.icon}</span>
-                <div>
-                  <h3>{convo.topicPt}</h3>
-                  <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>{convo.topic}</p>
+            {conversations.map((c) => (
+              <button key={c.id} className="glass-card convo-topic-card" onClick={() => iniciar(c)}>
+                <span className="convo-topic-icon">{c.icon}</span>
+                <div className="convo-topic-body">
+                  <h3>{c.topic}</h3>
+                  <p className="text-secondary">{c.topicPt}</p>
                 </div>
+                <span className="badge badge-purple convo-topic-level">Level {c.level}</span>
               </button>
             ))}
           </div>
@@ -92,65 +136,114 @@ const Conversation = () => {
     );
   }
 
-  const options = getCurrentOptions();
+  // ------------------------------------------------------------------ chat
+  const opcoes = !completa && noAtual ? (noAtual.replies || []) : [];
 
   return (
     <div className="page">
       <div className="container game-container">
         <div className="game-header animate-fade-in">
           <div className="game-title">
-            <button className="btn btn-ghost btn-sm" onClick={() => setSelectedConvo(null)}>←</button>
-            <span className="icon">{selectedConvo.icon}</span>
-            <h2>{selectedConvo.topicPt}</h2>
+            <button className="btn btn-ghost btn-sm" onClick={() => setConvo(null)} aria-label="Back to topics">←</button>
+            <span className="icon">{convo.icon}</span>
+            <h2>{convo.topic}</h2>
           </div>
+          <button
+            className={`btn btn-sm ${traduzirTudo ? 'btn-secondary' : 'btn-ghost'}`}
+            onClick={() => setTraduzirTudo(v => !v)}
+            aria-pressed={traduzirTudo}
+          >
+            🇧🇷 {traduzirTudo ? 'Hide translations' : 'Show translations'}
+          </button>
         </div>
 
-        {/* Chat */}
-        <div className="chat-container">
-          {chatHistory.map((msg, i) => (
-            <div key={i} className={`chat-bubble ${msg.role} animate-fade-in-up`} style={{ animationDelay: `${i * 0.05}s` }}>
-              <div className="chat-text">{msg.text}</div>
-              <div className="chat-translation">{msg.translation}</div>
-            </div>
-          ))}
+        <div className="chat-container" aria-live="polite">
+          {historico.map((msg, i) => {
+            const mostrarTraducao = traduzirTudo || traduzidas.has(i);
+            return (
+              <div key={i} className={`chat-bubble ${msg.role} animate-fade-in-up`}>
+                <div className="chat-text">{msg.text}</div>
 
-          {convoComplete && (
+                {mostrarTraducao && <div className="chat-translation">{msg.translation}</div>}
+
+                <div className="chat-actions">
+                  {temVoz && (
+                    <>
+                      <button className="chat-action" onClick={() => speakNormal(msg.text)} aria-label="Listen" title="Listen">🔊</button>
+                      <button className="chat-action" onClick={() => speakSlow(msg.text)} aria-label="Listen slowly" title="Listen slowly">🐢</button>
+                    </>
+                  )}
+                  <button
+                    className="chat-action"
+                    onClick={() => alternarTraducao(i)}
+                    aria-pressed={mostrarTraducao}
+                    aria-label="Translate"
+                    title="Translate"
+                  >
+                    🇧🇷
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+          {completa && (
             <div className="chat-complete animate-bounce-in">
               <span style={{ fontSize: '2rem' }}>🎉</span>
-              <h3>Conversa concluída!</h3>
-              <p className="text-secondary">Ótimo trabalho praticando essa conversa!</p>
+              <h3>Conversation complete!</h3>
+              <p className="text-secondary">
+                Great job! Try it again and choose different answers — the dialogue changes.
+              </p>
               <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <button className="btn btn-primary" onClick={() => startConversation(selectedConvo)}>🔄 Repetir</button>
-                <button className="btn btn-secondary" onClick={() => setSelectedConvo(null)}>Outro tema</button>
+                <button className="btn btn-primary" onClick={() => iniciar(convo)}>🔄 Play again</button>
+                <button className="btn btn-secondary" onClick={() => setConvo(null)}>Another topic</button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Response options */}
-        {options && !convoComplete && (
+        {!completa && opcoes.length > 0 && (
           <div className="chat-options animate-fade-in-up">
-            <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-sm)' }}>
-              Escolha uma resposta:
-            </p>
-            {options.map((option, i) => (
-              <button key={i} className="chat-option glass-card" onClick={() => handleResponse(option)}>
-                <span>{option.text}</span>
-                <span className="chat-option-pt">{option.translation}</span>
+            <p className="chat-options-label">Choose a reply:</p>
+            {opcoes.map((reply, i) => (
+              <button key={i} className="chat-option glass-card" onClick={() => escolherOpcao(reply)}>
+                <span>{reply.text}</span>
+                {(traduzirTudo || resultado) && <span className="chat-option-pt">{reply.translation}</span>}
               </button>
             ))}
-            
-            {/* Free text input */}
-            <form onSubmit={handleFreeTextSubmit} className="chat-input-form">
+
+            <form onSubmit={enviarTexto} className="chat-input-form">
               <input
+                ref={entradaRef}
                 type="text"
-                value={freeText}
-                onChange={(e) => setFreeText(e.target.value)}
-                placeholder="Ou digite sua resposta em inglês..."
+                value={texto}
+                onChange={(e) => setTexto(e.target.value)}
+                placeholder="…or type your own reply in English"
                 className="chat-input"
+                aria-label="Type your reply in English"
+                autoComplete="off"
               />
-              <button type="submit" className="btn btn-primary btn-sm">Enviar</button>
+              <button type="submit" className="btn btn-primary btn-sm">Send</button>
             </form>
+          </div>
+        )}
+
+        {/* Correção em português — de propósito, mesmo com a tela em inglês */}
+        {resultado?.explicacaoPt && (
+          <div className={`chat-feedback animate-fade-in-up ${resultado.status}`} role="status">
+            <div className="chat-feedback-head">
+              <span>{resultado.status === 'quase' ? '🟡' : '📝'}</span>
+              <strong>{resultado.status === 'quase' ? 'Quase certo' : 'Vamos corrigir'}</strong>
+            </div>
+            <p className="chat-feedback-text">{resultado.explicacaoPt}</p>
+            {resultado.correcao && (
+              <div className="chat-feedback-fix">
+                <span className="chat-feedback-en">{resultado.correcao}</span>
+                {temVoz && (
+                  <button className="chat-action" onClick={() => speakNormal(resultado.correcao)} aria-label="Listen" title="Listen">🔊</button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
