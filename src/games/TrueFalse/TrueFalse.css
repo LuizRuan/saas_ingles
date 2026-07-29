@@ -5,10 +5,8 @@
 .tf-translation { font-size: var(--fs-2xl); font-weight: 600; color: var(--accent-blue-light); }
 .tf-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); max-width: 400px; margin: 0 auto; }
 .tf-btn { padding: var(--space-lg); border-radius: var(--radius-lg); font-size: var(--fs-lg); font-weight: 700; border: 2px solid transparent; cursor: pointer; transition: all var(--transition-base); }
-.tf-true { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border-color: rgba(16, 185, 129, 0.3); }
-.tf-true:hover { background: rgba(16, 185, 129, 0.2); border-color: var(--accent-green); transform: translateY(-2px); }
-.tf-false { background: rgba(239, 68, 68, 0.1); color: var(--accent-red-light); border-color: rgba(239, 68, 68, 0.3); }
-.tf-false:hover { background: rgba(239, 68, 68, 0.2); border-color: var(--accent-red); transform: translateY(-2px); }
+/* .tf-true / .tf-false moram em index.css: "Quem Sabe Mais?" também os usa,
+   então são primitivas compartilhadas, não estilo local deste jogo. */
 
 /* === ESCOLHA DE MODO ===
    .glass-card não traz padding de propósito, então quem pareia com ela paga. */

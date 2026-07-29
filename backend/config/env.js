@@ -14,10 +14,18 @@ if (!jwtSecret) {
   throw new Error('JWT_SECRET é obrigatório em produção (NODE_ENV=production) e não foi definido.');
 }
 
+// Aceita UMA origem ou várias separadas por vírgula. Plural porque cada deploy
+// de preview da Vercel tem domínio próprio — com uma origem só, todo preview
+// falharia no CORS.
+const rawOrigins = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+const frontendOrigins = rawOrigins.split(',').map(o => o.trim()).filter(Boolean);
+
 export const env = {
   port: Number(process.env.PORT) || 5000,
   mongoUri: process.env.MONGODB_URI || null,
   jwtSecret,
-  frontendOrigin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
+  frontendOrigins,
+  // Mantido no singular para quem só precisa de uma (logs, mensagens).
+  frontendOrigin: frontendOrigins[0],
   isProduction,
 };

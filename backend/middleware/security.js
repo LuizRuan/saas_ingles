@@ -11,6 +11,6 @@ export const securityHeaders = helmet();
 // recebe um header Origin de verdade em toda requisição — CORS continua
 // defesa em profundidade legítima, não um no-op.
 export const corsPolicy = cors({
-  origin: env.frontendOrigin,
+  origin: env.frontendOrigins,
   credentials: true,
 });

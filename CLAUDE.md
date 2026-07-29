@@ -35,6 +35,14 @@ Tests live beside the code they cover (`src/utils/*.test.js`, `src/data/data.tes
 
 Static build on Vercel (`dist/`), auto-deployed from the GitHub repo. [vercel.json](vercel.json) rewrites every path to `/index.html` — routing is entirely client-side, so without that fallback a direct hit or refresh on `/games/memory` returns 404. Vercel matches real files before applying rewrites, so assets are unaffected. Any new host needs the same SPA fallback.
 
+**⚠️ Known-broken in production: there is no `/api` rewrite, so the SPA catch-all swallows every API call.** Verified against production — `GET /api/health` returns `index.html` with status 200, and `POST /api/auth/login` returns 405. Consequence: the live Register/Login screens cannot work, and `usePresence` always reads as offline. The fix needs the Render URL to exist, then a rewrite **above** the catch-all:
+
+```json
+{ "source": "/api/(.*)", "destination": "https://<host>.onrender.com/api/$1" }
+```
+
+Order matters — `rewrites` are evaluated top-down, and the `/(.*)` catch-all matches `/api/*` too. See `backend/README.md` for the full remaining deploy checklist (CSP `connect-src`, `VITE_REALTIME_URL`, `FRONTEND_ORIGIN`).
+
 ## Security
 
 [vercel.json](vercel.json) also sets the security headers. Constraints worth knowing before you change things:
@@ -68,6 +76,17 @@ Dependabot ([.github/dependabot.yml](.github/dependabot.yml)) opens weekly depen
 - **The server is authoritative for the question, the timing, and the correct answer — never the client.** It picks the word/game type, shuffles options, and only reveals `correctAnswer` after both players have answered (or the round times out). Timing is measured by when the answer *arrives at the server* (`backend/realtime/scoring.js`), never a client-reported elapsed time. This is a real (if proportionate — no money/ranking at stake) security property for the app's first cross-user real-time feature; see `backend/README.md`'s "Realtime" section for the full reasoning.
 - **`backend/data/words.json`** is a generated, deliberately duplicated slice of `src/data/words.js` (same spirit as `backend/utils/validators.js` duplicating frontend rules) — regenerate with `node backend/scripts/sync-words.mjs` whenever the word bank changes. The frontend's own `words.js` is never used for human-mode duels (only for Bot mode, which stays 100% client-side and unchanged).
 - **Guest identity (`progress.displayName` in `storage.js`) is deliberately separate from Register/Login.** Duel matchmaking must keep working without an account, the same way it always could as a Bot match.
+- **`realtime/round.js` is pure on purpose.** The round lifecycle (close/score/decide winner/validate answer) was extracted out of the socket handler's closure specifically to be unit-testable — its absence is what let a double-scoring bug ship. `closeRound` is **idempotent**; without that, an answer arriving during the inter-round pause ran the close twice, double-awarding both players and silently skipping a round. `round.test.js` pins this.
+- **`round:start` carries `serverNow`** so the client can measure its own clock offset ([duelClock.js](src/utils/duelClock.js)). Never compute remaining time as `deadline - Date.now()` directly: a device clock 10s fast made the timer start at zero and silently disabled every answer button.
+- **The socket rate limiter keys on `socket.id`, not IP.** On Render TLS terminates at a load balancer, so `handshake.address` is identical for every visitor — an IP-keyed limit would give the whole platform one shared budget. IP limiting stays in Express, which now has `app.set('trust proxy', 1)` for the same reason.
+
+### Presence ("how many people are online")
+
+`GET /api/presence` + `POST /api/presence/ping` ([backend/realtime/presence.js](backend/realtime/presence.js)), consumed by [usePresence.jsx](src/hooks/usePresence.jsx) — a provider in `App.jsx`, so it works on every page.
+
+**HTTP heartbeat, deliberately not a socket per page.** A socket from every visitor would make each Home load pay Render's ~50s cold start and keep the free instance awake 24/7 (its 750 h/month ceiling). Decisively, the heartbeat is keyed on an id *we* choose (a UUID in `localStorage`), which is the only way **two tabs of one browser count as one person** — impossible with `socket.id`, where each tab is its own connection. The socket still exists, but only on the duel screen, and it's what reports the queue size.
+
+**Honesty rule, enforced by [presenceLabel.js](src/utils/presenceLabel.js) and pinned by a test:** a count is only ever rendered when the connection is actually healthy. Initial value is `null`, never `0`. Before this, a dead backend rendered "0 online agora" next to a pulsing green dot — indistinguishable from "server is up, nobody here", which is exactly what confused the first real test of the feature.
 
 ## Stack
 

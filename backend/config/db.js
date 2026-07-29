@@ -1,5 +1,14 @@
+import dns from 'node:dns';
 import mongoose from 'mongoose';
 import { env } from './env.js';
+
+// mongodb+srv:// depende de consulta DNS do tipo SRV. O resolver embutido do
+// Node (c-ares) às vezes falha nisso em redes/Windows onde o resolver do
+// próprio sistema operacional resolve sem problema (`nslookup` funciona, o
+// driver do Mongo não) — sintoma: "querySrv ECONNREFUSED". Forçar um DNS
+// público conhecido evita essa categoria de falha, sem custo em ambientes
+// (como o Render) onde isso já funcionava.
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 // Conecta SÓ se MONGODB_URI existir. Sem isso, loga um aviso claro e retorna
 // — server.js chama app.listen() de qualquer forma, então o processo sobe com

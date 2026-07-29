@@ -22,6 +22,31 @@ describe('app', () => {
   });
 });
 
+describe('/api/presence', () => {
+  it('GET responde online e queue sem precisar de banco', async () => {
+    const res = await request(app).get('/api/presence');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.online).toBe('number');
+    expect(typeof res.body.queue).toBe('number');
+  });
+
+  it('POST /ping registra e devolve a contagem', async () => {
+    const res = await request(app)
+      .post('/api/presence/ping')
+      .send({ id: 'teste-integracao-1' });
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(true);
+    expect(res.body.online).toBeGreaterThanOrEqual(1);
+  });
+
+  it('POST /ping recusa id inválido', async () => {
+    const res = await request(app)
+      .post('/api/presence/ping')
+      .send({ id: 'id com espaço e <script>' });
+    expect(res.status).toBe(400);
+  });
+});
+
 describe('POST /api/auth/logout', () => {
   it('limpa o cookie e responde 200 sem precisar de banco', async () => {
     const res = await request(app).post('/api/auth/logout');

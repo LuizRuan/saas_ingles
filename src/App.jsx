@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ProgressProvider } from './hooks/useProgress';
+import { PresenceProvider } from './hooks/usePresence';
 import Layout from './components/Layout/Layout';
 import Home from './pages/Home';
 import Games from './pages/Games';
@@ -26,6 +27,9 @@ import Login from './pages/Login';
 function App() {
   return (
     <ProgressProvider>
+      {/* Presença por heartbeat HTTP, em toda página (ver usePresence.jsx).
+          O socket do duelo continua só na tela de "Quem Sabe Mais?". */}
+      <PresenceProvider>
       <BrowserRouter>
         <Layout>
           <Routes>
@@ -53,6 +57,7 @@ function App() {
           </Routes>
         </Layout>
       </BrowserRouter>
+      </PresenceProvider>
     </ProgressProvider>
   );
 }

@@ -45,7 +45,18 @@ Copie `.env.example` para `.env` para configurar de verdade:
   Script manual, nunca executado pelo servidor.
 - **O cliente nunca recebe `words.json`** — o servidor monta a pergunta inteira (texto do prompt, opções já embaralhadas) e manda pronta; o navegador só renderiza. Isso também significa que o cliente nunca recebe `correctAnswer` antes de responder.
 - **Autoridade do servidor** (a parte de segurança que importa aqui): quem escolhe a palavra/tipo de jogo, quem cronometra (por instante de chegada da resposta, nunca por um tempo que o cliente relate) e quem sabe a resposta certa é sempre o servidor — nunca o cliente. Ver `backend/realtime/scoring.js` e seu teste para a prova disso.
-- **Sem variável de ambiente nova obrigatória** — reaproveita `FRONTEND_ORIGIN` (CORS do Socket.IO, com `credentials: false`: a identidade do duelo é um apelido descartável, não o cookie de sessão).
+- **Sem variável de ambiente nova obrigatória** — reaproveita `FRONTEND_ORIGIN` (CORS do Socket.IO, com `credentials: false`: a identidade do duelo é um apelido descartável, não o cookie de sessão). `FRONTEND_ORIGIN` aceita **lista separada por vírgula**, para os previews da Vercel não quebrarem no CORS.
+- **`realtime/round.js` é puro de propósito.** O ciclo da rodada (fechar, pontuar, decidir vencedor, validar resposta) foi extraído para fora do closure do handler de socket justamente para ser testável — foi a falta disso que deixou passar o bug de pontuação dupla. `closeRound` é **idempotente**: sem isso, uma resposta chegando durante a pausa entre rodadas fazia o fechamento rodar duas vezes, somando pontos em dobro e pulando uma rodada.
+- **O `round:start` manda `serverNow`.** O cliente mede a defasagem do próprio relógio com isso (`src/utils/duelClock.js`). Sem essa correção, relógio do aparelho adiantado em 10s zerava o cronômetro na primeira renderização e travava todas as respostas, em silêncio.
+- **Limitador do socket é por `socket.id`, não por IP** — no Render o TLS termina no balanceador, então `handshake.address` é o mesmo para todos os visitantes e a plataforma inteira dividiria uma cota de 5 entradas na fila por 10 segundos. Limite por IP continua onde funciona: no Express, e agora com `app.set('trust proxy', 1)`.
+
+## Presença ("quantas pessoas no site")
+
+`GET /api/presence` e `POST /api/presence/ping` (`realtime/presence.js` + `routes/presence.routes.js`). Em memória, com TTL de 75s e ping do cliente a cada 30s.
+
+**Por que heartbeat HTTP e não socket em toda página:** um socket por visitante faria cada carregamento da Home pagar a partida a frio do Render (~50s) e manteria a instância acordada 24/7, que é exatamente o teto de 750 h/mês do plano gratuito. E, decisivo: o heartbeat é indexado por um id que **nós** escolhemos (um UUID em `localStorage`), então **duas abas do mesmo navegador contam como uma pessoa** — impossível de fazer com `socket.id`, em que cada aba é uma conexão distinta.
+
+O socket continua existindo, mas só na tela do duelo, e é ele que informa quantas pessoas estão na fila.
 
 ## Decisões de segurança (por que estão assim)
 
@@ -56,14 +67,17 @@ Copie `.env.example` para `.env` para configurar de verdade:
 - **Rate limiting por IP** em `/api/auth/register` (5/hora) e `/api/auth/login` (10/15min), mais um limite geral (300/15min) em `/api` inteiro.
 - **`MONGODB_URI` ausente não derruba o processo** — `config/db.js` só conecta se a variável existir; sem ela, o servidor sobe normalmente e as rotas que precisam de banco respondem `503` de forma clara.
 
-## O que falta para ir ao ar (fora do escopo deste esqueleto)
+## O que falta para ir ao ar
 
-1. Provisionar MongoDB Atlas e configurar `MONGODB_URI`.
-2. Gerar um `JWT_SECRET` de produção de verdade.
-3. Deploy no Render, com `FRONTEND_ORIGIN` apontando para o domínio real do Vercel.
-4. Acrescentar ao `vercel.json` do frontend uma entrada em `rewrites` proxeando `/api/(.*)` para a URL do Render — **nenhuma URL foi inventada aqui** porque nada foi deployado ainda.
+MongoDB Atlas já está provisionado e conectando (verificado: registro→login→sessão→duplicado funcionando com banco real). O que resta depende da URL do Render existir:
 
-Nenhum destes 4 passos foi executado nesta sessão — nem deploy, nem `git`, por instrução explícita.
+1. **Deploy no Render** — `rootDir: backend`, build `npm install`, start `npm start`, health check `/api/health`, plano Free. O `render.yaml` na raiz já descreve isso.
+2. **No painel do Render:** `MONGODB_URI` (a connection string do Atlas), `JWT_SECRET` (gerar, não reaproveitar o de dev), `FRONTEND_ORIGIN` (domínio da Vercel — aceita lista).
+3. **`vercel.json`: acrescentar um rewrite de `/api/(.*)` para o host do Render, ACIMA do catch-all de SPA.** Isto é o que faz Login/Cadastro e a presença funcionarem em produção. Hoje o catch-all engole `/api/*` e devolve `index.html` — verificado: `GET /api/health` em produção responde HTML com status 200.
+4. **CSP em `vercel.json`:** `connect-src 'self' https://<host>.onrender.com wss://<host>.onrender.com`. Hosts nomeados, nada de curinga.
+5. **Env da Vercel:** `VITE_REALTIME_URL=https://<host>.onrender.com`, em Production **e** Preview (ver `.env.example` na raiz).
+
+Nenhum destes passos foi executado ainda — todos dependem da URL real do Render.
 
 ## Testando sem banco
 

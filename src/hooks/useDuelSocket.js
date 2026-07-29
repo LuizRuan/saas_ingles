@@ -1,64 +1,127 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { io } from 'socket.io-client';
+import { computeOffset } from '../utils/duelClock';
 
 // URL do backend em tempo real. Conexão DIRETA (não pelo proxy /api do Vite),
-// de propósito: um rewrite do Vercel para HTTP comum não garante tunelar o
-// upgrade de WebSocket para uma origem externa — em vez de montar a feature
-// sobre uma suposição não verificável, o cliente sempre fala direto com o
-// backend, em dev e em produção igual. Ver CLAUDE.md para a decisão completa.
+// de propósito: um rewrite do Vercel proxeia HTTP comum, e não há garantia
+// documentada de que ele tunele o upgrade de WebSocket para uma origem externa.
+// Ver CLAUDE.md para a decisão completa (inclui a exceção estreita na CSP).
 const REALTIME_URL = import.meta.env.VITE_REALTIME_URL || 'http://localhost:5000';
 
-// Conecta assim que o componente que chama este hook monta (não atrás de
-// nenhum clique) — é o que faz o contador de gente online aparecer na tela
-// assim que ela carrega. Desconecta ao desmontar.
-//
-// Segue o mesmo padrão de identidade estável documentado em useProgress.jsx
-// (progressRef): todo estado ao vivo fica também numa ref, e as ações
-// expostas (joinQueue/leaveQueue/submitAnswer) são useCallback com deps
-// vazias, seguras para entrar no array de dependências de um useEffect
-// consumidor sem risco de loop infinito.
+// Quanto tempo esperar na fila antes de desistir e avisar. Sem isto, com o
+// servidor inalcançável o spinner "Procurando oponente..." rodava para sempre.
+const QUEUE_TIMEOUT_MS = 45_000;
+
+/**
+ * Cliente do duelo em tempo real.
+ *
+ * Segue o padrão de identidade estável documentado em useProgress.jsx: as ações
+ * expostas são useCallback com dependências vazias (ou primitivas estáveis),
+ * seguras para entrar no array de dependências de um useEffect consumidor.
+ */
 export const useDuelSocket = () => {
-  const [myId, setMyId] = useState(null);
-  const [onlineCount, setOnlineCount] = useState(0);
-  const [matchState, setMatchState] = useState('idle'); // idle|searching|matched|playing|ended
+  // 'connecting' | 'connected' | 'reconnecting' | 'offline'
+  const [status, setStatus] = useState('connecting');
+  const [socketCount, setSocketCount] = useState(null); // null = ainda não sei
+  const [queueCount, setQueueCount] = useState(null);
+
+  // 'idle' | 'searching' | 'matched' | 'playing' | 'ended' | 'lost'
+  const [matchState, setMatchState] = useState('idle');
+  const [queueError, setQueueError] = useState(null);
   const [opponent, setOpponent] = useState(null);
   const [gameType, setGameType] = useState(null);
   const [roundIndex, setRoundIndex] = useState(0);
   const [totalRounds, setTotalRounds] = useState(5);
   const [question, setQuestion] = useState(null);
   const [roundDeadline, setRoundDeadline] = useState(null);
+  const [roundMs, setRoundMs] = useState(10_000);
   const [roundResult, setRoundResult] = useState(null);
   const [scores, setScores] = useState({});
   const [matchEnd, setMatchEnd] = useState(null);
+  const [answerError, setAnswerError] = useState(null);
 
   const socketRef = useRef(null);
   const matchIdRef = useRef(null);
+  const queueTimerRef = useRef(null);
+  // Defasagem entre o relógio do servidor e o desta máquina. Fica em ref, não
+  // em state: é lido dentro de um setInterval e não deve causar re-render.
+  const clockOffsetRef = useRef(0);
+  // Guarda o próprio id no momento em que a partida terminou. Necessário porque
+  // uma reconexão troca o socket.id, e comparar depois daria resultado errado.
+  const myIdRef = useRef(null);
+
+  const clearQueueTimer = useCallback(() => {
+    if (queueTimerRef.current) {
+      clearTimeout(queueTimerRef.current);
+      queueTimerRef.current = null;
+    }
+  }, []);
 
   useEffect(() => {
-    const socket = io(REALTIME_URL, { transports: ['websocket'] });
+    const socket = io(REALTIME_URL, {
+      transports: ['websocket', 'polling'],
+      timeout: 8_000,
+    });
     socketRef.current = socket;
+    let everConnected = false;
 
-    socket.on('connect', () => setMyId(socket.id));
-    socket.on('presence:count', setOnlineCount);
+    socket.on('connect', () => {
+      everConnected = true;
+      myIdRef.current = socket.id;
+      setStatus('connected');
+    });
+
+    // Sem estes dois handlers, o servidor fora do ar era indistinguível de
+    // "ninguém online": onlineCount ficava em 0 e a tela mostrava uma bolinha
+    // verde pulsando como se estivesse tudo bem.
+    socket.on('connect_error', () => {
+      setStatus(everConnected ? 'reconnecting' : 'offline');
+      setSocketCount(null);
+      setQueueCount(null);
+    });
+
+    socket.on('disconnect', (reason) => {
+      if (reason === 'io client disconnect') return; // fomos nós
+      setStatus('reconnecting');
+      setSocketCount(null);
+      setQueueCount(null);
+      // Partida em andamento não sobrevive: o servidor indexa tudo por
+      // socket.id e destrói a partida na desconexão. Em vez de congelar a tela
+      // (o que acontecia antes), marcamos como perdida para o componente
+      // oferecer uma saída limpa.
+      setMatchState(prev => (prev === 'playing' || prev === 'matched' ? 'lost' : prev));
+      clearQueueTimer();
+    });
+
+    socket.on('presence:count', (payload) => {
+      // Payload virou objeto; aceita número por compatibilidade.
+      if (typeof payload === 'number') { setSocketCount(payload); return; }
+      setSocketCount(payload?.sockets ?? null);
+      setQueueCount(payload?.queue ?? null);
+    });
 
     socket.on('match:found', (payload) => {
+      clearQueueTimer();
       matchIdRef.current = payload.matchId;
-      const other = payload.players.find(p => p.id !== socket.id);
-      setOpponent(other || null);
+      setOpponent(payload.players.find(p => p.id !== socket.id) || null);
       setGameType(payload.gameType);
       setTotalRounds(payload.totalRounds);
       setMatchState('matched');
       setRoundResult(null);
       setMatchEnd(null);
+      setAnswerError(null);
       setScores({});
     });
 
     socket.on('round:start', (payload) => {
       if (payload.matchId !== matchIdRef.current) return;
+      clockOffsetRef.current = computeOffset(payload.serverNow);
       setRoundIndex(payload.roundIndex);
       setQuestion(payload.question);
       setRoundDeadline(payload.roundDeadline);
+      setRoundMs(payload.roundMs ?? 10_000);
       setRoundResult(null);
+      setAnswerError(null);
       setMatchState('playing');
     });
 
@@ -70,38 +133,74 @@ export const useDuelSocket = () => {
 
     socket.on('match:end', (payload) => {
       if (payload.matchId !== matchIdRef.current) return;
-      setMatchEnd(payload);
+      // `iWon` é decidido AQUI, onde socket.id é definitivamente o id que jogou
+      // a partida. Se ficasse para o componente comparar depois, uma reconexão
+      // (que troca o socket.id) inverteria o resultado.
+      setMatchEnd({ ...payload, iWon: payload.winnerId === socket.id });
       setScores(payload.scores);
       setMatchState('ended');
     });
 
     return () => {
+      clearQueueTimer();
       socket.disconnect();
       socketRef.current = null;
     };
-  }, []);
+  }, [clearQueueTimer]);
 
   const joinQueue = useCallback((nickname) => {
-    setMatchState('searching');
-    socketRef.current?.emit('queue:join', { nickname }, (ack) => {
-      if (!ack?.ok) setMatchState('idle');
+    setQueueError(null);
+    // Recusa cedo em vez de mentir: antes o estado já ia para 'searching' antes
+    // de emitir, e com o socket desconectado o socket.io enfileira o emit — o
+    // ack nunca chegava e o spinner rodava para sempre.
+    if (socketRef.current?.connected !== true) {
+      setQueueError('Sem conexão com o servidor. Tente novamente em instantes.');
+      return;
+    }
+
+    socketRef.current.emit('queue:join', { nickname }, (ack) => {
+      if (!ack?.ok) {
+        setMatchState('idle');
+        setQueueError(ack?.error || 'Não foi possível entrar na fila.');
+        return;
+      }
+      setMatchState('searching');
+      clearQueueTimer();
+      queueTimerRef.current = setTimeout(() => {
+        socketRef.current?.emit('queue:leave', {}, () => {});
+        setMatchState('idle');
+        setQueueError('Ninguém disponível agora. Tente o modo Bot ou volte em instantes.');
+      }, QUEUE_TIMEOUT_MS);
     });
-  }, []);
+  }, [clearQueueTimer]);
 
   const leaveQueue = useCallback(() => {
-    socketRef.current?.emit('queue:leave', {}, () => setMatchState('idle'));
-  }, []);
+    clearQueueTimer();
+    setQueueError(null);
+    socketRef.current?.emit('queue:leave', {}, () => {});
+    setMatchState('idle');
+  }, [clearQueueTimer]);
 
   const submitAnswer = useCallback((choice) => {
     socketRef.current?.emit('round:answer', {
       matchId: matchIdRef.current,
       roundIndex,
       choice,
-    }, () => {});
+    }, (ack) => {
+      // Antes o ack era engolido com `() => {}`: o servidor recusava a resposta
+      // e a tela seguia mostrando a escolha como registrada.
+      if (!ack?.ok) setAnswerError(ack?.error || 'Sua resposta não foi registrada.');
+    });
   }, [roundIndex]);
+
+  /** Desistir de propósito, pelo botão "Sair" da tela de partida. */
+  const forfeit = useCallback(() => {
+    socketRef.current?.emit('duel:leave', { matchId: matchIdRef.current }, () => {});
+  }, []);
 
   const resetMatch = useCallback(() => {
     matchIdRef.current = null;
+    clearQueueTimer();
     setMatchState('idle');
     setOpponent(null);
     setGameType(null);
@@ -109,12 +208,22 @@ export const useDuelSocket = () => {
     setRoundResult(null);
     setMatchEnd(null);
     setScores({});
-  }, []);
+    setQueueError(null);
+    setAnswerError(null);
+    setRoundIndex(0);
+    setRoundDeadline(null);
+  }, [clearQueueTimer]);
 
   return {
-    myId, onlineCount, matchState, opponent, gameType,
-    roundIndex, totalRounds, question, roundDeadline, roundResult, scores, matchEnd,
-    joinQueue, leaveQueue, submitAnswer, resetMatch,
+    status,
+    // Só é seguro exibir número quando status === 'connected'; fora disso é null.
+    socketCount, queueCount,
+    matchState, queueError, answerError,
+    opponent, gameType, roundIndex, totalRounds,
+    question, roundDeadline, roundMs, roundResult, scores, matchEnd,
+    myId: myIdRef.current,
+    clockOffsetRef,
+    joinQueue, leaveQueue, submitAnswer, forfeit, resetMatch,
   };
 };
 

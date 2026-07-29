@@ -25,3 +25,7 @@ dist-ssr
 
 .vercel
 .env*
+# Exceção: os .example não têm segredo e existem justamente para serem lidos
+# por quem for configurar o ambiente.
+!.env.example
+!backend/.env.example

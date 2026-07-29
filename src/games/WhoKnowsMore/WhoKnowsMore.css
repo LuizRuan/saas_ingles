@@ -1,10 +1,32 @@
+/* "Quem Sabe Mais?" — reescrito para usar os tokens do design system.
+ *
+ * A versão anterior foi escrita assumindo FUNDO ESCURO (dezenas de
+ * `rgba(255,255,255,0.05)` como preenchimento, bordas esbranquiçadas,
+ * gradientes azul-marinho). O app é CLARO por padrão, então:
+ *   - os botões de resposta literalmente desapareciam (fundo branco a 5% sobre
+ *     branco, borda branca a 10% sobre branco);
+ *   - `.final-scoreboard` era uma placa preta a 30% dentro de um card branco;
+ *   - vários textos ficavam em ~1,6:1 de contraste (ilegíveis).
+ *
+ * Duas regras que este arquivo agora segue, copiadas de TrueFalse.css e
+ * MemoryGame.css (que sobrevivem aos 5 temas sem retoque):
+ *
+ * 1. NÃO BRIGAR COM `.glass-card`. Ele já fornece fundo, borda, raio e sombra —
+ *    e como `index.css` carrega por ÚLTIMO no bundle (main.jsx importa App
+ *    antes do CSS; está documentado no CLAUDE.md), ele vence empates de
+ *    especificidade contra o CSS de componente. Era por isso que
+ *    `.active-card` e `.human-mode` tinham gradientes que nunca apareciam e os
+ *    dois cards do lobby saíam idênticos. Aqui as regras cuidam só de layout,
+ *    espaçamento e acento.
+ * 2. NADA DE COR DE SUPERFÍCIE FIXA. Só token, para os 5 temas funcionarem.
+ */
+
 .who-knows-more-page {
   padding-top: var(--space-xl);
   padding-bottom: var(--space-3xl);
-  min-height: calc(100vh - 80px);
 }
 
-/* LOBBY STYLES */
+/* === LOBBY === */
 .lobby-container {
   max-width: 900px;
   margin: 0 auto;
@@ -15,24 +37,14 @@
   margin-bottom: var(--space-2xl);
 }
 
-.lobby-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
-  color: #a78bfa;
-  border: 1px solid rgba(167, 139, 250, 0.3);
-  padding: 0.4rem 1.2rem;
-  border-radius: var(--radius-full);
-  font-weight: 700;
-  font-size: var(--fs-xs);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: var(--space-md);
-}
-
 .lobby-header h1 {
   font-size: var(--fs-4xl);
-  background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+  /* Fallback declarado ANTES do text-fill: se o gradiente não pintar, sobra
+     uma cor legível em vez de texto transparente. */
+  color: var(--accent-primary);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: var(--space-md);
 }
@@ -45,183 +57,195 @@
 
 .mode-selection-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: var(--space-xl);
   margin-top: var(--space-xl);
 }
 
+/* .glass-card fornece fundo/borda/raio/sombra; aqui só o resto. */
 .mode-card {
   position: relative;
   padding: var(--space-2xl) var(--space-xl);
-  border-radius: var(--radius-xl);
   text-align: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  border: 2px solid transparent;
+  gap: var(--space-sm);
 }
 
 .mode-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(167, 139, 250, 0.4);
-  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.2);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
 }
 
-.active-card {
-  background: linear-gradient(145deg, rgba(30, 27, 75, 0.6), rgba(49, 46, 129, 0.6));
-  border-color: rgba(167, 139, 250, 0.5);
+/* Os dois modos se diferenciam por ACENTO (borda + halo do ícone), não por
+   fundo — fundo é do .glass-card e qualquer tentativa aqui seria sobrescrita. */
+.mode-card--human,
+.mode-card--bot {
+  border-width: 2px;
+  border-style: solid;
 }
 
-/* Antes só existia para "parecer desabilitado" (o card dizia "Em Breve") —
-   agora que o duelo humano é real, ganha um gradiente próprio (verde-azulado),
-   no mesmo espírito do gradiente roxo que .active-card já dá ao card do Bot. */
-.human-mode {
-  background: linear-gradient(145deg, rgba(6, 78, 59, 0.5), rgba(8, 47, 73, 0.6));
-  border-color: rgba(52, 211, 153, 0.5);
-}
+.mode-card--human { border-color: var(--accent-green); }
+.mode-card--human .mode-icon { background: var(--bg-green-subtle); }
+.mode-card--human:hover { border-color: var(--accent-green-dark); }
 
-.human-mode:hover {
-  border-color: rgba(52, 211, 153, 0.7);
-  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.2);
-}
+.mode-card--bot { border-color: var(--accent-primary); }
+.mode-card--bot .mode-icon { background: var(--bg-purple-subtle); }
+.mode-card--bot:hover { border-color: var(--accent-primary-dark); }
 
 .mode-badge {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  padding: 0.3rem 0.8rem;
-  border-radius: var(--radius-full);
+  top: 12px;
+  right: 12px;
 }
 
 .mode-icon {
-  font-size: 3.5rem;
-  margin-bottom: var(--space-md);
-}
-
-/* Contador de gente online, ao vivo — substitui o antigo badge estático
-   "Em Breve 🚀". O ponto pulsante é a única animação nova deste arquivo
-   (nenhuma das 6 já existentes no design system representa presença ao vivo). */
-.online-count-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(16, 185, 129, 0.2);
-  color: #6ee7b7;
-  border: 1px solid rgba(52, 211, 153, 0.35);
-}
-
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #34d399;
-  animation: pulse-dot 1.6s ease-in-out infinite;
-}
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.75); }
-}
-
-.mode-card h3 {
-  font-size: var(--fs-2xl);
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  font-size: 2.6rem;
   margin-bottom: var(--space-xs);
 }
 
-.mode-card p {
-  font-size: var(--fs-sm);
+.mode-card h3 { font-size: var(--fs-xl); }
+.mode-card p { font-size: var(--fs-sm); }
+
+/* Pílula de presença. O `.pulse-dot` vem de index.css (compartilhado). */
+.presence-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  background: var(--bg-green-subtle);
+  color: var(--accent-green-dark);
+  white-space: nowrap;
+}
+
+/* Servidor fora do ar / ainda conectando: cinza, sem prometer nada. */
+.presence-pill.offline {
+  background: var(--bg-tertiary);
   color: var(--text-secondary);
 }
 
-/* MODAL: usa .modal-overlay/.modal-content GLOBAIS (index.css), o mesmo
-   padrão que MemoryGame.jsx já usa de verdade. Este arquivo tinha suas
-   PRÓPRIAS .modal-overlay/.modal-box (valores diferentes: fundo mais escuro,
-   z-index maior) — como carregava depois de index.css, sombreava o padrão
-   global em vez de seguir ele. Era a causa provável do modal fora do padrão
-   no print. */
-.modal-icon {
-  font-size: 3.5rem;
-  margin-bottom: var(--space-md);
+.presence-note {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-xs);
 }
 
-/* DUEL MATCH STYLES */
+.modal-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-sm);
+  text-align: center;
+}
+
+/* Campo do apelido. Nome próprio: antes usava `form-group`, que não tem regra
+   aqui nem em index.css e estava herdando estilo do Auth.css por acidente. */
+.duel-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  margin: var(--space-md) 0;
+}
+
+.duel-field label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* === PARTIDA === */
 .duel-match-container {
   max-width: 760px;
   margin: 0 auto;
+}
+
+.duel-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-sm);
 }
 
 .duel-scoreboard {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-md) var(--space-xl);
-  border-radius: var(--radius-xl);
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
   margin-bottom: var(--space-md);
-  background: linear-gradient(135deg, rgba(30, 27, 75, 0.8), rgba(17, 24, 39, 0.8));
 }
 
 .player-profile {
   display: flex;
   align-items: center;
   gap: var(--space-md);
+  min-width: 0;
+}
+
+.player-profile--opponent { flex-direction: row-reverse; text-align: right; }
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .player-profile .avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: var(--radius-full);
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
   background: var(--bg-purple-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.6rem;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid var(--border-color);
 }
 
-.bot-avatar {
-  background: rgba(59, 130, 246, 0.2) !important;
-  border-color: rgba(59, 130, 246, 0.4) !important;
-}
+.player-profile--opponent .avatar { background: var(--bg-blue-subtle); }
 
 .profile-name {
-  display: block;
   font-weight: 700;
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .profile-score {
   font-size: var(--fs-sm);
-  color: var(--accent-primary-light);
+  color: var(--accent-primary);
   font-weight: 800;
 }
 
-.vs-badge {
-  text-align: center;
-}
+.vs-badge { text-align: center; flex: none; }
 
 .vs-badge span {
   display: block;
-  font-size: var(--fs-xl);
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
   font-weight: 900;
-  color: #f43f5e;
-  letter-spacing: 2px;
+  color: var(--accent-red-light);
+  letter-spacing: 1px;
 }
 
-.vs-badge small {
-  font-size: var(--fs-xs);
-  color: var(--text-secondary);
-}
+.vs-badge small { font-size: var(--fs-xs); color: var(--text-secondary); white-space: nowrap; }
 
-/* TIMER BAR */
+/* === CRONÔMETRO === */
 .timer-bar-container {
   position: relative;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  height: 10px;
+  background: var(--bg-tertiary);
   border-radius: var(--radius-full);
   overflow: hidden;
   margin-bottom: var(--space-xl);
@@ -229,51 +253,81 @@
 
 .timer-bar-fill {
   height: 100%;
-  transition: width 1s linear, background-color 0.3s ease;
+  background: var(--accent-primary);
+  transition: width 0.25s linear, background-color var(--transition-base);
 }
+
+/* Últimos segundos */
+.timer-bar-fill.urgent { background: var(--accent-red); }
 
 .timer-text {
   position: absolute;
   right: 0;
-  top: -24px;
+  top: -22px;
   font-size: var(--fs-xs);
   font-weight: 700;
   color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
 }
 
-/* QUESTION CARD */
+/* === PERGUNTA === */
 .question-card {
   text-align: center;
   padding: var(--space-2xl) var(--space-xl);
   margin-bottom: var(--space-xl);
-  border-radius: var(--radius-xl);
 }
 
 .question-label {
+  display: block;
   font-size: var(--fs-sm);
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  margin-bottom: var(--space-sm);
 }
 
 .target-word {
-  font-size: var(--fs-4xl);
+  font-size: var(--fs-3xl);
   font-weight: 900;
   margin: var(--space-xs) 0;
-  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  color: var(--accent-primary);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  overflow-wrap: break-word;
 }
 
-.pronunciation {
+/* Legenda auxiliar (dica, tradução da frase, instrução). NÃO usar
+   `.pronunciation`: essa classe existe em index.css como pílula roxa e é para
+   pronúncia de verdade — a regra local aqui era 100% morta, sobrescrita. */
+.duel-hint {
+  display: block;
   font-size: var(--fs-sm);
   color: var(--text-secondary);
+  margin-top: var(--space-xs);
 }
 
-/* OPTIONS GRID */
+.duel-tip {
+  font-size: var(--fs-md);
+  font-style: italic;
+  color: var(--text-primary);
+  background: var(--bg-purple-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin: var(--space-sm) 0;
+}
+
+.listening-controls {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin: var(--space-md) 0;
+  flex-wrap: wrap;
+}
+
+/* === OPÇÕES === */
 .options-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-md);
   margin-bottom: var(--space-xl);
 }
@@ -283,113 +337,101 @@
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-lg);
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-lg);
   color: var(--text-primary);
+  font-family: var(--font-body);
   font-size: var(--fs-md);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-base);
   text-align: left;
 }
 
 .option-btn:hover:not(:disabled) {
-  background: rgba(139, 92, 246, 0.15);
+  background: var(--bg-purple-subtle);
   border-color: var(--accent-primary);
   transform: translateY(-2px);
 }
 
+.option-btn:disabled { cursor: default; }
+
 .option-letter {
   width: 32px;
   height: 32px;
+  flex: none;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--bg-purple-subtle);
+  display: grid;
+  place-items: center;
   font-weight: 700;
   font-size: var(--fs-sm);
 }
 
+.option-text { flex: 1; min-width: 0; }
+
+/* Feedback — mesma fórmula de TrueFalse.css: fundo tingido + borda de acento +
+   texto no tom escuro/claro que o tema inverte. Sem !important: não é preciso
+   quando não se está brigando com o .glass-card. */
 .option-btn.correct {
-  background: rgba(34, 197, 94, 0.25) !important;
-  border-color: #22c55e !important;
-  color: #4ade80 !important;
+  background: var(--bg-green-subtle);
+  border-color: var(--accent-green);
+  color: var(--accent-green-dark);
 }
 
 .option-btn.incorrect {
-  background: rgba(239, 68, 68, 0.25) !important;
-  border-color: #ef4444 !important;
-  color: #fca5a5 !important;
+  background: var(--bg-red-subtle);
+  border-color: var(--accent-red);
+  color: var(--accent-red-light);
 }
 
-/* Modo humano: eu já respondi, mas o servidor ainda não revelou o resultado
-   (aguardando o oponente responder ou o tempo acabar) — não é nem acerto nem
-   erro ainda, só "escolha registrada". */
+/* Modo humano: já respondi, o servidor ainda não revelou o resultado. */
 .option-btn.pending {
-  background: rgba(139, 92, 246, 0.2) !important;
-  border-color: var(--accent-primary) !important;
+  background: var(--bg-purple-subtle);
+  border-color: var(--accent-primary);
 }
 
-/* BOT STATUS BAR */
-.bot-status-bar {
+/* === STATUS DO OPONENTE === */
+.duel-status-bar {
   padding: var(--space-md) var(--space-lg);
   text-align: center;
-  border-radius: var(--radius-lg);
   font-size: var(--fs-sm);
 }
 
-.bot-thinking {
+.opponent-thinking,
+.opponent-response {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-md);
+  gap: var(--space-sm);
+  flex-wrap: wrap;
   color: var(--text-secondary);
 }
 
-.spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-top-color: var(--accent-primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+.text-green { color: var(--accent-green-dark); font-weight: 700; }
+.text-red { color: var(--accent-red-light); font-weight: 700; }
+
+/* === AVISO DE CONEXÃO PERDIDA === */
+.duel-lost-panel {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-2xl);
+  text-align: center;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Modificador de tamanho sobre o .spinner que já existe — sem reinventar
-   uma segunda animação de carregamento. */
-.searching-spinner {
-  width: 40px;
-  height: 40px;
-  border-width: 3px;
-  margin: 0 auto var(--space-md);
-}
-
-.match-found-banner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.text-green { color: #4ade80; }
-.text-red { color: #fca5a5; }
-
-/* GAMEOVER STYLES */
+/* === FIM DE PARTIDA === */
 .gameover-container {
   max-width: 600px;
   margin: 0 auto;
-  padding: var(--space-3xl) var(--space-2xl);
+  padding: var(--space-2xl);
   text-align: center;
-  border-radius: var(--radius-2xl);
 }
 
+.gameover-header { margin-bottom: var(--space-lg); }
+
 .result-icon {
-  font-size: 4.5rem;
+  font-size: 4rem;
   margin-bottom: var(--space-sm);
 }
 
@@ -397,44 +439,61 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  margin: var(--space-2xl) 0;
+  gap: var(--space-md);
+  margin: var(--space-xl) 0;
   padding: var(--space-lg);
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: var(--radius-xl);
+  /* Antes: rgba(0,0,0,0.3) — uma placa preta dentro de um card branco. */
+  background: var(--bg-purple-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
 }
+
+.final-score-box { min-width: 0; }
 
 .final-score-box span {
   font-size: var(--fs-xs);
   color: var(--text-secondary);
-  text-transform: uppercase;
 }
 
 .final-score-box h2 {
-  font-size: var(--fs-3xl);
-  color: var(--accent-primary-light);
+  font-size: var(--fs-2xl);
+  color: var(--accent-primary);
   margin-top: 4px;
 }
 
 .final-score-vs {
+  font-family: var(--font-heading);
   font-weight: 900;
-  color: #f43f5e;
-  font-size: var(--fs-xl);
+  color: var(--accent-red-light);
+  font-size: var(--fs-lg);
+  flex: none;
 }
 
 .rewards-card {
   display: flex;
-  justify-content: space-around;
-  background: rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-orange-subtle);
+  border: 1px solid var(--accent-orange);
   padding: var(--space-md);
   border-radius: var(--radius-lg);
-  margin-bottom: var(--space-2xl);
+  margin-bottom: var(--space-xl);
+}
+
+.reward-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  font-size: var(--fs-sm);
 }
 
 .reward-item strong {
-  display: block;
-  font-size: var(--fs-lg);
-  color: #f59e0b;
+  font-size: var(--fs-md);
+  /* --accent-orange (#f59e0b) fica em ~2:1 no branco; a variante -light é a
+     versão escurecida para tema claro e clareada para tema escuro. */
+  color: var(--accent-orange-light);
 }
 
 .gameover-actions {
@@ -444,10 +503,12 @@
   flex-wrap: wrap;
 }
 
-/* SETUP MODAL & DIFFICULTY SELECTION */
-.setup-modal-box {
-  max-width: 540px !important;
-  text-align: left !important;
+/* === MODAL DE CONFIGURAÇÃO DO BOT ===
+   Especificidade composta em vez de !important, para vencer o .modal-content
+   global sem recorrer a força bruta. */
+.modal-content.setup-modal-box {
+  max-width: 540px;
+  text-align: left;
 }
 
 .setup-group {
@@ -462,12 +523,11 @@
   color: var(--text-primary);
 }
 
-.setup-options-list,
 .setup-options-grid-scroll {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  max-height: 270px;
+  max-height: 260px;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -475,26 +535,26 @@
 .setup-option-card {
   padding: var(--space-md);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-base);
 }
 
 .setup-option-card:hover {
-  background: rgba(139, 92, 246, 0.1);
-  border-color: rgba(139, 92, 246, 0.4);
+  background: var(--bg-purple-subtle);
+  border-color: var(--accent-primary-light);
 }
 
 .setup-option-card.selected {
-  background: rgba(139, 92, 246, 0.2);
+  background: var(--bg-purple-subtle);
   border-color: var(--accent-primary);
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+  box-shadow: var(--shadow-purple-glow);
 }
 
 .setup-option-card strong {
   display: block;
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   color: var(--text-primary);
 }
 
@@ -515,39 +575,51 @@
   flex: 1;
   padding: 0.6rem var(--space-xs);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   color: var(--text-secondary);
+  font-family: var(--font-body);
   font-weight: 700;
   font-size: var(--fs-xs);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-base);
   white-space: nowrap;
 }
 
 .diff-pill:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-purple-subtle);
+  border-color: var(--accent-primary-light);
 }
 
 .diff-pill.active {
-  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
-  color: #ffffff;
+  background: var(--gradient-primary);
+  color: var(--text-on-primary);
   border-color: transparent;
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+  box-shadow: var(--shadow-purple-glow);
 }
 
-/* TRUE / FALSE GRID */
-.tf-grid {
-  grid-template-columns: 1fr 1fr !important;
+/* Verdadeiro/Falso ocupa 2 colunas. As cores de .tf-true/.tf-false vêm de
+   index.css (primitivas compartilhadas com o jogo TrueFalse). */
+.tf-grid { grid-template-columns: 1fr 1fr; }
+
+/* Já respondido: o feedback de acerto/erro vence o tom verde/vermelho base. */
+.option-btn.correct.tf-true,
+.option-btn.correct.tf-false {
+  background: var(--bg-green-subtle);
+  border-color: var(--accent-green);
+  color: var(--accent-green-dark);
 }
 
-.tf-true.correct {
-  background: rgba(34, 197, 94, 0.3) !important;
-  border-color: #22c55e !important;
+.option-btn.incorrect.tf-true,
+.option-btn.incorrect.tf-false {
+  background: var(--bg-red-subtle);
+  border-color: var(--accent-red);
+  color: var(--accent-red-light);
 }
 
-.tf-false.correct {
-  background: rgba(34, 197, 94, 0.3) !important;
-  border-color: #22c55e !important;
+@media (max-width: 600px) {
+  .duel-scoreboard { padding: var(--space-md); }
+  .player-profile .avatar { width: 36px; height: 36px; font-size: 1.1rem; }
+  .options-grid { grid-template-columns: 1fr; }
+  .final-scoreboard { flex-direction: column; }
 }
-
