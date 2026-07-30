@@ -5,7 +5,11 @@ import { resolveWordKey, mergeStats } from './wordKey';
 const STORAGE_KEY = 'englishplay_progress';
 const SETTINGS_KEY = 'englishplay_settings';
 
-const defaultProgress = {
+// Exportado para que outros módulos possam PINAR as chaves em teste (ver
+// gamesCatalog.test.js, que confere se todo jogo do catálogo tem contador aqui).
+// Não é para ser lido em runtime pelos componentes: quem quer o progresso atual
+// usa loadProgress() ou o contexto de useProgress.
+export const defaultProgress = {
   totalScore: 0,
   currentLevel: 1,
   wordsLearned: 0,

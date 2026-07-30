@@ -455,6 +455,10 @@ const WhoKnowsMore = () => {
         {/* ================= LOBBY ================= */}
         {gameState === 'lobby' && (
           <div className="lobby-container animate-fade-in-up">
+            {/* A volta para /games era a única que ficava no RODAPÉ do lobby, e não
+                no topo como nos outros 8 jogos — quem quisesse sair precisava
+                rolar a página inteira até o fim. Subiu para cá. */}
+            <Link to="/games" className="btn btn-ghost btn-sm lobby-back">← Todos os jogos</Link>
             <div className="lobby-header">
               <span className="badge badge-purple">⚔️ MODO DUELO</span>
               <h1>Quem Sabe Mais?</h1>
@@ -497,9 +501,6 @@ const WhoKnowsMore = () => {
               </div>
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: 'var(--space-2xl)' }}>
-              <Link to="/games" className="btn btn-ghost">← Voltar para Todos os Jogos</Link>
-            </div>
           </div>
         )}
 
@@ -853,7 +854,7 @@ const WhoKnowsMore = () => {
 
               {duel.matchState === 'searching' && (
                 <div style={{ textAlign: 'center' }}>
-                  <span className="spinner searching-spinner" style={{ width: 40, height: 40, borderWidth: 3, display: 'block', margin: '0 auto var(--space-md)' }} />
+                  <span className="spinner spinner-lg" />
                   <h2>Procurando oponente…</h2>
                   <p className="text-secondary">{pillLabel}</p>
                   <button className="btn btn-ghost" style={{ marginTop: 'var(--space-md)' }} onClick={cancelHumanSearch}>

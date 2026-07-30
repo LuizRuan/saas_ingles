@@ -9,10 +9,10 @@ const Achievements = () => {
   return (
     <div className="page">
       <div className="container">
-        <div className="animate-fade-in-up" style={{ marginBottom: 'var(--space-xl)' }}>
-          <Link to="/" className="btn btn-ghost" style={{ marginBottom: 'var(--space-md)' }}>← Voltar</Link>
+        <div className="page-header animate-fade-in-up">
+          <Link to="/" className="btn btn-ghost page-back">← Voltar</Link>
           <h1>🏆 Conquistas</h1>
-          <p className="text-secondary" style={{ marginTop: 'var(--space-sm)' }}>
+          <p className="text-secondary">
             {unlockedIds.length} de {achievementsList.length} conquistas desbloqueadas
           </p>
         </div>
@@ -31,7 +31,7 @@ const Achievements = () => {
                   display: 'flex', alignItems: 'center', gap: 'var(--space-md)',
                   padding: 'var(--space-lg)',
                   opacity: unlocked ? 1 : 0.4,
-                  borderColor: unlocked ? 'rgba(245, 158, 11, 0.3)' : undefined,
+                  borderColor: unlocked ? 'var(--border-orange)' : undefined,
                 }}>
                 <span style={{ fontSize: '2rem', filter: unlocked ? 'none' : 'grayscale(1)' }}>
                   {achievement.icon}

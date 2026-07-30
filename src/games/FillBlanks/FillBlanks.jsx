@@ -135,7 +135,7 @@ const FillBlanks = () => {
               </p>
               <p style={{ fontSize: 'var(--fs-md)', fontWeight: 600 }}>"{current.fullSentence}"</p>
               <p className="text-secondary" style={{ marginBottom: 'var(--space-sm)' }}>"{current.translation}"</p>
-              <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--accent-orange-light)', padding: 'var(--space-sm)', background: 'rgba(245,158,11,0.08)', borderRadius: 'var(--radius-sm)' }}>
+              <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--accent-orange-light)', padding: 'var(--space-sm)', background: 'var(--bg-orange-subtle)', borderRadius: 'var(--radius-sm)' }}>
                 💡 {current.explanation}
               </p>
             </div>

@@ -34,9 +34,10 @@ const Settings = () => {
   return (
     <div className="page">
       <div className="container" style={{ maxWidth: 600 }}>
-        <div className="animate-fade-in-up" style={{ marginBottom: 'var(--space-xl)' }}>
-          <Link to="/" className="btn btn-ghost" style={{ marginBottom: 'var(--space-md)' }}>← Voltar</Link>
+        <div className="page-header animate-fade-in-up">
+          <Link to="/" className="btn btn-ghost page-back">← Voltar</Link>
           <h1>⚙️ Configurações</h1>
+          <p className="text-secondary">Som, pronúncia, tema e animações do EnglishPlay</p>
         </div>
 
         {/* Entrar/Cadastro — ponto de entrada mobile, já que o .mobile-nav não
@@ -141,7 +142,7 @@ const Settings = () => {
 
         {/* Reset */}
         <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.2s',
-          borderColor: 'rgba(239, 68, 68, 0.2)' }}>
+          borderColor: 'var(--border-red)' }}>
           <h4 style={{ color: 'var(--accent-red-light)', marginBottom: 'var(--space-sm)' }}>⚠️ Apagar meu progresso</h4>
           <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
             Isso vai apagar toda sua pontuação, palavras aprendidas, conquistas e progresso. Esta ação não pode ser desfeita.

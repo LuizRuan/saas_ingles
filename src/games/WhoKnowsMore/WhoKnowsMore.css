@@ -33,6 +33,16 @@
   text-align: center;
 }
 
+/* O .lobby-container centraliza tudo; o "←" precisa escapar disso para ficar
+   alinhado à esquerda como nos outros 8 jogos. */
+.lobby-back {
+  /* Caixa de bloco com largura intrínseca: `text-align: center` do pai move
+     texto inline, não uma caixa de bloco, então isto encosta à esquerda. */
+  display: flex;
+  width: fit-content;
+  margin-bottom: var(--space-md);
+}
+
 .lobby-header {
   margin-bottom: var(--space-2xl);
 }

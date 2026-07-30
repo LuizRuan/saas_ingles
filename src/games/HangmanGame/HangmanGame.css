@@ -33,7 +33,7 @@
   font-size: var(--fs-sm);
   color: var(--accent-orange);
   background: var(--bg-orange-subtle);
-  border: 1px solid #fed7aa;
+  border: 1px solid var(--border-orange);
   border-radius: var(--radius-xl);
 }
 
@@ -88,7 +88,7 @@
 }
 .key-btn:hover:not(:disabled) { background: var(--accent-primary); color: white; border-color: var(--accent-primary); }
 .key-btn.correct { background: var(--accent-green); color: white; border-color: var(--accent-green); }
-.key-btn.wrong { background: var(--bg-red-subtle); color: var(--accent-red); border-color: #fecaca; opacity: 0.5; }
+.key-btn.wrong { background: var(--bg-red-subtle); color: var(--accent-red); border-color: var(--border-red); opacity: 0.5; }
 .key-btn:disabled { cursor: not-allowed; }
 
 @media (max-width: 480px) {

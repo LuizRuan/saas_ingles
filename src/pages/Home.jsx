@@ -3,25 +3,14 @@ import { useProgress } from '../hooks/useProgress';
 import { getCurrentLevel, getNextLevel, getLevelProgress } from '../utils/levelSystem';
 import { getWordsToReview } from '../utils/reviewSystem';
 import { words } from '../data/words';
+import { gamesCatalog, halo } from '../data/gamesCatalog';
 import './Home.css';
 
 const quickLinks = [
-  { name: 'Desafio Diário', desc: 'Complete o desafio do dia e mantenha sua sequência!', icon: '⚡', color: '#6366f1', bg: '#ede9fe', path: '/daily' },
-  { name: 'Conversa', desc: 'Pratique diálogos e melhore sua comunicação.', icon: '💬', color: '#ec4899', bg: '#fdf2f8', path: '/conversation' },
-  { name: 'Palavras', desc: 'Aprenda novas palavras de forma divertida.', icon: '📖', color: '#10b981', bg: '#ecfdf5', path: '/my-words' },
-  { name: 'Conquistas', desc: 'Desbloqueie troféus e acompanhe sua evolução.', icon: '🏆', color: '#f59e0b', bg: '#fefce8', path: '/achievements' },
-];
-
-const gamesList = [
-  { id: 'whoKnowsMore', name: 'Quem Sabe Mais?', desc: 'Duelo de Vocabulário', icon: '⚔️', color: '#ec4899', bg: '#fdf2f8', path: '/games/who-knows-more' },
-  { id: 'memory', name: 'Jogo da Memória', desc: 'Encontre os pares', icon: '🃏', color: '#6366f1', bg: '#ede9fe', path: '/games/memory' },
-  { id: 'hangman', name: 'Jogo da Forca', desc: 'Adivinhe a palavra', icon: '🎯', color: '#ef4444', bg: '#fef2f2', path: '/games/hangman' },
-  { id: 'wordBuilder', name: 'Montar Palavras', desc: 'Organize as letras', icon: '🔤', color: '#3b82f6', bg: '#eef4ff', path: '/games/word-builder' },
-  { id: 'sentenceBuilder', name: 'Montar Frases', desc: 'Monte a frase correta', icon: '📝', color: '#f59e0b', bg: '#fefce8', path: '/games/sentence-builder' },
-  { id: 'translation', name: 'Tradução', desc: 'Traduza corretamente', icon: '🔄', color: '#ec4899', bg: '#fdf2f8', path: '/games/translation' },
-  { id: 'fillBlanks', name: 'Completar Frases', desc: 'Complete a frase', icon: '✏️', color: '#10b981', bg: '#ecfdf5', path: '/games/fill-blanks' },
-  { id: 'trueFalse', name: 'Verdadeiro ou Falso', desc: 'Julgue a tradução', icon: '✅', color: '#06b6d4', bg: '#ecfeff', path: '/games/true-false' },
-  { id: 'listening', name: 'Escuta', desc: 'Ouça e identifique', icon: '🎧', color: '#8b5cf6', bg: '#f5f3ff', path: '/games/listening' },
+  { name: 'Desafio Diário', desc: 'Complete o desafio do dia e mantenha sua sequência!', icon: '⚡', color: '#6366f1', path: '/daily' },
+  { name: 'Conversa', desc: 'Pratique diálogos e melhore sua comunicação.', icon: '💬', color: '#ec4899', path: '/conversation' },
+  { name: 'Palavras', desc: 'Aprenda novas palavras de forma divertida.', icon: '📖', color: '#10b981', path: '/my-words' },
+  { name: 'Conquistas', desc: 'Desbloqueie troféus e acompanhe sua evolução.', icon: '🏆', color: '#f59e0b', path: '/achievements' },
 ];
 
 const Home = () => {
@@ -29,7 +18,7 @@ const Home = () => {
   const currentLevel = getCurrentLevel(progress.wordsStudied);
   const nextLevel = getNextLevel(progress.wordsStudied);
   const levelProgress = getLevelProgress(progress.wordsStudied);
-  const reviewWords = getWordsToReview(progress, words);
+  const reviewCount = getWordsToReview(progress, words).length;
 
   return (
     <div className="page">
@@ -65,14 +54,14 @@ const Home = () => {
         {/* Stats */}
         <section className="stats-row animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <div className="stat-card">
-            <div className="stat-icon" style={{ background: '#fefce8' }}>⭐</div>
+            <div className="stat-icon" style={{ background: 'var(--bg-yellow-subtle)' }}>⭐</div>
             <div className="stat-info">
               <span className="stat-label">Pontos</span>
               <span className="stat-value">{progress.totalScore}</span>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon" style={{ background: '#ecfdf5' }}>🌱</div>
+            <div className="stat-icon" style={{ background: 'var(--bg-green-subtle)' }}>🌱</div>
             <div className="stat-info">
               <span className="stat-label">Nível</span>
               <span className="stat-value">{currentLevel.level}</span>
@@ -80,14 +69,14 @@ const Home = () => {
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon" style={{ background: '#eef4ff' }}>📚</div>
+            <div className="stat-icon" style={{ background: 'var(--bg-blue-subtle)' }}>📚</div>
             <div className="stat-info">
               <span className="stat-label">Palavras estudadas</span>
               <span className="stat-value">{progress.wordsStudied}</span>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon" style={{ background: '#fef2f2' }}>🔥</div>
+            <div className="stat-icon" style={{ background: 'var(--bg-red-subtle)' }}>🔥</div>
             <div className="stat-info">
               <span className="stat-label">Sequência</span>
               <span className="stat-value">{progress.dayStreak || 0} {(progress.dayStreak || 0) === 1 ? 'dia' : 'dias'}</span>
@@ -130,7 +119,7 @@ const Home = () => {
           <div className="quick-links">
             {quickLinks.map((link) => (
               <Link key={link.name} to={link.path} className="quick-card card">
-                <div className="quick-icon" style={{ background: link.bg, color: link.color }}>
+                <div className="quick-icon" style={{ background: halo(link.color), color: link.color }}>
                   {link.icon}
                 </div>
                 <div className="quick-info">
@@ -144,7 +133,7 @@ const Home = () => {
         </section>
 
         {/* Review Section */}
-        {reviewWords.length > 0 && (
+        {reviewCount > 0 && (
           <section className="animate-fade-in-up" style={{ animationDelay: '0.25s', marginTop: 'var(--space-xl)' }}>
             <Link to="/review" className="review-banner">
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
@@ -152,7 +141,7 @@ const Home = () => {
                 <div>
                   <strong>Revisar Meus Erros</strong>
                   <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>
-                    {reviewWords.length} {reviewWords.length === 1 ? 'palavra precisa' : 'palavras precisam'} de revisão
+                    {reviewCount} {reviewCount === 1 ? 'palavra precisa' : 'palavras precisam'} de revisão
                   </p>
                 </div>
               </div>
@@ -167,9 +156,9 @@ const Home = () => {
             <h3>🎮 Jogos Disponíveis</h3>
           </div>
           <div className="games-grid">
-            {gamesList.map((game) => (
+            {gamesCatalog.map((game) => (
               <Link key={game.id} to={game.path} className="game-card card">
-                <div className="game-icon" style={{ background: game.bg, color: game.color }}>
+                <div className="game-icon" style={{ background: halo(game.color), color: game.color }}>
                   {game.icon}
                 </div>
                 <div className="game-info">

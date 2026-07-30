@@ -145,6 +145,13 @@ describe('revisão', () => {
   it('mixReviewWords preserva o tamanho do lote', () => {
     expect(mixReviewWords(words.slice(0, 10), words.slice(20, 25), 0.3)).toHaveLength(10);
   });
+
+  it('palavra dominada sai da revisão ao atingir o limiar', () => {
+    let p = recordWordResult(progressoVazio(), 'Hello', false);
+    expect(getWordsToReview(p, words)).toHaveLength(1);
+    for (let i = 0; i < LEARNED_THRESHOLD; i++) p = recordWordResult(p, 'Hello', true);
+    expect(getWordsToReview(p, words)).toHaveLength(0);
+  });
 });
 
 describe('desafio diário', () => {

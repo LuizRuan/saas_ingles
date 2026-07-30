@@ -82,10 +82,10 @@ const Shop = () => {
   return (
     <div className="page">
       <div className="container">
-        <div className="animate-fade-in-up" style={{ marginBottom: 'var(--space-xl)' }}>
-          <Link to="/" className="btn btn-ghost" style={{ marginBottom: 'var(--space-md)' }}>← Voltar</Link>
+        <div className="page-header animate-fade-in-up">
+          <Link to="/" className="btn btn-ghost page-back">← Voltar</Link>
           <h1>🏪 Loja</h1>
-          <p className="text-secondary" style={{ marginTop: 'var(--space-sm)' }}>
+          <p className="text-secondary">
             Gaste suas estrelas em itens especiais!
           </p>
         </div>

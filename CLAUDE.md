@@ -94,6 +94,14 @@ React 19 + Vite 8 + react-router-dom 7. Plain JavaScript with JSX (**no TypeScri
 
 ## Architecture
 
+### Routes are code-split; failures have a floor
+
+Every route in [App.jsx](src/App.jsx) except `Home` is `React.lazy`. This took the initial payload from one 615 kB chunk (182 kB gzip) to 374 kB (120 kB gzip) plus per-route chunks — `socket.io-client` (~40 kB, duel only) and the 18 conversation graphs (~72 kB) no longer load for someone who just opens the home page. **Keep the `import()` inline inside `lazy()`**; hoisting it to a variable first makes Rollup lose the static reference and re-bundle everything.
+
+`words.js` (34 kB gzip) is *not* splittable and stays in the main chunk: `main.jsx` → `storage.js` → `wordKey.js` → `words.js`, because `migrateStats` runs before the first render. Making `Home` stop importing the bank was tried and measured — it changed nothing, since the chain survives. Don't retry it without breaking that chain first.
+
+[ErrorBoundary.jsx](src/components/ErrorBoundary/ErrorBoundary.jsx) sits in two places: inside `Layout` (so a broken screen keeps the navbar and the user can navigate away) and around `<App />` in `main.jsx` (for anything above the Layout, e.g. `ProgressProvider`). Splitting the routes created a failure mode that didn't exist before — a stale chunk hash after a deploy — so the boundary auto-reloads **once**, guarded by a `sessionStorage` flag, and only when [chunkError.js](src/utils/chunkError.js) classifies the error as a load failure. That classifier is pure and pinned by tests against the real message each browser produces; a false positive would reload on top of a code bug and hide it.
+
 ### State flows through exactly one place
 
 `src/hooks/useProgress.jsx` is a React Context provider wrapping the whole app in [App.jsx](src/App.jsx). It owns the single `progress` object and is the **only** module that mutates it. Games and pages call its action functions (`handleCorrectAnswer`, `handleWrongAnswer`, `completeGame`, `addPoints`, `buyShopItem`, `consumeHint`, …) and never touch `localStorage` for progress themselves.
@@ -129,6 +137,7 @@ Settings are read ad-hoc (`loadSettings()` called inside `useSound`/`useSpeech`/
 - **`conversations.js`** — 18 dialogues as **node graphs**, not linear scripts (see below).
 - **`errorPatterns.js`** — declarative table of Portuguese-speaker mistakes, consumed by `answerCheck.js`. Adding a correction is appending one object; the regexes run against the *normalized* string (lowercase, no punctuation, contractions expanded), so a pattern written with `I'm` will never match.
 - **`categories.js`** — categories plus the level ladder (`wordsNeeded` thresholds).
+- **`gamesCatalog.js`** — the 9 games' identity (`id`, `name`, `icon`, `color`, `path`, `desc`, `descLong`), consumed by both Home and Games. It exists because those two screens each had their own copy and the copies had **drifted**: Memory was indigo on Home and purple on Games, Hangman red on one and blue on the other — the same game changed colour depending on where you came from. `color` is deliberately *not* a theme token (Hangman stays red in all 5 themes); the icon background is derived from it by the exported `halo()`, which is why no solid pastel is stored. `id` must match a `defaultProgress.gamesCompleted` key — `gamesCatalog.test.js` pins that, plus unique ids/paths and the 6-digit hex `halo()` depends on.
 
 #### Conversation graphs
 
@@ -176,6 +185,14 @@ Both audio hooks check `loadSettings().soundEnabled` before doing anything and s
 [index.css](src/index.css) holds the design tokens (`--space-*`, `--fs-*`, `--accent-*`, `--shadow-*`, gradients) and the global component classes: `.page`, `.container`, `.card`, `.btn` + variants, `.badge-*`, `.progress-bar`, `.modal-overlay`, `.game-header`, `.animate-*`. Component-specific CSS sits beside its `.jsx` and is imported directly by it.
 
 Use the tokens rather than hardcoded values — but note the codebase mixes global classes with heavy inline `style={{ ... }}` for one-off layout, which is the established (if not ideal) convention.
+
+**A hardcoded colour is a dark-theme bug, not a style nit.** Only `[data-theme="dark"]` overrides the `--bg-*-subtle` family (ocean/forest/sunset are light themes that re-tint accents on white cards), so a literal pastel renders as a bright block on a dark card while everything around it flips. Every instance found has been converted; `--border-orange` and `--border-red` exist precisely because two tip panels had `#fed7aa`/`#fecaca` borders sitting on a background that *did* flip. `--focus-ring` is declared twice on purpose — a plain rgba fallback, then a `color-mix()` off `--accent-primary` so the ring follows each theme's accent instead of staying indigo inside a cyan theme.
+
+Shared page furniture, added because it had already drifted:
+
+- **`.page-header`** (+ `.page-header--center`, `.page-back`) — the header of the non-game screens. It was the same inline-styled block copy-pasted into 4 pages, and the copies had diverged on bottom margin. Screens with a bottom-nav entry (`/games`) get no back link; screens without one (Shop, Achievements) do.
+- **`.spinner` / `.spinner-lg`, `.pulse-dot`, `.tf-true` / `.tf-false`** — primitives used by more than one screen. `.tf-true`/`.tf-false` used to live in `TrueFalse.css` and worked in WhoKnowsMore only because both files land in the same bundle.
+- **`button:focus-visible` / `a:focus-visible`** — there was no keyboard focus style anywhere except inputs, and the games are played entirely with `<button>`. `:focus-visible`, not `:focus`, so it doesn't fire on mouse clicks. Don't add `border-radius` to that rule; the outline already follows each element's own radius, and forcing one makes pill buttons jump on focus.
 
 `.glass-card` is the shared elevated surface (background, border, radius, shadow) used by ~15 files. It deliberately sets **no padding**: callers either pair it with a component class that pads (`.tf-card`, `.difficulty-card`, `.tq-option`) or pass inline padding.
 
