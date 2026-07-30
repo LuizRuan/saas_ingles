@@ -557,12 +557,20 @@ select {
   box-shadow: var(--shadow-navbar);
 }
 
+/* Grid de 3 colunas: logo grudado na borda esquerda de verdade, menu
+   centralizado na barra, estrelas/avatar na borda direita de verdade.
+   Antes era flex com max-width:1200px + margin:auto SEMPRE ativo, então em
+   qualquer monitor mais largo que 1200px o bloco inteiro (logo incluído)
+   ficava centralizado no MEIO da tela — o logo nunca tocava a borda real.
+   O teto de 1800px só entra em jogo em monitor realmente enorme (ultrawide,
+   4K maximizado); abaixo disso o efeito é o mesmo de não ter teto nenhum. */
 .navbar-inner {
-  max-width: 1200px;
+  max-width: 1800px;
   margin: 0 auto;
-  padding: 0 var(--space-lg);
+  padding: 0 var(--space-xl);
   height: 60px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: var(--space-xl);
 }
@@ -584,10 +592,12 @@ select {
 }
 
 .navbar-links {
+  /* Coluna do meio é `auto`: o track fica do tamanho exato do conteúdo, e o
+     grid distribui o resto igualmente entre as duas colunas `1fr` dos lados
+     — é isso que centraliza o menu na barra sem precisar de position:absolute. */
   display: flex;
   align-items: center;
   gap: 4px;
-  flex: 1;
 }
 
 .navbar-link {
@@ -618,8 +628,12 @@ select {
 .navbar-link span { font-size: 1rem; }
 
 .navbar-stats {
+  /* justify-content:flex-end é o que gruda este grupo na borda direita real:
+     a coluna 3 do grid (1fr) estica esta caixa até o fim da barra, e sem isto
+     o conteúdo ficaria alinhado ao INÍCIO dela — bem longe da borda. */
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-md);
 }
 

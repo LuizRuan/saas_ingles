@@ -6,7 +6,19 @@ import { computeOffset } from '../utils/duelClock';
 // de propósito: um rewrite do Vercel proxeia HTTP comum, e não há garantia
 // documentada de que ele tunele o upgrade de WebSocket para uma origem externa.
 // Ver CLAUDE.md para a decisão completa (inclui a exceção estreita na CSP).
-const REALTIME_URL = import.meta.env.VITE_REALTIME_URL || 'http://localhost:5000';
+//
+// O host de produção fica no código, e não só numa variável de painel, porque a
+// CSP em vercel.json PRECISA nomear este mesmo host (`connect-src` não aceita
+// curinga). Ou seja: o host já é uma constante do repositório de qualquer jeito.
+// Mantê-lo em dois lugares — um no repositório, outro no painel da Vercel —
+// só criaria a chance de eles divergirem, e a divergência seria silenciosa: a
+// CSP bloquearia a conexão sem nenhum erro de configuração aparente.
+// A variável continua existindo como override para quem rodar outro backend.
+const RENDER_HOST = 'https://saas-ingles.onrender.com';
+
+const REALTIME_URL =
+  import.meta.env.VITE_REALTIME_URL ||
+  (import.meta.env.PROD ? RENDER_HOST : 'http://localhost:5000');
 
 // Quanto tempo esperar na fila antes de desistir e avisar. Sem isto, com o
 // servidor inalcançável o spinner "Procurando oponente..." rodava para sempre.

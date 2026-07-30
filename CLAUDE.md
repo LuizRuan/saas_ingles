@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **EnglishPlay** — a free browser game platform that teaches English to Brazilian Portuguese speakers. Game state is still 100% client-side: *all* progress/settings live in `localStorage` via `useProgress`/`storage.js`, exactly as before.
 
-**Authentication now exists as a separate system.** [Register.jsx](src/pages/Register.jsx) and [Login.jsx](src/pages/Login.jsx) are real screens backed by a [backend/](backend/) scaffold (Express + Mongoose) — see "Backend (scaffold)" below. As of this writing it is **not deployed and has no live `MONGODB_URI`**; the routes exist and are unit-tested, but a real register→login round trip hasn't been exercised yet. Don't conflate the two systems: auth is about *who is signed in*, progress/scoring is still untouched and still lives entirely in `localStorage`. Migrating progress to the server is explicit future work, not done.
+**Authentication now exists as a separate system.** [Register.jsx](src/pages/Register.jsx) and [Login.jsx](src/pages/Login.jsx) are real screens backed by [backend/](backend/) (Express + Mongoose), **deployed on Render with MongoDB Atlas connected** — see Deploy below. Don't conflate the two systems: auth is about *who is signed in*, progress/scoring is still untouched and still lives entirely in `localStorage`. Migrating progress to the server is explicit future work, not done — and when it happens, the server must re-validate everything, because nothing the client stores is trustworthy.
 
 Those screens are now the front door — `/` sends a first-time visitor to `/welcome`. See "The entry screen, and what it is not" under Architecture, especially the part about why it is not a security boundary.
 
@@ -37,13 +37,19 @@ Tests live beside the code they cover (`src/utils/*.test.js`, `src/data/data.tes
 
 Static build on Vercel (`dist/`), auto-deployed from the GitHub repo. [vercel.json](vercel.json) rewrites every path to `/index.html` — routing is entirely client-side, so without that fallback a direct hit or refresh on `/games/memory` returns 404. Vercel matches real files before applying rewrites, so assets are unaffected. Any new host needs the same SPA fallback.
 
-**⚠️ Known-broken in production: there is no `/api` rewrite, so the SPA catch-all swallows every API call.** Verified against production — `GET /api/health` returns `index.html` with status 200, and `POST /api/auth/login` returns 405. Consequence: the live Register/Login screens cannot work, and `usePresence` always reads as offline. The fix needs the Render URL to exist, then a rewrite **above** the catch-all:
+The backend is live at **`https://saas-ingles.onrender.com`** (Render free plan), with MongoDB Atlas connected — verified: `/api/health` → `{"ok":true}`, `/api/presence` → `{"online":0,"queue":0}`, and `POST /api/auth/login` → `401` with the generic message, which only happens if the DB was actually queried (no DB would give `503` via `requireDb`).
+
+Two entries in `vercel.json` carry that:
 
 ```json
-{ "source": "/api/(.*)", "destination": "https://<host>.onrender.com/api/$1" }
+{ "source": "/api/(.*)", "destination": "https://saas-ingles.onrender.com/api/$1" }
 ```
 
-Order matters — `rewrites` are evaluated top-down, and the `/(.*)` catch-all matches `/api/*` too. See `backend/README.md` for the full remaining deploy checklist (CSP `connect-src`, `VITE_REALTIME_URL`, `FRONTEND_ORIGIN`).
+**Order matters** — `rewrites` are evaluated top-down and the `/(.*)` SPA catch-all matches `/api/*` too, so the API rewrite must stay **above** it. Putting it below is the bug this repo shipped for a while: `GET /api/health` returned `index.html` with status 200 and every auth call died at 405.
+
+The CSP names the same host twice (`https://` for fetch, `wss://` for the duel socket). `connect-src` takes no wildcard, so **the host is already a repo constant** — which is why `useDuelSocket.js` keeps it in code with `VITE_REALTIME_URL` as an override, rather than depending on a dashboard variable that could silently drift from the CSP and get every connection blocked with no visible misconfiguration.
+
+`FRONTEND_ORIGIN` on Render is set and verified: the Socket.IO handshake returns `access-control-allow-origin` for the Vercel domain and omits it for any other origin.
 
 ## Security
 
@@ -102,7 +108,7 @@ React 19 + Vite 8 + react-router-dom 7. Plain JavaScript with JSX (**no TypeScri
 
 **This is not authorization, and must never be mistaken for it.** Anyone can write `'account'` into that key from the console. Every game is client-side and every byte of progress is in `localStorage`, so there is nothing behind the gate to protect — it organizes the first visit, nothing more. Real session authority is the httpOnly cookie the backend signs; when progress migrates to the server, *that* is what has to authorize each read.
 
-The guest path is also what keeps the site alive today: production still has no `/api` rewrite (see the Deploy warning), so login physically cannot succeed. A hard gate would lock every visitor out of a site that otherwise works offline. Turning it into a hard gate later means deleting the guest button — the rest already works.
+The guest path stays for a product reason, not a technical one: every game is client-side and works offline, so requiring an account would lock people out of something that needs no server. (It was originally also a necessity — the backend was unreachable in production — but that is fixed now; see Deploy.) Turning it into a hard gate means deleting the guest button; the rest already works.
 
 Two things must stay in sync and therefore share one definition, `ROTAS_LIVRES` in `entryChoice.js`: the routes the gate never intercepts, and the routes [Layout.jsx](src/components/Layout/Layout.jsx) renders **without any navbar**. Drop `/welcome` from it and the gate redirects to itself forever; drop `/login` and the login page becomes unreachable for exactly the people who need it. `deveMandarParaWelcome` is pure and its tests pin the redirect loop — the failure mode here throws nothing, it just hangs.
 
