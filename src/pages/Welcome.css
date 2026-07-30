@@ -1,0 +1,103 @@
+/* Tela de boas-vindas (Welcome.jsx).
+
+   Não usa `.page`/`.container`: aquelas duas assumem a navbar em cima e a barra
+   de navegação do mobile embaixo (`.page` reserva 100px de rodapé por causa
+   dela). Esta tela não tem nenhuma das duas, então centraliza na altura da
+   janela inteira.
+
+   Sem cor fixa em lugar nenhum — a tela responde aos 5 temas como o resto. */
+
+.welcome {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background: var(--bg-body);
+}
+
+.welcome-card {
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.welcome-art {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  margin: 0 auto var(--space-md);
+  display: block;
+  /* Mesmo brilho da arte na Home, derivado do acento: acompanha o tema. */
+  filter: drop-shadow(0 10px 30px var(--focus-ring));
+}
+
+.welcome-wordmark {
+  font-size: var(--fs-3xl);
+  line-height: 1.1;
+  margin-bottom: var(--space-sm);
+}
+
+/* Fallback ANTES do text-fill, igual ao lobby do duelo: se o gradiente não
+   pintar, sobra uma cor legível em vez de texto transparente. */
+.welcome-wordmark-play {
+  color: var(--accent-primary);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.welcome-tagline {
+  font-size: var(--fs-md);
+  margin-bottom: var(--space-xl);
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+/* `.btn` é inline-flex e encolhe até o conteúdo; aqui os dois precisam ocupar
+   a largura toda para formar uma pilha alinhada. */
+.welcome-action {
+  width: 100%;
+}
+
+/* Terceira opção, deliberadamente mais discreta que os dois botões: é uma
+   saída legítima, não a ação principal. */
+.welcome-guest {
+  background: none;
+  border: none;
+  padding: var(--space-sm);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--accent-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.welcome-guest:hover {
+  color: var(--accent-primary-dark);
+}
+
+.welcome-note {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-md);
+  max-width: 320px;
+  margin-inline: auto;
+}
+
+/* Em tela baixa (celular deitado, janela pequena) o layout centralizado passa a
+   cortar o topo; aqui ele volta a rolar normalmente. */
+@media (max-height: 700px) {
+  .welcome {
+    align-items: flex-start;
+    padding-top: var(--space-xl);
+  }
+  .welcome-art { max-width: 180px; }
+}

@@ -3,10 +3,26 @@
    link para a outra tela), então um único arquivo evita duas folhas de estilo
    que precisariam ficar sincronizadas manualmente. */
 
-.auth-page {
+/* Estas telas passaram a ser próprias, sem navbar em cima nem barra de
+   navegação embaixo (ver SEM_NAVBAR em Layout.jsx). Sem isto o card ficaria
+   grudado no topo de uma página em branco, e os 100px que `.page` reserva para
+   a barra do mobile sobrariam como um vão morto no rodapé. */
+/* Seletor composto (`.page.auth-page`), não `.auth-page` sozinho: o JSX usa as
+   duas classes juntas e `.page` mora no index.css, que cai por último no
+   bundle e venceria o empate de especificidade — inclusive nas paddings. */
+.page.auth-page {
   display: flex;
   justify-content: center;
-  padding-top: var(--space-2xl);
+  align-items: center;
+  min-height: 100dvh;
+  padding-top: var(--space-xl);
+  padding-bottom: var(--space-xl);
+}
+
+/* Em tela baixa, centralizar corta o topo do formulário — que é justamente
+   onde ficam o "← Voltar" e o título. */
+@media (max-height: 760px) {
+  .page.auth-page { align-items: flex-start; }
 }
 
 .auth-card {

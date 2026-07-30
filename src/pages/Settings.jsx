@@ -1,14 +1,18 @@
 import { useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useProgress } from '../hooks/useProgress';
 import { loadSettings, saveSettings } from '../utils/storage';
 import { THEMES, DEFAULT_THEME, applyAnimations } from '../utils/appearance';
+import { getEntryChoice, clearEntryChoice } from '../utils/entryChoice';
+import { logoutRequest } from '../utils/authClient';
 
 const Settings = () => {
+  const navigate = useNavigate();
   const { progress, resetAllProgress, setTheme } = useProgress();
   const [settings, setSettings] = useState(() => loadSettings());
   const [showConfirm, setShowConfirm] = useState(false);
   const [resetDone, setResetDone] = useState(false);
+  const entryChoice = getEntryChoice();
 
   const updateSetting = useCallback((key, value) => {
     const updated = { ...settings, [key]: value };
@@ -23,6 +27,15 @@ const Settings = () => {
     theme => theme.id === DEFAULT_THEME || (progress.shopItems || []).includes(`theme_${theme.id}`)
   );
   const activeTheme = progress.selectedTheme || DEFAULT_THEME;
+
+  const handleExit = useCallback(async () => {
+    // Ordem importa: derruba a sessão no servidor ANTES de esquecer a escolha,
+    // senão um erro de rede deixaria o cookie de pé com a pessoa já "fora".
+    // logoutRequest nunca rejeita — ver authClient.js.
+    if (entryChoice === 'account') await logoutRequest();
+    clearEntryChoice();
+    navigate('/welcome', { replace: true });
+  }, [entryChoice, navigate]);
 
   const handleReset = useCallback(() => {
     resetAllProgress();
@@ -140,6 +153,22 @@ const Settings = () => {
           </div>
         </div>
 
+        {/* Conta / saída.
+            Sem esta saída a tela de boas-vindas viraria um caminho de mão única:
+            depois de escolher uma vez, não haveria mais como voltar a ela. Note
+            que sair NÃO apaga o progresso — ele fica no aparelho, e é por isso
+            que este bloco é separado do "Apagar meu progresso" logo abaixo. */}
+        <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.18s' }}>
+          <h4 style={{ marginBottom: 'var(--space-sm)' }}>👤 Conta</h4>
+          <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
+            Você está jogando {entryChoice === 'account' ? 'com uma conta' : 'sem conta'}.
+            Sair leva de volta à tela inicial — <strong>seu progresso não é apagado</strong>.
+          </p>
+          <button className="btn btn-secondary" onClick={handleExit}>
+            🚪 Sair
+          </button>
+        </div>
+
         {/* Reset */}
         <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.2s',
           borderColor: 'var(--border-red)' }}>
@@ -173,7 +202,7 @@ const Settings = () => {
           <h4 style={{ marginBottom: 'var(--space-sm)' }}>ℹ️ Sobre o EnglishPlay</h4>
           <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>
             Plataforma gratuita para aprender inglês por meio de jogos educativos.
-            Sem login, sem cadastro. Seu progresso é salvo no seu navegador.
+            Dá para jogar sem conta: seu progresso é salvo neste navegador.
           </p>
           <p className="text-muted" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-sm)' }}>
             Versão 1.0 • Feito com ❤️ para brasileiros aprendendo inglês

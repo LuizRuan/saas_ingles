@@ -32,3 +32,15 @@ export const registerRequest = (email, password) =>
 // segundo login logo em seguida.
 export const loginRequest = (email, password) =>
   postAuth('/api/auth/login', { email, password });
+
+// Limpa o cookie de sessão no servidor. Diferente das outras duas, esta NUNCA
+// rejeita: quem chama está saindo, e travar a saída porque o backend não
+// respondeu deixaria a pessoa presa dentro do app. O backend não precisa de
+// banco para esta rota, mas hoje ele nem está no ar — e mesmo assim o "Sair"
+// tem de funcionar, porque a parte que importa no cliente (a escolha de
+// entrada, em entryChoice.js) é local.
+export const logoutRequest = async () => {
+  try {
+    await postAuth('/api/auth/logout', {});
+  } catch { /* sair é sempre permitido */ }
+};

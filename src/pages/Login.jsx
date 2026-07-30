@@ -5,6 +5,7 @@ import EmailDomainSuggestions from '../components/Auth/EmailDomainSuggestions';
 import { useEmailDomainSuggestions } from '../components/Auth/useEmailDomainSuggestions';
 import { isValidEmailFormat, applyEmailDomain } from '../utils/authValidation';
 import { loginRequest } from '../utils/authClient';
+import { setEntryChoice } from '../utils/entryChoice';
 import './Auth.css';
 
 const Login = () => {
@@ -29,7 +30,10 @@ const Login = () => {
     setSubmitError('');
     try {
       await loginRequest(email, password);
-      navigate('/');
+      // Sem isto o portão de entrada (EntryGate) devolveria a pessoa para
+      // /welcome logo depois de ela ter entrado.
+      setEntryChoice('account');
+      navigate('/', { replace: true });
     } catch (err) {
       setStatus('error');
       setSubmitError(err.message || 'Não foi possível conectar ao servidor. Tente novamente mais tarde.');
@@ -39,7 +43,9 @@ const Login = () => {
   return (
     <div className="page auth-page">
       <div className="container" style={{ maxWidth: 480 }}>
-        <Link to="/" className="btn btn-ghost" style={{ marginBottom: 'var(--space-md)' }}>← Voltar</Link>
+        {/* Volta para /welcome, não para /: esta tela agora é alcançada a partir
+            dela, e quem ainda não entrou seria redirecionado para lá de novo. */}
+        <Link to="/welcome" className="btn btn-ghost" style={{ marginBottom: 'var(--space-md)' }}>← Voltar</Link>
 
         <div className="glass-card auth-card animate-fade-in-up">
           <div className="auth-header">

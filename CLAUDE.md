@@ -8,6 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Authentication now exists as a separate system.** [Register.jsx](src/pages/Register.jsx) and [Login.jsx](src/pages/Login.jsx) are real screens backed by a [backend/](backend/) scaffold (Express + Mongoose) — see "Backend (scaffold)" below. As of this writing it is **not deployed and has no live `MONGODB_URI`**; the routes exist and are unit-tested, but a real register→login round trip hasn't been exercised yet. Don't conflate the two systems: auth is about *who is signed in*, progress/scoring is still untouched and still lives entirely in `localStorage`. Migrating progress to the server is explicit future work, not done.
 
+Those screens are now the front door — `/` sends a first-time visitor to `/welcome`. See "The entry screen, and what it is not" under Architecture, especially the part about why it is not a security boundary.
+
 The UI is written in **Portuguese (pt-BR)**. English text only ever appears as learning content (the words/sentences being taught). Keep new UI strings in Portuguese.
 
 **Two deliberate exceptions to pt-BR-everywhere:**
@@ -93,6 +95,18 @@ Dependabot ([.github/dependabot.yml](.github/dependabot.yml)) opens weekly depen
 React 19 + Vite 8 + react-router-dom 7. Plain JavaScript with JSX (**no TypeScript**), plain CSS (**no Tailwind, no CSS-in-JS, no component library**). Oxlint replaces ESLint.
 
 ## Architecture
+
+### The entry screen, and what it is not
+
+`/` no longer lands on Home for a first-time visitor: [EntryGate.jsx](src/components/EntryGate.jsx) redirects to `/welcome` ([Welcome.jsx](src/pages/Welcome.jsx)), which offers **Entrar**, **Criar conta** and a quieter **Jogar sem conta**. The choice is remembered in `englishplay_entry` via [entryChoice.js](src/utils/entryChoice.js), so the screen appears once per browser; Settings has a "Sair" that clears it (and calls `logoutRequest`, which never rejects — blocking the exit because the backend is down would trap the user inside).
+
+**This is not authorization, and must never be mistaken for it.** Anyone can write `'account'` into that key from the console. Every game is client-side and every byte of progress is in `localStorage`, so there is nothing behind the gate to protect — it organizes the first visit, nothing more. Real session authority is the httpOnly cookie the backend signs; when progress migrates to the server, *that* is what has to authorize each read.
+
+The guest path is also what keeps the site alive today: production still has no `/api` rewrite (see the Deploy warning), so login physically cannot succeed. A hard gate would lock every visitor out of a site that otherwise works offline. Turning it into a hard gate later means deleting the guest button — the rest already works.
+
+Two things must stay in sync and therefore share one definition, `ROTAS_LIVRES` in `entryChoice.js`: the routes the gate never intercepts, and the routes [Layout.jsx](src/components/Layout/Layout.jsx) renders **without any navbar**. Drop `/welcome` from it and the gate redirects to itself forever; drop `/login` and the login page becomes unreachable for exactly the people who need it. `deveMandarParaWelcome` is pure and its tests pin the redirect loop — the failure mode here throws nothing, it just hangs.
+
+`Welcome` is deliberately **not** lazy: a first-time visitor is redirected to it during the very first paint, and a separate chunk would add a round trip to the first impression.
 
 ### Routes are code-split; failures have a floor
 

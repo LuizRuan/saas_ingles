@@ -4,7 +4,12 @@ import { ProgressProvider } from './hooks/useProgress';
 import { PresenceProvider } from './hooks/usePresence';
 import Layout from './components/Layout/Layout';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import EntryGate from './components/EntryGate';
 import Home from './pages/Home';
+/* Welcome NÃO é lazy: quem chega em `/` pela primeira vez é redirecionado para
+   cá, e um chunk separado custaria uma ida ao servidor bem no primeiro
+   desenho da tela — no primeiro contato com o site, justamente. É pequena. */
+import Welcome from './pages/Welcome';
 
 /* A Home é a única tela carregada junto com o app — é onde todo mundo entra, e
    colocá-la atrás de um Suspense só adicionaria um piscar antes do conteúdo.
@@ -55,12 +60,16 @@ function App() {
           O socket do duelo continua só na tela de "Quem Sabe Mais?". */}
       <PresenceProvider>
       <BrowserRouter>
+        {/* Manda quem ainda não escolheu como entrar para /welcome. Fica FORA do
+            Layout porque as telas de entrada não têm navbar. */}
+        <EntryGate>
         <Layout>
           {/* Dentro do Layout de propósito: se uma tela quebrar, a navbar
               continua na página e dá para sair para outra rota sem recarregar. */}
           <ErrorBoundary>
           <Suspense fallback={<CarregandoTela />}>
             <Routes>
+              <Route path="/welcome" element={<Welcome />} />
               <Route path="/" element={<Home />} />
               <Route path="/games" element={<Games />} />
               <Route path="/games/memory" element={<MemoryGame />} />
@@ -86,6 +95,7 @@ function App() {
           </Suspense>
           </ErrorBoundary>
         </Layout>
+        </EntryGate>
       </BrowserRouter>
       </PresenceProvider>
     </ProgressProvider>

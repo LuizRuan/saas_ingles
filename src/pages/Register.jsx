@@ -5,6 +5,7 @@ import EmailDomainSuggestions from '../components/Auth/EmailDomainSuggestions';
 import { useEmailDomainSuggestions } from '../components/Auth/useEmailDomainSuggestions';
 import { isValidEmailFormat, isValidPassword, passwordsMatch, applyEmailDomain, MIN_PASSWORD_LENGTH } from '../utils/authValidation';
 import { registerRequest } from '../utils/authClient';
+import { setEntryChoice } from '../utils/entryChoice';
 import './Auth.css';
 
 // Nome do arquivo/rota em inglês (Register/`/register`), como toda outra
@@ -42,7 +43,8 @@ const Register = () => {
       await registerRequest(email, password);
       // Cadastro já loga (o cookie de sessão vem na própria resposta), então
       // vai direto para a Home em vez de mandar preencher o Login de novo.
-      navigate('/');
+      setEntryChoice('account');
+      navigate('/', { replace: true });
     } catch (err) {
       setStatus('error');
       setSubmitError(err.message || 'Não foi possível conectar ao servidor. Tente novamente mais tarde.');
@@ -52,7 +54,8 @@ const Register = () => {
   return (
     <div className="page auth-page">
       <div className="container" style={{ maxWidth: 480 }}>
-        <Link to="/" className="btn btn-ghost" style={{ marginBottom: 'var(--space-md)' }}>← Voltar</Link>
+        {/* Volta para /welcome pelo mesmo motivo do Login.jsx. */}
+        <Link to="/welcome" className="btn btn-ghost" style={{ marginBottom: 'var(--space-md)' }}>← Voltar</Link>
 
         <div className="glass-card auth-card animate-fade-in-up">
           <div className="auth-header">

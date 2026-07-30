@@ -1,10 +1,17 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useProgress } from '../../hooks/useProgress';
+import { ROTAS_LIVRES } from '../../utils/entryChoice';
 import Celebration from '../Celebration/Celebration';
 import './Layout.css';
 
 const Layout = ({ children }) => {
   const { progress, newAchievement, scorePopup, celebration } = useProgress();
+  const { pathname } = useLocation();
+
+  // Telas de entrada não têm navbar. A lista é a MESMA que o EntryGate usa, de
+  // propósito: duas cópias divergiriam, e o resultado seria uma tela de login
+  // com a navbar do app em volta ou um portão redirecionando em laço.
+  if (ROTAS_LIVRES.has(pathname)) return children;
 
   return (
     <div className="layout">
