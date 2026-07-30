@@ -31,5 +31,20 @@ app.use('/api/presence', presenceRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
+// TEMPORÁRIO — medir a cadeia de proxies real (Vercel -> balanceador do Render)
+// para escolher o valor certo de 'trust proxy'. Devolve só dados do próprio
+// pedido de quem chama, nada de outro usuário. REMOVER depois da medição.
+app.get('/api/_debug/ip', (req, res) => {
+  res.json({
+    ip: req.ip,
+    ips: req.ips,
+    xff: req.headers['x-forwarded-for'] || null,
+    xRealIp: req.headers['x-real-ip'] || null,
+    xVercel: req.headers['x-vercel-forwarded-for'] || null,
+    host: req.headers.host || null,
+    trustProxy: app.get('trust proxy'),
+  });
+});
+
 // Sempre por último.
 app.use(errorHandler);
