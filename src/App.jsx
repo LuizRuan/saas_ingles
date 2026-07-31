@@ -42,6 +42,7 @@ const Settings = lazy(() => import('./pages/Settings'));
 const Shop = lazy(() => import('./pages/Shop'));
 const Register = lazy(() => import('./pages/Register'));
 const Login = lazy(() => import('./pages/Login'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 /* Fica DENTRO do Layout, então a navbar não some enquanto o pedaço da rota
    chega — sem isso a tela inteira pisca a cada troca de página. */
@@ -93,6 +94,9 @@ function App() {
               <Route path="/shop" element={<Shop />} />
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
+              {/* Sempre por último: React Router casa a primeira Route que bate,
+                  então qualquer rota real acima desta continua vencendo. */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
           </ErrorBoundary>

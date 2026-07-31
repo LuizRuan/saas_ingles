@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useProgress } from '../../hooks/useProgress';
+import { useAuthProfile } from '../../hooks/useAuthProfile';
 import { ROTAS_LIVRES } from '../../utils/entryChoice';
 import Celebration from '../Celebration/Celebration';
 import './Layout.css';
@@ -7,6 +8,12 @@ import './Layout.css';
 const Layout = ({ children }) => {
   const { progress, newAchievement, scorePopup, celebration } = useProgress();
   const { pathname } = useLocation();
+  // Mesma checagem de sessão real que a tela de Perfil usa (ver useAuthProfile)
+  // — sem isto, "Entrar" continuava aparecendo na navbar mesmo depois de um
+  // cadastro/login que funcionou de verdade, porque nada aqui olhava pra
+  // sessão, só pro flag local de "já escolheu como entrar".
+  const { entryChoice, profile, status: authStatus } = useAuthProfile();
+  const estaLogado = entryChoice === 'account' && authStatus === 'loaded' && profile;
 
   // Telas de entrada não têm navbar. A lista é a MESMA que o EntryGate usa, de
   // propósito: duas cópias divergiriam, e o resultado seria uma tela de login
@@ -68,8 +75,11 @@ const Layout = ({ children }) => {
               <span>🔥</span>
               <span>{progress.dayStreak || 0}</span>
             </div>
-            <NavLink to="/login" className="btn btn-secondary btn-sm">Entrar</NavLink>
-            <NavLink to="/settings" className="navbar-avatar">
+            {!estaLogado && (
+              <NavLink to="/login" className="btn btn-secondary btn-sm">Entrar</NavLink>
+            )}
+            <NavLink to="/settings" className="navbar-avatar"
+              title={estaLogado ? (profile.nickname || profile.email) : undefined}>
               {progress.selectedAvatar || 'U'}
             </NavLink>
           </div>

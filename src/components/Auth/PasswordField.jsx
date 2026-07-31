@@ -4,7 +4,7 @@ import './PasswordField.css';
 // Campo de senha com alternância de visibilidade própria — cada instância tem
 // seu próprio estado, então "Senha" e "Confirmar senha" no Cadastro alternam
 // independentemente uma da outra.
-const PasswordField = ({ id, label, value, onChange, autoComplete, error }) => {
+const PasswordField = ({ id, label, value, onChange, onBlur, autoComplete, error }) => {
   const [visible, setVisible] = useState(false);
   const gerarId = useId();
   const inputId = id || gerarId;
@@ -18,6 +18,7 @@ const PasswordField = ({ id, label, value, onChange, autoComplete, error }) => {
           type={visible ? 'text' : 'password'}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
           autoComplete={autoComplete}
           aria-invalid={Boolean(error)}
           className="password-field-input"

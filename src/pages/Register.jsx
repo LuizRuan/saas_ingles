@@ -97,6 +97,7 @@ const Register = () => {
               label="Senha"
               value={password}
               onChange={setPassword}
+              onBlur={() => setTouched(t => ({ ...t, password: true }))}
               autoComplete="new-password"
               error={passwordError}
             />
@@ -106,6 +107,7 @@ const Register = () => {
               label="Confirmar senha"
               value={confirmPassword}
               onChange={setConfirmPassword}
+              onBlur={() => setTouched(t => ({ ...t, confirmPassword: true }))}
               autoComplete="new-password"
               error={confirmError}
             />

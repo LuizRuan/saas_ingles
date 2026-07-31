@@ -53,7 +53,14 @@ export const getDomainSuggestions = (value, domains = EMAIL_DOMAIN_SUGGESTIONS, 
   if (arrobas !== 1) return [];
 
   const fragmento = texto.slice(texto.indexOf('@') + 1).toLowerCase();
-  return domains.filter(d => d.startsWith(fragmento)).slice(0, max);
+  // REGRESSÃO: `d !== fragmento` exclui o domínio já completo. Sem isso, ao
+  // escolher "gmail.com" o e-mail vira "ana@gmail.com" — cujo fragmento
+  // ("gmail.com") ainda começa com "gmail.com" (ele mesmo), então a MESMA
+  // sugestão reaparecia na hora, sempre não-vazia, e a lista nunca fechava
+  // (via clique OU Enter/Tab — os dois zeram `dismissedFor`, que só existe
+  // pra reabrir a lista na próxima tecla, não pra mascarar uma sugestão que
+  // deveria ter sumido de verdade).
+  return domains.filter(d => d.startsWith(fragmento) && d !== fragmento).slice(0, max);
 };
 
 // Substitui tudo depois do "@" pelo domínio escolhido, mantendo a parte local

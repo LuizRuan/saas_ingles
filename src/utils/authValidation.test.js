@@ -79,6 +79,11 @@ describe('getDomainSuggestions', () => {
   it('respeita o parâmetro max', () => {
     expect(getDomainSuggestions('ana@', EMAIL_DOMAIN_SUGGESTIONS, 2)).toHaveLength(2);
   });
+
+  it('regressão: não sugere o domínio já completo (senão a lista nunca fecha depois de escolher um)', () => {
+    expect(getDomainSuggestions('ana@gmail.com')).toEqual([]);
+    expect(getDomainSuggestions('ana@icloud.com')).toEqual([]);
+  });
 });
 
 describe('isValidNickname', () => {

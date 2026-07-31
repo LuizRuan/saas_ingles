@@ -1,10 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProgress } from '../hooks/useProgress';
+import { useAuthProfile } from '../hooks/useAuthProfile';
 import { loadSettings, saveSettings } from '../utils/storage';
 import { THEMES, DEFAULT_THEME, applyAnimations } from '../utils/appearance';
-import { getEntryChoice, clearEntryChoice } from '../utils/entryChoice';
-import { logoutRequest, getProfileRequest, updateProfileRequest } from '../utils/authClient';
+import { clearEntryChoice } from '../utils/entryChoice';
+import { logoutRequest, updateProfileRequest } from '../utils/authClient';
 import { isValidNickname, MAX_NICKNAME_LENGTH } from '../utils/authValidation';
 
 const Settings = () => {
@@ -13,35 +14,18 @@ const Settings = () => {
   const [settings, setSettings] = useState(() => loadSettings());
   const [showConfirm, setShowConfirm] = useState(false);
   const [resetDone, setResetDone] = useState(false);
-  const entryChoice = getEntryChoice();
 
-  // Estado REAL da conta, verificado no servidor — entryChoice é só a escolha
-  // local salva depois de um cadastro/login que pareceu funcionar; se o
-  // cookie de sessão nunca chegou a existir (ou expirou), este pedido falha
-  // com 401 e é isso que avisa a pessoa que a sessão não está de pé de
-  // verdade, em vez de a tela ficar muda sobre o problema.
-  const [profile, setProfile] = useState(null);
-  const [profileStatus, setProfileStatus] = useState('idle'); // idle | loading | loaded | error
+  // Estado REAL da conta, verificado no servidor (ver useAuthProfile) — a
+  // mesma checagem que a navbar usa, então as duas telas concordam sobre
+  // "logado ou não" em vez de confiar cegamente no flag local.
+  const { entryChoice, profile, status: profileStatus } = useAuthProfile();
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [nicknameStatus, setNicknameStatus] = useState('idle'); // idle | saving | saved | error
   const [nicknameError, setNicknameError] = useState('');
 
   useEffect(() => {
-    if (entryChoice !== 'account') return;
-    let cancelado = false;
-    setProfileStatus('loading');
-    getProfileRequest()
-      .then(({ user }) => {
-        if (cancelado) return;
-        setProfile(user);
-        setNicknameDraft(user.nickname || '');
-        setProfileStatus('loaded');
-      })
-      .catch(() => {
-        if (!cancelado) setProfileStatus('error');
-      });
-    return () => { cancelado = true; };
-  }, [entryChoice]);
+    if (profile) setNicknameDraft(profile.nickname || '');
+  }, [profile]);
 
   const handleSaveNickname = useCallback(async () => {
     if (!isValidNickname(nicknameDraft)) {
@@ -53,7 +37,6 @@ const Settings = () => {
     setNicknameError('');
     try {
       const { user } = await updateProfileRequest(nicknameDraft.trim() || null);
-      setProfile(user);
       setNicknameDraft(user.nickname || '');
       setNicknameStatus('saved');
       setTimeout(() => setNicknameStatus('idle'), 2000);
