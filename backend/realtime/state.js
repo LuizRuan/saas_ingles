@@ -20,13 +20,34 @@ export const waitingQueue = [];
  */
 export const matches = new Map();
 
-// Função pura: pareia os 2 mais antigos da fila assim que houver 2. FIFO
-// simples, sem casamento por habilidade — não existe ranking no app para
-// proteger. Recebe/retorna a fila para ficar testável sem nenhum socket real.
+/**
+ * Emparelha os dois jogadores mais antigos que queiram o mesmo tipo de jogo.
+ * Um jogador com preferência 'random' casa com qualquer outro.
+ *
+ * Retorna o tipo resolvido em `resolvedType`:
+ *   - Se ambos escolheram o mesmo tipo específico → esse tipo
+ *   - Se um é 'random' e o outro tem um tipo → o tipo específico
+ *   - Se ambos são 'random' → null (servidor sorteia depois)
+ */
 export const tryMatch = (queue) => {
-  if (queue.length < 2) return { pair: null, rest: queue };
-  const [a, b, ...rest] = queue;
-  return { pair: [a, b], rest };
+  for (let i = 0; i < queue.length; i++) {
+    for (let j = i + 1; j < queue.length; j++) {
+      const a = queue[i], b = queue[j];
+      const aRandom = a.gameTypePreference === 'random';
+      const bRandom = b.gameTypePreference === 'random';
+      const typesMatch = aRandom || bRandom || a.gameTypePreference === b.gameTypePreference;
+      if (!typesMatch) continue;
+
+      const resolvedType =
+        !aRandom ? a.gameTypePreference :
+        !bRandom ? b.gameTypePreference :
+        null; // ambos random → servidor sorteia
+
+      const rest = queue.filter((_, k) => k !== i && k !== j);
+      return { pair: [a, b], rest, resolvedType };
+    }
+  }
+  return { pair: null, rest: queue, resolvedType: null };
 };
 
 export const createMatch = (players, gameType) => {
@@ -37,11 +58,18 @@ export const createMatch = (players, gameType) => {
     gameType,
     roundIndex: -1,
     roundClosed: false,
-    currentQuestion: null,
+    currentQuestion: null,  // mantido para compatibilidade com closeRound legado
     roundDeadline: null,
     usedIndices: [],
     answers: new Map(),
     scores: new Map(players.map(p => [p.socketId, 0])),
+
+    // Por jogador: índices usados e pergunta ativa desta rodada
+    playerData: new Map(players.map(p => [p.socketId, {
+      usedIndices: [],
+      currentQuestion: null,
+    }])),
+
     roundTimer: null,
     pauseTimer: null,
   };

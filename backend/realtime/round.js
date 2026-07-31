@@ -7,12 +7,12 @@ import { scoreFor } from './scoring.js';
 /**
  * Fecha a rodada, de forma IDEMPOTENTE.
  *
- * Sem esse "já fechei", havia uma janela real de bug: `endRound` não avançava o
- * roundIndex nem limpava `answers`, então uma resposta que chegasse durante os
- * ~2s de pausa entre rodadas passava por todos os guardas, batia
- * `answers.size >= 2` e chamava endRound DE NOVO — somando pontos duas vezes
- * para os dois jogadores e agendando um segundo startRound, o que pulava uma
- * rodada.
+ * No novo modelo, cada jogador tem sua própria `currentQuestion` em
+ * `match.playerData`. O `correctAnswer` é lido por jogador para que A e B
+ * possam ter palavras diferentes (e respostas corretas diferentes).
+ *
+ * Para o tipo 'memory': não há resposta "certa" — ganha quem submeter
+ * 'completed' com menor `arrivedAt` (mais rápido).
  *
  * @returns {null | { results, scores }} null se a rodada já estava fechada.
  */
@@ -20,10 +20,39 @@ export const closeRound = (match) => {
   if (!match || match.roundClosed) return null;
   match.roundClosed = true;
 
+  const isMemory = match.gameType === 'memory';
+
+  // Memory: encontra quem submeteu primeiro
+  let fastestMemoryId = null;
+  if (isMemory) {
+    let earliest = Infinity;
+    for (const [socketId, ans] of match.answers.entries()) {
+      if (ans.choice === 'completed' && ans.arrivedAt < earliest) {
+        earliest = ans.arrivedAt;
+        fastestMemoryId = socketId;
+      }
+    }
+  }
+
   const results = match.players.map((p) => {
     const answer = match.answers.get(p.socketId);
-    const isCorrect = Boolean(answer) && answer.choice === match.currentQuestion.correctAnswer;
-    const points = answer ? scoreFor(isCorrect, match.roundDeadline, answer.arrivedAt) : 0;
+
+    let isCorrect, points;
+    if (isMemory) {
+      // Ganha 100 pts quem terminou primeiro; o outro ganha 0
+      isCorrect = p.socketId === fastestMemoryId;
+      points = isCorrect ? 100 : 0;
+    } else {
+      // Busca correctAnswer no playerData (por jogador) — fallback para
+      // match.currentQuestion para manter compatibilidade com testes existentes
+      const pd = match.playerData?.get(p.socketId);
+      const correctAnswer = pd?.currentQuestion?.correctAnswer
+        ?? match.currentQuestion?.correctAnswer;
+
+      isCorrect = Boolean(answer) && answer.choice === correctAnswer;
+      points = answer ? scoreFor(isCorrect, match.roundDeadline, answer.arrivedAt) : 0;
+    }
+
     match.scores.set(p.socketId, (match.scores.get(p.socketId) || 0) + points);
     return {
       id: p.socketId,
@@ -52,7 +81,11 @@ export const decideWinner = (match) => {
   return s1 > s2 ? p1.socketId : p2.socketId;
 };
 
-/** Aceita esta resposta agora? Motivo em texto quando não. */
+/**
+ * Aceita esta resposta agora? Motivo em texto quando não.
+ * Para memory, aceita choice='completed' sem validar contra correctAnswer
+ * (a comparação de velocidade é feita em closeRound).
+ */
 export const validateAnswer = (match, socketId, payload) => {
   if (!match) return { ok: false, error: 'Partida não encontrada.' };
   if (match.roundClosed) return { ok: false, error: 'Rodada já encerrada.' };

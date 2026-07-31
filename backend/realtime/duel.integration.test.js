@@ -110,10 +110,15 @@ describe('duelo — pareamento e primeira rodada', () => {
     p1.disconnect(); p2.disconnect();
   });
 
-  it('os dois recebem exatamente a MESMA pergunta, com as opções na mesma ordem', async () => {
+  it('cada jogador recebe uma pergunta DIFERENTE, mas do mesmo tipo e com o mesmo prazo', async () => {
     const { p1, p2, r1, r2 } = await pair();
-    expect(r1.question).toEqual(r2.question);
+    // Tipo de jogo é o mesmo para os dois
+    expect(r1.question.type).toBe(r2.question.type);
+    // Prazo e metadados de sincronização são compartilhados
     expect(r1.roundDeadline).toBe(r2.roundDeadline);
+    expect(r1.roundMs).toBe(r2.roundMs);
+    // As perguntas em si devem ser diferentes (palavras e opções distintas)
+    expect(r1.question).not.toEqual(r2.question);
     p1.disconnect(); p2.disconnect();
   });
 

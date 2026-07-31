@@ -36,6 +36,7 @@ export const useDuelSocket = () => {
   const [status, setStatus] = useState('connecting');
   const [socketCount, setSocketCount] = useState(null); // null = ainda não sei
   const [queueCount, setQueueCount] = useState(null);
+  const [queueByType, setQueueByType] = useState({}); // { hangman: 2, ... }
 
   // 'idle' | 'searching' | 'matched' | 'playing' | 'ended' | 'lost'
   const [matchState, setMatchState] = useState('idle');
@@ -110,6 +111,7 @@ export const useDuelSocket = () => {
       if (typeof payload === 'number') { setSocketCount(payload); return; }
       setSocketCount(payload?.sockets ?? null);
       setQueueCount(payload?.queue ?? null);
+      setQueueByType(payload?.byType ?? {});
     });
 
     socket.on('match:found', (payload) => {
@@ -160,7 +162,7 @@ export const useDuelSocket = () => {
     };
   }, [clearQueueTimer]);
 
-  const joinQueue = useCallback((nickname) => {
+  const joinQueue = useCallback((nickname, gameTypePreference = 'random') => {
     setQueueError(null);
     // Recusa cedo em vez de mentir: antes o estado já ia para 'searching' antes
     // de emitir, e com o socket desconectado o socket.io enfileira o emit — o
@@ -170,7 +172,7 @@ export const useDuelSocket = () => {
       return;
     }
 
-    socketRef.current.emit('queue:join', { nickname }, (ack) => {
+    socketRef.current.emit('queue:join', { nickname, gameTypePreference }, (ack) => {
       if (!ack?.ok) {
         setMatchState('idle');
         setQueueError(ack?.error || 'Não foi possível entrar na fila.');
@@ -229,7 +231,7 @@ export const useDuelSocket = () => {
   return {
     status,
     // Só é seguro exibir número quando status === 'connected'; fora disso é null.
-    socketCount, queueCount,
+    socketCount, queueCount, queueByType,
     matchState, queueError, answerError,
     opponent, gameType, roundIndex, totalRounds,
     question, roundDeadline, roundMs, roundResult, scores, matchEnd,

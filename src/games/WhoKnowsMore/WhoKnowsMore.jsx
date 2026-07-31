@@ -12,6 +12,7 @@ import useSpeech from '../../hooks/useSpeech';
 import DuelHangman from './games/DuelHangman';
 import DuelMemory  from './games/DuelMemory';
 import DuelBotGame from './games/DuelBotGame';
+import DuelOnlineGame from './games/DuelOnlineGame';
 import './WhoKnowsMore.css';
 
 const BOT_DIFFICULTIES = [
@@ -79,6 +80,7 @@ const WhoKnowsMore = () => {
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [selectedGameType, setSelectedGameType] = useState('translation');
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
+  const [humanGameTypePreference, setHumanGameTypePreference] = useState('random');
 
   const [botConfig, setBotConfig] = useState(BOT_DIFFICULTIES[1]);
   const [currentRound, setCurrentRound] = useState(0);
@@ -88,6 +90,7 @@ const WhoKnowsMore = () => {
 
   const [roundQuestions, setRoundQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [roundHistory, setRoundHistory] = useState([]); // [{ roundNum, playerDelta, botDelta }]
   const [playerAnswered, setPlayerAnswered] = useState(false);
   const [playerChoice, setPlayerChoice] = useState(null);
   const [botAnswered, setBotAnswered] = useState(false);
@@ -129,8 +132,15 @@ const WhoKnowsMore = () => {
     setShowBotSetupModal(true);
   };
 
-  // ─── Callback chamado por DuelHangman / DuelMemory quando a rodada termina ──
+  // ─── Callback chamado por DuelHangman / DuelMemory / DuelBotGame quando a rodada termina
   const handleDuelGameRoundEnd = ({ playerScoreDelta, botScoreDelta }) => {
+    // Registra histórico ANTES de incrementar a rodada
+    setRoundHistory(prev => [...prev, {
+      roundNum:    currentRoundRef.current + 1,
+      playerDelta: playerScoreDelta,
+      botDelta:    botScoreDelta,
+    }]);
+
     // Acumula via refs para evitar stale closure
     playerScoreRef.current  += playerScoreDelta;
     botScoreRef.current     += botScoreDelta;
@@ -163,10 +173,11 @@ const WhoKnowsMore = () => {
     setShowBotSetupModal(false);
     setMode('bot');
 
-    // Reset refs de pontuação para nova partida
+    // Reset refs e histórico para nova partida
     playerScoreRef.current  = 0;
     botScoreRef.current     = 0;
     currentRoundRef.current = 0;
+    setRoundHistory([]);
 
     const diffObj = BOT_DIFFICULTIES.find(d => d.id === selectedDifficulty) || BOT_DIFFICULTIES[1];
     setBotConfig(diffObj);
@@ -412,7 +423,7 @@ const WhoKnowsMore = () => {
     const name = (nicknameDraft.trim() || generateGuestName()).slice(0, 20);
     setNicknameDraft(name);
     setDisplayName(name);
-    duel.joinQueue(name);
+    duel.joinQueue(name, humanGameTypePreference);
   };
 
   const cancelHumanSearch = () => {
@@ -469,6 +480,15 @@ const WhoKnowsMore = () => {
     if (!isHuman || !duel.roundResult) return;
     const mine = duel.roundResult.answers.find(a => a.id === duel.myId);
     if (mine?.correct) playCorrect(); else playWrong();
+
+    // Acumula historico de rodadas no modo humano
+    const closed = duel.roundResult;
+    const playerDelta = mine?.pointsEarned ?? 0;
+    const opponentDelta = closed?.answers?.find(r => r.id !== duel.myId)?.pointsEarned ?? 0;
+    setRoundHistory(prev => [
+      ...prev,
+      { roundNum: duel.roundIndex + 1, playerDelta, botDelta: opponentDelta, fromHuman: true },
+    ]);
   }, [isHuman, duel.roundResult, duel.myId, playCorrect, playWrong]);
 
   // Fim de partida: premia UMA vez por partida (awardedMatchRef) e não paga
@@ -655,203 +675,45 @@ const WhoKnowsMore = () => {
               />
             )}
 
-            {/* ── UI de múltipla escolha — exclusivo para o modo humano (PvP) ── */}
-            {isHuman && (
-          <div className="duel-match-container animate-fade-in-up">
-            {/* Saída — antes esta tela não tinha nenhuma forma de sair, então
-                uma partida travada só saía navegando pelo navegador. */}
-            <div className="duel-topbar">
-              {confirmExit ? (
-                <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center' }}>
-                  <span className="text-secondary" style={{ fontSize: 'var(--fs-xs)' }}>
-                    Sair? A partida será perdida.
-                  </span>
-                  <button className="btn btn-danger btn-sm" onClick={handleExitDuel}>Sair</button>
-                  <button className="btn btn-ghost btn-sm" onClick={() => setConfirmExit(false)}>Ficar</button>
-                </div>
-              ) : (
-                <button className="btn btn-ghost btn-sm" onClick={() => setConfirmExit(true)}>✕ Sair da partida</button>
-              )}
-            </div>
-
-
-            <div className="duel-scoreboard glass-card">
-              <div className="player-profile player-profile--you">
-                <div className="avatar" aria-hidden="true">{progress.selectedAvatar || '👤'}</div>
-                <div className="profile-info">
-                  <span className="profile-name">Você</span>
-                  <span className="profile-score">{myScoreDisplay} pts</span>
-                </div>
-              </div>
-
-              <div className="vs-badge">
-                <span>VS</span>
-                <small>Rodada {roundIndexDisplay + 1}/{totalRoundsDisplay}</small>
-              </div>
-
-              <div className="player-profile player-profile--opponent">
-                <div className="avatar" aria-hidden="true">{isHuman ? '🧑' : '🤖'}</div>
-                <div className="profile-info">
-                  <span className="profile-name">{opponentName}</span>
-                  <span className="profile-score">{opponentScoreDisplay} pts</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="timer-bar-container">
-              <div
-                className={`timer-bar-fill ${timeLeftDisplay <= 3 ? 'urgent' : ''}`}
-                style={{ width: `${barWidthPct(remainingMs, roundMsDisplay)}%` }}
+            {/* ── Online (Humano) → DuelOnlineGame (UI real de cada jogo) ──────── */}
+            {isHuman && duel.question && (
+              <DuelOnlineGame
+                key={`${duel.roundIndex}-${duel.question?.type}`}
+                question={duel.question}
+                duel={duel}
+                playerAvatar={progress.selectedAvatar || '👤'}
+                confirmExit={confirmExit}
+                onRequestExit={() => setConfirmExit(true)}
+                onConfirmExit={handleExitDuel}
+                onCancelExit={() => setConfirmExit(false)}
               />
-              <span className="timer-text">⏱️ {timeLeftDisplay}s</span>
-            </div>
-
-            <div className="question-card glass-card">
-              {activeQuestion.type === 'translation' && (
-                <>
-                  <span className="question-label">🎯 Qual é a tradução de:</span>
-                  <h2 className="target-word">{activeQuestion.word.en}</h2>
-                  <span className="pronunciation">{activeQuestion.word.pronunciation}</span>
-                </>
-              )}
-
-              {activeQuestion.type === 'trueFalse' && (
-                <>
-                  <span className="question-label">✅ Esta tradução está correta?</span>
-                  <h2 className="target-word">{activeQuestion.word.en}</h2>
-                  <span className="duel-hint">= “{activeQuestion.displayedPt}”</span>
-                </>
-              )}
-
-              {activeQuestion.type === 'listening' && (
-                <>
-                  <span className="question-label">🎧 Ouça e identifique a palavra:</span>
-                  <div className="listening-controls">
-                    <button className="btn btn-primary btn-lg" onClick={() => speakNormal(activeQuestion.word.en)}>
-                      🔊 Ouvir em Inglês
-                    </button>
-                    <button className="btn btn-secondary btn-lg" onClick={() => speakSlow(activeQuestion.word.en)}>
-                      🐢 Devagar
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {activeQuestion.type === 'wordBuilder' && (
-                <>
-                  <span className="question-label">🔤 Que palavra se forma com estas letras?</span>
-                  <h2 className="target-word" style={{ letterSpacing: '4px' }}>{activeQuestion.scrambledText}</h2>
-                  <span className="duel-hint">Dica: {activeQuestion.word.pt}</span>
-                </>
-              )}
-
-              {activeQuestion.type === 'sentenceBuilder' && (
-                <>
-                  <span className="question-label">📝 Escolha a tradução exata da frase:</span>
-                  <h3 className="target-word" style={{ fontSize: 'var(--fs-2xl)' }}>“{activeQuestion.word.example}”</h3>
-                </>
-              )}
-
-              {activeQuestion.type === 'fillBlanks' && (
-                <>
-                  <span className="question-label">✏️ Que palavra preenche a lacuna?</span>
-                  <h3 className="target-word" style={{ fontSize: 'var(--fs-2xl)' }}>“{activeQuestion.blankedSentence}”</h3>
-                  <span className="duel-hint">Tradução: {activeQuestion.word.examplePt}</span>
-                </>
-              )}
-
-              {activeQuestion.type === 'hangman' && (
-                <>
-                  <span className="question-label">🎯 Descubra a palavra pela dica:</span>
-                  <p className="duel-tip">“{activeQuestion.word.tip}”</p>
-                  <span className="duel-hint">Qual é a palavra em inglês?</span>
-                </>
-              )}
-
-              {activeQuestion.type === 'memory' && (
-                <>
-                  <span className="question-label">🃏 Encontre o par correspondente:</span>
-                  <h2 className="target-word">{activeQuestion.word.en}</h2>
-                  <span className="pronunciation">{activeQuestion.word.pronunciation}</span>
-                </>
-              )}
-            </div>
-
-            <div className={`options-grid ${activeQuestion.type === 'trueFalse' ? 'tf-grid' : ''}`}>
-              {activeQuestion.options.map((option, idx) => {
-                let statusClass = '';
-                if (revealedAnswer != null) {
-                  if (option === revealedAnswer) statusClass = 'correct';
-                  else if (option === (isHuman ? myChoice : playerChoice)) statusClass = 'incorrect';
-                } else if (isHuman && option === myChoice) {
-                  statusClass = 'pending';
-                }
-                const tfClass = activeQuestion.type === 'trueFalse'
-                  ? (option === 'Verdadeiro' ? 'tf-true' : 'tf-false')
-                  : '';
-
-                return (
-                  <button
-                    key={idx}
-                    className={`option-btn ${statusClass} ${tfClass}`}
-                    onClick={() => (isHuman ? handleHumanChoice(option) : handlePlayerChoice(option))}
-                    disabled={hasAnswered || timeLeftDisplay === 0}
-                  >
-                    <span className="option-letter" aria-hidden="true">
-                      {activeQuestion.type === 'trueFalse'
-                        ? (option === 'Verdadeiro' ? '✅' : '❌')
-                        : String.fromCharCode(65 + idx)}
-                    </span>
-                    <span className="option-text">{option}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {duel.answerError && isHuman && (
-              <p className="text-red" style={{ textAlign: 'center', fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
-                {duel.answerError}
-              </p>
             )}
 
-            <div className="duel-status-bar glass-card">
-              {isHuman ? (
-                duel.roundResult ? (
-                  (() => {
-                    const opp = duel.roundResult.answers.find(a => a.id === duel.opponent?.id);
-                    return (
-                      <div className="opponent-response animate-bounce-in">
-                        <span>{opponentName} respondeu:</span>
-                        <strong className={opp?.correct ? 'text-green' : 'text-red'}>
-                          {opp?.choice ?? '(sem resposta)'} {opp?.correct ? `✅ +${opp.pointsEarned}` : '❌'}
-                        </strong>
-                      </div>
-                    );
-                  })()
-                ) : (
-                  <div className="opponent-thinking">
-                    <span className="spinner" />
-                    <span>Aguardando {opponentName}…</span>
-                  </div>
-                )
-              ) : botAnswered ? (
-                <div className="opponent-response animate-bounce-in">
-                  <span>{botConfig.name} respondeu:</span>
-                  <strong className={botIsCorrect ? 'text-green' : 'text-red'}>
-                    {botChoice} {botIsCorrect ? '✅ +100' : '❌'}
-                  </strong>
-                </div>
-              ) : (
-                <div className="opponent-thinking">
-                  <span className="spinner" />
-                  <span>{botConfig.name} está pensando…</span>
-                </div>
-              )}
-            </div>
-          </div>
+            {/* ── Histórico de rodadas (bot e humano) ─────────────────────────── */}
+            {roundHistory.length > 0 && (
+              <div className="round-history-panel animate-fade-in-up">
+                <p className="round-history-title">📋 Histórico de Rodadas</p>
+                {roundHistory.map((r, i) => {
+                  const playerWon = r.playerDelta > r.botDelta;
+                  const tie       = r.playerDelta === r.botDelta;
+                  const opName    = isHuman ? (duel.opponent?.nickname || 'Oponente') : botConfig.name;
+                  return (
+                    <div key={i} className="round-history-row">
+                      <span className="rh-label">Rodada {r.roundNum}</span>
+                      <span className={`rh-badge ${playerWon ? 'rh-win' : tie ? 'rh-tie' : 'rh-loss'}`}>
+                        {playerWon ? '🏆 Você' : tie ? '🤝 Empate' : `${isHuman ? '👤' : '🤖'} ${opName}`}
+                      </span>
+                      <span className="rh-scores">
+                        Você <strong>{r.playerDelta}</strong> × {opName} <strong>{r.botDelta}</strong>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </>
         )}
+
 
 
         {/* ========= CONEXÃO PERDIDA (antes: tela congelada sem saída) ========= */}
@@ -986,6 +848,39 @@ const WhoKnowsMore = () => {
                     />
                   </div>
 
+                  {/* Seletor de tipo de jogo */}
+                  <div className="duel-field">
+                    <label>Qual jogo você quer disputar?</label>
+                    <div className="game-type-selector-grid">
+                      {[
+                        { id: 'random',         icon: '🎲', label: 'Aleatório'      },
+                        { id: 'translation',    icon: '🎯', label: 'Tradução'       },
+                        { id: 'trueFalse',      icon: '✅', label: 'V ou F'         },
+                        { id: 'listening',      icon: '🔊', label: 'Escuta'         },
+                        { id: 'fillBlanks',     icon: '✏️', label: 'Complete'       },
+                        { id: 'wordBuilder',    icon: '🔡', label: 'Montar Palavra' },
+                        { id: 'sentenceBuilder',icon: '📝', label: 'Montar Frase'   },
+                        { id: 'hangman',        icon: '🎯', label: 'Forca'          },
+                        { id: 'memory',         icon: '🃏', label: 'Memória'        },
+                      ].map(({ id, icon, label }) => {
+                        const count = duel.queueByType?.[id] ?? 0;
+                        return (
+                          <button
+                            key={id}
+                            className={`game-type-btn ${humanGameTypePreference === id ? 'selected' : ''}`}
+                            onClick={() => setHumanGameTypePreference(id)}
+                          >
+                            <span className="gt-icon">{icon}</span>
+                            <span className="gt-label">{label}</span>
+                            {count > 0 && (
+                              <span className="gt-count">{count} aguardando</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <p style={{ textAlign: 'center', marginBottom: 'var(--space-md)' }}>
                     <span className={`presence-pill ${connected ? '' : 'offline'}`}>
                       <span className={`pulse-dot ${connected ? '' : 'idle'}`} /> {pillLabel}
@@ -1011,12 +906,18 @@ const WhoKnowsMore = () => {
                 <div style={{ textAlign: 'center' }}>
                   <span className="spinner spinner-lg" />
                   <h2>Procurando oponente…</h2>
+                  <p className="text-secondary" style={{ marginBottom: 'var(--space-sm)' }}>
+                    {humanGameTypePreference === 'random'
+                      ? 'Modo: Aleatório 🎲'
+                      : `Modo: ${humanGameTypePreference}`}
+                  </p>
                   <p className="text-secondary">{pillLabel}</p>
                   <button className="btn btn-ghost" style={{ marginTop: 'var(--space-md)' }} onClick={cancelHumanSearch}>
                     Cancelar busca
                   </button>
                 </div>
               )}
+
 
               {duel.matchState === 'matched' && (
                 <div style={{ textAlign: 'center' }}>

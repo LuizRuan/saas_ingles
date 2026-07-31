@@ -4,7 +4,10 @@ import {
   waitingQueue, matches, tryMatch, createMatch,
   removeFromQueue, findMatchBySocket, destroyMatch,
 } from './state.js';
-import { buildQuestion, serializeQuestionForClient, pickRandomGameType } from './questionGenerator.js';
+import {
+  buildQuestionPerPlayer, buildMemoryGroupPerPlayer,
+  serializeQuestionForClient, pickRandomGameType, GAME_TYPE_IDS,
+} from './questionGenerator.js';
 import { closeRound, nextPhase, decideWinner, validateAnswer } from './round.js';
 import { sanitizeNickname } from './nicknames.js';
 import { isRateLimited, sweepRateLimiter } from './rateLimiter.js';
@@ -12,9 +15,9 @@ import { isRateLimited, sweepRateLimiter } from './rateLimiter.js';
 // Tempos padrão. Injetáveis para o teste de integração rodar uma partida de 5
 // rodadas em milissegundos em vez de ~1 minuto.
 export const DEFAULT_TIMING = {
-  roundMs: 10_000,
-  roundTimeoutMarginMs: 1_500, // tolerância de rede além do prazo
-  roundPauseMs: 2_200,         // pausa para revelar o resultado
+  roundMs: 20_000,            // 20s por rodada (igualado ao DuelBotGame)
+  roundTimeoutMarginMs: 2_000, // tolerância de rede além do prazo
+  roundPauseMs: 2_500,         // pausa para revelar o resultado
   matchIntroMs: 1_500,         // banner "Oponente encontrado!" antes da 1ª rodada
   totalRounds: 5,
 };
@@ -37,31 +40,76 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
   const sweeper = setInterval(() => sweepRateLimiter(), 60_000);
   sweeper.unref?.();
 
+  /**
+   * Presença inclui contagem por tipo de jogo para que o cliente mostre
+   * "X procurando Forca", "Y procurando Tradução" etc.
+   */
   const broadcastPresence = () => {
-    io.emit('presence:count', { sockets: io.engine.clientsCount, queue: waitingQueue.length });
+    const byType = {};
+    for (const entry of waitingQueue) {
+      const key = entry.gameTypePreference ?? 'random';
+      byType[key] = (byType[key] ?? 0) + 1;
+    }
+    io.emit('presence:count', {
+      sockets: io.engine.clientsCount,
+      queue: waitingQueue.length,
+      byType,
+    });
   };
 
+  /**
+   * Inicia uma rodada gerando uma questão DIFERENTE para cada jogador.
+   * A emissão é individual (io.to(socketId)) — cada um vê só a própria pergunta.
+   */
   const startRound = (match) => {
     match.roundIndex += 1;
     match.roundClosed = false;
     match.answers = new Map();
-
-    const question = buildQuestion(match.gameType, new Set(match.usedIndices));
-    match.usedIndices.push(question.wordIndex);
-    match.currentQuestion = question;
     match.roundDeadline = Date.now() + timing.roundMs;
 
-    io.to(roomName(match.id)).emit('round:start', {
+    const [pA, pB] = match.players;
+    const pdA = match.playerData.get(pA.socketId);
+    const pdB = match.playerData.get(pB.socketId);
+
+    let qA, qB;
+    if (match.gameType === 'memory') {
+      // Memory: cada jogador recebe 4 palavras distintas
+      ({ questionA: qA, questionB: qB } = buildMemoryGroupPerPlayer(
+        new Set(pdA.usedIndices),
+        new Set(pdB.usedIndices),
+      ));
+      pdA.usedIndices.push(...qA.wordIndices);
+      pdB.usedIndices.push(...qB.wordIndices);
+    } else {
+      // Todos os outros tipos: uma palavra diferente por jogador
+      ({ questionA: qA, questionB: qB } = buildQuestionPerPlayer(
+        match.gameType,
+        new Set(pdA.usedIndices),
+        new Set(pdB.usedIndices),
+      ));
+      pdA.usedIndices.push(qA.wordIndex);
+      pdB.usedIndices.push(qB.wordIndex);
+    }
+
+    pdA.currentQuestion = qA;
+    pdB.currentQuestion = qB;
+
+    // match.currentQuestion = null em partidas novas; mantido null pois
+    // closeRound agora lê de playerData.
+    match.currentQuestion = null;
+
+    const base = {
       matchId: match.id,
       roundIndex: match.roundIndex,
       totalRounds: timing.totalRounds,
       roundDeadline: match.roundDeadline,
-      // O cliente usa isto para medir a defasagem do próprio relógio. Sem ele,
-      // relógio adiantado em 10s zerava o cronômetro e travava as respostas.
       serverNow: Date.now(),
       roundMs: timing.roundMs,
-      question: serializeQuestionForClient(question),
-    });
+    };
+
+    // ⬇️  Emissão INDIVIDUAL — cada jogador vê só a própria pergunta
+    io.to(pA.socketId).emit('round:start', { ...base, question: serializeQuestionForClient(qA) });
+    io.to(pB.socketId).emit('round:start', { ...base, question: serializeQuestionForClient(qB) });
 
     if (match.roundTimer) clearTimeout(match.roundTimer);
     match.roundTimer = setTimeout(
@@ -75,15 +123,19 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
     if (match.roundTimer) clearTimeout(match.roundTimer);
 
     const closed = closeRound(match);
-    if (!closed) return; // já estava fechada — o guard de idempotência
+    if (!closed) return; // já estava fechada — guard de idempotência
 
-    io.to(roomName(match.id)).emit('round:result', {
-      matchId: match.id,
-      roundIndex: match.roundIndex,
-      correctAnswer: match.currentQuestion.correctAnswer,
-      answers: closed.results,
-      scores: closed.scores,
-    });
+    // round:result é emitido individualmente: cada um vê seu próprio correctAnswer
+    for (const p of match.players) {
+      const pd = match.playerData.get(p.socketId);
+      io.to(p.socketId).emit('round:result', {
+        matchId: match.id,
+        roundIndex: match.roundIndex,
+        correctAnswer: pd?.currentQuestion?.correctAnswer ?? null,
+        answers: closed.results,
+        scores: closed.scores,
+      });
+    }
 
     if (nextPhase(match, timing.totalRounds) === 'next') {
       match.pauseTimer = setTimeout(() => {
@@ -117,7 +169,7 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
   };
 
   const startMatchIfPossible = () => {
-    const { pair, rest } = tryMatch(waitingQueue);
+    const { pair, rest, resolvedType } = tryMatch(waitingQueue);
     if (!pair) return;
     waitingQueue.length = 0;
     waitingQueue.push(...rest);
@@ -127,7 +179,9 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       { socketId: a.socketId, nickname: a.nickname },
       { socketId: b.socketId, nickname: b.nickname },
     ];
-    const match = createMatch(players, pickRandomGameType());
+    // Usa o tipo resolvido pelo tryMatch, ou sorteia se ambos eram 'random'
+    const gameType = resolvedType ?? pickRandomGameType();
+    const match = createMatch(players, gameType);
     // Formato interno usa socketId; o que sai pela rede usa `id`.
     const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname }));
 
@@ -143,8 +197,6 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
     });
 
     // Atrasa a 1ª rodada para o banner "Oponente encontrado!" existir de fato.
-    // Antes startRound era chamado de forma síncrona aqui e os dois eventos
-    // chegavam no mesmo tick — o banner aparecia por ~0ms.
     match.pauseTimer = setTimeout(() => {
       if (matches.has(match.id)) startRound(match);
     }, timing.matchIntroMs);
@@ -167,7 +219,12 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       }
 
       const nickname = sanitizeNickname(payload?.nickname);
-      waitingQueue.push({ socketId: socket.id, nickname, joinedAt: Date.now() });
+
+      // Valida preferência de tipo: aceita 'random' ou qualquer GAME_TYPE_IDS válido
+      const rawPref = payload?.gameTypePreference;
+      const gameTypePreference = GAME_TYPE_IDS.includes(rawPref) ? rawPref : 'random';
+
+      waitingQueue.push({ socketId: socket.id, nickname, joinedAt: Date.now(), gameTypePreference });
       ack?.({ ok: true });
       broadcastPresence();
       startMatchIfPossible();

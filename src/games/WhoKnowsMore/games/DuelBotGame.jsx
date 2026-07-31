@@ -15,14 +15,15 @@ import useSpeech from '../../../hooks/useSpeech';
 import useSound from '../../../hooks/useSound';
 import '../../../games/WordBuilder/WordBuilder.css';
 
-// Tempo máximo por tipo (seg) — o jogador perde a rodada se não responder
-const TIME_LIMITS = {
-  wordBuilder:      35,
-  sentenceBuilder:  25,
-  fillBlanks:       20,
-  listening:        20,
-  translation:      15,
-  trueFalse:        12,
+// Tempo máximo por rodada — uniforme para todos os tipos
+const TIME_LIMIT = 20;
+
+// Delays do bot escalados para o timer de 20s
+// Easy: responde perto do final; Hard: responde rapidamente
+const BOT_DELAYS = {
+  easy:   { min: 14000, max: 19500 },
+  medium: { min:  8000, max: 14000 },
+  hard:   { min:  3000, max:  7500 },
 };
 
 // Cria os tiles de letra com IDs únicos (para lidar com letras repetidas)
@@ -43,13 +44,14 @@ const DuelBotGame = ({
   onConfirmExit,
   onCancelExit,
 }) => {
-  const timeLimit = TIME_LIMITS[question.type] || 15;
+  const timeLimit = TIME_LIMIT;
 
   const [playerAnswer, setPlayerAnswer]   = useState(null);   // opção escolhida
   const [playerDone,   setPlayerDone]     = useState(false);
   const [botDone,      setBotDone]        = useState(false);
   const [botWon,       setBotWon]         = useState(false);
-  const [timeLeft,     setTimeLeft]       = useState(timeLimit);
+  const [timeLeft,     setTimeLeft]       = useState(TIME_LIMIT);
+  const [roundSummary, setRoundSummary]   = useState(null);  // { playerDelta, botDelta } após resultado
 
   // WordBuilder: tiles com estado (usado / disponível) e slots de resposta
   const [tiles,        setTiles]          = useState(() =>
@@ -86,9 +88,10 @@ const DuelBotGame = ({
     return () => clearInterval(timerRef.current);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Bot timer ────────────────────────────────────────────────────────────
+  // ─── Bot timer (delays realistas para timer de 20s) ──────────────────────────────────
   useEffect(() => {
-    const delay = Math.random() * (botConfig.maxDelay - botConfig.minDelay) + botConfig.minDelay;
+    const range = BOT_DELAYS[botConfig.id] || BOT_DELAYS.medium;
+    const delay = Math.random() * (range.max - range.min) + range.min;
     const timer = setTimeout(() => {
       setBotWon(Math.random() < botConfig.accuracy);
       setBotDone(true);
@@ -106,7 +109,7 @@ const DuelBotGame = ({
     return () => clearTimeout(timer);
   }, [playerDone, botDone]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Quando ambos terminam → avança rodada ────────────────────────────────
+  // ─── Quando ambos terminam → mostra sumário por 2s → avança rodada ────────────────
   useEffect(() => {
     if (!playerDone || !botDone || roundEndCalledRef.current) return;
     roundEndCalledRef.current = true;
@@ -117,10 +120,12 @@ const DuelBotGame = ({
     const playerScoreDelta = won ? 100 : 0;
     const botScoreDelta    = botWon ? 100 : 0;
 
+    setRoundSummary({ playerScoreDelta, botScoreDelta, playerWon: won, botWon });
+
     if (won) playCorrect();
     else if (playerAnswer !== null) playWrong();
 
-    const timer = setTimeout(() => onRoundEnd({ playerScoreDelta, botScoreDelta }), 2000);
+    const timer = setTimeout(() => onRoundEnd({ playerScoreDelta, botScoreDelta }), 2500);
     return () => clearTimeout(timer);
   }, [playerDone, botDone, playerAnswer, botWon, question.correctAnswer, onRoundEnd, playCorrect, playWrong]);
 
@@ -444,22 +449,54 @@ const DuelBotGame = ({
         </div>
       )}
 
-      {/* ═══════════════════ STATUS DO BOT ═══════════════════════ */}
-      <div className="duel-status-bar glass-card" style={{ marginTop: 'var(--space-sm)' }}>
-        {botDone ? (
-          <div className="opponent-response animate-bounce-in">
-            <span>{botConfig.name} respondeu:</span>
-            <strong className={botWon ? 'text-green' : 'text-red'}>
-              {botWon ? '✅ Acertou! +100' : '❌ Errou!'}
-            </strong>
+      {/* ═══════════════════ RESULTADO COMBINADO DA RODADA ══════════════════ */}
+      {roundSummary ? (
+        /* Ambos terminaram → mostra quem ganhou o quê */
+        <div className="duel-status-bar glass-card animate-bounce-in" style={{
+          marginTop: 'var(--space-md)',
+          background: roundSummary.playerWon ? 'var(--bg-green-subtle)' : roundSummary.playerScoreDelta === roundSummary.botScoreDelta ? 'var(--bg-tertiary)' : 'var(--bg-red-subtle)',
+          border: `1px solid ${roundSummary.playerWon ? 'var(--accent-green)' : roundSummary.playerScoreDelta === roundSummary.botScoreDelta ? 'var(--border-color)' : 'var(--accent-red)'}`,
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%', alignItems: 'center', gap: 'var(--space-md)' }}>
+            <div style={{ textAlign: 'center' }}>
+              <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-secondary)' }}>Você</span>
+              <div style={{ fontSize: 'var(--fs-xl)', fontWeight: 700, color: roundSummary.playerWon ? 'var(--accent-green)' : 'var(--accent-red)' }}>
+                {roundSummary.playerWon ? '✅' : (roundSummary.playerScoreDelta === roundSummary.botScoreDelta ? '🤝' : '❌')} {roundSummary.playerScoreDelta} pts
+              </div>
+            </div>
+            <div style={{ fontSize: 'var(--fs-lg)', color: 'var(--text-muted)', fontWeight: 700 }}>VS</div>
+            <div style={{ textAlign: 'center' }}>
+              <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-secondary)' }}>{botConfig.name}</span>
+              <div style={{ fontSize: 'var(--fs-xl)', fontWeight: 700, color: roundSummary.botWon ? 'var(--accent-green)' : 'var(--accent-red)' }}>
+                {roundSummary.botWon ? '✅' : '❌'} {roundSummary.botScoreDelta} pts
+              </div>
+            </div>
           </div>
-        ) : (
-          <div className="opponent-thinking">
-            <span className="spinner" />
-            <span>{botConfig.name} está respondendo...</span>
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        /* Rodada ainda em curso */
+        <div className="duel-status-bar glass-card" style={{ marginTop: 'var(--space-md)' }}>
+          {playerDone && !botDone ? (
+            /* Jogador terminou, aguardando bot */
+            <div className="opponent-thinking">
+              <span className="spinner" />
+              <span>Aguardando {botConfig.name}...</span>
+            </div>
+          ) : botDone && !playerDone ? (
+            /* Bot terminou primeiro — pressão! */
+            <div className="opponent-response animate-bounce-in">
+              <span>{botConfig.name} respondeu!</span>
+              <strong style={{ color: 'var(--accent-orange-light)' }}>⏱️ Corra!</strong>
+            </div>
+          ) : (
+            /* Ambos ainda jogando */
+            <div className="opponent-thinking">
+              <span className="spinner" />
+              <span>{botConfig.name} está respondendo...</span>
+            </div>
+          )}
+        </div>
+      )}
 
     </div>
   );

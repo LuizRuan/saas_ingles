@@ -135,8 +135,62 @@ export const buildQuestion = (gameType, usedIndices = new Set()) => {
 };
 
 // O que o cliente recebe: nunca correctAnswer, nem wordIndex (interno).
-export const serializeQuestionForClient = (question) => ({
-  type: question.type,
-  prompt: question.prompt,
-  options: question.options,
-});
+// Para memory online, inclui wordGroup (array de { en, pt, pronunciation }).
+export const serializeQuestionForClient = (question) => {
+  const base = {
+    type: question.type,
+    prompt: question.prompt,
+    options: question.options,
+  };
+  // Memory online usa wordGroup em vez de options
+  if (question.wordGroup) base.wordGroup = question.wordGroup;
+  return base;
+};
+
+/**
+ * Gera uma questão diferente para cada jogador, do mesmo tipo.
+ * Garante que jogador B não receba a mesma palavra que A.
+ */
+export const buildQuestionPerPlayer = (gameType, usedA, usedB) => {
+  const questionA = buildQuestion(gameType, usedA);
+  // Exclui a palavra sorteada para A do pool de B
+  const usedBExtended = new Set([...usedB, questionA.wordIndex]);
+  const questionB = buildQuestion(gameType, usedBExtended);
+  return { questionA, questionB };
+};
+
+/**
+ * Memory online: sorteia 4 palavras distintas para cada jogador.
+ * As palavras de A e B não se repetem entre si.
+ */
+export const buildMemoryGroupPerPlayer = (usedA, usedB) => {
+  const available = words.map((w, i) => ({ w, i }));
+
+  const poolA = shuffle(available.filter(({ i }) => !usedA.has(i)));
+  const groupA = poolA.slice(0, 4);
+  const indicesA = new Set(groupA.map(g => g.i));
+
+  // B não usa as palavras de A nem as já usadas por B
+  const poolB = shuffle(available.filter(({ i }) => !usedB.has(i) && !indicesA.has(i)));
+  const groupB = poolB.slice(0, 4);
+
+  const toWordGroup = (group) => group.map(g => ({
+    en: g.w.en, pt: g.w.pt, pronunciation: g.w.pronunciation,
+  }));
+
+  return {
+    questionA: {
+      type: 'memory',
+      wordGroup: toWordGroup(groupA),
+      wordIndices: groupA.map(g => g.i),
+      correctAnswer: 'completed', // quem submeter 'completed' primeiro ganha
+    },
+    questionB: {
+      type: 'memory',
+      wordGroup: toWordGroup(groupB),
+      wordIndices: groupB.map(g => g.i),
+      correctAnswer: 'completed',
+    },
+  };
+};
+

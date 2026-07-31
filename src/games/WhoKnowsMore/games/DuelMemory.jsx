@@ -4,10 +4,11 @@ import useSound from '../../../hooks/useSound';
 import '../../../games/MemoryGame/MemoryGame.css';
 
 // Tempo simulado do bot para encontrar 4 pares (ms)
+// Os valores são propositalmente altos: o jogador precisa de tempo para virar 8 cartas
 const BOT_MEMORY_RANGE = {
-  easy:   { min: 28000, max: 45000 },
-  medium: { min: 15000, max: 25000 },
-  hard:   { min:  7000, max: 13000 },
+  easy:   { min: 48000, max: 70000 },
+  medium: { min: 28000, max: 45000 },
+  hard:   { min: 15000, max: 28000 },
 };
 
 const DuelMemory = ({
@@ -203,9 +204,15 @@ const DuelMemory = ({
         {botDone ? (
           <div className="opponent-response animate-bounce-in">
             <span>{botConfig.name} completou todos os pares!</span>
-            <strong className={roundResult && !roundResult.playerWon ? 'text-green' : 'text-red'}>
-              {roundResult && !roundResult.playerWon ? '✅ +100' : '❌ Chegou depois!'}
-            </strong>
+            {roundResult ? (
+              <strong className={roundResult.playerWon ? 'text-red' : 'text-green'}>
+                {roundResult.playerWon ? '❌ Chegou depois!' : '✅ +100'}
+              </strong>
+            ) : (
+              <strong style={{ color: 'var(--accent-orange-light)' }}>
+                ⏱️ Corra! Ainda dá tempo!
+              </strong>
+            )}
           </div>
         ) : (
           <div className="opponent-thinking">
