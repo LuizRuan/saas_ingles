@@ -60,10 +60,14 @@ describe('conquistas', () => {
 
   it('todas são alcançáveis', () => {
     const tudo = {
-      wordsStudied: 999, totalCorrect: 999, bestStreak: 99, sentencesCompleted: 99,
+      wordsStudied: 999, wordsLearned: 999, totalCorrect: 999, bestStreak: 99, sentencesCompleted: 99,
       conversationsCompleted: 99, dayStreak: 99, dailyChallengesCompleted: 99,
-      currentLevel: 10, wordsReviewed: 99, totalScore: 99999, categoriesExplored: 99,
-      shopPurchases: 9, gamesCompleted: { memory: 9, hangman: 9 },
+      currentLevel: 10, wordsReviewed: 999, totalScore: 99999, categoriesExplored: 99,
+      shopPurchases: 9,
+      gamesCompleted: {
+        memory: 9, hangman: 9, wordBuilder: 9, sentenceBuilder: 9,
+        translation: 9, fillBlanks: 9, trueFalse: 9, listening: 9, whoKnowsMore: 9,
+      },
     };
     const inalcancaveis = achievementsList.filter(a => !a.condition(tudo)).map(a => a.id);
     expect(inalcancaveis).toEqual([]);

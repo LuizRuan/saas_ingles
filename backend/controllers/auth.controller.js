@@ -1,9 +1,9 @@
 import { User } from '../models/User.js';
-import { isValidEmailFormat, isValidPassword, MIN_PASSWORD_LENGTH } from '../utils/validators.js';
+import { isValidEmailFormat, isValidPassword, isValidNickname, MIN_PASSWORD_LENGTH, MAX_NICKNAME_LENGTH } from '../utils/validators.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
 import { signSessionToken, sessionCookieOptions, clearSessionCookieOptions, SESSION_COOKIE_NAME } from '../utils/token.js';
 
-const toPublicUser = (user) => ({ id: user._id.toString(), email: user.email });
+const toPublicUser = (user) => ({ id: user._id.toString(), email: user.email, nickname: user.nickname ?? null });
 
 export const register = async (req, res) => {
   const { email, password } = req.body || {};
@@ -64,4 +64,28 @@ export const logout = (req, res) => {
 // nem dependência de banco.
 export const me = (req, res) => {
   res.status(200).json({ user: req.user });
+};
+
+// Diferente de `me`, PRECISA do banco: o apelido não vai no JWT (senão trocar
+// o apelido não refletiria em lugar nenhum até a pessoa logar de novo em 7
+// dias). requireAuth já garantiu req.user.id a partir do cookie.
+export const getProfile = async (req, res) => {
+  const user = await User.findById(req.user.id);
+  if (!user) return res.status(404).json({ error: 'Conta não encontrada.' });
+  res.status(200).json({ user: toPublicUser(user) });
+};
+
+export const updateProfile = async (req, res) => {
+  const { nickname } = req.body || {};
+
+  if (!isValidNickname(nickname)) {
+    return res.status(400).json({ error: `O apelido pode ter no máximo ${MAX_NICKNAME_LENGTH} caracteres.` });
+  }
+
+  // '' e null viram null (apagar o apelido), o resto é aparado.
+  const trimmed = nickname == null || nickname === '' ? null : String(nickname).trim();
+
+  const user = await User.findByIdAndUpdate(req.user.id, { nickname: trimmed }, { new: true });
+  if (!user) return res.status(404).json({ error: 'Conta não encontrada.' });
+  res.status(200).json({ user: toPublicUser(user) });
 };

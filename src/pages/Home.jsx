@@ -10,6 +10,7 @@ const quickLinks = [
   { name: 'Desafio Diário', desc: 'Complete o desafio do dia e mantenha sua sequência!', icon: '⚡', color: '#6366f1', path: '/daily' },
   { name: 'Conversa', desc: 'Pratique diálogos e melhore sua comunicação.', icon: '💬', color: '#ec4899', path: '/conversation' },
   { name: 'Palavras', desc: 'Aprenda novas palavras de forma divertida.', icon: '📖', color: '#10b981', path: '/my-words' },
+  { name: 'Histórias', desc: 'Leia histórias simples em inglês, clique nas palavras e veja exemplos.', icon: '📜', color: '#0ea5e9', path: '/stories' },
   { name: 'Conquistas', desc: 'Desbloqueie troféus e acompanhe sua evolução.', icon: '🏆', color: '#f59e0b', path: '/achievements' },
 ];
 

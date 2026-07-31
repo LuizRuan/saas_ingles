@@ -34,6 +34,7 @@ const WhoKnowsMore = lazy(() => import('./games/WhoKnowsMore/WhoKnowsMore'));
 const Conversation = lazy(() => import('./pages/Conversation'));
 const DailyChallenge = lazy(() => import('./pages/DailyChallenge'));
 const MyWords = lazy(() => import('./pages/MyWords'));
+const Stories = lazy(() => import('./pages/Stories'));
 const ReviewErrors = lazy(() => import('./pages/ReviewErrors'));
 const Levels = lazy(() => import('./pages/Levels'));
 const Achievements = lazy(() => import('./pages/Achievements'));
@@ -84,6 +85,7 @@ function App() {
               <Route path="/conversation" element={<Conversation />} />
               <Route path="/daily" element={<DailyChallenge />} />
               <Route path="/my-words" element={<MyWords />} />
+              <Route path="/stories" element={<Stories />} />
               <Route path="/review" element={<ReviewErrors />} />
               <Route path="/levels" element={<Levels />} />
               <Route path="/achievements" element={<Achievements />} />

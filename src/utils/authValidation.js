@@ -17,6 +17,16 @@ export const isValidPassword = (password) => String(password ?? '').length >= MI
 
 export const passwordsMatch = (password, confirmation) => password === confirmation && password !== '';
 
+// Mesma regra do backend (backend/utils/validators.js) — duplicação
+// deliberada, mesmo motivo já documentado no topo do arquivo. null/'' é
+// válido: apagar o apelido é permitido.
+export const MAX_NICKNAME_LENGTH = 20;
+export const isValidNickname = (nickname) => {
+  if (nickname == null || nickname === '') return true;
+  const trimmed = String(nickname).trim();
+  return trimmed.length >= 1 && trimmed.length <= MAX_NICKNAME_LENGTH;
+};
+
 // Domínios sugeridos ao digitar o e-mail, em ordem aproximada de frequência
 // para um público pt-BR (internacionais mais comuns + dois grandes provedores
 // brasileiros).

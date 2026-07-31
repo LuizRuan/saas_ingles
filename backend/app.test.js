@@ -94,3 +94,33 @@ describe('GET /api/auth/me', () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe('/api/auth/profile', () => {
+  const cookieValido = () => {
+    const token = jwt.sign({ sub: 'user-id-fake', email: 'ana@gmail.com' }, env.jwtSecret, { expiresIn: '7d' });
+    return `${SESSION_COOKIE_NAME}=${token}`;
+  };
+
+  it('GET rejeita sem cookie de sessão (não chega a precisar de banco)', async () => {
+    const res = await request(app).get('/api/auth/profile');
+    expect(res.status).toBe(401);
+  });
+
+  it('PATCH rejeita sem cookie de sessão', async () => {
+    const res = await request(app).patch('/api/auth/profile').send({ nickname: 'Ana' });
+    expect(res.status).toBe(401);
+  });
+
+  it('GET responde 503 com cookie válido mas sem banco conectado', async () => {
+    const res = await request(app).get('/api/auth/profile').set('Cookie', cookieValido());
+    expect(res.status).toBe(503);
+  });
+
+  it('PATCH responde 503 com cookie válido mas sem banco conectado', async () => {
+    const res = await request(app)
+      .patch('/api/auth/profile')
+      .set('Cookie', cookieValido())
+      .send({ nickname: 'Ana' });
+    expect(res.status).toBe(503);
+  });
+});

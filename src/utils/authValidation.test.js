@@ -6,6 +6,8 @@ import {
   getDomainSuggestions,
   applyEmailDomain,
   EMAIL_DOMAIN_SUGGESTIONS,
+  isValidNickname,
+  MAX_NICKNAME_LENGTH,
 } from './authValidation';
 
 describe('isValidEmailFormat', () => {
@@ -76,6 +78,30 @@ describe('getDomainSuggestions', () => {
 
   it('respeita o parâmetro max', () => {
     expect(getDomainSuggestions('ana@', EMAIL_DOMAIN_SUGGESTIONS, 2)).toHaveLength(2);
+  });
+});
+
+describe('isValidNickname', () => {
+  it('aceita vazio/nulo (apagar o apelido é permitido)', () => {
+    expect(isValidNickname(null)).toBe(true);
+    expect(isValidNickname(undefined)).toBe(true);
+    expect(isValidNickname('')).toBe(true);
+  });
+
+  it('aceita um apelido normal', () => {
+    expect(isValidNickname('Ana')).toBe(true);
+  });
+
+  it('rejeita string só de espaços', () => {
+    expect(isValidNickname('   ')).toBe(false);
+  });
+
+  it(`aceita exatamente ${MAX_NICKNAME_LENGTH} caracteres (fronteira)`, () => {
+    expect(isValidNickname('a'.repeat(MAX_NICKNAME_LENGTH))).toBe(true);
+  });
+
+  it(`rejeita ${MAX_NICKNAME_LENGTH + 1} caracteres`, () => {
+    expect(isValidNickname('a'.repeat(MAX_NICKNAME_LENGTH + 1))).toBe(false);
   });
 });
 

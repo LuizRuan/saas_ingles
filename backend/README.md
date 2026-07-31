@@ -31,6 +31,8 @@ Copie `.env.example` para `.env` para configurar de verdade:
 | `POST /api/auth/login` | Sim | Autentica, seta o cookie de sessão |
 | `POST /api/auth/logout` | Não | Limpa o cookie |
 | `GET /api/auth/me` | Não | Responde a partir do próprio JWT do cookie |
+| `GET /api/auth/profile` | Sim | `{ email, nickname }` — diferente de `/me`, precisa do banco porque o apelido não vai no JWT |
+| `PATCH /api/auth/profile` | Sim | Troca o apelido (`{ nickname }`, `null`/`''` apaga) |
 | `GET /api/health` | Não | Smoke check |
 
 ## Realtime (duelo humano de "Quem Sabe Mais?")

@@ -41,6 +41,9 @@ const Layout = ({ children }) => {
             <NavLink to="/my-words" title="Palavras" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>📖</span> Palavras
             </NavLink>
+            <NavLink to="/stories" title="Histórias" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+              <span>📜</span> Histórias
+            </NavLink>
             <NavLink to="/levels" title="Níveis" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>📊</span> Níveis
             </NavLink>

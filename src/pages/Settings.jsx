@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProgress } from '../hooks/useProgress';
 import { loadSettings, saveSettings } from '../utils/storage';
 import { THEMES, DEFAULT_THEME, applyAnimations } from '../utils/appearance';
 import { getEntryChoice, clearEntryChoice } from '../utils/entryChoice';
-import { logoutRequest } from '../utils/authClient';
+import { logoutRequest, getProfileRequest, updateProfileRequest } from '../utils/authClient';
+import { isValidNickname, MAX_NICKNAME_LENGTH } from '../utils/authValidation';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -13,6 +14,54 @@ const Settings = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [resetDone, setResetDone] = useState(false);
   const entryChoice = getEntryChoice();
+
+  // Estado REAL da conta, verificado no servidor — entryChoice é só a escolha
+  // local salva depois de um cadastro/login que pareceu funcionar; se o
+  // cookie de sessão nunca chegou a existir (ou expirou), este pedido falha
+  // com 401 e é isso que avisa a pessoa que a sessão não está de pé de
+  // verdade, em vez de a tela ficar muda sobre o problema.
+  const [profile, setProfile] = useState(null);
+  const [profileStatus, setProfileStatus] = useState('idle'); // idle | loading | loaded | error
+  const [nicknameDraft, setNicknameDraft] = useState('');
+  const [nicknameStatus, setNicknameStatus] = useState('idle'); // idle | saving | saved | error
+  const [nicknameError, setNicknameError] = useState('');
+
+  useEffect(() => {
+    if (entryChoice !== 'account') return;
+    let cancelado = false;
+    setProfileStatus('loading');
+    getProfileRequest()
+      .then(({ user }) => {
+        if (cancelado) return;
+        setProfile(user);
+        setNicknameDraft(user.nickname || '');
+        setProfileStatus('loaded');
+      })
+      .catch(() => {
+        if (!cancelado) setProfileStatus('error');
+      });
+    return () => { cancelado = true; };
+  }, [entryChoice]);
+
+  const handleSaveNickname = useCallback(async () => {
+    if (!isValidNickname(nicknameDraft)) {
+      setNicknameStatus('error');
+      setNicknameError(`O apelido pode ter no máximo ${MAX_NICKNAME_LENGTH} caracteres.`);
+      return;
+    }
+    setNicknameStatus('saving');
+    setNicknameError('');
+    try {
+      const { user } = await updateProfileRequest(nicknameDraft.trim() || null);
+      setProfile(user);
+      setNicknameDraft(user.nickname || '');
+      setNicknameStatus('saved');
+      setTimeout(() => setNicknameStatus('idle'), 2000);
+    } catch (err) {
+      setNicknameStatus('error');
+      setNicknameError(err.message || 'Não foi possível salvar. Tente novamente.');
+    }
+  }, [nicknameDraft]);
 
   const updateSetting = useCallback((key, value) => {
     const updated = { ...settings, [key]: value };
@@ -54,19 +103,78 @@ const Settings = () => {
         </div>
 
         {/* Entrar/Cadastro — ponto de entrada mobile, já que o .mobile-nav não
-            tem folga para um 6º item. No desktop o mesmo link mora em .navbar-stats. */}
-        <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
-            <div>
-              <h4>👤 Conta</h4>
-              <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>Entre ou crie uma conta para salvar seu progresso</p>
-            </div>
-            <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-              <Link to="/login" className="btn btn-secondary btn-sm">Entrar</Link>
-              <Link to="/register" className="btn btn-primary btn-sm">Cadastre-se</Link>
+            tem folga para um 6º item. No desktop o mesmo link mora em .navbar-stats.
+            Só aparece sem conta: mostrar "Entre ou crie uma conta" pra quem já
+            está logado é o tipo de mensagem contraditória que faz a pessoa achar
+            que o cadastro não funcionou mesmo quando funcionou. */}
+        {entryChoice !== 'account' && (
+          <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
+              <div>
+                <h4>👤 Conta</h4>
+                <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>Entre ou crie uma conta para salvar seu progresso</p>
+              </div>
+              <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+                <Link to="/login" className="btn btn-secondary btn-sm">Entrar</Link>
+                <Link to="/register" className="btn btn-primary btn-sm">Cadastre-se</Link>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Perfil — só existe pra quem tem conta. Busca o estado REAL no
+            servidor em vez de confiar só no entryChoice local (ver useEffect
+            acima): se a sessão não existir de verdade, isso aparece aqui em vez
+            de a tela ficar muda sobre o problema. */}
+        {entryChoice === 'account' && (
+          <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>
+            <h4 style={{ marginBottom: 'var(--space-sm)' }}>👤 Perfil</h4>
+
+            {profileStatus === 'loading' && (
+              <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>Carregando perfil…</p>
+            )}
+
+            {profileStatus === 'error' && (
+              <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>
+                Não foi possível confirmar sua conta agora. Se isso continuar aparecendo, sua sessão pode
+                não ter sido criada de verdade — tente <Link to="/login">entrar</Link> de novo.
+              </p>
+            )}
+
+            {profileStatus === 'loaded' && profile && (
+              <>
+                <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
+                  Conectado como <strong>{profile.email}</strong>
+                </p>
+                <div className="form-group">
+                  <label htmlFor="nickname-input">Apelido</label>
+                  <input
+                    id="nickname-input"
+                    type="text"
+                    value={nicknameDraft}
+                    onChange={(e) => setNicknameDraft(e.target.value)}
+                    maxLength={MAX_NICKNAME_LENGTH}
+                    placeholder="Escolha um apelido"
+                    aria-invalid={nicknameStatus === 'error'}
+                  />
+                  {nicknameStatus === 'error' && <p className="form-error">{nicknameError}</p>}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={handleSaveNickname}
+                    disabled={nicknameStatus === 'saving'}
+                  >
+                    {nicknameStatus === 'saving' ? 'Salvando…' : 'Salvar apelido'}
+                  </button>
+                  {nicknameStatus === 'saved' && (
+                    <span style={{ color: 'var(--accent-green)', fontSize: 'var(--fs-sm)' }}>✅ Salvo!</span>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Sound */}
         <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>

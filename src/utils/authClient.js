@@ -10,19 +10,21 @@
 // Sem backend rodando, toda chamada aqui rejeita com TypeError de rede — as
 // páginas tratam isso com uma mensagem genérica em vez de deixar a tela quebrar.
 
-async function postAuth(path, body) {
+async function callAuth(path, { method = 'POST', body } = {}) {
   const res = await fetch(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : undefined,
     // Necessário para o cookie httpOnly de sessão ir e voltar
     credentials: 'include',
-    body: JSON.stringify(body),
+    body: body ? JSON.stringify(body) : undefined,
   });
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Erro inesperado. Tente novamente.');
   return data;
 }
+
+const postAuth = (path, body) => callAuth(path, { method: 'POST', body });
 
 export const registerRequest = (email, password) =>
   postAuth('/api/auth/register', { email, password });
@@ -44,3 +46,11 @@ export const logoutRequest = async () => {
     await postAuth('/api/auth/logout', {});
   } catch { /* sair é sempre permitido */ }
 };
+
+// { email, nickname } de quem está logado. Usado pela tela de Perfil (dentro
+// de Configurações) para mostrar o estado real da conta, em vez de confiar só
+// na escolha local salva em entryChoice.js.
+export const getProfileRequest = () => callAuth('/api/auth/profile', { method: 'GET' });
+
+export const updateProfileRequest = (nickname) =>
+  callAuth('/api/auth/profile', { method: 'PATCH', body: { nickname } });

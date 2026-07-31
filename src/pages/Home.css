@@ -131,9 +131,12 @@
 }
 
 /* === QUICK LINKS === */
+/* auto-fill (não um repeat(N, 1fr) fixo): a contagem de cards aqui já mudou
+   uma vez (4 → 5, com Histórias) e um número fixo deixa o último card sozinho
+   numa linha quando a contagem não fecha a grade exatamente. */
 .quick-links {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: var(--space-md);
 }
 

@@ -1,0 +1,79 @@
+/* === FILTROS DE NÍVEL === */
+.story-filters {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  margin-bottom: var(--space-xl);
+}
+
+/* === GRID DE HISTÓRIAS === */
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-md);
+}
+
+.story-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.story-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.story-card-icon { font-size: 2rem; flex: none; }
+.story-card-body { flex: 1; min-width: 0; }
+.story-card-body h3 { font-size: var(--fs-base); }
+.story-card-body p { margin-top: 2px; }
+.story-card-level { flex: none; }
+
+@media (max-width: 480px) {
+  .story-grid { grid-template-columns: 1fr; }
+}
+
+/* === LEITURA === */
+.story-reader {
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+
+.story-paragraph {
+  font-size: var(--fs-lg);
+  line-height: 1.9; /* espaço extra pra o padding dos botões-palavra não apertar as linhas */
+  margin-bottom: var(--space-md);
+}
+
+.story-paragraph:last-child { margin-bottom: 0; }
+
+/* `inline`, não `inline-block`: a palavra tem que fluir junto do texto e
+   quebrar linha nos espaços de sempre, como se fosse texto comum. Não usa
+   .btn porque essa classe força pílula/padding, o que faria cada palavra
+   parecer um chip e quebraria a leitura. */
+.story-word {
+  display: inline;
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 1px 2px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.story-word:hover,
+.story-word:focus-visible {
+  background: var(--bg-purple-subtle);
+  color: var(--accent-primary);
+}
+
+.story-hint { margin-top: var(--space-md); }
