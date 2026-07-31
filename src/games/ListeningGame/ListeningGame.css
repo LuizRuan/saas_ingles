@@ -1,2 +1,41 @@
 .listen-card { padding: var(--space-2xl); text-align: center; margin-bottom: var(--space-xl); }
 .listen-buttons { display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; }
+
+/* Options — mesma aparência do TranslationQuiz */
+.lg-options { display: flex; flex-direction: column; gap: var(--space-sm); margin-bottom: var(--space-lg); }
+
+.lg-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+  font-size: var(--fs-base);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xs);
+  transition: all var(--transition-fast);
+  animation: fadeInUp 0.3s ease-out both;
+  width: 100%;
+}
+.lg-option:hover:not(.correct):not(.wrong):not(.dimmed) { border-color: var(--accent-primary); background: var(--bg-purple-subtle); }
+.lg-option.correct { border-color: var(--accent-green); background: var(--bg-green-subtle); color: var(--accent-green-dark); }
+.lg-option.wrong   { border-color: var(--accent-red);   background: var(--bg-red-subtle);   animation: shake 0.5s ease-out; }
+.lg-option.dimmed  { opacity: 0.4; }
+
+.lg-option-letter {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-purple-subtle);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--accent-primary);
+}

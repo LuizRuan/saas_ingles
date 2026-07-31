@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom';
 import { useProgress } from '../../hooks/useProgress';
 import { useDuelSocket } from '../../hooks/useDuelSocket';
 import { usePresence } from '../../hooks/usePresence';
-import { getRandomWords, shuffleArray, words } from '../../data/words';
+import { shuffleArray, words } from '../../data/words';
 import { msLeft, secondsLeft, barWidthPct } from '../../utils/duelClock';
 import { rewardFor, isRewarded } from '../../utils/duelReward';
 import { presenceLabel } from '../../utils/presenceLabel';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
+import DuelHangman from './games/DuelHangman';
+import DuelMemory  from './games/DuelMemory';
+import DuelBotGame from './games/DuelBotGame';
 import './WhoKnowsMore.css';
 
 const BOT_DIFFICULTIES = [
@@ -107,6 +110,14 @@ const WhoKnowsMore = () => {
   // aberta reexecutava o efeito e pagava estrelas de novo.
   const awardedMatchRef = useRef(null);
 
+  // Refs para evitar closure stale no handleDuelGameRoundEnd
+  const playerScoreRef    = useRef(0);
+  const botScoreRef       = useRef(0);
+  const currentRoundRef   = useRef(0);
+  const roundQuestionsRef = useRef([]);
+  const botConfigRef      = useRef(BOT_DIFFICULTIES[1]);
+  const setupRoundRef     = useRef(null); // preenchido após setupRound ser definido
+
   const isHuman = mode === 'human';
 
   // ============ MODO BOT (inalterado no comportamento) ============
@@ -118,14 +129,87 @@ const WhoKnowsMore = () => {
     setShowBotSetupModal(true);
   };
 
+  // ─── Callback chamado por DuelHangman / DuelMemory quando a rodada termina ──
+  const handleDuelGameRoundEnd = ({ playerScoreDelta, botScoreDelta }) => {
+    // Acumula via refs para evitar stale closure
+    playerScoreRef.current  += playerScoreDelta;
+    botScoreRef.current     += botScoreDelta;
+    setPlayerScore(playerScoreRef.current);
+    setBotScore(botScoreRef.current);
+
+    const nextRound = currentRoundRef.current + 1;
+    if (nextRound >= TOTAL_ROUNDS) {
+      // Fim de jogo — usa refs para ter pontuação final correta
+      if (timerRef.current)    clearInterval(timerRef.current);
+      if (botTimerRef.current) clearTimeout(botTimerRef.current);
+      const iWon  = playerScoreRef.current > botScoreRef.current;
+      const tie   = playerScoreRef.current === botScoreRef.current;
+      const bonus = rewardFor({ iWon, tie, reason: 'completed' });
+      setEarnedBonus(bonus);
+      completeGame('whoKnowsMore');
+      addPoints(bonus);
+      if (iWon) playAchievement();
+      else if (tie) playCorrect();
+      else playWrong();
+      setGameState('gameover');
+    } else {
+      currentRoundRef.current = nextRound;
+      setCurrentRound(nextRound);
+      setupRoundRef.current(nextRound, roundQuestionsRef.current, botConfigRef.current, true); // isBotMode
+    }
+  };
+
   const startBotGame = () => {
     setShowBotSetupModal(false);
     setMode('bot');
 
+    // Reset refs de pontuação para nova partida
+    playerScoreRef.current  = 0;
+    botScoreRef.current     = 0;
+    currentRoundRef.current = 0;
+
     const diffObj = BOT_DIFFICULTIES.find(d => d.id === selectedDifficulty) || BOT_DIFFICULTIES[1];
     setBotConfig(diffObj);
+    botConfigRef.current = diffObj;
 
-    const selectedWords = getRandomWords(TOTAL_ROUNDS);
+    // ── Modo Memória: cada rodada tem um grupo de 4 palavras ──────────────────
+    if (selectedGameType === 'memory') {
+      const pool = shuffleArray([...words]);
+      const memQuestions = Array.from({ length: TOTAL_ROUNDS }, (_, i) => ({
+        type: 'memory',
+        wordGroup: pool.slice(i * 4, (i + 1) * 4),
+        word: pool[i * 4], // campo genérico necessário para cheques existentes
+        correctAnswer: null,
+        options: [],
+      }));
+      roundQuestionsRef.current = memQuestions;
+      setRoundQuestions(memQuestions);
+      setCurrentRound(0);
+      setPlayerScore(0);
+      setBotScore(0);
+      setEarnedBonus(0);
+      setGameState('playing');
+      setupRoundRef.current(0, memQuestions, diffObj, true); // isBotMode=true
+      return;
+    }
+
+    // Filtra o pool de palavras de acordo com os campos exigidos pelo tipo de jogo
+    const wordPool = (() => {
+      switch (selectedGameType) {
+        case 'hangman':
+          return shuffleArray(words.filter(w => w.tip && w.tip.trim()));
+        case 'sentenceBuilder':
+          return shuffleArray(words.filter(w => w.examplePt && w.examplePt.trim()));
+        case 'fillBlanks':
+          return shuffleArray(words.filter(w => w.example && w.example.trim() && !w.en.includes(' ')));
+        case 'wordBuilder':
+          return shuffleArray(words.filter(w => !w.en.includes(' ') && w.en.length >= 3));
+        default:
+          return shuffleArray([...words]);
+      }
+    })();
+
+    const selectedWords = wordPool.slice(0, TOTAL_ROUNDS);
     const questions = selectedWords.map((wordObj) => {
       const otherWords = words.filter(w => w.en !== wordObj.en);
 
@@ -145,7 +229,7 @@ const WhoKnowsMore = () => {
           if (scrambled === letters.join(' ') && letters.length > 1) {
             scrambled = [...letters].reverse().join(' ');
           }
-          const wrongWords = shuffleArray(otherWords).slice(0, 3).map(w => w.en);
+          const wrongWords = shuffleArray(otherWords.filter(w => !w.en.includes(' '))).slice(0, 3).map(w => w.en);
           return {
             type: 'wordBuilder', word: wordObj, scrambledText: scrambled,
             correctAnswer: wordObj.en,
@@ -153,7 +237,7 @@ const WhoKnowsMore = () => {
           };
         }
         case 'sentenceBuilder': {
-          const wrongSentences = shuffleArray(otherWords.filter(w => w.examplePt)).slice(0, 3).map(w => w.examplePt);
+          const wrongSentences = shuffleArray(otherWords.filter(w => w.examplePt && w.examplePt !== wordObj.examplePt)).slice(0, 3).map(w => w.examplePt);
           return {
             type: 'sentenceBuilder', word: wordObj,
             correctAnswer: wordObj.examplePt,
@@ -167,7 +251,7 @@ const WhoKnowsMore = () => {
             const firstWord = wordObj.en.split(' ')[0];
             blanked = wordObj.example.replace(new RegExp(firstWord, 'gi'), '_______');
           }
-          const wrongChoices = shuffleArray(otherWords).slice(0, 3).map(w => w.en);
+          const wrongChoices = shuffleArray(otherWords.filter(w => !w.en.includes(' '))).slice(0, 3).map(w => w.en);
           return {
             type: 'fillBlanks', word: wordObj, blankedSentence: blanked,
             correctAnswer: wordObj.en,
@@ -203,16 +287,17 @@ const WhoKnowsMore = () => {
       }
     });
 
+    roundQuestionsRef.current = questions;
     setRoundQuestions(questions);
     setCurrentRound(0);
     setPlayerScore(0);
     setBotScore(0);
     setEarnedBonus(0);
     setGameState('playing');
-    setupRound(0, questions, diffObj);
+    setupRoundRef.current(0, questions, diffObj, true); // isBotMode=true
   };
 
-  const setupRound = (roundIdx, questionsList = roundQuestions, currentBotConfig = botConfig) => {
+  const setupRound = (roundIdx, questionsList = roundQuestions, currentBotConfig = botConfig, isBotMode = false) => {
     const q = questionsList[roundIdx];
     setCurrentQuestion(q);
     setPlayerAnswered(false);
@@ -222,10 +307,15 @@ const WhoKnowsMore = () => {
     setBotIsCorrect(false);
     setTimeLeft(10);
 
-    if (q.type === 'listening') speakRef.current(q.word.en);
-
     if (timerRef.current) clearInterval(timerRef.current);
     if (botTimerRef.current) clearTimeout(botTimerRef.current);
+
+    // No modo bot, DuelHangman/DuelMemory/DuelBotGame gerenciam os próprios timers
+    // e o speak (Listening). Apenas o modo humano usa os timers centralizados aqui.
+    if (isBotMode) return;
+
+    // Modo humano: fala a palavra para Listening e inicia countdown + bot
+    if (q.type === 'listening') speakRef.current(q.word.en);
 
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
@@ -242,6 +332,7 @@ const WhoKnowsMore = () => {
     const botDelay = Math.floor(Math.random() * delayRange) + currentBotConfig.minDelay;
     botTimerRef.current = setTimeout(() => triggerBotAnswer(q, currentBotConfig), botDelay);
   };
+  setupRoundRef.current = setupRound;
 
   const triggerBotAnswer = (q, currentBotConfig) => {
     if (!q) return;
@@ -506,6 +597,66 @@ const WhoKnowsMore = () => {
 
         {/* ================= PARTIDA ================= */}
         {gameState === 'playing' && activeQuestion && !matchLost && (
+          <>
+            {/* ── Bot + Forca → DuelHangman (UI real da forca) ────────────────── */}
+            {!isHuman && activeQuestion.type === 'hangman' && (
+              <DuelHangman
+                key={currentRound}
+                word={currentQuestion.word}
+                botConfig={botConfig}
+                roundIndex={currentRound}
+                totalRounds={TOTAL_ROUNDS}
+                playerScore={playerScore}
+                botScore={botScore}
+                playerAvatar={progress.selectedAvatar || '👤'}
+                onRoundEnd={handleDuelGameRoundEnd}
+                confirmExit={confirmExit}
+                onRequestExit={() => setConfirmExit(true)}
+                onConfirmExit={handleExitDuel}
+                onCancelExit={() => setConfirmExit(false)}
+              />
+            )}
+
+            {/* ── Bot + Memória → DuelMemory (grade de cartas real) ────────────── */}
+            {!isHuman && activeQuestion.type === 'memory' && (
+              <DuelMemory
+                key={currentRound}
+                words={currentQuestion.wordGroup}
+                botConfig={botConfig}
+                roundIndex={currentRound}
+                totalRounds={TOTAL_ROUNDS}
+                playerScore={playerScore}
+                botScore={botScore}
+                playerAvatar={progress.selectedAvatar || '👤'}
+                onRoundEnd={handleDuelGameRoundEnd}
+                confirmExit={confirmExit}
+                onRequestExit={() => setConfirmExit(true)}
+                onConfirmExit={handleExitDuel}
+                onCancelExit={() => setConfirmExit(false)}
+              />
+            )}
+
+            {/* ── Bot + outros tipos → DuelBotGame (UI real de cada jogo) ─────── */}
+            {!isHuman && !['hangman', 'memory'].includes(activeQuestion.type) && (
+              <DuelBotGame
+                key={currentRound}
+                question={currentQuestion}
+                botConfig={botConfig}
+                roundIndex={currentRound}
+                totalRounds={TOTAL_ROUNDS}
+                playerScore={playerScore}
+                botScore={botScore}
+                playerAvatar={progress.selectedAvatar || '👤'}
+                onRoundEnd={handleDuelGameRoundEnd}
+                confirmExit={confirmExit}
+                onRequestExit={() => setConfirmExit(true)}
+                onConfirmExit={handleExitDuel}
+                onCancelExit={() => setConfirmExit(false)}
+              />
+            )}
+
+            {/* ── UI de múltipla escolha — exclusivo para o modo humano (PvP) ── */}
+            {isHuman && (
           <div className="duel-match-container animate-fade-in-up">
             {/* Saída — antes esta tela não tinha nenhuma forma de sair, então
                 uma partida travada só saía navegando pelo navegador. */}
@@ -522,6 +673,7 @@ const WhoKnowsMore = () => {
                 <button className="btn btn-ghost btn-sm" onClick={() => setConfirmExit(true)}>✕ Sair da partida</button>
               )}
             </div>
+
 
             <div className="duel-scoreboard glass-card">
               <div className="player-profile player-profile--you">
@@ -697,7 +849,10 @@ const WhoKnowsMore = () => {
               )}
             </div>
           </div>
+            )}
+          </>
         )}
+
 
         {/* ========= CONEXÃO PERDIDA (antes: tela congelada sem saída) ========= */}
         {matchLost && (

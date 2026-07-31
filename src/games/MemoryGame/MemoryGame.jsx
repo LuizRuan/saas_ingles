@@ -226,7 +226,7 @@ const MemoryGame = () => {
               <h3 style={{ textAlign: 'center', marginBottom: 'var(--space-md)', color: 'var(--accent-green)' }}>
                 ✅ Par encontrado!
               </h3>
-              <WordExplanation word={currentMatch} />
+              <WordExplanation word={currentMatch} showTip={false} />
               <button
                 className="btn btn-primary"
                 onClick={dismissExplanation}

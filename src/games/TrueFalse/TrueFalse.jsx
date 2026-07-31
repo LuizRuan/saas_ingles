@@ -217,7 +217,7 @@ const TrueFalse = () => {
               </p>
             )}
 
-            {getWordData() && <WordExplanation word={getWordData()} />}
+            {getWordData() && <WordExplanation word={getWordData()} showTip={false} />}
             
             <button className="btn btn-primary" onClick={nextRound} style={{ width: '100%', marginTop: 'var(--space-md)' }}>
               Próxima →

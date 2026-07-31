@@ -135,17 +135,18 @@ const ListeningGame = () => {
         </div>
 
         {/* Options */}
-        <div className="tq-options">
+        <div className="lg-options">
           {options.map((word, i) => {
-            let cls = 'tq-option glass-card';
+            let cls = 'lg-option';
             if (feedback) {
               if (word.en === current.en) cls += ' correct';
               else if (word === selected) cls += ' wrong';
               else cls += ' dimmed';
             }
             return (
-              <button key={i} className={cls} onClick={() => handleSelect(word)}>
-                <span className="tq-option-letter">{String.fromCharCode(65 + i)}</span>
+              <button key={i} className={cls} onClick={() => handleSelect(word)}
+                style={{ animationDelay: `${i * 0.05}s` }}>
+                <span className="lg-option-letter">{String.fromCharCode(65 + i)}</span>
                 <span>{word.en} — {word.pt}</span>
               </button>
             );
@@ -158,7 +159,7 @@ const ListeningGame = () => {
               color: feedback === 'correct' ? 'var(--accent-green)' : 'var(--accent-orange)' }}>
               {feedback === 'correct' ? '✅ Correto!' : '❌ A palavra era: ' + current.en}
             </p>
-            <WordExplanation word={current} />
+            <WordExplanation word={current} showTip={false} />
             <button className="btn btn-primary" onClick={nextRound} style={{ width: '100%', marginTop: 'var(--space-md)' }}>
               Próxima →
             </button>

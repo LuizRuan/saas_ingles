@@ -10,12 +10,14 @@ import { presenceRouter } from './routes/presence.routes.js';
 // precisar de uma porta real, e reutilizável por server.js.
 export const app = express();
 
-// No Render (e em qualquer PaaS) o TLS termina num balanceador, então
-// req.ip seria o IP DELE — o mesmo para todos os visitantes. Sem isto, o
-// apiLimiter (300 req/15min por IP) trata o planeta inteiro como um usuário só
-// e ~10 pessoas simultâneas esgotam a cota. `1` = confia num único proxy à
-// frente, que é a topologia do Render; não usar `true`, que aceitaria
-// X-Forwarded-For forjado por qualquer cliente.
+// Continua valendo para req.protocol/req.secure (o TLS termina no balanceador
+// do Render, então sem isto o Express acharia que o pedido chegou em http).
+//
+// NÃO é mais a fonte da chave do limitador de taxa: existem duas topologias com
+// número de saltos diferente — direto no Render são 3, passando pela Vercel são
+// 4 — e um único número aqui não serve para as duas. Quem resolve o IP do
+// cliente agora é utils/clientIp.js, contando da direita para a esquerda.
+// Nunca trocar por `true`: aceitaria X-Forwarded-For forjado por qualquer um.
 app.set('trust proxy', 1);
 
 app.use(securityHeaders);
@@ -30,21 +32,6 @@ app.use('/api/auth', authRouter);
 app.use('/api/presence', presenceRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
-
-// TEMPORÁRIO — medir a cadeia de proxies real (Vercel -> balanceador do Render)
-// para escolher o valor certo de 'trust proxy'. Devolve só dados do próprio
-// pedido de quem chama, nada de outro usuário. REMOVER depois da medição.
-app.get('/api/_debug/ip', (req, res) => {
-  res.json({
-    ip: req.ip,
-    ips: req.ips,
-    xff: req.headers['x-forwarded-for'] || null,
-    xRealIp: req.headers['x-real-ip'] || null,
-    xVercel: req.headers['x-vercel-forwarded-for'] || null,
-    host: req.headers.host || null,
-    trustProxy: app.get('trust proxy'),
-  });
-});
 
 // Sempre por último.
 app.use(errorHandler);

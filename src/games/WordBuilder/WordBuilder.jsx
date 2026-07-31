@@ -251,7 +251,7 @@ const WordBuilder = () => {
                 Boa tentativa! Vamos aprender essa palavra.
               </p>
             )}
-            <WordExplanation word={currentWord} />
+            <WordExplanation word={currentWord} showTip={false} />
             <button className="btn btn-primary" onClick={nextRound}
               style={{ width: '100%', marginTop: 'var(--space-md)' }}>
               Próxima palavra →

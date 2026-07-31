@@ -1,6 +1,23 @@
 import rateLimit from 'express-rate-limit';
+import { resolveClientIp } from '../utils/clientIp.js';
 
-const baseOptions = { standardHeaders: true, legacyHeaders: false };
+// `keyGenerator` próprio em vez do req.ip padrão: com a Vercel proxeando /api/*
+// para cá, são DOIS proxies à frente e o `trust proxy: 1` do app.js resolvia
+// req.ip como o IP de saída da Vercel — igual para todo visitante do planeta.
+// Efeito medido em produção: os limites viraram um balde único e compartilhado.
+// Com 10 pings/min de presença e ~2 pings por aba, TRÊS pessoas no site
+// quebravam o contador de online para todas; e 10 tentativas de login erradas
+// trancavam o login do site inteiro por 15 minutos. Ver utils/clientIp.js.
+//
+// `validate.trustProxy: false` desliga só o aviso do express-rate-limit sobre
+// confiar em proxy — ele checa o `trust proxy` do Express, que aqui deixou de
+// ser a fonte da chave justamente por não dar conta das duas topologias.
+const baseOptions = {
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: resolveClientIp,
+  validate: { trustProxy: false },
+};
 
 // Limites por IP. Números pensados para uso humano normal (ninguém cria 5
 // contas por hora nem tenta logar 10 vezes em 15 minutos de propósito), mas
