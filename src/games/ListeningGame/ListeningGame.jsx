@@ -108,7 +108,7 @@ const ListeningGame = () => {
         <div className="game-header animate-fade-in">
           <div className="game-title">
             <Link to="/games" className="btn btn-ghost btn-sm">←</Link>
-            <span className="icon">🎧</span>
+            <img src="/listening-icon.webp" alt="" className="icon" style={{ width: '1.25rem', height: '1.25rem', borderRadius: 'var(--radius-sm)' }} />
             <h2>Escuta</h2>
           </div>
           <div className="game-score">

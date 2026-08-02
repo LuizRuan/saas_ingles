@@ -92,7 +92,7 @@ const TranslationQuiz = () => {
         <div className="game-header animate-fade-in">
           <div className="game-title">
             <Link to="/games" className="btn btn-ghost btn-sm">←</Link>
-            <span className="icon">🔄</span>
+            <img src="/translation-icon.webp" alt="" className="icon" style={{ width: '1.25rem', height: '1.25rem', borderRadius: 'var(--radius-sm)' }} />
             <h2>Tradução</h2>
             <span className="badge badge-pink">{current.direction === 'en-pt' ? '🇺🇸→🇧🇷' : '🇧🇷→🇺🇸'}</span>
           </div>
