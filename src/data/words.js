@@ -455,6 +455,140 @@ export const words = [
   { en: "No problem", pt: "Sem problema", category: "frases", pronunciation: "nôu próblem", example: "Thank you! No problem!", examplePt: "Obrigado(a)! Sem problema!", level: 7, tip: "A casual reply to 'thank you' or 'sorry'. Shows no inconvenience was caused." },
   { en: "I need help", pt: "Eu preciso de ajuda", category: "frases", pronunciation: "ái níd rélp", example: "I need help with my homework.", examplePt: "Eu preciso de ajuda com minha lição.", level: 7, tip: "Uses 'need' + noun. A direct and polite way to ask for assistance." },
   { en: "It's time to go", pt: "É hora de ir", category: "frases", pronunciation: "its táim tu gôu", example: "It's late, it's time to go.", examplePt: "Está tarde, é hora de ir.", level: 7, tip: "'It's time to' + verb. Signals that you need to leave or start something." },
+
+  // ===== MAIS CUMPRIMENTOS (Greetings) - Level 1 =====
+  { en: "Take it easy", pt: "Vai com calma", category: "cumprimentos", pronunciation: "têik it ízi", example: "Don't worry, take it easy.", examplePt: "Não se preocupe, vai com calma.", level: 1, tip: "A friendly way to say relax or don't stress. Often used as a casual goodbye too." },
+  { en: "See you tomorrow", pt: "Até amanhã", category: "cumprimentos", pronunciation: "sí iú tumórou", example: "Bye! See you tomorrow.", examplePt: "Tchau! Até amanhã.", level: 1, tip: "A specific farewell for when you know exactly when you'll meet again." },
+  { en: "See you soon", pt: "Até logo", category: "cumprimentos", pronunciation: "sí iú sún", example: "See you soon, take care!", examplePt: "Até logo, se cuida!", level: 1, tip: "Used when you're not sure exactly when, but you expect to meet again soon." },
+  { en: "What's up?", pt: "E aí? / Tudo bem?", category: "cumprimentos", pronunciation: "uóts âp", example: "Hey! What's up?", examplePt: "Ei! E aí?", level: 1, tip: "A very casual greeting between friends, not a real question about the sky!" },
+  { en: "Take care", pt: "Se cuida", category: "cumprimentos", pronunciation: "têik quér", example: "Goodbye, take care!", examplePt: "Tchau, se cuida!", level: 1, tip: "A warm way to say goodbye, showing you care about the other person." },
+  { en: "Good luck", pt: "Boa sorte", category: "cumprimentos", pronunciation: "gud lâk", example: "Good luck on your test!", examplePt: "Boa sorte na sua prova!", level: 1, tip: "Said before something important happens, like a test or a big decision." },
+  { en: "Congratulations", pt: "Parabéns", category: "cumprimentos", pronunciation: "congrátiuléichons", example: "Congratulations on your new job!", examplePt: "Parabéns pelo seu novo emprego!", level: 1, tip: "Said to celebrate someone's achievement. Often shortened to 'Congrats!'" },
+
+  // ===== MAIS NÚMEROS (Numbers) - Level 1 =====
+  { en: "Eleven", pt: "Onze", category: "numeros", pronunciation: "iléven", example: "I am eleven years old.", examplePt: "Eu tenho onze anos.", level: 1, tip: "The first 'teen'-range number that doesn't actually end in '-teen'." },
+  { en: "Twelve", pt: "Doze", category: "numeros", pronunciation: "tuélv", example: "There are twelve months in a year.", examplePt: "Há doze meses em um ano.", level: 1, tip: "A dozen eggs means twelve eggs!" },
+  { en: "Twenty", pt: "Vinte", category: "numeros", pronunciation: "tuénti", example: "She is twenty years old.", examplePt: "Ela tem vinte anos.", level: 1, tip: "The first number formed by combining a 'ty' ending with a digit." },
+  { en: "Thirty", pt: "Trinta", category: "numeros", pronunciation: "thârti", example: "The bus arrives in thirty minutes.", examplePt: "O ônibus chega em trinta minutos.", level: 1, tip: "Half an hour has this many minutes." },
+  { en: "Fifty", pt: "Cinquenta", category: "numeros", pronunciation: "fífti", example: "He has fifty dollars.", examplePt: "Ele tem cinquenta dólares.", level: 1, tip: "Halfway to one hundred." },
+  { en: "Hundred", pt: "Cem", category: "numeros", pronunciation: "hândred", example: "I have one hundred stars.", examplePt: "Eu tenho cem estrelas.", level: 1, tip: "Always follows 'a' or 'one': 'a hundred', not just 'hundred'." },
+  { en: "Thousand", pt: "Mil", category: "numeros", pronunciation: "tháuzend", example: "The city has a thousand shops.", examplePt: "A cidade tem mil lojas.", level: 1, tip: "One thousand is written as 1,000 in English, with a comma, not a period." },
+
+  // ===== MAIS CORES (Colors) - Level 1 =====
+  { en: "Silver", pt: "Prateado", category: "cores", pronunciation: "sílver", example: "She has a silver necklace.", examplePt: "Ela tem um colar prateado.", level: 1, tip: "The color of the metal used in coins and jewelry." },
+  { en: "Cream", pt: "Cor de creme", category: "cores", pronunciation: "crím", example: "The walls are cream.", examplePt: "As paredes são cor de creme.", level: 1, tip: "A soft, warm shade of white, like the color of fresh cream." },
+  { en: "Beige", pt: "Bege", category: "cores", pronunciation: "bêij", example: "He wears a beige coat.", examplePt: "Ele usa um casaco bege.", level: 1, tip: "A pale sandy-brown color, popular for walls and furniture." },
+  { en: "Turquoise", pt: "Turquesa", category: "cores", pronunciation: "târcoiz", example: "The sea looks turquoise here.", examplePt: "O mar parece turquesa aqui.", level: 1, tip: "Named after the blue-green gemstone. A mix of blue and green." },
+  { en: "Violet", pt: "Violeta", category: "cores", pronunciation: "váiolet", example: "The flower is violet.", examplePt: "A flor é violeta.", level: 1, tip: "A deep purple, like the color of the violet flower." },
+  { en: "Light blue", pt: "Azul claro", category: "cores", pronunciation: "láit blú", example: "I painted my room light blue.", examplePt: "Eu pintei meu quarto de azul claro.", level: 1, tip: "Two words. Add 'light' or 'dark' before any color to describe its shade." },
+
+  // ===== MAIS ANIMAIS (Animals) - Level 2 =====
+  { en: "Tiger", pt: "Tigre", category: "animais", pronunciation: "táiguer", example: "The tiger has orange stripes.", examplePt: "O tigre tem listras laranjas.", level: 2, tip: "The largest wild cat in the world, known for its striped coat." },
+  { en: "Wolf", pt: "Lobo", category: "animais", pronunciation: "uúlf", example: "The wolf howls at night.", examplePt: "O lobo uiva à noite.", level: 2, tip: "A wild relative of the dog that lives and hunts in packs." },
+  { en: "Fox", pt: "Raposa", category: "animais", pronunciation: "fóks", example: "The fox is clever.", examplePt: "A raposa é esperta.", level: 2, tip: "Known in stories worldwide for being clever and sneaky." },
+  { en: "Deer", pt: "Cervo", category: "animais", pronunciation: "díer", example: "The deer ran into the forest.", examplePt: "O cervo correu para a floresta.", level: 2, tip: "Plural is also 'deer' — no extra 's' needed!" },
+  { en: "Sheep", pt: "Ovelha", category: "animais", pronunciation: "chíp", example: "The sheep gives us wool.", examplePt: "A ovelha nos dá lã.", level: 2, tip: "Singular and plural are the same word: one sheep, two sheep." },
+  { en: "Goat", pt: "Cabra", category: "animais", pronunciation: "gôut", example: "The goat eats grass.", examplePt: "A cabra come grama.", level: 2, tip: "A farm animal known for eating almost anything and climbing well." },
+  { en: "Mouse", pt: "Rato", category: "animais", pronunciation: "máus", example: "The mouse is very small.", examplePt: "O rato é muito pequeno.", level: 2, tip: "Plural is 'mice', not 'mouses' — an irregular plural!" },
+  { en: "Shark", pt: "Tubarão", category: "animais", pronunciation: "chárk", example: "The shark swims in the ocean.", examplePt: "O tubarão nada no oceano.", level: 2, tip: "A powerful ocean predator with rows of sharp teeth." },
+
+  // ===== MAIS COMIDAS (Food) - Level 2 =====
+  { en: "Butter", pt: "Manteiga", category: "comidas", pronunciation: "bâter", example: "I put butter on my bread.", examplePt: "Eu passo manteiga no meu pão.", level: 2, tip: "Made from cream. Spread it on toast for breakfast." },
+  { en: "Cookie", pt: "Biscoito", category: "comidas", pronunciation: "cúki", example: "She baked a chocolate cookie.", examplePt: "Ela assou um biscoito de chocolate.", level: 2, tip: "In British English, a similar sweet snack is often called a 'biscuit'." },
+  { en: "Chocolate", pt: "Chocolate", category: "comidas", pronunciation: "tchóclet", example: "I love chocolate cake.", examplePt: "Eu amo bolo de chocolate.", level: 2, tip: "Made from cacao beans. One of the most popular flavors in the world." },
+  { en: "Vegetable", pt: "Legume / Verdura", category: "comidas", pronunciation: "védjtabol", example: "Carrots are a healthy vegetable.", examplePt: "Cenouras são um legume saudável.", level: 2, tip: "A general word for edible plants like carrots, potatoes, and lettuce." },
+  { en: "Potato", pt: "Batata", category: "comidas", pronunciation: "potêitou", example: "I like fried potatoes.", examplePt: "Eu gosto de batatas fritas.", level: 2, tip: "Plural is 'potatoes', with an 'es' — an exception to the usual rule." },
+  { en: "Tomato", pt: "Tomate", category: "comidas", pronunciation: "tomêitou", example: "The tomato is red.", examplePt: "O tomate é vermelho.", level: 2, tip: "Botanically a fruit, but used as a vegetable in cooking." },
+  { en: "Onion", pt: "Cebola", category: "comidas", pronunciation: "ânien", example: "This soup has onion in it.", examplePt: "Essa sopa tem cebola nela.", level: 2, tip: "Cutting one often makes people cry because of the gases it releases." },
+  { en: "Garlic", pt: "Alho", category: "comidas", pronunciation: "gárlic", example: "Garlic gives great flavor to food.", examplePt: "O alho dá um ótimo sabor à comida.", level: 2, tip: "A strong-smelling ingredient used in cooking all over the world." },
+
+  // ===== MAIS BEBIDAS (Drinks) - Level 2 =====
+  { en: "Wine", pt: "Vinho", category: "bebidas", pronunciation: "uáin", example: "They drank wine at dinner.", examplePt: "Eles beberam vinho no jantar.", level: 2, tip: "Made from fermented grapes. Comes in red, white, and rosé." },
+  { en: "Beer", pt: "Cerveja", category: "bebidas", pronunciation: "bír", example: "He ordered a cold beer.", examplePt: "Ele pediu uma cerveja gelada.", level: 2, tip: "One of the oldest and most popular alcoholic drinks in the world." },
+  { en: "Lemonade", pt: "Limonada", category: "bebidas", pronunciation: "lémonêid", example: "We made lemonade in summer.", examplePt: "Fizemos limonada no verão.", level: 2, tip: "A refreshing drink made from lemon juice, water, and sugar." },
+  { en: "Smoothie", pt: "Vitamina", category: "bebidas", pronunciation: "smúdi", example: "She drinks a banana smoothie.", examplePt: "Ela toma uma vitamina de banana.", level: 2, tip: "A thick drink made by blending fruit, similar to a Brazilian 'vitamina'." },
+  { en: "Hot chocolate", pt: "Chocolate quente", category: "bebidas", pronunciation: "rót tchóclet", example: "I drink hot chocolate in winter.", examplePt: "Eu bebo chocolate quente no inverno.", level: 2, tip: "Two words. A warm, sweet drink perfect for cold days." },
+  { en: "Coconut water", pt: "Água de coco", category: "bebidas", pronunciation: "côucanât uóter", example: "Coconut water is refreshing.", examplePt: "Água de coco é refrescante.", level: 2, tip: "A natural drink that comes straight from a young coconut." },
+
+  // ===== MAIS FAMÍLIA (Family) - Level 3 =====
+  { en: "Grandparents", pt: "Avós", category: "familia", pronunciation: "grénperents", example: "I visit my grandparents every week.", examplePt: "Eu visito meus avós toda semana.", level: 3, tip: "A general word for grandmother and grandfather together." },
+  { en: "Nephew", pt: "Sobrinho", category: "familia", pronunciation: "néfiu", example: "My nephew is very funny.", examplePt: "Meu sobrinho é muito engraçado.", level: 3, tip: "The son of your brother or sister." },
+  { en: "Niece", pt: "Sobrinha", category: "familia", pronunciation: "nís", example: "My niece loves to sing.", examplePt: "Minha sobrinha ama cantar.", level: 3, tip: "The daughter of your brother or sister." },
+  { en: "Stepfather", pt: "Padrasto", category: "familia", pronunciation: "stépfâder", example: "My stepfather is very kind.", examplePt: "Meu padrasto é muito gentil.", level: 3, tip: "'Step-' before a family word means it's through marriage, not blood." },
+  { en: "Stepmother", pt: "Madrasta", category: "familia", pronunciation: "stépmâder", example: "Her stepmother cooks well.", examplePt: "A madrasta dela cozinha bem.", level: 3, tip: "Not always the villain from fairy tales — just a mother by marriage!" },
+  { en: "Twin", pt: "Gêmeo(a)", category: "familia", pronunciation: "tuín", example: "She has a twin sister.", examplePt: "Ela tem uma irmã gêmea.", level: 3, tip: "Twins are born on the same day, from the same pregnancy." },
+  { en: "Relative", pt: "Parente", category: "familia", pronunciation: "rélativ", example: "All my relatives came to the party.", examplePt: "Todos os meus parentes vieram à festa.", level: 3, tip: "A general word for anyone in your family, close or distant." },
+
+  // ===== MAIS CASA (House) - Level 3 =====
+  { en: "Balcony", pt: "Varanda / Sacada", category: "casa", pronunciation: "bálconi", example: "I like to sit on the balcony.", examplePt: "Eu gosto de sentar na varanda.", level: 3, tip: "A small outdoor platform attached to an upper floor of a house." },
+  { en: "Backyard", pt: "Quintal", category: "casa", pronunciation: "békiard", example: "The kids play in the backyard.", examplePt: "As crianças brincam no quintal.", level: 3, tip: "One word. The outdoor area behind a house." },
+  { en: "Fence", pt: "Cerca", category: "casa", pronunciation: "féns", example: "There is a fence around the garden.", examplePt: "Há uma cerca ao redor do jardim.", level: 3, tip: "A structure that marks the border of a property." },
+  { en: "Ceiling", pt: "Teto", category: "casa", pronunciation: "síling", example: "The lamp hangs from the ceiling.", examplePt: "A luminária pende do teto.", level: 3, tip: "The inside top surface of a room — don't confuse with 'roof', the outside!" },
+  { en: "Floor", pt: "Chão / Piso", category: "casa", pronunciation: "flór", example: "The cat sleeps on the floor.", examplePt: "O gato dorme no chão.", level: 3, tip: "Also means a level of a building, like 'first floor'." },
+  { en: "Shower", pt: "Chuveiro", category: "casa", pronunciation: "cháuer", example: "I take a shower every morning.", examplePt: "Eu tomo banho de chuveiro toda manhã.", level: 3, tip: "Also a word for light rain, like 'a shower of rain'." },
+  { en: "Refrigerator", pt: "Geladeira", category: "casa", pronunciation: "refrídjerêitor", example: "Put the milk in the refrigerator.", examplePt: "Coloque o leite na geladeira.", level: 3, tip: "Often shortened to 'fridge' in everyday conversation." },
+
+  // ===== MAIS FERRAMENTAS (Tools) - Level 4 =====
+  { en: "Wrench", pt: "Chave inglesa", category: "ferramentas", pronunciation: "réntch", example: "He used a wrench to fix the pipe.", examplePt: "Ele usou uma chave inglesa para consertar o cano.", level: 4, tip: "In British English, this tool is usually called a 'spanner'." },
+  { en: "Screwdriver", pt: "Chave de fenda", category: "ferramentas", pronunciation: "scrúdraiver", example: "I need a screwdriver to open this.", examplePt: "Eu preciso de uma chave de fenda para abrir isso.", level: 4, tip: "Used to turn screws — literally 'a driver of screws'." },
+  { en: "Saw", pt: "Serra", category: "ferramentas", pronunciation: "só", example: "He cut the wood with a saw.", examplePt: "Ele cortou a madeira com uma serra.", level: 4, tip: "Also the past tense of 'see' — context tells them apart!" },
+  { en: "Drill", pt: "Furadeira", category: "ferramentas", pronunciation: "dríl", example: "She used a drill to make a hole.", examplePt: "Ela usou uma furadeira para fazer um buraco.", level: 4, tip: "Also means practicing something repeatedly, like a 'fire drill'." },
+  { en: "Broom", pt: "Vassoura", category: "ferramentas", pronunciation: "brúm", example: "He swept the floor with a broom.", examplePt: "Ele varreu o chão com uma vassoura.", level: 4, tip: "The tool witches are famously shown flying on!" },
+  { en: "Bucket", pt: "Balde", category: "ferramentas", pronunciation: "bâket", example: "Fill the bucket with water.", examplePt: "Encha o balde com água.", level: 4, tip: "'Bucket list' means a list of things to do before you die." },
+  { en: "Nail", pt: "Prego", category: "ferramentas", pronunciation: "néil", example: "He hit the nail with a hammer.", examplePt: "Ele bateu no prego com um martelo.", level: 4, tip: "This word also means the hard part at the tip of your finger!" },
+
+  // ===== MAIS ARTES (Arts) - Level 4 =====
+  { en: "Song", pt: "Música / Canção", category: "artes", pronunciation: "sóng", example: "I know all the words to this song.", examplePt: "Eu sei todas as palavras dessa música.", level: 4, tip: "A piece of music with lyrics, meant to be sung." },
+  { en: "Movie", pt: "Filme", category: "artes", pronunciation: "múvi", example: "We watched a movie last night.", examplePt: "Nós assistimos a um filme ontem à noite.", level: 4, tip: "'Film' is the more common word in British English." },
+  { en: "Photograph", pt: "Fotografia", category: "artes", pronunciation: "fôtogrâf", example: "She took a beautiful photograph.", examplePt: "Ela tirou uma fotografia linda.", level: 4, tip: "Often shortened to 'photo' or 'pic' in everyday speech." },
+  { en: "Museum", pt: "Museu", category: "artes", pronunciation: "miuzíum", example: "We visited an art museum.", examplePt: "Nós visitamos um museu de arte.", level: 4, tip: "A building where historical or artistic objects are kept and shown." },
+  { en: "Guitar", pt: "Violão / Guitarra", category: "artes", pronunciation: "guitár", example: "He plays the guitar every day.", examplePt: "Ele toca violão todos os dias.", level: 4, tip: "One of the most popular instruments in music around the world." },
+  { en: "Piano", pt: "Piano", category: "artes", pronunciation: "piánou", example: "She learned to play the piano.", examplePt: "Ela aprendeu a tocar piano.", level: 4, tip: "Short for 'pianoforte', meaning it can play both soft and loud." },
+  { en: "Drawing", pt: "Desenho", category: "artes", pronunciation: "dróing", example: "The child made a drawing of a house.", examplePt: "A criança fez um desenho de uma casa.", level: 4, tip: "Comes from the verb 'draw'. A picture made with pencil or pen." },
+
+  // ===== MAIS ESCOLA (School) - Level 4 =====
+  { en: "Ruler", pt: "Régua", category: "escola", pronunciation: "rúler", example: "I use a ruler to draw straight lines.", examplePt: "Eu uso uma régua para desenhar linhas retas.", level: 4, tip: "Also means someone who governs a country — context makes the meaning clear." },
+  { en: "Eraser", pt: "Borracha", category: "escola", pronunciation: "irêiser", example: "Can I borrow your eraser?", examplePt: "Posso pegar sua borracha emprestada?", level: 4, tip: "In British English, this is usually just called a 'rubber'." },
+  { en: "Backpack", pt: "Mochila", category: "escola", pronunciation: "békpék", example: "She carries her books in a backpack.", examplePt: "Ela carrega seus livros em uma mochila.", level: 4, tip: "One word. Worn on your back, hence the name." },
+  { en: "Blackboard", pt: "Quadro-negro", category: "escola", pronunciation: "blékbord", example: "The teacher writes on the blackboard.", examplePt: "O professor escreve no quadro-negro.", level: 4, tip: "Modern classrooms often use a white 'whiteboard' instead." },
+  { en: "Exam", pt: "Prova / Exame", category: "escola", pronunciation: "igzém", example: "I have a math exam tomorrow.", examplePt: "Eu tenho uma prova de matemática amanhã.", level: 4, tip: "Short for 'examination'. Used the same way as 'test'." },
+  { en: "Grade", pt: "Nota", category: "escola", pronunciation: "grêid", example: "She got a good grade on the test.", examplePt: "Ela tirou uma boa nota na prova.", level: 4, tip: "Also means a school year level, like 'fifth grade'." },
+  { en: "Lesson", pt: "Aula / Lição", category: "escola", pronunciation: "léson", example: "Today's lesson is about animals.", examplePt: "A lição de hoje é sobre animais.", level: 4, tip: "Can mean a single class or something learned from experience." },
+
+  // ===== MAIS TRABALHO (Work) - Level 4 =====
+  { en: "Salary", pt: "Salário", category: "trabalho", pronunciation: "sáleri", example: "She receives her salary every month.", examplePt: "Ela recebe o salário dela todo mês.", level: 4, tip: "Comes from the Latin word for salt — Roman soldiers were once paid in it!" },
+  { en: "Interview", pt: "Entrevista", category: "trabalho", pronunciation: "íntervi(u)", example: "He has a job interview tomorrow.", examplePt: "Ele tem uma entrevista de emprego amanhã.", level: 4, tip: "A formal meeting to evaluate someone for a job or for a news story." },
+  { en: "Resume", pt: "Currículo", category: "trabalho", pronunciation: "rézumêi", example: "Send your resume to apply for the job.", examplePt: "Envie seu currículo para se candidatar à vaga.", level: 4, tip: "In British English, this is usually called a 'CV' (curriculum vitae)." },
+  { en: "Colleague", pt: "Colega de trabalho", category: "trabalho", pronunciation: "cólig", example: "My colleague helped me finish the project.", examplePt: "Meu colega de trabalho me ajudou a terminar o projeto.", level: 4, tip: "Specifically means someone you work with, not just any friend." },
+  { en: "Deadline", pt: "Prazo", category: "trabalho", pronunciation: "dédlain", example: "The deadline for the project is Friday.", examplePt: "O prazo do projeto é sexta-feira.", level: 4, tip: "Literally 'a line you cannot cross' — the final date for something." },
+  { en: "Project", pt: "Projeto", category: "trabalho", pronunciation: "prádjekt", example: "We finished the project on time.", examplePt: "Nós terminamos o projeto no prazo.", level: 4, tip: "Can be a noun (a project) or a verb (to project, meaning to plan or predict)." },
+  { en: "Contract", pt: "Contrato", category: "trabalho", pronunciation: "cóntrekt", example: "They signed the contract yesterday.", examplePt: "Eles assinaram o contrato ontem.", level: 4, tip: "A formal, legal agreement between two or more people or companies." },
+
+  // ===== MAIS ROUPAS (Clothes) - Level 4 =====
+  { en: "Skirt", pt: "Saia", category: "roupas", pronunciation: "skért", example: "She is wearing a blue skirt.", examplePt: "Ela está usando uma saia azul.", level: 4, tip: "A piece of clothing worn from the waist down, without separate legs." },
+  { en: "Sweater", pt: "Suéter", category: "roupas", pronunciation: "suéter", example: "I wear a sweater when it's cold.", examplePt: "Eu uso um suéter quando está frio.", level: 4, tip: "Called a 'jumper' in British English." },
+  { en: "Scarf", pt: "Cachecol", category: "roupas", pronunciation: "skárf", example: "She wrapped a scarf around her neck.", examplePt: "Ela enrolou um cachecol no pescoço.", level: 4, tip: "Plural can be 'scarfs' or 'scarves' — both are correct!" },
+  { en: "Tie", pt: "Gravata", category: "roupas", pronunciation: "tái", example: "He wears a tie to work.", examplePt: "Ele usa gravata para trabalhar.", level: 4, tip: "Also a verb meaning to fasten something, like 'tie your shoes'." },
+  { en: "Sunglasses", pt: "Óculos de sol", category: "roupas", pronunciation: "sânglésis", example: "I need sunglasses; it's very sunny.", examplePt: "Eu preciso de óculos de sol; está muito ensolarado.", level: 4, tip: "Always plural, like 'glasses' and 'pants' — you never say 'a sunglass'." },
+  { en: "Coat", pt: "Casaco", category: "roupas", pronunciation: "côut", example: "Put on your coat, it's cold outside.", examplePt: "Coloque seu casaco, está frio lá fora.", level: 4, tip: "Usually heavier and longer than a jacket." },
+  { en: "Boots", pt: "Botas", category: "roupas", pronunciation: "búts", example: "She wears boots in winter.", examplePt: "Ela usa botas no inverno.", level: 4, tip: "Usually used in plural, since you wear two of them." },
+
+  // ===== MAIS CORPO (Body) - Level 4 =====
+  { en: "Shoulder", pt: "Ombro", category: "corpo", pronunciation: "chôulder", example: "He carries his bag on one shoulder.", examplePt: "Ele carrega a bolsa em um ombro.", level: 4, tip: "'Cold shoulder' is an expression meaning to ignore someone." },
+  { en: "Elbow", pt: "Cotovelo", category: "corpo", pronunciation: "élbou", example: "She bent her elbow to wave.", examplePt: "Ela dobrou o cotovelo para acenar.", level: 4, tip: "The joint that lets you bend your arm." },
+  { en: "Knee", pt: "Joelho", category: "corpo", pronunciation: "ní", example: "He hurt his knee playing soccer.", examplePt: "Ele machucou o joelho jogando futebol.", level: 4, tip: "The 'k' is silent — it's pronounced just like 'nee'." },
+  { en: "Neck", pt: "Pescoço", category: "corpo", pronunciation: "nék", example: "She wears a necklace on her neck.", examplePt: "Ela usa um colar no pescoço.", level: 4, tip: "Connects your head to the rest of your body." },
+  { en: "Chin", pt: "Queixo", category: "corpo", pronunciation: "tchín", example: "He touched his chin while thinking.", examplePt: "Ele tocou o queixo enquanto pensava.", level: 4, tip: "The lowest part of your face, below your mouth." },
+  { en: "Finger", pt: "Dedo (da mão)", category: "corpo", pronunciation: "fínguer", example: "She has a ring on her finger.", examplePt: "Ela tem um anel no dedo.", level: 4, tip: "Used for the hand; the word for a foot digit is 'toe'." },
+
+  // ===== MAIS SOCIEDADE (Society) - Level 4 =====
+  { en: "Election", pt: "Eleição", category: "sociedade", pronunciation: "ilékchon", example: "The election happens every four years.", examplePt: "A eleição acontece a cada quatro anos.", level: 4, tip: "When people vote to choose their leaders." },
+  { en: "Community", pt: "Comunidade", category: "sociedade", pronunciation: "camiúniti", example: "Everyone helps in this community.", examplePt: "Todo mundo ajuda nessa comunidade.", level: 4, tip: "A group of people living in the same area or sharing something in common." },
+  { en: "Culture", pt: "Cultura", category: "sociedade", pronunciation: "câltcher", example: "Brazil has a rich culture.", examplePt: "O Brasil tem uma cultura rica.", level: 4, tip: "Includes a group's traditions, art, food, music, and beliefs." },
+  { en: "Tradition", pt: "Tradição", category: "sociedade", pronunciation: "tradíchon", example: "This is an old family tradition.", examplePt: "Essa é uma tradição de família antiga.", level: 4, tip: "A custom or belief passed down from one generation to the next." },
+  { en: "Religion", pt: "Religião", category: "sociedade", pronunciation: "rilídjon", example: "People practice many religions around the world.", examplePt: "As pessoas praticam muitas religiões ao redor do mundo.", level: 4, tip: "A system of faith and worship, often centered on beliefs about a higher power." },
+  { en: "Vote", pt: "Votar / Voto", category: "sociedade", pronunciation: "vôut", example: "It's important to vote in elections.", examplePt: "É importante votar nas eleições.", level: 4, tip: "Can be a verb (to vote) or a noun (a vote)." },
+  { en: "Neighbor", pt: "Vizinho(a)", category: "sociedade", pronunciation: "nêiber", example: "My neighbor is very friendly.", examplePt: "Meu vizinho é muito simpático.", level: 4, tip: "Spelled 'neighbour' in British English, with a 'u'." },
 ];
 
 // Helper function to get words by category

@@ -160,7 +160,9 @@ const Home = () => {
             {gamesCatalog.map((game) => (
               <Link key={game.id} to={game.path} className="game-card card">
                 <div className="game-icon" style={{ background: halo(game.color), color: game.color }}>
-                  {game.icon}
+                  {game.iconImage
+                    ? <img src={game.iconImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+                    : game.icon}
                 </div>
                 <div className="game-info">
                   <strong>{game.name}</strong>

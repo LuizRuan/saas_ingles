@@ -77,3 +77,36 @@
 }
 
 .story-hint { margin-top: var(--space-md); }
+
+/* === POPUP DE PALAVRA: expressões em destaque (estilo dicionário) === */
+.story-example { border-left-color: var(--accent-orange); }
+
+.story-phrase-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.story-phrase-badge {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--accent-orange);
+  background: var(--bg-orange-subtle);
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+.story-phrase-pt {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.story-highlight {
+  background: none;
+  color: var(--accent-orange);
+  font-weight: 700;
+}

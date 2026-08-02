@@ -6,6 +6,7 @@ import { useEmailDomainSuggestions } from '../components/Auth/useEmailDomainSugg
 import { isValidEmailFormat, applyEmailDomain } from '../utils/authValidation';
 import { loginRequest } from '../utils/authClient';
 import { setEntryChoice } from '../utils/entryChoice';
+import { useAuthProfile } from '../hooks/useAuthProfile';
 import './Auth.css';
 
 const Login = () => {
@@ -15,6 +16,7 @@ const Login = () => {
   const [touched, setTouched] = useState({});
   const [status, setStatus] = useState('idle'); // idle | loading | error
   const [submitError, setSubmitError] = useState('');
+  const { refetch: refetchAuthProfile } = useAuthProfile();
 
   const domainSuggestions = useEmailDomainSuggestions(email);
 
@@ -33,12 +35,15 @@ const Login = () => {
       // Sem isto o portão de entrada (EntryGate) devolveria a pessoa para
       // /welcome logo depois de ela ter entrado.
       setEntryChoice('account');
+      // Ver o mesmo comentário em Register.jsx: o Provider não se
+      // re-renderiza sozinho só porque entryChoice mudou.
+      refetchAuthProfile();
       navigate('/', { replace: true });
     } catch (err) {
       setStatus('error');
       setSubmitError(err.message || 'Não foi possível conectar ao servidor. Tente novamente mais tarde.');
     }
-  }, [email, password, isFormValid, navigate]);
+  }, [email, password, isFormValid, navigate, refetchAuthProfile]);
 
   return (
     <div className="page auth-page">

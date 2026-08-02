@@ -3,6 +3,7 @@ import { useProgress } from '../../hooks/useProgress';
 import { useAuthProfile } from '../../hooks/useAuthProfile';
 import { ROTAS_LIVRES } from '../../utils/entryChoice';
 import Celebration from '../Celebration/Celebration';
+import NicknamePrompt from '../Auth/NicknamePrompt';
 import './Layout.css';
 
 const Layout = ({ children }) => {
@@ -12,8 +13,11 @@ const Layout = ({ children }) => {
   // — sem isto, "Entrar" continuava aparecendo na navbar mesmo depois de um
   // cadastro/login que funcionou de verdade, porque nada aqui olhava pra
   // sessão, só pro flag local de "já escolheu como entrar".
-  const { entryChoice, profile, status: authStatus } = useAuthProfile();
+  const { entryChoice, profile, status: authStatus, applyNickname } = useAuthProfile();
   const estaLogado = entryChoice === 'account' && authStatus === 'loaded' && profile;
+  // Vale tanto pra quem acabou de se cadastrar quanto pra conta antiga que
+  // nunca passou por essa etapa — em ambos os casos profile.nickname é null.
+  const precisaEscolherApelido = Boolean(estaLogado && !profile.nickname);
 
   // Telas de entrada não têm navbar. A lista é a MESMA que o EntryGate usa, de
   // propósito: duas cópias divergiriam, e o resultado seria uma tela de login
@@ -78,6 +82,11 @@ const Layout = ({ children }) => {
             {!estaLogado && (
               <NavLink to="/login" className="btn btn-secondary btn-sm">Entrar</NavLink>
             )}
+            {estaLogado && profile.nickname && (
+              <NavLink to="/settings" className="navbar-nickname" title={profile.email}>
+                {profile.nickname}
+              </NavLink>
+            )}
             <NavLink to="/settings" className="navbar-avatar"
               title={estaLogado ? (profile.nickname || profile.email) : undefined}>
               {progress.selectedAvatar || 'U'}
@@ -137,6 +146,10 @@ const Layout = ({ children }) => {
           </div>
         </div>
       )}
+
+      {/* Por cima de qualquer tela, sem botão de pular — ver NicknamePrompt.jsx
+          pro porquê de ser obrigatório. */}
+      {precisaEscolherApelido && <NicknamePrompt onSaved={applyNickname} />}
     </div>
   );
 };

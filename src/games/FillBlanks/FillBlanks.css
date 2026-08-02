@@ -20,3 +20,48 @@
 }
 .fb-blank.correct { color: var(--accent-green); border-color: var(--accent-green); }
 .fb-blank.wrong { color: var(--accent-red); border-color: var(--accent-red); }
+
+/* REGRESSÃO: o JSX usa as mesmas classes .tq-* do TranslationQuiz (mesmo
+   layout de alternativas), mas esta tela nunca importou TranslationQuiz.css
+   nem tinha essas regras aqui — as opções renderizavam sem estilo nenhum,
+   coladas umas nas outras. Duplicado de propósito (cada jogo importa só o
+   próprio CSS, por convenção deste projeto) em vez de importar o CSS de
+   outro componente. */
+.tq-options { display: flex; flex-direction: column; gap: var(--space-sm); margin-bottom: var(--space-lg); }
+
+.tq-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+  font-size: var(--fs-base);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xs);
+  transition: all var(--transition-fast);
+  animation: fadeInUp 0.3s ease-out both;
+}
+.tq-option:hover:not(.correct):not(.wrong):not(.dimmed) { border-color: var(--accent-primary); background: var(--bg-purple-subtle); }
+.tq-option.correct { border-color: var(--accent-green); background: var(--bg-green-subtle); color: var(--accent-green-dark); }
+.tq-option.wrong { border-color: var(--accent-red); background: var(--bg-red-subtle); animation: shake 0.5s ease-out; }
+.tq-option.dimmed { opacity: 0.4; }
+
+.tq-option-letter {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-purple-subtle);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--accent-primary);
+}
+
+.tq-feedback { margin-top: var(--space-md); }

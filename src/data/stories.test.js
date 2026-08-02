@@ -57,9 +57,21 @@ describe('vocabulário de histórias', () => {
   it('toda entrada tem pt e exatamente 5 exemplos completos', () => {
     const ruins = Object.entries(storyVocabulary)
       .filter(([, v]) => !v.pt || !Array.isArray(v.examples) || v.examples.length !== 5
-        || v.examples.some(e => !e.en || !e.pt))
+        || v.examples.some(e => !e.phrase || !e.phrasePt || !e.en || !e.pt))
       .map(([k]) => k);
     expect(ruins).toEqual([]);
+  });
+
+  it('toda phrase aparece de fato na frase em inglês (senão o destaque não acha nada pra grifar)', () => {
+    const faltando = [];
+    for (const [key, v] of Object.entries(storyVocabulary)) {
+      v.examples.forEach((e, i) => {
+        if (!e.en.toLowerCase().includes(e.phrase.toLowerCase())) {
+          faltando.push(`${key}[${i}]: "${e.phrase}" não está em "${e.en}"`);
+        }
+      });
+    }
+    expect(faltando).toEqual([]);
   });
 
   it('não sobra entrada não usada em nenhuma história', () => {

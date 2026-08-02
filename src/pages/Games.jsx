@@ -28,7 +28,9 @@ const Games = () => {
               style={{ animationDelay: `${index * 0.05}s` }}
             >
               <div className="game-list-icon" style={{ background: halo(game.color), color: game.color }}>
-                {game.icon}
+                {game.iconImage
+                  ? <img src={game.iconImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+                  : game.icon}
               </div>
               <div className="game-list-info">
                 <h3>{game.name}</h3>

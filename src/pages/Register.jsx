@@ -6,6 +6,7 @@ import { useEmailDomainSuggestions } from '../components/Auth/useEmailDomainSugg
 import { isValidEmailFormat, isValidPassword, passwordsMatch, applyEmailDomain, MIN_PASSWORD_LENGTH } from '../utils/authValidation';
 import { registerRequest } from '../utils/authClient';
 import { setEntryChoice } from '../utils/entryChoice';
+import { useAuthProfile } from '../hooks/useAuthProfile';
 import './Auth.css';
 
 // Nome do arquivo/rota em inglês (Register/`/register`), como toda outra
@@ -19,6 +20,7 @@ const Register = () => {
   const [touched, setTouched] = useState({});
   const [status, setStatus] = useState('idle'); // idle | loading | error
   const [submitError, setSubmitError] = useState('');
+  const { refetch: refetchAuthProfile } = useAuthProfile();
 
   const domainSuggestions = useEmailDomainSuggestions(email);
 
@@ -44,12 +46,16 @@ const Register = () => {
       // Cadastro já loga (o cookie de sessão vem na própria resposta), então
       // vai direto para a Home em vez de mandar preencher o Login de novo.
       setEntryChoice('account');
+      // Sem isto, a navbar/o modal de apelido obrigatório ficavam presos no
+      // estado de "sem conta" — o Provider mora acima do router e não se
+      // re-renderiza sozinho só porque entryChoice mudou (ver useAuthProfile.jsx).
+      refetchAuthProfile();
       navigate('/', { replace: true });
     } catch (err) {
       setStatus('error');
       setSubmitError(err.message || 'Não foi possível conectar ao servidor. Tente novamente mais tarde.');
     }
-  }, [email, password, isFormValid, navigate]);
+  }, [email, password, isFormValid, navigate, refetchAuthProfile]);
 
   return (
     <div className="page auth-page">

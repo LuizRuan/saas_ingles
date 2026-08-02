@@ -648,6 +648,17 @@ select {
 
 .navbar-stat span:first-child { font-size: 1rem; }
 
+.navbar-nickname {
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .navbar-avatar {
   width: 36px;
   height: 36px;
@@ -676,6 +687,9 @@ select {
   .navbar-links { gap: 2px; }
   .navbar-links .navbar-link { font-size: 0; gap: 0; padding: 8px 10px; }
   .navbar-links .navbar-link > span { font-size: 1.15rem; }
+  /* O avatar sozinho já leva pra Configurações; o nome por extenso é o
+     primeiro a ceder espaço pros links, que importam mais pra navegar. */
+  .navbar-nickname { display: none; }
 }
 
 /* === MOBILE NAV === */

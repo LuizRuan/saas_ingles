@@ -18,7 +18,7 @@ const Settings = () => {
   // Estado REAL da conta, verificado no servidor (ver useAuthProfile) — a
   // mesma checagem que a navbar usa, então as duas telas concordam sobre
   // "logado ou não" em vez de confiar cegamente no flag local.
-  const { entryChoice, profile, status: profileStatus } = useAuthProfile();
+  const { entryChoice, profile, status: profileStatus, applyNickname, refetch: refetchAuthProfile } = useAuthProfile();
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [nicknameStatus, setNicknameStatus] = useState('idle'); // idle | saving | saved | error
   const [nicknameError, setNicknameError] = useState('');
@@ -38,13 +38,14 @@ const Settings = () => {
     try {
       const { user } = await updateProfileRequest(nicknameDraft.trim() || null);
       setNicknameDraft(user.nickname || '');
+      applyNickname(user.nickname);
       setNicknameStatus('saved');
       setTimeout(() => setNicknameStatus('idle'), 2000);
     } catch (err) {
       setNicknameStatus('error');
       setNicknameError(err.message || 'Não foi possível salvar. Tente novamente.');
     }
-  }, [nicknameDraft]);
+  }, [nicknameDraft, applyNickname]);
 
   const updateSetting = useCallback((key, value) => {
     const updated = { ...settings, [key]: value };
@@ -66,8 +67,11 @@ const Settings = () => {
     // logoutRequest nunca rejeita — ver authClient.js.
     if (entryChoice === 'account') await logoutRequest();
     clearEntryChoice();
+    // Mesmo motivo do Register/Login: sem isto, a navbar continuaria
+    // mostrando a conta antiga (avatar, apelido) até um F5.
+    refetchAuthProfile();
     navigate('/welcome', { replace: true });
-  }, [entryChoice, navigate]);
+  }, [entryChoice, navigate, refetchAuthProfile]);
 
   const handleReset = useCallback(() => {
     resetAllProgress();

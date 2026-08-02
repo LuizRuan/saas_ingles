@@ -45,6 +45,10 @@ export const gamesCatalog = [
     id: 'hangman',
     name: 'Jogo da Forca',
     icon: '🎯',
+    // Ícone customizado (desenho de forca em giz), só pra este jogo — `icon`
+    // continua valendo como alt/fallback. Ver Home.jsx e Games.jsx: quando
+    // `iconImage` existe, ele é usado no lugar do emoji.
+    iconImage: '/hangman-icon.webp',
     color: '#ef4444',
     path: '/games/hangman',
     desc: 'Adivinhe a palavra',
