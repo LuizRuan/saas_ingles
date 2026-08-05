@@ -10,7 +10,7 @@ import { isValidNickname, MAX_NICKNAME_LENGTH } from '../utils/authValidation';
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { progress, resetAllProgress, setTheme } = useProgress();
+  const { progress, resetAllProgress, setTheme, setSelectedEffect } = useProgress();
   const [settings, setSettings] = useState(() => loadSettings());
   const [showConfirm, setShowConfirm] = useState(false);
   const [resetDone, setResetDone] = useState(false);
@@ -230,6 +230,52 @@ const Settings = () => {
             )}
           </div>
         </div>
+
+        {/* Efeitos Visuais — só aparece quando o usuário tem ao menos um */}
+        {(() => {
+          const shopItems = progress.shopItems || [];
+          const temConfetti = shopItems.includes('confetti');
+          const temFireworks = shopItems.includes('fireworks');
+          if (!temConfetti && !temFireworks) return null;
+
+          const activeEffect = progress.selectedEffect || null;
+
+          const effectOptions = [
+            { id: null,         label: 'Nenhum',             icon: '🚫' },
+            ...(temConfetti  ? [{ id: 'confetti',  label: 'Confetti',           icon: '🎊' }] : []),
+            ...(temFireworks ? [{ id: 'fireworks', label: 'Fogos de Artifício', icon: '🎆' }] : []),
+          ];
+
+          return (
+            <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.13s' }}>
+              <h4 style={{ marginBottom: 'var(--space-xs)' }}>🎉 Efeito Visual</h4>
+              <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
+                Escolha qual efeito aparece ao acertar ou terminar uma partida
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
+                {effectOptions.map(opt => (
+                  <button
+                    key={String(opt.id)}
+                    className={`btn btn-sm ${activeEffect === opt.id ? 'btn-primary' : 'btn-secondary'}`}
+                    onClick={() => setSelectedEffect(opt.id)}
+                  >
+                    {opt.icon} {opt.label}
+                  </button>
+                ))}
+              </div>
+              {activeEffect === null && (temConfetti || temFireworks) && (
+                <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-sm)' }}>
+                  Nenhum efeito ativo — selecione um para vê-lo durante os jogos.
+                </p>
+              )}
+              {activeEffect && (
+                <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-sm)' }}>
+                  Efeito <strong>{activeEffect === 'confetti' ? 'Confetti 🎊' : 'Fogos de Artifício 🎆'}</strong> ativo — aparecerá nos acertos e ao concluir partidas.
+                </p>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Stats */}
         <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.15s' }}>

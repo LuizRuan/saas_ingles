@@ -235,6 +235,84 @@
   --gradient-purple-soft: linear-gradient(135deg, #2a2a4a, #23233d);
 }
 
+[data-theme="rose"] {
+  --bg-body: #fff0f6;
+  --bg-input: #fff5f9;
+  --bg-nav-active: #fce7f3;
+  --bg-purple-subtle: #fce7f3;
+  --accent-primary: #db2777;
+  --accent-primary-light: #f472b6;
+  --accent-primary-dark: #be185d;
+  --accent-purple-light: #be185d;
+  --border-purple: #fbcfe8;
+  --gradient-primary: linear-gradient(135deg, #db2777, #ec4899);
+  --gradient-primary-hover: linear-gradient(135deg, #be185d, #db2777);
+  --gradient-daily: linear-gradient(135deg, #f472b6, #fda4af);
+  --shadow-purple-glow: 0 4px 14px rgba(219, 39, 119, 0.25);
+  --shadow-card-hover: 0 8px 25px rgba(219, 39, 119, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="galaxy"] {
+  --bg-body: #0c0a1f;
+  --bg-card: #151230;
+  --bg-card-hover: #1e1a42;
+  --bg-navbar: #100d26;
+  --bg-input: #1a1635;
+  --bg-nav-active: #252050;
+  --bg-tertiary: #1e1a42;
+  --bg-purple-subtle: rgba(139, 92, 246, 0.15);
+  --bg-blue-subtle: rgba(99, 102, 241, 0.15);
+  --bg-green-subtle: rgba(16, 185, 129, 0.12);
+  --bg-orange-subtle: rgba(245, 158, 11, 0.12);
+  --bg-red-subtle: rgba(239, 68, 68, 0.12);
+  --bg-pink-subtle: rgba(236, 72, 153, 0.15);
+  --bg-cyan-subtle: rgba(6, 182, 212, 0.12);
+  --bg-yellow-subtle: rgba(234, 179, 8, 0.12);
+  --text-primary: #ede9fe;
+  --text-secondary: #a78bfa;
+  --text-muted: #7c6fb0;
+  --accent-primary: #a78bfa;
+  --accent-primary-light: #c4b5fd;
+  --accent-primary-dark: #8b5cf6;
+  --accent-purple-light: #c4b5fd;
+  --accent-blue-light: #93c5fd;
+  --accent-orange-light: #fcd34d;
+  --accent-red-light: #fca5a5;
+  --border-color: #2a2560;
+  --border-light: #201d4a;
+  --border-purple: #4c3fa0;
+  --border-orange: rgba(245, 158, 11, 0.35);
+  --border-red: rgba(239, 68, 68, 0.35);
+  --focus-ring: rgba(167, 139, 250, 0.55);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover: 0 8px 30px rgba(139, 92, 246, 0.35), 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-navbar: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.65), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --gradient-primary: linear-gradient(135deg, #7c3aed, #4f46e5);
+  --gradient-primary-hover: linear-gradient(135deg, #6d28d9, #4338ca);
+  --gradient-daily: linear-gradient(135deg, #a78bfa, #818cf8);
+  --gradient-purple-soft: linear-gradient(135deg, #1e1a42, #251f50);
+  --shadow-purple-glow: 0 4px 20px rgba(139, 92, 246, 0.5);
+}
+
+[data-theme="winter"] {
+  --bg-body: #f0f7ff;
+  --bg-input: #f5faff;
+  --bg-nav-active: #dbeeff;
+  --bg-purple-subtle: #e0f2fe;
+  --accent-primary: #0ea5e9;
+  --accent-primary-light: #38bdf8;
+  --accent-primary-dark: #0284c7;
+  --accent-purple-light: #0284c7;
+  --border-purple: #bae6fd;
+  --gradient-primary: linear-gradient(135deg, #0ea5e9, #6366f1);
+  --gradient-primary-hover: linear-gradient(135deg, #0284c7, #4f46e5);
+  --gradient-daily: linear-gradient(135deg, #38bdf8, #a5b4fc);
+  --shadow-purple-glow: 0 4px 14px rgba(14, 165, 233, 0.25);
+  --shadow-card-hover: 0 8px 25px rgba(14, 165, 233, 0.15), 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
 /* Settings > Animações toggle, applied as [data-animations="off"] on <html>.
    Also honours the OS-level reduced-motion preference. */
 [data-animations="off"],

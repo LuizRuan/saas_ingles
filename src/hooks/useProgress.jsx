@@ -48,11 +48,17 @@ export const ProgressProvider = ({ children }) => {
   // o updater é reexecutado pelo StrictMode e precisa continuar puro.
   const celebrationTimer = useRef(null);
   const idCelebracao = useRef(0);
-  const dispararCelebracao = useCallback((tipo) => {
-    const comprados = progressRef.current.shopItems || [];
+  const dispararCelebracao = useCallback((tipoFallback) => {
+    const p = progressRef.current;
+    const comprados = p.shopItems || [];
+
+    // O usuário escolhe qual efeito usar nas Configurações; se não escolheu,
+    // usa o tipo passado pelo jogo (comportamento original).
+    const tipo = p.selectedEffect || tipoFallback;
+
+    // Só dispara se o efeito escolhido foi comprado
     if (!comprados.includes(tipo)) return;
-    // Um único timer: acertos em sequência trocam o efeito em vez de deixar um
-    // timeout antigo apagar o disparo mais recente no meio da animação.
+
     if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
     setCelebration({ tipo, id: idCelebracao.current++ });
     celebrationTimer.current = setTimeout(
@@ -232,6 +238,9 @@ export const ProgressProvider = ({ children }) => {
       if (item.type === 'timer') {
         updated.extraTimeAvailable = (updated.extraTimeAvailable || 0) + item.value;
       }
+      if (item.type === 'tip_translation') {
+        updated.tipTranslationsAvailable = (updated.tipTranslationsAvailable || 0) + item.value;
+      }
       // type === 'effect' (confetti/fireworks) não grava nada além do id em
       // shopItems: quem lê é dispararCelebracao(), que checa a posse ao animar.
       if (item.type === 'avatar') {
@@ -253,6 +262,11 @@ export const ProgressProvider = ({ children }) => {
   // Troca entre os temas já adquiridos (o padrão está sempre liberado)
   const setTheme = useCallback((themeId) => {
     setProgress(prev => ({ ...prev, selectedTheme: themeId }));
+  }, []);
+
+  // Define o efeito visual ativo. Null = desativado.
+  const setSelectedEffect = useCallback((effectId) => {
+    setProgress(prev => ({ ...prev, selectedEffect: effectId }));
   }, []);
 
   // Apelido de convidado para o duelo humano — não tem ligação com Login/Cadastro
@@ -281,6 +295,16 @@ export const ProgressProvider = ({ children }) => {
     return EXTRA_TIME_SECONDS;
   }, []);
 
+  // Gasta um uso de Tradução de Dica. Retorna true se havia estoque, false caso contrário.
+  const consumeTipTranslation = useCallback(() => {
+    if ((progressRef.current.tipTranslationsAvailable || 0) <= 0) return false;
+    setProgress(prev => ({
+      ...prev,
+      tipTranslationsAvailable: Math.max(0, (prev.tipTranslationsAvailable || 0) - 1),
+    }));
+    return true;
+  }, []);
+
   const resetAllProgress = useCallback(() => {
     clearStorage();
     setProgress(loadProgress());
@@ -302,9 +326,11 @@ export const ProgressProvider = ({ children }) => {
     incrementReviewed,
     buyShopItem,
     setTheme,
+    setSelectedEffect,
     setDisplayName,
     consumeHint,
     consumeExtraTime,
+    consumeTipTranslation,
     resetAllProgress,
   };
 

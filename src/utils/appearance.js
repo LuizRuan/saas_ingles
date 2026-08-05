@@ -10,6 +10,9 @@ export const THEMES = [
   { id: 'forest', name: 'Floresta', icon: '🌲', themeColor: '#eff7f1' },
   { id: 'sunset', name: 'Pôr do Sol', icon: '🌅', themeColor: '#fff5ef' },
   { id: 'dark', name: 'Modo Escuro', icon: '🌙', themeColor: '#0f0f1a' },
+  { id: 'rose', name: 'Rosa', icon: '🌸', themeColor: '#fff0f6' },
+  { id: 'galaxy', name: 'Galáxia', icon: '🌌', themeColor: '#0c0a1f' },
+  { id: 'winter', name: 'Inverno', icon: '❄️', themeColor: '#f0f7ff' },
 ];
 
 export const getTheme = (id) => THEMES.find(t => t.id === id) || THEMES[0];

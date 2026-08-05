@@ -65,6 +65,9 @@ export const defaultProgress = {
   // Multiplicador comprado na Loja: vale pelas próximas `multiplierGames` partidas
   pointsMultiplier: 1,
   multiplierGames: 0,
+  // Efeito visual ativo selecionado pelo usuário nas Configurações.
+  // null = nenhum (desativado), 'confetti' ou 'fireworks' = o efeito escolhido.
+  selectedEffect: null,
 };
 
 const defaultSettings = {
@@ -176,6 +179,7 @@ const saneiaProgresso = (bruto) => {
     // pontuação explodindo caso alguém escreva 1e9 aqui.
     pointsMultiplier: numero(p.pointsMultiplier, 1, { min: 1, max: 10 }),
     multiplierGames: inteiro(p.multiplierGames, 0, { min: 0, max: 100 }),
+    selectedEffect: ['confetti', 'fireworks'].includes(p.selectedEffect) ? p.selectedEffect : null,
   };
 };
 

@@ -9,34 +9,44 @@ import useSound from '../hooks/useSound';
 // 100) esvaziavam a loja na primeira sessão; estes ficam entre 7x e 8,6x deles,
 // arredondados, para que cada item custe algumas partidas de verdade.
 const shopItems = [
-  // Temas
-  { id: 'theme_ocean', name: 'Tema Oceano', description: 'Mude as cores do site para tons de azul oceano', icon: '🌊', price: 400, category: 'tema', type: 'theme', value: 'ocean' },
-  { id: 'theme_forest', name: 'Tema Floresta', description: 'Cores verdes e naturais para o site', icon: '🌲', price: 400, category: 'tema', type: 'theme', value: 'forest' },
-  { id: 'theme_sunset', name: 'Tema Pôr do Sol', description: 'Tons quentes de laranja e rosa', icon: '🌅', price: 400, category: 'tema', type: 'theme', value: 'sunset' },
-  { id: 'theme_dark', name: 'Modo Escuro', description: 'Tema escuro para os olhos descansarem', icon: '🌙', price: 600, category: 'tema', type: 'theme', value: 'dark' },
+  // ── Temas ──────────────────────────────────────────────────────────────────
+  { id: 'theme_ocean',  name: 'Tema Oceano',       description: 'Mude as cores do site para tons de azul oceano',      icon: '🌊', price: 400,  category: 'tema',    type: 'theme', value: 'ocean'  },
+  { id: 'theme_forest', name: 'Tema Floresta',      description: 'Cores verdes e naturais para o site',                icon: '🌲', price: 400,  category: 'tema',    type: 'theme', value: 'forest' },
+  { id: 'theme_sunset', name: 'Tema Pôr do Sol',    description: 'Tons quentes de laranja e rosa',                     icon: '🌅', price: 400,  category: 'tema',    type: 'theme', value: 'sunset' },
+  { id: 'theme_dark',   name: 'Modo Escuro',        description: 'Tema escuro para os olhos descansarem',              icon: '🌙', price: 600,  category: 'tema',    type: 'theme', value: 'dark'   },
+  { id: 'theme_rose',   name: 'Tema Rosa',          description: 'Visual delicado em tons de rosa e pink',             icon: '🌸', price: 450,  category: 'tema',    type: 'theme', value: 'rose'   },
+  { id: 'theme_galaxy', name: 'Tema Galáxia',       description: 'Fundo estrelado profundo com roxo cósmico',          icon: '🌌', price: 700,  category: 'tema',    type: 'theme', value: 'galaxy' },
+  { id: 'theme_winter', name: 'Tema Inverno',       description: 'Visual gelado em azul cristal e índigo',             icon: '❄️', price: 450,  category: 'tema',    type: 'theme', value: 'winter' },
 
-  // Power-ups
-  // O pacote de 15 tem que sair mais barato por dica que o de 5 (40 contra 50),
-  // senão comprar em quantidade vira desvantagem.
-  { id: 'hint_pack_5', name: 'Pacote de 5 Dicas', description: 'Ganhe 5 dicas extras para usar nos jogos', icon: '💡', price: 250, category: 'powerup', type: 'hints', value: 5 },
-  { id: 'hint_pack_15', name: 'Pacote de 15 Dicas', description: 'Ganhe 15 dicas extras para usar nos jogos', icon: '💡', price: 600, category: 'powerup', type: 'hints', value: 15 },
-  // value = USOS de +10s, não segundos (a conversão é EXTRA_TIME_SECONDS)
-  { id: 'extra_time', name: 'Tempo Extra', description: '3 usos de +10 segundos no modo Contra o Relógio', icon: '⏰', price: 300, category: 'powerup', type: 'timer', value: 3 },
-  { id: 'double_points', name: 'Pontos Duplos', description: 'Sua próxima partida vale o dobro de pontos!', icon: '✨', price: 750, category: 'powerup', type: 'multiplier', value: 2 },
+  // ── Power-ups ─────────────────────────────────────────────────────────────
+  { id: 'hint_pack_5',   name: 'Pacote de 5 Dicas',   description: 'Ganhe 5 dicas extras para usar nos jogos',            icon: '💡', price: 250,  category: 'powerup', type: 'hints', value: 5   },
+  { id: 'hint_pack_15',  name: 'Pacote de 15 Dicas',  description: 'Ganhe 15 dicas extras — melhor custo por dica',       icon: '💡', price: 600,  category: 'powerup', type: 'hints', value: 15  },
+  { id: 'hint_pack_30',  name: 'Pacote de 30 Dicas',  description: 'Ganhe 30 dicas extras — economia máxima!',            icon: '🔦', price: 1000, category: 'powerup', type: 'hints', value: 30  },
+  { id: 'hint_pack_50',  name: 'Pacote de 50 Dicas',  description: '50 dicas de uma vez — para o estudante dedicado!',   icon: '🏮', price: 1500, category: 'powerup', type: 'hints', value: 50  },
+  { id: 'extra_time_3',  name: 'Tempo Extra ×3',      description: '3 usos de +10s no modo Contra o Relógio',             icon: '⏰', price: 300,  category: 'powerup', type: 'timer', value: 3   },
+  { id: 'extra_time_5',  name: 'Tempo Extra ×5',      description: '5 usos de +10s no modo Contra o Relógio',             icon: '⏱️', price: 450,  category: 'powerup', type: 'timer', value: 5   },
+  { id: 'extra_time_10', name: 'Tempo Extra ×10',     description: '10 usos de +10s — estocar para a maratona!',          icon: '🕐', price: 750,  category: 'powerup', type: 'timer', value: 10  },
+  { id: 'double_points', name: 'Pontos Duplos',       description: 'Sua próxima partida vale o dobro de pontos!',         icon: '✨', price: 750,  category: 'powerup', type: 'multiplier', value: 2 },
+  { id: 'tip_trans_1',  name: 'Tradução de Dica ×1', description: '1 uso: traduz a dica do inglês pro português no Jogo da Forca', icon: '🌐', price: 200,  category: 'powerup', type: 'tip_translation', value: 1  },
+  { id: 'tip_trans_3',  name: 'Tradução de Dica ×3', description: '3 usos de tradução de dica',                                      icon: '🌍', price: 600,  category: 'powerup', type: 'tip_translation', value: 3  },
+  { id: 'tip_trans_5',  name: 'Tradução de Dica ×5', description: '5 usos de tradução de dica — melhor custo por uso!',              icon: '📖', price: 900,  category: 'powerup', type: 'tip_translation', value: 5  },
 
-  // Avatares
-  { id: 'avatar_cat', name: 'Avatar Gato', description: 'Um gatinho fofo como avatar', icon: '🐱', price: 200, category: 'avatar', type: 'avatar', value: '🐱' },
-  { id: 'avatar_dog', name: 'Avatar Cachorro', description: 'Um doguinho como avatar', icon: '🐶', price: 200, category: 'avatar', type: 'avatar', value: '🐶' },
-  { id: 'avatar_fox', name: 'Avatar Raposa', description: 'Uma raposa esperta como avatar', icon: '🦊', price: 200, category: 'avatar', type: 'avatar', value: '🦊' },
-  { id: 'avatar_dragon', name: 'Avatar Dragão', description: 'Um dragão épico como avatar', icon: '🐉', price: 450, category: 'avatar', type: 'avatar', value: '🐉' },
-  { id: 'avatar_robot', name: 'Avatar Robô', description: 'Um robô futurista como avatar', icon: '🤖', price: 300, category: 'avatar', type: 'avatar', value: '🤖' },
-  { id: 'avatar_unicorn', name: 'Avatar Unicórnio', description: 'Um unicórnio mágico como avatar', icon: '🦄', price: 400, category: 'avatar', type: 'avatar', value: '🦄' },
+  // ── Avatares ──────────────────────────────────────────────────────────────
+  { id: 'avatar_cat',       name: 'Avatar Gato',        description: 'Um gatinho fofo como avatar',              icon: '🐱', price: 200,  category: 'avatar', type: 'avatar', value: '🐱' },
+  { id: 'avatar_dog',       name: 'Avatar Cachorro',    description: 'Um doguinho como avatar',                  icon: '🐶', price: 200,  category: 'avatar', type: 'avatar', value: '🐶' },
+  { id: 'avatar_fox',       name: 'Avatar Raposa',      description: 'Uma raposa esperta como avatar',           icon: '🦊', price: 200,  category: 'avatar', type: 'avatar', value: '🦊' },
+  { id: 'avatar_frog',      name: 'Avatar Sapo',        description: 'Um sapinho saltitante como avatar',        icon: '🐸', price: 200,  category: 'avatar', type: 'avatar', value: '🐸' },
+  { id: 'avatar_butterfly', name: 'Avatar Borboleta',   description: 'Uma borboleta colorida como avatar',       icon: '🦋', price: 250,  category: 'avatar', type: 'avatar', value: '🦋' },
+  { id: 'avatar_panda',     name: 'Avatar Panda',       description: 'Um panda fofo e tranquilo como avatar',    icon: '🐼', price: 250,  category: 'avatar', type: 'avatar', value: '🐼' },
+  { id: 'avatar_robot',     name: 'Avatar Robô',        description: 'Um robô futurista como avatar',            icon: '🤖', price: 300,  category: 'avatar', type: 'avatar', value: '🤖' },
+  { id: 'avatar_alien',     name: 'Avatar Alien',       description: 'Um extraterrestre misterioso como avatar', icon: '👾', price: 300,  category: 'avatar', type: 'avatar', value: '👾' },
+  { id: 'avatar_lion',      name: 'Avatar Leão',        description: 'Um leão corajoso como avatar',             icon: '🦁', price: 350,  category: 'avatar', type: 'avatar', value: '🦁' },
+  { id: 'avatar_unicorn',   name: 'Avatar Unicórnio',   description: 'Um unicórnio mágico como avatar',          icon: '🦄', price: 400,  category: 'avatar', type: 'avatar', value: '🦄' },
+  { id: 'avatar_dragon',    name: 'Avatar Dragão',      description: 'Um dragão épico como avatar',              icon: '🐉', price: 450,  category: 'avatar', type: 'avatar', value: '🐉' },
 
-  // Celebrações
-  // O id é o que dispararCelebracao() procura em shopItems — não renomear sem
-  // ajustar useProgress.jsx, ou o efeito para de aparecer silenciosamente.
-  { id: 'confetti', name: 'Confetti', description: 'Chuva de confete a cada resposta certa', icon: '🎊', price: 350, category: 'efeito', type: 'effect', value: 'confetti' },
-  { id: 'fireworks', name: 'Fogos de Artifício', description: 'Fogos na tela ao terminar uma partida', icon: '🎆', price: 450, category: 'efeito', type: 'effect', value: 'fireworks' },
+  // ── Efeitos ───────────────────────────────────────────────────────────────
+  { id: 'confetti',   name: 'Confetti',            description: 'Chuva de confete a cada resposta certa',      icon: '🎊', price: 350,  category: 'efeito', type: 'effect', value: 'confetti'  },
+  { id: 'fireworks',  name: 'Fogos de Artifício',  description: 'Fogos na tela ao terminar uma partida',       icon: '🎆', price: 450,  category: 'efeito', type: 'effect', value: 'fireworks' },
 ];
 
 const categories = [
@@ -105,6 +115,7 @@ const Shop = () => {
           <div style={{ textAlign: 'right', fontSize: 'var(--fs-sm)', opacity: 0.9 }}>
             <div>💡 {progress.hintsAvailable || 0} Dicas disponíveis</div>
             <div>⏰ {progress.extraTimeAvailable || 0} usos de Tempo Extra</div>
+            <div>🌐 {progress.tipTranslationsAvailable || 0} Traduções de Dica</div>
             <div style={{ opacity: 0.75, fontSize: 'var(--fs-xs)' }}>
               {purchased.length} {purchased.length === 1 ? 'item comprado' : 'itens comprados'}
             </div>

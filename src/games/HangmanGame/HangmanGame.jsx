@@ -20,8 +20,9 @@ const HangmanGame = () => {
   const [guessedLetters, setGuessedLetters] = useState([]);
   const [wrongCount, setWrongCount] = useState(0);
   const [gameState, setGameState] = useState('select'); // select, playing, won, lost
-  const { progress, consumeHint, handleCorrectAnswer, handleWrongAnswer, completeGame, addExploredCategory } = useProgress();
+  const { progress, consumeHint, consumeTipTranslation, handleCorrectAnswer, handleWrongAnswer, completeGame, addExploredCategory } = useProgress();
   const { playCorrect, playWrong, playClick } = useSound();
+  const [tipTranslated, setTipTranslated] = useState(false);
 
   const startGame = useCallback((cat) => {
     setCategory(cat);
@@ -31,6 +32,7 @@ const HangmanGame = () => {
     setCurrentWord(word);
     setGuessedLetters([]);
     setWrongCount(0);
+    setTipTranslated(false);
     setGameState('playing');
   }, [addExploredCategory]);
 
@@ -183,19 +185,40 @@ const HangmanGame = () => {
 
         {/* Hint */}
         <div className="hangman-hint glass-card animate-fade-in-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-          <div>
+          <div style={{ flex: 1 }}>
             <span>💡 </span>
             <span>Dica: {currentWord.tip}</span>
+            {tipTranslated && currentWord.pt && (
+              <div style={{ marginTop: '4px', fontSize: 'var(--fs-xs)', color: 'var(--accent-purple)', fontWeight: 600 }}>
+                🌎 Português: <strong>{currentWord.pt}</strong>
+              </div>
+            )}
           </div>
-          {(progress.hintsAvailable || 0) > 0 ? (
-            <button className="btn btn-secondary btn-sm" onClick={handleUseExtraHint} title="Revelar 1 letra">
-              💡 Revelar Letra ({progress.hintsAvailable} disps)
-            </button>
-          ) : (
-            <Link to="/shop" className="btn btn-ghost btn-sm" style={{ fontSize: 'var(--fs-xs)', textDecoration: 'none' }}>
-              🛒 Comprar Dicas na Loja
-            </Link>
-          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
+            {!tipTranslated && (
+              (progress.tipTranslationsAvailable || 0) > 0 ? (
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => { if (consumeTipTranslation()) setTipTranslated(true); }}
+                  title="Traduzir dica para o português">
+                  🌐 Traduzir Dica ({progress.tipTranslationsAvailable} disp.)
+                </button>
+              ) : (
+                <Link to="/shop" className="btn btn-ghost btn-sm" style={{ fontSize: 'var(--fs-xs)', textDecoration: 'none' }}>
+                  🛒 Comprar Tradução na Loja
+                </Link>
+              )
+            )}
+            {(progress.hintsAvailable || 0) > 0 ? (
+              <button className="btn btn-secondary btn-sm" onClick={handleUseExtraHint} title="Revelar 1 letra">
+                💡 Revelar Letra ({progress.hintsAvailable} disps)
+              </button>
+            ) : (
+              <Link to="/shop" className="btn btn-ghost btn-sm" style={{ fontSize: 'var(--fs-xs)', textDecoration: 'none' }}>
+                🛒 Comprar Dicas na Loja
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Hangman Drawing */}
