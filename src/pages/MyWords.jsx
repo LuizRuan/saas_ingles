@@ -5,6 +5,7 @@ import { categories } from '../data/categories';
 import { useProgress } from '../hooks/useProgress';
 import { getWordStatus } from '../utils/reviewSystem';
 import WordExplanation from '../components/Game/WordExplanation';
+import { ACTIVE_COURSE } from '../hooks/useCourse';
 
 const MyWords = () => {
   const { progress } = useProgress();
@@ -96,8 +97,10 @@ const MyWords = () => {
                   {word.status === 'aprendida' ? '✅' : word.status === 'aprendendo' ? '📝' : '🆕'}
                 </span>
                 <div style={{ flex: 1 }}>
-                  <span style={{ fontWeight: 600, color: 'var(--accent-purple-light)' }}>{word.en}</span>
-                  <span className="text-secondary"> — {word.pt}</span>
+                  <span style={{ fontWeight: 600, color: 'var(--accent-purple-light)' }}>
+                    {word[ACTIVE_COURSE.targetLang]}
+                  </span>
+                  <span className="text-secondary"> — {word[ACTIVE_COURSE.sourceLang]}</span>
                 </div>
                 {word.stats && (
                   <div style={{ display: 'flex', gap: 'var(--space-sm)', fontSize: 'var(--fs-xs)' }}>

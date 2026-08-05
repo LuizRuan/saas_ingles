@@ -58,7 +58,7 @@ const categories = [
 ];
 
 const Shop = () => {
-  const { progress, buyShopItem } = useProgress();
+  const { progress, buyShopItem, setSelectedEffect, setTheme } = useProgress();
   const { playCorrect, playWrong } = useSound();
   const [filter, setFilter] = useState('all');
   const [buyResult, setBuyResult] = useState(null);
@@ -83,8 +83,15 @@ const Shop = () => {
 
     buyShopItem(item);
     playCorrect();
-    setBuyResult({ type: 'success', message: `🎉 Você comprou "${item.name}"!` });
-    setTimeout(() => setBuyResult(null), 3000);
+
+    // Mensagem de sucesso contextual
+    let msg = `🎉 Você comprou "${item.name}"!`;
+    if (item.type === 'theme')  msg += ' 🎨 Tema aplicado automaticamente!';
+    if (item.type === 'avatar') msg += ' 👤 Avatar equipado!';
+    if (item.type === 'effect') msg += ' ✨ Efeito ativado — aparece nos acertos!';
+
+    setBuyResult({ type: 'success', message: msg });
+    setTimeout(() => setBuyResult(null), 3500);
   }, [progress.shopItems, progress.totalScore, buyShopItem, playCorrect, playWrong]);
 
   const filtered = filter === 'all' ? shopItems : shopItems.filter(i => i.category === filter);
@@ -176,7 +183,30 @@ const Shop = () => {
                     </p>
                     
                     {owned ? (
-                      <span className="badge badge-green">✅ Comprado</span>
+                      <div style={{ display: 'flex', gap: 'var(--space-xs)', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span className="badge badge-green">✅ Comprado</span>
+                        {/* Efeito já comprado: permite trocar o ativo sem ir para Configurações */}
+                        {item.type === 'effect' && progress.selectedEffect !== item.value && (
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => { setSelectedEffect(item.value); playCorrect(); }}>
+                            ⚡ Equipar
+                          </button>
+                        )}
+                        {item.type === 'effect' && progress.selectedEffect === item.value && (
+                          <span className="badge badge-purple">⚡ Ativo</span>
+                        )}
+                        {item.type === 'theme' && progress.selectedTheme !== item.value && (
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => { setTheme(item.value); playCorrect(); }}>
+                            🎨 Aplicar
+                          </button>
+                        )}
+                        {item.type === 'theme' && progress.selectedTheme === item.value && (
+                          <span className="badge badge-purple">✓ Ativo</span>
+                        )}
+                      </div>
                     ) : (
                       <button
                         className={`btn ${canAfford ? 'btn-primary' : 'btn-ghost'} btn-sm`}

@@ -68,12 +68,14 @@ const Layout = ({ children }) => {
               <span>⭐</span>
               <span>{progress.totalScore}</span>
             </div>
-            <NavLink to="/shop" className="navbar-stat" style={{ textDecoration: 'none' }} title="Dicas adquiridas na Loja">
-              <span>💡</span>
+            <NavLink to="/shop" className="navbar-stat" style={{ textDecoration: 'none' }}
+              title="Dicas disponíveis" aria-label={`${progress.hintsAvailable || 0} dicas disponíveis — ir para a loja`}>
+              <span aria-hidden="true">💡</span>
               <span>{progress.hintsAvailable || 0}</span>
             </NavLink>
-            <NavLink to="/shop" className="navbar-link" style={{ padding: '6px 10px' }} title="Loja">
-              🏪
+            <NavLink to="/shop" className="navbar-link" style={{ padding: '6px 10px' }}
+              title="Loja" aria-label="Abrir loja">
+              🎪
             </NavLink>
             <div className="navbar-stat">
               <span>🔥</span>
@@ -88,7 +90,8 @@ const Layout = ({ children }) => {
               </NavLink>
             )}
             <NavLink to="/settings" className="navbar-avatar"
-              title={estaLogado ? (profile.nickname || profile.email) : undefined}>
+              title={estaLogado ? (profile.nickname || profile.email) : 'Configurações'}
+              aria-label={estaLogado ? `Perfil de ${profile.nickname || profile.email}` : 'Configurações e perfil'}>
               {progress.selectedAvatar || 'U'}
             </NavLink>
           </div>

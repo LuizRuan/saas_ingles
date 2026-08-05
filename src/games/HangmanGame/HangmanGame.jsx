@@ -188,26 +188,25 @@ const HangmanGame = () => {
           <div style={{ flex: 1 }}>
             <span>💡 </span>
             <span>Dica: {currentWord.tip}</span>
-            {tipTranslated && currentWord.pt && (
-              <div style={{ marginTop: '4px', fontSize: 'var(--fs-xs)', color: 'var(--accent-purple)', fontWeight: 600 }}>
-                🌎 Português: <strong>{currentWord.pt}</strong>
-              </div>
-            )}
+            {tipTranslated && currentWord.examplePt && (() => {
+              // Oculta a palavra-resposta na frase em português para não entregar a resposta
+              const regex = new RegExp(currentWord.pt.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+              const frasePt = currentWord.examplePt.replace(regex, '___');
+              return (
+                <div style={{ marginTop: '4px', fontSize: 'var(--fs-xs)', color: 'var(--accent-purple)', fontWeight: 600 }}>
+                  🌎 Tradução: <em>{frasePt}</em>
+                </div>
+              );
+            })()}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
-            {!tipTranslated && (
-              (progress.tipTranslationsAvailable || 0) > 0 ? (
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => { if (consumeTipTranslation()) setTipTranslated(true); }}
-                  title="Traduzir dica para o português">
-                  🌐 Traduzir Dica ({progress.tipTranslationsAvailable} disp.)
-                </button>
-              ) : (
-                <Link to="/shop" className="btn btn-ghost btn-sm" style={{ fontSize: 'var(--fs-xs)', textDecoration: 'none' }}>
-                  🛒 Comprar Tradução na Loja
-                </Link>
-              )
+            {!tipTranslated && (progress.tipTranslationsAvailable || 0) > 0 && (
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => { if (consumeTipTranslation()) setTipTranslated(true); }}
+                title="Traduzir dica para o português">
+                🌐 Traduzir Dica ({progress.tipTranslationsAvailable} disp.)
+              </button>
             )}
             {(progress.hintsAvailable || 0) > 0 ? (
               <button className="btn btn-secondary btn-sm" onClick={handleUseExtraHint} title="Revelar 1 letra">

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import useSpeech from '../../hooks/useSpeech';
+import useCourse from '../../hooks/useCourse';
 import { loadSettings } from '../../utils/storage';
 
 const WordExplanation = ({ word, showTip = true, compact = false }) => {
@@ -19,17 +20,27 @@ const WordExplanation = ({ word, showTip = true, compact = false }) => {
 
   if (!word) return null;
 
+  const { targetText, sourceText, tip, exampleTarget, exampleSource } = useCourse(word);
+
   return (
     <div className={`word-explanation ${compact ? 'compact' : ''}`}>
       <div className="word-main">
-        <span className="word-en">{word.en}</span>
-        <span className="word-pt">= {word.pt}</span>
+        <span className="word-en">{targetText}</span>
+        <span className="word-pt">= {sourceText}</span>
         {isAvailable && (
           <div style={{ display: 'flex', gap: '4px' }}>
-            <button className="btn btn-sm btn-secondary" onClick={() => speakNormal(word.en)} title="Ouvir pronúncia">
+            <button
+              className="btn btn-sm btn-secondary"
+              onClick={() => speakNormal(targetText)}
+              aria-label={`Ouvir pronúncia de ${targetText}`}
+              title="Ouvir pronúncia">
               🔊
             </button>
-            <button className="btn btn-sm btn-ghost" onClick={() => speakSlow(word.en)} title="Ouvir devagar">
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={() => speakSlow(targetText)}
+              aria-label={`Ouvir ${targetText} devagar`}
+              title="Ouvir devagar">
               🐢
             </button>
           </div>
@@ -40,15 +51,15 @@ const WordExplanation = ({ word, showTip = true, compact = false }) => {
         <div className="pronunciation">🗣️ Pronúncia: "{word.pronunciation}"</div>
       )}
 
-      {word.example && (
+      {exampleTarget && (
         <div className="example">
-          <div className="en">📝 "{word.example}"</div>
-          <div className="pt">"{word.examplePt}"</div>
+          <div className="en">📝 "{exampleTarget}"</div>
+          <div className="pt">"{exampleSource}"</div>
         </div>
       )}
 
-      {showTip && word.tip && (
-        <div className="tip">💡 Dica: {word.tip}</div>
+      {showTip && tip && (
+        <div className="tip">💡 Dica: {tip}</div>
       )}
     </div>
   );

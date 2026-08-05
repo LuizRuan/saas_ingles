@@ -68,6 +68,10 @@ export const defaultProgress = {
   // Efeito visual ativo selecionado pelo usuário nas Configurações.
   // null = nenhum (desativado), 'confetti' ou 'fireworks' = o efeito escolhido.
   selectedEffect: null,
+  // Curso ativo: identifica o par de idiomas que o usuário está estudando.
+  // Formato: '<idioma-alvo>-<idioma-fonte>', ex: 'en-pt' = Inglês para Brasileiros.
+  // Os stats de vocabulário (wordStats, phraseStats) pertencem a este curso.
+  activeCourse: 'en-pt',
 };
 
 const defaultSettings = {
@@ -180,6 +184,9 @@ const saneiaProgresso = (bruto) => {
     pointsMultiplier: numero(p.pointsMultiplier, 1, { min: 1, max: 10 }),
     multiplierGames: inteiro(p.multiplierGames, 0, { min: 0, max: 100 }),
     selectedEffect: ['confetti', 'fireworks'].includes(p.selectedEffect) ? p.selectedEffect : null,
+    // activeCourse: aceita apenas pares válidos; 'en-pt' é o único hoje.
+    // Novos cursos serão adicionados nesta lista quando os dados estiverem prontos.
+    activeCourse: ['en-pt'].includes(p.activeCourse) ? p.activeCourse : 'en-pt',
   };
 };
 

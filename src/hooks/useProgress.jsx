@@ -249,6 +249,11 @@ export const ProgressProvider = ({ children }) => {
       if (item.type === 'theme') {
         updated.selectedTheme = item.value;
       }
+      // Efeito: ativa imediatamente ao comprar — usuário não precisa ir em
+      // Configurações para equipar (pode desativar de lá depois, se quiser).
+      if (item.type === 'effect') {
+        updated.selectedEffect = item.value;
+      }
       if (item.type === 'multiplier') {
         updated.pointsMultiplier = item.value;
         updated.multiplierGames = 1; // Lasts for 1 game

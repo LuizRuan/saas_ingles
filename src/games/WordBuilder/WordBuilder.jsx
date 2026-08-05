@@ -4,6 +4,7 @@ import { words, shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import WordExplanation from '../../components/Game/WordExplanation';
+import { ACTIVE_COURSE } from '../../hooks/useCourse';
 import './WordBuilder.css';
 
 const ROUNDS = 8;
@@ -180,10 +181,10 @@ const WordBuilder = () => {
 
         {/* Translation hint */}
         <div className="wb-hint glass-card animate-fade-in-up">
-          <span style={{ fontSize: '1.5rem' }}>🇧🇷</span>
+          <span style={{ fontSize: '1.5rem' }}>{ACTIVE_COURSE.sourceFlag}</span>
           <div>
-            <div style={{ fontSize: 'var(--fs-sm)', color: 'var(--text-secondary)' }}>Traduza para o inglês:</div>
-            <div style={{ fontSize: 'var(--fs-xl)', fontWeight: 700 }}>{currentWord.pt}</div>
+            <div style={{ fontSize: 'var(--fs-sm)', color: 'var(--text-secondary)' }}>Traduza para o {ACTIVE_COURSE.targetLabel}:</div>
+            <div style={{ fontSize: 'var(--fs-xl)', fontWeight: 700 }}>{currentWord[ACTIVE_COURSE.sourceLang]}</div>
           </div>
         </div>
 

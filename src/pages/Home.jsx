@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
 import { useProgress } from '../hooks/useProgress';
 import { getCurrentLevel, getNextLevel, getLevelProgress } from '../utils/levelSystem';
-import { getWordsToReview } from '../utils/reviewSystem';
-import { words } from '../data/words';
+import { LEARNED_THRESHOLD } from '../utils/reviewSystem';
 import { gamesCatalog, halo } from '../data/gamesCatalog';
 import './Home.css';
 
@@ -19,7 +19,24 @@ const Home = () => {
   const currentLevel = getCurrentLevel(progress.wordsStudied);
   const nextLevel = getNextLevel(progress.wordsStudied);
   const levelProgress = getLevelProgress(progress.wordsStudied);
-  const reviewCount = getWordsToReview(progress, words).length;
+
+  // Calcula urgência de revisão direto do wordStats — evita importar o array
+  // words.js (~139 kB) no bundle principal da Home.
+  const reviewUrgency = useMemo(() => {
+    const statsValues = Object.values(progress.wordStats || {});
+    const withErrors = statsValues.filter(
+      s => s.wrong > 0 && s.correct < LEARNED_THRESHOLD
+    );
+    if (withErrors.length === 0) return { level: 'none', count: 0, daysOldest: 0 };
+
+    const now = Date.now();
+    const MS_PER_DAY = 86_400_000;
+    const oldestMs = withErrors.reduce(
+      (max, s) => s.lastSeen ? Math.max(max, now - s.lastSeen) : max, 0
+    );
+    const daysOldest = Math.floor(oldestMs / MS_PER_DAY);
+    return { level: daysOldest >= 2 ? 'urgent' : 'pending', count: withErrors.length, daysOldest };
+  }, [progress.wordStats]);
 
   return (
     <div className="page">
@@ -134,19 +151,28 @@ const Home = () => {
         </section>
 
         {/* Review Section */}
-        {reviewCount > 0 && (
+        {reviewUrgency.level !== 'none' && (
           <section className="animate-fade-in-up" style={{ animationDelay: '0.25s', marginTop: 'var(--space-xl)' }}>
-            <Link to="/review" className="review-banner">
+            <Link to="/review" className="review-banner" style={{
+              borderColor: reviewUrgency.level === 'urgent' ? 'var(--accent-red)' : 'var(--accent-orange)',
+            }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                <span style={{ fontSize: '1.5rem' }}>🔄</span>
+                <span style={{ fontSize: '1.5rem' }}>{reviewUrgency.level === 'urgent' ? '🚨' : '🔄'}</span>
                 <div>
-                  <strong>Revisar Meus Erros</strong>
+                  <strong style={{ color: reviewUrgency.level === 'urgent' ? 'var(--accent-red)' : undefined }}>
+                    {reviewUrgency.level === 'urgent' ? 'Revisão Urgente!' : 'Revisar Meus Erros'}
+                  </strong>
                   <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>
-                    {reviewCount} {reviewCount === 1 ? 'palavra precisa' : 'palavras precisam'} de revisão
+                    {reviewUrgency.count} {reviewUrgency.count === 1 ? 'palavra precisa' : 'palavras precisam'} de revisão
+                    {reviewUrgency.daysOldest >= 1 && (
+                      <span style={{ marginLeft: 4, color: reviewUrgency.level === 'urgent' ? 'var(--accent-red)' : 'var(--accent-orange)', fontWeight: 600 }}>
+                        · há {reviewUrgency.daysOldest} {reviewUrgency.daysOldest === 1 ? 'dia' : 'dias'}
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
-              <span className="btn btn-secondary btn-sm">Revisar →</span>
+              <span className={`btn btn-sm ${reviewUrgency.level === 'urgent' ? 'btn-danger' : 'btn-secondary'}`}>Revisar →</span>
             </Link>
           </section>
         )}

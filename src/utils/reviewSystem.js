@@ -34,6 +34,34 @@ export const getWordsToReview = (progress, allWords) => {
   return wordsWithErrors;
 };
 
+/**
+ * Calcula a urgência das revisões pendentes.
+ * - 'urgent'  → a palavra mais antiga foi vista há mais de 2 dias
+ * - 'pending' → há palavras para revisar, mas tudo recente
+ * - 'none'    → nenhuma revisão pendente
+ */
+export const getReviewUrgency = (progress, allWords) => {
+  const wordsToReview = getWordsToReview(progress, allWords);
+  if (wordsToReview.length === 0) return { level: 'none', daysOldest: 0, count: 0 };
+
+  const { wordStats = {} } = progress;
+  const now = Date.now();
+  const MS_PER_DAY = 86_400_000;
+
+  let oldestMs = 0;
+  for (const word of wordsToReview) {
+    const stats = wordStats[word.en];
+    if (stats?.lastSeen) {
+      const age = now - stats.lastSeen;
+      if (age > oldestMs) oldestMs = age;
+    }
+  }
+
+  const daysOldest = Math.floor(oldestMs / MS_PER_DAY);
+  const level = daysOldest >= 2 ? 'urgent' : 'pending';
+  return { level, daysOldest, count: wordsToReview.length };
+};
+
 export const getWordPriority = (wordStats) => {
   if (!wordStats) return 0;
   // Higher priority = should appear more often
