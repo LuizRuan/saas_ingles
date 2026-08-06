@@ -120,7 +120,7 @@ const Conversation = () => {
             </p>
           </div>
           <div className="convo-topics">
-            {conversations.map((c) => (
+            {[...conversations].sort((a, b) => (a.level || 1) - (b.level || 1)).map((c) => (
               <button key={c.id} className="glass-card convo-topic-card" onClick={() => iniciar(c)}>
                 <span className="convo-topic-icon">{c.icon}</span>
                 <div className="convo-topic-body">

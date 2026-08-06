@@ -1,4 +1,4 @@
-import { sentences as sentencesData, fillBlanks as fillBlanksData } from '../data/sentences';
+import { sentences as sentencesData, fillBlanks as fillBlanksData } from '../data/sentences.js';
 
 /**
  * Retorna a data no fuso horário de Brasília (America/Sao_Paulo / UTC-3).
@@ -126,6 +126,7 @@ const ALL_GAME_MODES = [
  * Regra: gameTypes[i] !== gameTypes[i-1] (sem jogos repetidos em etapas seguidas).
  */
 export const generateDailyChallenge = (words) => {
+  if (!words || words.length === 0) return { date: getTodayDateString(), challenges: [] };
   const seed = getDaySeed();
   const rng = seededRandom(seed);
 
@@ -244,8 +245,11 @@ export const generateDailyChallenge = (words) => {
       }
     }
 
+    const options = payload.options || buildOptions(rng, payload.answer, shuffledWords);
+
     return {
       stepIndex: stepIdx + 1,
+      options,
       ...mode,
       ...payload,
     };
@@ -260,6 +264,21 @@ export const generateDailyChallenge = (words) => {
 };
 
 export const isDailyChallengeCompleted = (progress) => {
+  if (!progress || !progress.lastDailyChallengeDate) return false;
   const today = getTodayDateString();
-  return progress.lastDailyChallengeDate === today;
+  const dateStr = progress.lastDailyChallengeDate;
+  if (dateStr === today) return true;
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const options = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' };
+      const formatter = new Intl.DateTimeFormat('en-US', options);
+      const parts = formatter.formatToParts(d);
+      const y = parts.find(p => p.type === 'year').value;
+      const m = parts.find(p => p.type === 'month').value;
+      const dayVal = parts.find(p => p.type === 'day').value;
+      return `${y}-${m}-${dayVal}` === today;
+    }
+  } catch (e) {}
+  return false;
 };

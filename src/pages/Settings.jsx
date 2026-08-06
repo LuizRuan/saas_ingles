@@ -221,42 +221,7 @@ const Settings = () => {
                     </>
                   )}
 
-                  {/* Modal de Confirmação para Alterar Apelido */}
-                  {showNicknameModal && (
-                    <div className="modal-backdrop animate-fade-in" style={{
-                      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                      background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      zIndex: 9999, padding: 'var(--space-md)'
-                    }}>
-                      <div className="modal-card glass-card animate-bounce-in" style={{
-                        maxWidth: 440, width: '100%', padding: 'var(--space-xl)', textAlign: 'center'
-                      }}>
-                        <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: 'var(--space-xs)' }}>⚠️</span>
-                        <h3 style={{ marginBottom: 'var(--space-xs)' }}>Mudar Apelido?</h3>
-                        <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', lineHeight: 1.5, marginBottom: 'var(--space-lg)' }}>
-                          Tem certeza que quer mudar o apelido? Você não poderá mudá-lo nos próximos <strong>30 dias</strong>.
-                        </p>
-                        <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'center' }}>
-                          <button
-                            className="btn btn-ghost"
-                            onClick={() => setShowNicknameModal(false)}
-                          >
-                            Cancelar
-                          </button>
-                          <button
-                            className="btn btn-primary"
-                            onClick={() => {
-                              setShowNicknameModal(false);
-                              setIsEditingNickname(true);
-                            }}
-                          >
-                            Sim, quero mudar
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+
                 </>
               );
             })()}
@@ -450,6 +415,44 @@ const Settings = () => {
           </p>
         </div>
       </div>
+
+      {/* Modal de Confirmação para Alterar Apelido (Posicionado na raiz para cobrir 100% da tela) */}
+      {showNicknameModal && (
+        <div className="modal-backdrop animate-fade-in" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          width: '100vw', height: '100vh',
+          background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(6px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 99999, padding: 'var(--space-md)'
+        }}>
+          <div className="modal-card glass-card animate-bounce-in" style={{
+            maxWidth: 440, width: '100%', padding: 'var(--space-xl)', textAlign: 'center'
+          }}>
+            <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: 'var(--space-xs)' }}>⚠️</span>
+            <h3 style={{ marginBottom: 'var(--space-xs)' }}>Mudar Apelido?</h3>
+            <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', lineHeight: 1.5, marginBottom: 'var(--space-lg)' }}>
+              Tem certeza que quer mudar o apelido? Você não poderá mudá-lo nos próximos <strong>30 dias</strong>.
+            </p>
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'center' }}>
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowNicknameModal(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowNicknameModal(false);
+                  setIsEditingNickname(true);
+                }}
+              >
+                Sim, quero mudar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

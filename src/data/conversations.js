@@ -170,6 +170,515 @@ export const conversations = [
   },
 
   {
+    id: 'colors',
+    topic: 'Colors & Things',
+    topicPt: 'Cores e objetos',
+    icon: '🎨',
+    level: 1,
+    start: 'favorite_color',
+    nodes: {
+      favorite_color: {
+        text: 'Hi! What is your favorite color?',
+        translation: 'Oi! Qual é a sua cor favorita?',
+        replies: [
+          { text: 'My favorite color is blue.', translation: 'Minha cor favorita é azul.', next: 'why_blue', accepts: ['Blue', 'I like blue'] },
+          { text: 'I love the color red.', translation: 'Eu adoro a cor vermelha.', next: 'red_things', accepts: ['Red', 'I like red'] },
+          { text: 'I like green the most.', translation: 'Eu gosto mais de verde.', next: 'green_things', accepts: ['Green', 'I like green'] },
+        ],
+      },
+      why_blue: {
+        text: 'Nice! Blue is the color of the sky. What things are blue?',
+        translation: 'Legal! Azul é a cor do céu. Que coisas são azuis?',
+        replies: [
+          { text: 'The sky and the ocean are blue.', translation: 'O céu e o oceano são azuis.', next: 'your_clothes', accepts: ['Sky and ocean'] },
+          { text: 'My pen and my notebook are blue.', translation: 'Minha caneta e meu caderno são azuis.', next: 'your_clothes', accepts: ['Pen and notebook'] },
+        ],
+      },
+      red_things: {
+        text: 'Red is a strong color! What things are red?',
+        translation: 'Vermelho é uma cor forte! Que coisas são vermelhas?',
+        replies: [
+          { text: 'Apples and tomatoes are red.', translation: 'Maçãs e tomates são vermelhos.', next: 'your_clothes', accepts: ['Apples and tomatoes'] },
+          { text: 'My bag is red.', translation: 'Minha bolsa é vermelha.', next: 'your_clothes', accepts: ['My bag'] },
+        ],
+      },
+      green_things: {
+        text: 'Green is the color of nature! What things are green?',
+        translation: 'Verde é a cor da natureza! Que coisas são verdes?',
+        replies: [
+          { text: 'Leaves and grass are green.', translation: 'Folhas e grama são verdes.', next: 'your_clothes', accepts: ['Leaves and grass'] },
+          { text: 'Broccoli and spinach are green.', translation: 'Brócolis e espinafre são verdes.', next: 'your_clothes', accepts: ['Broccoli and spinach'] },
+        ],
+      },
+      your_clothes: {
+        text: 'What color are your clothes today?',
+        translation: 'De que cor são as suas roupas hoje?',
+        replies: [
+          { text: 'I am wearing a white shirt.', translation: 'Estou usando uma camisa branca.', next: 'mix_colors', accepts: ['White shirt'] },
+          { text: 'My pants are black.', translation: 'Minha calça é preta.', next: 'mix_colors', accepts: ['Black pants'] },
+          { text: 'I am wearing many colors today.', translation: 'Estou usando muitas cores hoje.', next: 'mix_colors', accepts: ['Many colors'] },
+        ],
+      },
+      mix_colors: {
+        text: 'Do you know what color you get when you mix blue and yellow?',
+        translation: 'Você sabe que cor você obtém ao misturar azul e amarelo?',
+        replies: [
+          { text: 'You get green!', translation: 'Você obtém verde!', next: 'end_colors', accepts: ['Green'] },
+          { text: 'I am not sure.', translation: 'Não tenho certeza.', next: 'end_colors', accepts: ["I don't know"] },
+        ],
+      },
+      end_colors: {
+        text: "Correct! Blue + Yellow = Green. You're doing great. Goodbye!",
+        translation: 'Correto! Azul + Amarelo = Verde. Você está indo muito bem. Tchau!',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'numbers',
+    topic: 'Numbers & Counting',
+    topicPt: 'Números e contagem',
+    icon: '🔢',
+    level: 1,
+    start: 'count_to_ten',
+    nodes: {
+      count_to_ten: {
+        text: 'Let\'s practice numbers! Can you count from one to five?',
+        translation: 'Vamos praticar números! Você consegue contar de um a cinco?',
+        replies: [
+          { text: 'One, two, three, four, five.', translation: 'Um, dois, três, quatro, cinco.', next: 'how_old', accepts: ['1, 2, 3, 4, 5'] },
+          { text: 'I know the numbers in English!', translation: 'Eu sei os números em inglês!', next: 'know_numbers', accepts: ['I know them'] },
+        ],
+      },
+      know_numbers: {
+        text: 'Awesome! Number practice is very important. How old are you?',
+        translation: 'Incrível! Praticar números é muito importante. Quantos anos você tem?',
+        replies: [
+          { text: 'I am twenty years old.', translation: 'Eu tenho vinte anos.', next: 'how_many_siblings', accepts: ["I'm 20", "I'm twenty"] },
+          { text: 'I am thirty years old.', translation: 'Eu tenho trinta anos.', next: 'how_many_siblings', accepts: ["I'm 30", "I'm thirty"] },
+        ],
+      },
+      how_old: {
+        text: 'Perfect! How old are you? Tell me in English.',
+        translation: 'Perfeito! Quantos anos você tem? Diga em inglês.',
+        replies: [
+          { text: 'I am twenty years old.', translation: 'Eu tenho vinte anos.', next: 'how_many_siblings', accepts: ["I'm 20", "I'm twenty"] },
+          { text: 'I am thirty years old.', translation: 'Eu tenho trinta anos.', next: 'how_many_siblings', accepts: ["I'm 30", "I'm thirty"] },
+          { text: 'I am twenty-five years old.', translation: 'Eu tenho vinte e cinco anos.', next: 'how_many_siblings', accepts: ["I'm 25", "I'm twenty five"] },
+        ],
+      },
+      how_many_siblings: {
+        text: 'Good! How many brothers and sisters do you have?',
+        translation: 'Ótimo! Quantos irmãos e irmãs você tem?',
+        replies: [
+          { text: 'I have two brothers and one sister.', translation: 'Eu tenho dois irmãos e uma irmã.', next: 'phone_number', accepts: ['Two brothers and one sister'] },
+          { text: 'I have no siblings.', translation: 'Eu não tenho irmãos.', next: 'phone_number', accepts: ['No siblings', 'None'] },
+          { text: 'I have three sisters.', translation: 'Eu tenho três irmãs.', next: 'phone_number', accepts: ['Three sisters'] },
+        ],
+      },
+      phone_number: {
+        text: 'Can you say a phone number in English? Try saying each digit.',
+        translation: 'Você consegue dizer um número de telefone em inglês? Tente dizer cada dígito.',
+        replies: [
+          { text: 'Nine, one, zero, five, two.', translation: 'Nove, um, zero, cinco, dois.', next: 'price_game', accepts: ['9, 1, 0, 5, 2'] },
+          { text: 'One, two, three, four, five.', translation: 'Um, dois, três, quatro, cinco.', next: 'price_game', accepts: ['1, 2, 3, 4, 5'] },
+        ],
+      },
+      price_game: {
+        text: 'Great! A coffee costs two dollars fifty. How much is it?',
+        translation: 'Ótimo! Um café custa dois dólares e cinquenta. Quanto é?',
+        replies: [
+          { text: 'It is two fifty.', translation: 'É dois e cinquenta.', next: 'end_numbers', accepts: ['Two dollars fifty', "It's 2.50"] },
+          { text: 'Two dollars and fifty cents.', translation: 'Dois dólares e cinquenta centavos.', next: 'end_numbers', accepts: ['2 dollars 50 cents'] },
+        ],
+      },
+      end_numbers: {
+        text: 'Excellent work! Numbers are very useful every day. See you next time!',
+        translation: 'Excelente trabalho! Os números são muito úteis todo dia. Até a próxima!',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'daily_routine',
+    topic: 'Daily Routine',
+    topicPt: 'Rotina diária',
+    icon: '🌅',
+    level: 1,
+    start: 'wake_up',
+    nodes: {
+      wake_up: {
+        text: 'What time do you usually wake up?',
+        translation: 'A que horas você geralmente acorda?',
+        replies: [
+          { text: 'I wake up at six in the morning.', translation: 'Eu acordo às seis da manhã.', next: 'morning_activities', accepts: ['At six', 'Six in the morning'] },
+          { text: 'I wake up at seven thirty.', translation: 'Eu acordo às sete e meia.', next: 'morning_activities', accepts: ['At seven thirty', '7:30'] },
+          { text: 'I wake up late, around nine.', translation: 'Eu acordo tarde, perto das nove.', next: 'sleep_late', accepts: ['Around nine', 'At nine'] },
+        ],
+      },
+      sleep_late: {
+        text: 'Waking up late is nice! What do you do next?',
+        translation: 'Acordar tarde é muito bom! O que você faz em seguida?',
+        replies: [
+          { text: 'First, I take a shower.', translation: 'Primeiro, eu tomo banho.', next: 'breakfast_q', accepts: ['I shower first'] },
+          { text: 'I brush my teeth.', translation: 'Eu escovo meus dentes.', next: 'breakfast_q', accepts: ['Brush teeth'] },
+        ],
+      },
+      morning_activities: {
+        text: 'What do you do first in the morning?',
+        translation: 'O que você faz primeiro de manhã?',
+        replies: [
+          { text: 'First, I take a shower.', translation: 'Primeiro, eu tomo banho.', next: 'breakfast_q', accepts: ['I shower first'] },
+          { text: 'I drink coffee and check my phone.', translation: 'Eu tomo café e vejo meu celular.', next: 'breakfast_q', accepts: ['Coffee and phone'] },
+          { text: 'I brush my teeth.', translation: 'Eu escovo meus dentes.', next: 'breakfast_q', accepts: ['Brush teeth'] },
+        ],
+      },
+      breakfast_q: {
+        text: 'Do you eat breakfast every day?',
+        translation: 'Você toma café da manhã todo dia?',
+        replies: [
+          { text: 'Yes, breakfast is very important for me.', translation: 'Sim, o café da manhã é muito importante para mim.', next: 'go_to_work', accepts: ['Yes, always'] },
+          { text: 'No, I am not hungry in the morning.', translation: 'Não, não tenho fome de manhã.', next: 'go_to_work', accepts: ['No, never'] },
+        ],
+      },
+      go_to_work: {
+        text: 'What time do you go to work or school?',
+        translation: 'A que horas você vai trabalhar ou para a escola?',
+        replies: [
+          { text: 'I leave the house at eight.', translation: 'Eu saio de casa às oito.', next: 'evening_routine', accepts: ['At eight'] },
+          { text: 'I start at nine in the morning.', translation: 'Eu começo às nove da manhã.', next: 'evening_routine', accepts: ['At nine', 'Nine in the morning'] },
+        ],
+      },
+      evening_routine: {
+        text: 'What do you do in the evening?',
+        translation: 'O que você faz à noite?',
+        replies: [
+          { text: 'I watch TV and then go to sleep.', translation: 'Eu assisto TV e depois durmo.', next: 'end_routine', accepts: ['Watch TV'] },
+          { text: 'I study English at night.', translation: 'Eu estudo inglês à noite.', next: 'end_routine', accepts: ['I study'] },
+          { text: 'I cook dinner and eat with my family.', translation: 'Eu cozinho jantar e como com minha família.', next: 'end_routine', accepts: ['Cook dinner'] },
+        ],
+      },
+      end_routine: {
+        text: 'That sounds like a good day! Routines help us stay organised. Goodbye!',
+        translation: 'Parece um bom dia! Rotinas nos ajudam a ficar organizados. Tchau!',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'food_drinks',
+    topic: 'Food & Drinks',
+    topicPt: 'Comidas e bebidas',
+    icon: '🍎',
+    level: 1,
+    start: 'hungry',
+    nodes: {
+      hungry: {
+        text: 'Are you hungry? What is your favorite food?',
+        translation: 'Você está com fome? Qual é a sua comida favorita?',
+        replies: [
+          { text: 'I love pizza!', translation: 'Eu adoro pizza!', next: 'pizza_topping', accepts: ['Pizza is my favorite'] },
+          { text: 'My favorite food is rice and beans.', translation: 'Minha comida favorita é arroz e feijão.', next: 'like_sweets', accepts: ['Rice and beans'] },
+          { text: 'I love fruit. Especially mango.', translation: 'Eu adoro frutas. Especialmente manga.', next: 'like_sweets', accepts: ['I love fruit', 'Mango'] },
+        ],
+      },
+      pizza_topping: {
+        text: 'Yummy! What is your favorite pizza topping?',
+        translation: 'Que delícia! Qual é o seu topping de pizza favorito?',
+        replies: [
+          { text: 'I like cheese and tomato.', translation: 'Eu gosto de queijo e tomate.', next: 'like_sweets', accepts: ['Cheese and tomato'] },
+          { text: 'I prefer pepperoni.', translation: 'Eu prefiro pepperoni.', next: 'like_sweets', accepts: ['Pepperoni'] },
+        ],
+      },
+      like_sweets: {
+        text: 'Do you like sweets? What is your favorite dessert?',
+        translation: 'Você gosta de doces? Qual é a sua sobremesa favorita?',
+        replies: [
+          { text: 'I love chocolate cake.', translation: 'Eu adoro bolo de chocolate.', next: 'drink_pref', accepts: ['Chocolate cake'] },
+          { text: 'I prefer ice cream.', translation: 'Eu prefiro sorvete.', next: 'drink_pref', accepts: ['Ice cream'] },
+          { text: 'I do not eat sweets.', translation: 'Eu não como doces.', next: 'drink_pref', accepts: ["I don't like sweets"] },
+        ],
+      },
+      drink_pref: {
+        text: 'What do you drink every day?',
+        translation: 'O que você bebe todo dia?',
+        replies: [
+          { text: 'I drink a lot of water.', translation: 'Eu bebo muita água.', next: 'food_dislike', accepts: ['Water'] },
+          { text: 'I love coffee.', translation: 'Eu adoro café.', next: 'food_dislike', accepts: ['Coffee'] },
+          { text: 'I drink juice in the morning.', translation: 'Eu bebo suco de manhã.', next: 'food_dislike', accepts: ['Juice'] },
+        ],
+      },
+      food_dislike: {
+        text: 'Is there any food you do not like?',
+        translation: 'Existe alguma comida que você não gosta?',
+        replies: [
+          { text: 'I do not like vegetables.', translation: 'Eu não gosto de legumes.', next: 'end_food', accepts: ["I don't like vegetables"] },
+          { text: 'I dislike spicy food.', translation: 'Eu não gosto de comida picante.', next: 'end_food', accepts: ["I don't like spicy food"] },
+          { text: 'I like almost everything!', translation: 'Eu gosto de quase tudo!', next: 'end_food', accepts: ['I like everything'] },
+        ],
+      },
+      end_food: {
+        text: 'Talking about food always makes me hungry! See you soon!',
+        translation: 'Falar de comida sempre me dá fome! Até logo!',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'body_health',
+    topic: 'Body Parts & Feelings',
+    topicPt: 'Partes do corpo e sentimentos',
+    icon: '🤒',
+    level: 1,
+    start: 'how_are_you',
+    nodes: {
+      how_are_you: {
+        text: 'Hi! How are you feeling today?',
+        translation: 'Oi! Como você está se sentindo hoje?',
+        replies: [
+          { text: 'I feel great today!', translation: 'Estou ótimo(a) hoje!', next: 'body_parts', accepts: ["I'm great", 'Very well'] },
+          { text: 'I have a headache.', translation: 'Estou com dor de cabeça.', next: 'head_pain', accepts: ['My head hurts'] },
+          { text: 'My legs are tired.', translation: 'Minhas pernas estão cansadas.', next: 'leg_pain', accepts: ['My legs hurt'] },
+        ],
+      },
+      head_pain: {
+        text: 'Oh no! Did you drink enough water today?',
+        translation: 'Ah não! Você bebeu água suficiente hoje?',
+        replies: [
+          { text: 'No, I forgot to drink water.', translation: 'Não, eu esqueci de beber água.', next: 'body_parts', accepts: ["I didn't drink water"] },
+          { text: 'Yes, but I slept badly.', translation: 'Sim, mas eu dormi mal.', next: 'body_parts', accepts: ['I slept badly'] },
+        ],
+      },
+      leg_pain: {
+        text: 'Did you exercise a lot yesterday?',
+        translation: 'Você se exercitou muito ontem?',
+        replies: [
+          { text: 'Yes, I ran for one hour.', translation: 'Sim, eu corri por uma hora.', next: 'body_parts', accepts: ['I ran yesterday'] },
+          { text: 'I walked a lot.', translation: 'Eu caminhei muito.', next: 'body_parts', accepts: ['I walked a lot'] },
+        ],
+      },
+      body_parts: {
+        text: 'Let\'s learn body parts! Can you point to your nose?',
+        translation: 'Vamos aprender partes do corpo! Você consegue apontar para o seu nariz?',
+        replies: [
+          { text: 'Yes! I can also point to my eyes and ears.', translation: 'Sim! Também consigo apontar meus olhos e ouvidos.', next: 'hands_feet', accepts: ['Eyes and ears'] },
+          { text: 'Nose! And mouth. And eyes.', translation: 'Nariz! E boca. E olhos.', next: 'hands_feet', accepts: ['Nose mouth eyes'] },
+        ],
+      },
+      hands_feet: {
+        text: 'Great! How many fingers do you have on one hand?',
+        translation: 'Ótimo! Quantos dedos você tem em uma mão?',
+        replies: [
+          { text: 'I have five fingers on one hand.', translation: 'Eu tenho cinco dedos em uma mão.', next: 'end_body', accepts: ['Five fingers'] },
+          { text: 'Five! And ten fingers total.', translation: 'Cinco! E dez dedos no total.', next: 'end_body', accepts: ['Five and ten total'] },
+        ],
+      },
+      end_body: {
+        text: 'Excellent! Take care of your body every day. Goodbye!',
+        translation: 'Excelente! Cuide do seu corpo todo dia. Tchau!',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'places_city',
+    topic: 'Places in the City',
+    topicPt: 'Lugares na cidade',
+    icon: '🏙️',
+    level: 1,
+    start: 'your_city',
+    nodes: {
+      your_city: {
+        text: 'Tell me about your city! Do you live in a big city or a small town?',
+        translation: 'Me fale sobre a sua cidade! Você mora em uma cidade grande ou numa cidadezinha?',
+        replies: [
+          { text: 'I live in a big city.', translation: 'Eu moro em uma cidade grande.', next: 'what_places', accepts: ['Big city'] },
+          { text: 'I live in a small town.', translation: 'Eu moro em uma cidade pequena.', next: 'small_town_info', accepts: ['Small town'] },
+        ],
+      },
+      small_town_info: {
+        text: 'Small towns are very peaceful! What places are near your home?',
+        translation: 'Cidades pequenas são muito tranquilas! Que lugares ficam perto da sua casa?',
+        replies: [
+          { text: 'There is a park and a school.', translation: 'Tem um parque e uma escola.', next: 'favorite_place', accepts: ['Park and school'] },
+          { text: 'There is a supermarket and a bank.', translation: 'Tem um supermercado e um banco.', next: 'favorite_place', accepts: ['Supermarket and bank'] },
+        ],
+      },
+      what_places: {
+        text: 'What places are near your home?',
+        translation: 'Que lugares ficam perto da sua casa?',
+        replies: [
+          { text: 'There is a supermarket and a bank.', translation: 'Tem um supermercado e um banco.', next: 'favorite_place', accepts: ['Supermarket and bank'] },
+          { text: 'There is a park and a school.', translation: 'Tem um parque e uma escola.', next: 'favorite_place', accepts: ['Park and school'] },
+          { text: 'There is a hospital and a pharmacy.', translation: 'Tem um hospital e uma farmácia.', next: 'favorite_place', accepts: ['Hospital and pharmacy'] },
+        ],
+      },
+      favorite_place: {
+        text: 'What is your favorite place in the city?',
+        translation: 'Qual é o seu lugar favorito na cidade?',
+        replies: [
+          { text: 'I love the park.', translation: 'Eu adoro o parque.', next: 'go_how', accepts: ['The park'] },
+          { text: 'The shopping mall is my favorite.', translation: 'O shopping é o meu favorito.', next: 'go_how', accepts: ['The mall'] },
+          { text: 'I like the library.', translation: 'Eu gosto da biblioteca.', next: 'go_how', accepts: ['The library'] },
+        ],
+      },
+      go_how: {
+        text: 'How do you usually get around the city?',
+        translation: 'Como você geralmente se locomove pela cidade?',
+        replies: [
+          { text: 'I take the bus.', translation: 'Eu pego o ônibus.', next: 'dangerous', accepts: ['By bus'] },
+          { text: 'I walk or ride my bike.', translation: 'Eu caminho ou ando de bicicleta.', next: 'dangerous', accepts: ['Walk or bike'] },
+          { text: 'My parents drive me.', translation: 'Meus pais me levam de carro.', next: 'dangerous', accepts: ['My parents drive me'] },
+        ],
+      },
+      dangerous: {
+        text: 'Is your city safe?',
+        translation: 'A sua cidade é segura?',
+        replies: [
+          { text: 'Yes, it is very safe here.', translation: 'Sim, é muito seguro aqui.', next: 'end_city', accepts: ['Yes, very safe'] },
+          { text: 'It is okay in some areas.', translation: 'É ok em algumas áreas.', next: 'end_city', accepts: ['In some areas'] },
+        ],
+      },
+      end_city: {
+        text: 'Every city is unique! Thanks for sharing. See you!',
+        translation: 'Toda cidade é única! Obrigado por compartilhar. Até mais!',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'clothes',
+    topic: 'Clothes & Getting Dressed',
+    topicPt: 'Roupas e se vestir',
+    icon: '👕',
+    level: 1,
+    start: 'what_wearing',
+    nodes: {
+      what_wearing: {
+        text: 'Hello! What are you wearing today?',
+        translation: 'Olá! O que você está usando hoje?',
+        replies: [
+          { text: 'I am wearing a T-shirt and jeans.', translation: 'Estou usando uma camiseta e jeans.', next: 'color_clothes', accepts: ['T-shirt and jeans'] },
+          { text: 'I am wearing a dress.', translation: 'Estou usando um vestido.', next: 'color_clothes', accepts: ['A dress'] },
+          { text: 'I am wearing a shirt and trousers.', translation: 'Estou usando uma camisa e calça.', next: 'comfy_wear', accepts: ['Shirt and trousers'] },
+        ],
+      },
+      comfy_wear: {
+        text: 'Comfortable clothing is the best! What color are your clothes?',
+        translation: 'Roupas confortáveis são as melhores! De que cor são suas roupas?',
+        replies: [
+          { text: 'My shirt is white and my pants are blue.', translation: 'Minha camiseta é branca e minha calça é azul.', next: 'shoes', accepts: ['White and blue'] },
+          { text: 'All black today.', translation: 'Tudo preto hoje.', next: 'shoes', accepts: ['Black'] },
+        ],
+      },
+      color_clothes: {
+        text: 'Nice! What color are your clothes?',
+        translation: 'Legal! De que cor são suas roupas?',
+        replies: [
+          { text: 'My shirt is white and my pants are blue.', translation: 'Minha camiseta é branca e minha calça é azul.', next: 'shoes', accepts: ['White and blue'] },
+          { text: 'All black today.', translation: 'Tudo preto hoje.', next: 'shoes', accepts: ['Black'] },
+          { text: 'I have many colors on.', translation: 'Estou usando muitas cores.', next: 'shoes', accepts: ['Many colors'] },
+        ],
+      },
+      shoes: {
+        text: 'What kind of shoes are you wearing?',
+        translation: 'Que tipo de sapato você está usando?',
+        replies: [
+          { text: 'I am wearing sneakers.', translation: 'Estou usando tênis.', next: 'weather_dress', accepts: ['Sneakers'] },
+          { text: 'I am wearing sandals.', translation: 'Estou usando sandálias.', next: 'weather_dress', accepts: ['Sandals'] },
+          { text: 'I am wearing boots.', translation: 'Estou usando botas.', next: 'weather_dress', accepts: ['Boots'] },
+        ],
+      },
+      weather_dress: {
+        text: 'Do you dress differently in summer and winter?',
+        translation: 'Você se veste de forma diferente no verão e no inverno?',
+        replies: [
+          { text: 'Yes! In summer I wear shorts and in winter a coat.', translation: 'Sim! No verão uso shorts e no inverno um casaco.', next: 'favorite_outfit', accepts: ['Shorts in summer, coat in winter'] },
+          { text: 'I live in a warm place so always the same.', translation: 'Eu moro em um lugar quente então sempre igual.', next: 'favorite_outfit', accepts: ['Always the same'] },
+        ],
+      },
+      favorite_outfit: {
+        text: 'What is your favorite outfit?',
+        translation: 'Qual é o seu look favorito?',
+        replies: [
+          { text: 'I love jeans and a simple T-shirt.', translation: 'Eu adoro jeans e uma camiseta simples.', next: 'end_clothes', accepts: ['Jeans and T-shirt'] },
+          { text: 'I like to dress elegantly.', translation: 'Eu gosto de me vestir elegante.', next: 'end_clothes', accepts: ['Elegant clothes'] },
+          { text: 'Comfortable clothes are my favorite.', translation: 'Roupas confortáveis são meu favorito.', next: 'end_clothes', accepts: ['Comfortable clothes'] },
+        ],
+      },
+      end_clothes: {
+        text: 'Fashion is fun! Wear what makes you happy. Goodbye!',
+        translation: 'Moda é divertido! Use o que te faz feliz. Tchau!',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'classroom',
+    topic: 'In the Classroom',
+    topicPt: 'Na sala de aula',
+    icon: '📚',
+    level: 1,
+    start: 'good_morning_class',
+    nodes: {
+      good_morning_class: {
+        text: 'Good morning, class! Are you ready to learn?',
+        translation: 'Bom dia, turma! Vocês estão prontos para aprender?',
+        replies: [
+          { text: 'Yes, teacher! I am ready.', translation: 'Sim, professor(a)! Estou pronto(a).', next: 'sit_down', accepts: ["Yes, I'm ready"] },
+          { text: 'Good morning! I have a question.', translation: 'Bom dia! Tenho uma pergunta.', next: 'ask_question', accepts: ['I have a question'] },
+        ],
+      },
+      ask_question: {
+        text: 'Of course! What is your question?',
+        translation: 'Claro! Qual é a sua pergunta?',
+        replies: [
+          { text: 'Can you repeat that, please?', translation: 'Pode repetir isso, por favor?', next: 'sit_down', accepts: ['Please repeat'] },
+          { text: 'Can you speak more slowly?', translation: 'Pode falar mais devagar?', next: 'sit_down', accepts: ['Speak slowly please'] },
+          { text: 'What does this word mean?', translation: 'O que essa palavra significa?', next: 'sit_down', accepts: ['What does it mean?'] },
+        ],
+      },
+      sit_down: {
+        text: 'Please sit down. Open your books to page ten.',
+        translation: 'Por favor, sentem-se. Abram os livros na página dez.',
+        replies: [
+          { text: 'Okay, I am opening my book.', translation: 'Ok, estou abrindo meu livro.', next: 'classroom_objects', accepts: ['I opened my book'] },
+          { text: 'I forgot my book at home.', translation: 'Esqueci meu livro em casa.', next: 'forgot_book', accepts: ['I forgot my book'] },
+        ],
+      },
+      forgot_book: {
+        text: 'That is okay. You can share with your classmate.',
+        translation: 'Tudo bem. Você pode compartilhar com seu colega.',
+        replies: [
+          { text: 'Thank you, teacher.', translation: 'Obrigado(a), professor(a).', next: 'classroom_objects', accepts: ['Thank you'] },
+        ],
+      },
+      classroom_objects: {
+        text: 'What objects do you have on your desk?',
+        translation: 'Que objetos você tem sobre sua mesa?',
+        replies: [
+          { text: 'I have a pen, a pencil, and a ruler.', translation: 'Tenho uma caneta, um lápis e uma régua.', next: 'end_class', accepts: ['Pen, pencil, ruler'] },
+          { text: 'I have my notebook and an eraser.', translation: 'Tenho meu caderno e uma borracha.', next: 'end_class', accepts: ['Notebook and eraser'] },
+        ],
+      },
+      end_class: {
+        text: "Excellent! Class is over. See you tomorrow. Don't forget your homework!",
+        translation: 'Excelente! A aula acabou. Até amanhã. Não esqueçam o dever de casa!',
+        replies: [],
+      },
+    },
+  },
+
+  // ─── LEVEL 2 — novas conversas (+5) ─────────────────────────────────────────,
+
+  {
     id: 'breakfast',
     topic: 'Breakfast',
     topicPt: 'Café da manhã',
@@ -545,6 +1054,312 @@ export const conversations = [
       },
     },
   },
+
+  {
+    id: 'birthday',
+    topic: 'Birthday Party',
+    topicPt: 'Festa de aniversário',
+    icon: '🎂',
+    level: 2,
+    start: 'happy_birthday',
+    nodes: {
+      happy_birthday: {
+        text: 'Happy birthday! How old are you today?',
+        translation: 'Feliz aniversário! Quantos anos você faz hoje?',
+        replies: [
+          { text: 'Thank you! I am turning eighteen.', translation: 'Obrigado(a)! Estou completando dezoito anos.', next: 'party_plans', accepts: ["I'm eighteen today"] },
+          { text: 'Thank you! I am twenty-five today.', translation: 'Obrigado(a)! Tenho vinte e cinco hoje.', next: 'party_plans', accepts: ["I'm 25"] },
+          { text: 'Thank you very much! I feel old!', translation: 'Muito obrigado(a)! Estou me sentindo velho(a)!', next: 'party_plans', accepts: ['I feel old!'] },
+        ],
+      },
+      party_plans: {
+        text: 'Are you having a party?',
+        translation: 'Você vai fazer uma festa?',
+        replies: [
+          { text: 'Yes, I am having a party at home tonight.', translation: 'Sim, vou fazer uma festa em casa hoje à noite.', next: 'who_invited', accepts: ['Yes, a party at home'] },
+          { text: 'No, just a small dinner with family.', translation: 'Não, só um jantarzinho com a família.', next: 'birthday_food', accepts: ['Small dinner'] },
+        ],
+      },
+      who_invited: {
+        text: 'Great! How many people did you invite?',
+        translation: 'Que ótimo! Quantas pessoas você convidou?',
+        replies: [
+          { text: 'About twenty friends.', translation: 'Uns vinte amigos.', next: 'birthday_food', accepts: ['Twenty friends'] },
+          { text: 'Only my best friends, about ten people.', translation: 'Só meus melhores amigos, umas dez pessoas.', next: 'birthday_food', accepts: ['Ten people', 'My best friends'] },
+        ],
+      },
+      birthday_food: {
+        text: 'What kind of cake did you get?',
+        translation: 'Que tipo de bolo você vai ter?',
+        replies: [
+          { text: 'Chocolate cake with strawberries.', translation: 'Bolo de chocolate com morangos.', next: 'gift', accepts: ['Chocolate cake'] },
+          { text: 'A vanilla and lemon cake.', translation: 'Bolo de baunilha com limão.', next: 'gift', accepts: ['Vanilla cake'] },
+        ],
+      },
+      gift: {
+        text: 'Did you get any special gifts?',
+        translation: 'Você ganhou algum presente especial?',
+        replies: [
+          { text: 'Yes! I got a new phone!', translation: 'Sim! Ganhei um celular novo!', next: 'end_birthday', accepts: ['A new phone'] },
+          { text: 'I got money and some clothes.', translation: 'Ganhei dinheiro e algumas roupas.', next: 'end_birthday', accepts: ['Money and clothes'] },
+          { text: 'The best gift is being with my friends.', translation: 'O melhor presente é estar com meus amigos.', next: 'end_birthday', accepts: ['Being with friends'] },
+        ],
+      },
+      end_birthday: {
+        text: 'That sounds wonderful! Happy birthday again. Have a great celebration!',
+        translation: 'Parece maravilhoso! Feliz aniversário de novo. Aproveite muito!',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'supermarket',
+    topic: 'At the Supermarket',
+    topicPt: 'No supermercado',
+    icon: '🛒',
+    level: 2,
+    start: 'welcome_super',
+    nodes: {
+      welcome_super: {
+        text: 'Welcome! Are you looking for something specific today?',
+        translation: 'Bem-vindo(a)! Você está procurando algo específico hoje?',
+        replies: [
+          { text: 'Yes, where is the bread section?', translation: 'Sim, onde fica a seção de pão?', next: 'bread_aisle', accepts: ['Where is the bread?'] },
+          { text: 'I need to find some vegetables.', translation: 'Eu preciso encontrar alguns legumes.', next: 'veggie_aisle', accepts: ['I need vegetables'] },
+          { text: 'No, I am just browsing today.', translation: 'Não, estou só dando uma olhada hoje.', next: 'have_list', accepts: ['Just browsing'] },
+        ],
+      },
+      bread_aisle: {
+        text: 'The bread is in aisle three, on the left side.',
+        translation: 'O pão fica no corredor três, do lado esquerdo.',
+        replies: [
+          { text: 'Thank you! Do you also have whole wheat bread?', translation: 'Obrigado(a)! Vocês também têm pão integral?', next: 'have_list', accepts: ['Whole wheat bread?'] },
+          { text: 'Great, I will find it. Thank you!', translation: 'Ótimo, vou encontrar. Obrigado(a)!', next: 'have_list', accepts: ['Thank you'] },
+        ],
+      },
+      veggie_aisle: {
+        text: 'The vegetables are in the fresh produce section, at the back of the store.',
+        translation: 'Os legumes ficam na seção de hortifrúti, no fundo da loja.',
+        replies: [
+          { text: 'Perfect. Do you have organic tomatoes?', translation: 'Perfeito. Vocês têm tomates orgânicos?', next: 'have_list', accepts: ['Organic tomatoes?'] },
+          { text: 'Thank you, I will go there now.', translation: 'Obrigado(a), vou lá agora.', next: 'have_list', accepts: ['Thank you'] },
+        ],
+      },
+      have_list: {
+        text: 'Do you have a shopping list today?',
+        translation: 'Você tem uma lista de compras hoje?',
+        replies: [
+          { text: 'Yes, I have a list on my phone.', translation: 'Sim, tenho uma lista no celular.', next: 'compare_prices', accepts: ['Yes, on my phone'] },
+          { text: 'No, I just buy what I need.', translation: 'Não, compro só o que preciso.', next: 'compare_prices', accepts: ['No list'] },
+        ],
+      },
+      compare_prices: {
+        text: 'We have a sale this week. Two for the price of one on juices!',
+        translation: 'Temos promoção essa semana. Dois pelo preço de um nos sucos!',
+        replies: [
+          { text: 'That is a great deal! I will take two.', translation: 'Que promoção ótima! Vou levar dois.', next: 'checkout', accepts: ["I'll take two"] },
+          { text: 'No, thank you. I do not drink juice.', translation: 'Não, obrigado(a). Eu não bebo suco.', next: 'checkout', accepts: ["I don't drink juice"] },
+        ],
+      },
+      checkout: {
+        text: 'Are you ready to pay? Our express line is open.',
+        translation: 'Está pronto(a) para pagar? Nossa fila expressa está aberta.',
+        replies: [
+          { text: 'Yes, I only have five items.', translation: 'Sim, tenho só cinco itens.', next: 'end_supermarket', accepts: ['Yes, five items'] },
+          { text: 'I need a few more things. Thank you!', translation: 'Preciso de mais algumas coisas. Obrigado(a)!', next: 'end_supermarket', accepts: ['A few more things'] },
+        ],
+      },
+      end_supermarket: {
+        text: 'Enjoy your shopping! Have a great day.',
+        translation: 'Aproveite suas compras! Tenha um ótimo dia.',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'weekend_plans',
+    topic: 'Weekend Plans',
+    topicPt: 'Planos para o fim de semana',
+    icon: '📅',
+    level: 2,
+    start: 'what_plans',
+    nodes: {
+      what_plans: {
+        text: 'Hey! Do you have any plans for this weekend?',
+        translation: 'Ei! Você tem algum plano para esse fim de semana?',
+        replies: [
+          { text: 'Yes! I am going to visit my grandparents.', translation: 'Sim! Vou visitar meus avós.', next: 'grandparents_where', accepts: ['Visiting my grandparents'] },
+          { text: 'I want to go to the cinema.', translation: 'Quero ir ao cinema.', next: 'what_movie', accepts: ['Going to the cinema'] },
+          { text: 'Nothing special, just resting.', translation: 'Nada especial, só descansando.', next: 'rest_why', accepts: ['Just resting'] },
+        ],
+      },
+      rest_why: {
+        text: 'Sometimes resting is the best plan. What do you do when you rest?',
+        translation: 'Às vezes descansar é o melhor plano. O que você faz quando descansa?',
+        replies: [
+          { text: 'I watch series on TV.', translation: 'Assisto séries na TV.', next: 'together_alone', accepts: ['Watch series'] },
+          { text: 'I sleep a lot and eat well.', translation: 'Durmo muito e como bem.', next: 'together_alone', accepts: ['Sleep and eat'] },
+        ],
+      },
+      grandparents_where: {
+        text: 'That is lovely! Do they live far from you?',
+        translation: 'Que bonito! Eles moram longe de você?',
+        replies: [
+          { text: 'Not so far, about one hour by car.', translation: 'Não muito longe, umas uma hora de carro.', next: 'together_alone', accepts: ['One hour by car'] },
+          { text: 'Yes, they live in another city.', translation: 'Sim, eles moram em outra cidade.', next: 'together_alone', accepts: ['Another city'] },
+        ],
+      },
+      what_movie: {
+        text: 'What kind of movie do you want to see?',
+        translation: 'Que tipo de filme você quer ver?',
+        replies: [
+          { text: 'I want to see an action film.', translation: 'Quero ver um filme de ação.', next: 'together_alone', accepts: ['Action film'] },
+          { text: 'I prefer a comedy or romance.', translation: 'Prefiro comédia ou romance.', next: 'together_alone', accepts: ['Comedy or romance'] },
+        ],
+      },
+      together_alone: {
+        text: 'Are you going alone or with someone?',
+        translation: 'Você vai sozinho(a) ou com alguém?',
+        replies: [
+          { text: 'I am going with my best friend.', translation: 'Vou com meu(minha) melhor amigo(a).', next: 'sunday_plan', accepts: ['With my best friend'] },
+          { text: 'With my family.', translation: 'Com minha família.', next: 'sunday_plan', accepts: ['With my family'] },
+          { text: 'I prefer to go alone.', translation: 'Prefiro ir sozinho(a).', next: 'sunday_plan', accepts: ['Alone'] },
+        ],
+      },
+      sunday_plan: {
+        text: 'What about Sunday? Any plans?',
+        translation: 'E no domingo? Algum plano?',
+        replies: [
+          { text: 'Sunday I stay home and prepare for the week.', translation: 'No domingo fico em casa e me preparo para a semana.', next: 'end_weekend', accepts: ['Prepare for the week'] },
+          { text: 'Sunday lunch with the family is a tradition.', translation: 'Almoço de domingo com a família é tradição.', next: 'end_weekend', accepts: ['Family lunch on Sunday'] },
+        ],
+      },
+      end_weekend: {
+        text: 'Sounds like a great weekend! Enjoy every moment. Bye!',
+        translation: 'Parece um ótimo fim de semana! Aproveite cada momento. Tchau!',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'sports_gym',
+    topic: 'Sports & the Gym',
+    topicPt: 'Esportes e academia',
+    icon: '🏋️',
+    level: 2,
+    start: 'do_sports',
+    nodes: {
+      do_sports: {
+        text: 'Do you play any sport or exercise regularly?',
+        translation: 'Você pratica algum esporte ou se exercita regularmente?',
+        replies: [
+          { text: 'Yes, I go to the gym three times a week.', translation: 'Sim, vou à academia três vezes por semana.', next: 'gym_activities', accepts: ['I go to the gym'] },
+          { text: 'I play football on weekends.', translation: 'Jogo futebol nos fins de semana.', next: 'play_position', accepts: ['Football on weekends'] },
+          { text: 'No, I am not very active.', translation: 'Não, não sou muito ativo(a).', next: 'want_to_start', accepts: ["I'm not active"] },
+        ],
+      },
+      want_to_start: {
+        text: 'Would you like to start exercising? What would you try?',
+        translation: 'Você gostaria de começar a se exercitar? O que você tentaria?',
+        replies: [
+          { text: 'Maybe I could try walking or running.', translation: 'Talvez eu pudesse tentar caminhar ou correr.', next: 'health_benefits', accepts: ['Walking or running'] },
+          { text: 'I would like to try swimming.', translation: 'Eu gostaria de tentar natação.', next: 'health_benefits', accepts: ['Swimming'] },
+        ],
+      },
+      gym_activities: {
+        text: 'What do you do at the gym?',
+        translation: 'O que você faz na academia?',
+        replies: [
+          { text: 'I lift weights and do cardio.', translation: 'Faço musculação e cardio.', next: 'health_benefits', accepts: ['Weights and cardio'] },
+          { text: 'I use the treadmill and the bike.', translation: 'Uso a esteira e a bicicleta.', next: 'health_benefits', accepts: ['Treadmill and bike'] },
+        ],
+      },
+      play_position: {
+        text: 'That is great! What position do you play?',
+        translation: 'Que ótimo! Qual posição você joga?',
+        replies: [
+          { text: 'I am a striker.', translation: 'Sou atacante.', next: 'health_benefits', accepts: ['Striker', 'Forward'] },
+          { text: 'I play in defense.', translation: 'Jogo na defesa.', next: 'health_benefits', accepts: ['Defense', 'Defender'] },
+          { text: 'I am the goalkeeper.', translation: 'Sou o goleiro.', next: 'health_benefits', accepts: ['Goalkeeper'] },
+        ],
+      },
+      health_benefits: {
+        text: 'Exercise is very good for our health. Do you feel different when you exercise?',
+        translation: 'Exercício é muito bom para a nossa saúde. Você se sente diferente quando se exercita?',
+        replies: [
+          { text: 'Yes, I have more energy and sleep better.', translation: 'Sim, tenho mais energia e durmo melhor.', next: 'end_sports', accepts: ['More energy and sleep better'] },
+          { text: 'Yes, I feel happier and less stressed.', translation: 'Sim, me sinto mais feliz e menos estressado(a).', next: 'end_sports', accepts: ['Happier and less stressed'] },
+        ],
+      },
+      end_sports: {
+        text: 'Keep it up! A healthy body is a happy body. Goodbye!',
+        translation: 'Continue assim! Um corpo saudável é um corpo feliz. Tchau!',
+        replies: [],
+      },
+    },
+  },
+
+  {
+    id: 'transportation',
+    topic: 'Getting Around',
+    topicPt: 'Locomovendo-se pela cidade',
+    icon: '🚌',
+    level: 2,
+    start: 'need_ride',
+    nodes: {
+      need_ride: {
+        text: 'Excuse me! How do I get to the city centre from here?',
+        translation: 'Com licença! Como eu vou ao centro da cidade daqui?',
+        replies: [
+          { text: 'You can take bus number twelve.', translation: 'Você pode pegar o ônibus número doze.', next: 'bus_stop', accepts: ['Bus twelve', 'Bus number 12'] },
+          { text: 'The subway is faster. Take line two.', translation: 'O metrô é mais rápido. Pegue a linha dois.', next: 'subway_info', accepts: ['The subway', 'Line two'] },
+          { text: 'You could take a taxi or use an app.', translation: 'Você pode pegar um táxi ou usar um aplicativo.', next: 'how_much', accepts: ['Taxi or app'] },
+        ],
+      },
+      bus_stop: {
+        text: 'The bus stop is around the corner. How often does the bus come?',
+        translation: 'A parada de ônibus fica na esquina. De quanto em quanto tempo o ônibus passa?',
+        replies: [
+          { text: 'Every fifteen minutes.', translation: 'A cada quinze minutos.', next: 'how_much', accepts: ['Every fifteen minutes'] },
+          { text: 'I am not sure. Maybe every ten minutes.', translation: 'Não tenho certeza. Talvez a cada dez minutos.', next: 'how_much', accepts: ['Every ten minutes maybe'] },
+        ],
+      },
+      subway_info: {
+        text: 'Where is the nearest subway station?',
+        translation: 'Onde fica a estação de metrô mais próxima?',
+        replies: [
+          { text: 'It is two blocks from here, on the right.', translation: 'Fica dois quarteirões daqui, à direita.', next: 'how_much', accepts: ['Two blocks right'] },
+          { text: 'Follow this street for five minutes.', translation: 'Siga essa rua por cinco minutos.', next: 'how_much', accepts: ['Five minutes down this street'] },
+        ],
+      },
+      how_much: {
+        text: 'How much does a bus or subway ticket cost?',
+        translation: 'Quanto custa um bilhete de ônibus ou metrô?',
+        replies: [
+          { text: 'It costs about two dollars.', translation: 'Custa uns dois dólares.', next: 'buy_ticket', accepts: ['Two dollars'] },
+          { text: 'I think it is one fifty.', translation: 'Acho que é um e cinquenta.', next: 'buy_ticket', accepts: ['One fifty'] },
+        ],
+      },
+      buy_ticket: {
+        text: 'Where can I buy a ticket?',
+        translation: 'Onde posso comprar um bilhete?',
+        replies: [
+          { text: 'You can buy it at the machine or on the app.', translation: 'Você pode comprar na máquina ou no aplicativo.', next: 'end_transport', accepts: ['Machine or app'] },
+          { text: 'You pay directly on the bus with change.', translation: 'Você paga direto no ônibus com troco.', next: 'end_transport', accepts: ['Pay on the bus'] },
+        ],
+      },
+      end_transport: {
+        text: 'Perfect, thank you so much! I think I can find my way now.',
+        translation: 'Perfeito, muito obrigado(a)! Acho que consigo encontrar o caminho agora.',
+        replies: [],
+      },
+    },
+  },
+
+  // ─── LEVEL 4 — novas conversas (+9) ─────────────────────────────────────────,
 
   {
     id: 'restaurant',
@@ -1388,790 +2203,7 @@ export const conversations = [
     },
   },
 
-  // ─── LEVEL 1 — novas conversas (+8) ─────────────────────────────────────────
-
-  {
-    id: 'colors',
-    topic: 'Colors & Things',
-    topicPt: 'Cores e objetos',
-    icon: '🎨',
-    level: 1,
-    start: 'favorite_color',
-    nodes: {
-      favorite_color: {
-        text: 'Hi! What is your favorite color?',
-        translation: 'Oi! Qual é a sua cor favorita?',
-        replies: [
-          { text: 'My favorite color is blue.', translation: 'Minha cor favorita é azul.', next: 'why_blue', accepts: ['Blue', 'I like blue'] },
-          { text: 'I love the color red.', translation: 'Eu adoro a cor vermelha.', next: 'red_things', accepts: ['Red', 'I like red'] },
-          { text: 'I like green the most.', translation: 'Eu gosto mais de verde.', next: 'green_things', accepts: ['Green', 'I like green'] },
-        ],
-      },
-      why_blue: {
-        text: 'Nice! Blue is the color of the sky. What things are blue?',
-        translation: 'Legal! Azul é a cor do céu. Que coisas são azuis?',
-        replies: [
-          { text: 'The sky and the ocean are blue.', translation: 'O céu e o oceano são azuis.', next: 'your_clothes', accepts: ['Sky and ocean'] },
-          { text: 'My pen and my notebook are blue.', translation: 'Minha caneta e meu caderno são azuis.', next: 'your_clothes', accepts: ['Pen and notebook'] },
-        ],
-      },
-      red_things: {
-        text: 'Red is a strong color! What things are red?',
-        translation: 'Vermelho é uma cor forte! Que coisas são vermelhas?',
-        replies: [
-          { text: 'Apples and tomatoes are red.', translation: 'Maçãs e tomates são vermelhos.', next: 'your_clothes', accepts: ['Apples and tomatoes'] },
-          { text: 'My bag is red.', translation: 'Minha bolsa é vermelha.', next: 'your_clothes', accepts: ['My bag'] },
-        ],
-      },
-      green_things: {
-        text: 'Green is the color of nature! What things are green?',
-        translation: 'Verde é a cor da natureza! Que coisas são verdes?',
-        replies: [
-          { text: 'Leaves and grass are green.', translation: 'Folhas e grama são verdes.', next: 'your_clothes', accepts: ['Leaves and grass'] },
-          { text: 'Broccoli and spinach are green.', translation: 'Brócolis e espinafre são verdes.', next: 'your_clothes', accepts: ['Broccoli and spinach'] },
-        ],
-      },
-      your_clothes: {
-        text: 'What color are your clothes today?',
-        translation: 'De que cor são as suas roupas hoje?',
-        replies: [
-          { text: 'I am wearing a white shirt.', translation: 'Estou usando uma camisa branca.', next: 'mix_colors', accepts: ['White shirt'] },
-          { text: 'My pants are black.', translation: 'Minha calça é preta.', next: 'mix_colors', accepts: ['Black pants'] },
-          { text: 'I am wearing many colors today.', translation: 'Estou usando muitas cores hoje.', next: 'mix_colors', accepts: ['Many colors'] },
-        ],
-      },
-      mix_colors: {
-        text: 'Do you know what color you get when you mix blue and yellow?',
-        translation: 'Você sabe que cor você obtém ao misturar azul e amarelo?',
-        replies: [
-          { text: 'You get green!', translation: 'Você obtém verde!', next: 'end_colors', accepts: ['Green'] },
-          { text: 'I am not sure.', translation: 'Não tenho certeza.', next: 'end_colors', accepts: ["I don't know"] },
-        ],
-      },
-      end_colors: {
-        text: "Correct! Blue + Yellow = Green. You're doing great. Goodbye!",
-        translation: 'Correto! Azul + Amarelo = Verde. Você está indo muito bem. Tchau!',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'numbers',
-    topic: 'Numbers & Counting',
-    topicPt: 'Números e contagem',
-    icon: '🔢',
-    level: 1,
-    start: 'count_to_ten',
-    nodes: {
-      count_to_ten: {
-        text: 'Let\'s practice numbers! Can you count from one to five?',
-        translation: 'Vamos praticar números! Você consegue contar de um a cinco?',
-        replies: [
-          { text: 'One, two, three, four, five.', translation: 'Um, dois, três, quatro, cinco.', next: 'how_old', accepts: ['1, 2, 3, 4, 5'] },
-          { text: 'I know the numbers in English!', translation: 'Eu sei os números em inglês!', next: 'how_old', accepts: ['I know them'] },
-        ],
-      },
-      how_old: {
-        text: 'Perfect! How old are you? Tell me in English.',
-        translation: 'Perfeito! Quantos anos você tem? Diga em inglês.',
-        replies: [
-          { text: 'I am twenty years old.', translation: 'Eu tenho vinte anos.', next: 'how_many_siblings', accepts: ["I'm 20", "I'm twenty"] },
-          { text: 'I am thirty years old.', translation: 'Eu tenho trinta anos.', next: 'how_many_siblings', accepts: ["I'm 30", "I'm thirty"] },
-          { text: 'I am twenty-five years old.', translation: 'Eu tenho vinte e cinco anos.', next: 'how_many_siblings', accepts: ["I'm 25", "I'm twenty five"] },
-        ],
-      },
-      how_many_siblings: {
-        text: 'Good! How many brothers and sisters do you have?',
-        translation: 'Ótimo! Quantos irmãos e irmãs você tem?',
-        replies: [
-          { text: 'I have two brothers and one sister.', translation: 'Eu tenho dois irmãos e uma irmã.', next: 'phone_number', accepts: ['Two brothers and one sister'] },
-          { text: 'I have no siblings.', translation: 'Eu não tenho irmãos.', next: 'phone_number', accepts: ['No siblings', 'None'] },
-          { text: 'I have three sisters.', translation: 'Eu tenho três irmãs.', next: 'phone_number', accepts: ['Three sisters'] },
-        ],
-      },
-      phone_number: {
-        text: 'Can you say a phone number in English? Try saying each digit.',
-        translation: 'Você consegue dizer um número de telefone em inglês? Tente dizer cada dígito.',
-        replies: [
-          { text: 'Nine, one, zero, five, two.', translation: 'Nove, um, zero, cinco, dois.', next: 'price_game', accepts: ['9, 1, 0, 5, 2'] },
-          { text: 'One, two, three, four, five.', translation: 'Um, dois, três, quatro, cinco.', next: 'price_game', accepts: ['1, 2, 3, 4, 5'] },
-        ],
-      },
-      price_game: {
-        text: 'Great! A coffee costs two dollars fifty. How much is it?',
-        translation: 'Ótimo! Um café custa dois dólares e cinquenta. Quanto é?',
-        replies: [
-          { text: 'It is two fifty.', translation: 'É dois e cinquenta.', next: 'end_numbers', accepts: ['Two dollars fifty', "It's 2.50"] },
-          { text: 'Two dollars and fifty cents.', translation: 'Dois dólares e cinquenta centavos.', next: 'end_numbers', accepts: ['2 dollars 50 cents'] },
-        ],
-      },
-      end_numbers: {
-        text: 'Excellent work! Numbers are very useful every day. See you next time!',
-        translation: 'Excelente trabalho! Os números são muito úteis todo dia. Até a próxima!',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'daily_routine',
-    topic: 'Daily Routine',
-    topicPt: 'Rotina diária',
-    icon: '🌅',
-    level: 1,
-    start: 'wake_up',
-    nodes: {
-      wake_up: {
-        text: 'What time do you usually wake up?',
-        translation: 'A que horas você geralmente acorda?',
-        replies: [
-          { text: 'I wake up at six in the morning.', translation: 'Eu acordo às seis da manhã.', next: 'morning_activities', accepts: ['At six', 'Six in the morning'] },
-          { text: 'I wake up at seven thirty.', translation: 'Eu acordo às sete e meia.', next: 'morning_activities', accepts: ['At seven thirty', '7:30'] },
-          { text: 'I wake up late, around nine.', translation: 'Eu acordo tarde, perto das nove.', next: 'morning_activities', accepts: ['Around nine', 'At nine'] },
-        ],
-      },
-      morning_activities: {
-        text: 'What do you do first in the morning?',
-        translation: 'O que você faz primeiro de manhã?',
-        replies: [
-          { text: 'First, I take a shower.', translation: 'Primeiro, eu tomo banho.', next: 'breakfast_q', accepts: ['I shower first'] },
-          { text: 'I drink coffee and check my phone.', translation: 'Eu tomo café e vejo meu celular.', next: 'breakfast_q', accepts: ['Coffee and phone'] },
-          { text: 'I brush my teeth.', translation: 'Eu escovo meus dentes.', next: 'breakfast_q', accepts: ['Brush teeth'] },
-        ],
-      },
-      breakfast_q: {
-        text: 'Do you eat breakfast every day?',
-        translation: 'Você toma café da manhã todo dia?',
-        replies: [
-          { text: 'Yes, breakfast is very important for me.', translation: 'Sim, o café da manhã é muito importante para mim.', next: 'go_to_work', accepts: ['Yes, always'] },
-          { text: 'No, I am not hungry in the morning.', translation: 'Não, não tenho fome de manhã.', next: 'go_to_work', accepts: ['No, never'] },
-        ],
-      },
-      go_to_work: {
-        text: 'What time do you go to work or school?',
-        translation: 'A que horas você vai trabalhar ou para a escola?',
-        replies: [
-          { text: 'I leave the house at eight.', translation: 'Eu saio de casa às oito.', next: 'evening_routine', accepts: ['At eight'] },
-          { text: 'I start at nine in the morning.', translation: 'Eu começo às nove da manhã.', next: 'evening_routine', accepts: ['At nine', 'Nine in the morning'] },
-        ],
-      },
-      evening_routine: {
-        text: 'What do you do in the evening?',
-        translation: 'O que você faz à noite?',
-        replies: [
-          { text: 'I watch TV and then go to sleep.', translation: 'Eu assisto TV e depois durmo.', next: 'end_routine', accepts: ['Watch TV'] },
-          { text: 'I study English at night.', translation: 'Eu estudo inglês à noite.', next: 'end_routine', accepts: ['I study'] },
-          { text: 'I cook dinner and eat with my family.', translation: 'Eu cozinho jantar e como com minha família.', next: 'end_routine', accepts: ['Cook dinner'] },
-        ],
-      },
-      end_routine: {
-        text: 'That sounds like a good day! Routines help us stay organised. Goodbye!',
-        translation: 'Parece um bom dia! Rotinas nos ajudam a ficar organizados. Tchau!',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'food_drinks',
-    topic: 'Food & Drinks',
-    topicPt: 'Comidas e bebidas',
-    icon: '🍎',
-    level: 1,
-    start: 'hungry',
-    nodes: {
-      hungry: {
-        text: 'Are you hungry? What is your favorite food?',
-        translation: 'Você está com fome? Qual é a sua comida favorita?',
-        replies: [
-          { text: 'I love pizza!', translation: 'Eu adoro pizza!', next: 'pizza_topping', accepts: ['Pizza is my favorite'] },
-          { text: 'My favorite food is rice and beans.', translation: 'Minha comida favorita é arroz e feijão.', next: 'like_sweets', accepts: ['Rice and beans'] },
-          { text: 'I love fruit. Especially mango.', translation: 'Eu adoro frutas. Especialmente manga.', next: 'like_sweets', accepts: ['I love fruit', 'Mango'] },
-        ],
-      },
-      pizza_topping: {
-        text: 'Yummy! What is your favorite pizza topping?',
-        translation: 'Que delícia! Qual é o seu topping de pizza favorito?',
-        replies: [
-          { text: 'I like cheese and tomato.', translation: 'Eu gosto de queijo e tomate.', next: 'like_sweets', accepts: ['Cheese and tomato'] },
-          { text: 'I prefer pepperoni.', translation: 'Eu prefiro pepperoni.', next: 'like_sweets', accepts: ['Pepperoni'] },
-        ],
-      },
-      like_sweets: {
-        text: 'Do you like sweets? What is your favorite dessert?',
-        translation: 'Você gosta de doces? Qual é a sua sobremesa favorita?',
-        replies: [
-          { text: 'I love chocolate cake.', translation: 'Eu adoro bolo de chocolate.', next: 'drink_pref', accepts: ['Chocolate cake'] },
-          { text: 'I prefer ice cream.', translation: 'Eu prefiro sorvete.', next: 'drink_pref', accepts: ['Ice cream'] },
-          { text: 'I do not eat sweets.', translation: 'Eu não como doces.', next: 'drink_pref', accepts: ["I don't like sweets"] },
-        ],
-      },
-      drink_pref: {
-        text: 'What do you drink every day?',
-        translation: 'O que você bebe todo dia?',
-        replies: [
-          { text: 'I drink a lot of water.', translation: 'Eu bebo muita água.', next: 'food_dislike', accepts: ['Water'] },
-          { text: 'I love coffee.', translation: 'Eu adoro café.', next: 'food_dislike', accepts: ['Coffee'] },
-          { text: 'I drink juice in the morning.', translation: 'Eu bebo suco de manhã.', next: 'food_dislike', accepts: ['Juice'] },
-        ],
-      },
-      food_dislike: {
-        text: 'Is there any food you do not like?',
-        translation: 'Existe alguma comida que você não gosta?',
-        replies: [
-          { text: 'I do not like vegetables.', translation: 'Eu não gosto de legumes.', next: 'end_food', accepts: ["I don't like vegetables"] },
-          { text: 'I dislike spicy food.', translation: 'Eu não gosto de comida picante.', next: 'end_food', accepts: ["I don't like spicy food"] },
-          { text: 'I like almost everything!', translation: 'Eu gosto de quase tudo!', next: 'end_food', accepts: ['I like everything'] },
-        ],
-      },
-      end_food: {
-        text: 'Talking about food always makes me hungry! See you soon!',
-        translation: 'Falar de comida sempre me dá fome! Até logo!',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'body_health',
-    topic: 'Body Parts & Feelings',
-    topicPt: 'Partes do corpo e sentimentos',
-    icon: '🤒',
-    level: 1,
-    start: 'how_are_you',
-    nodes: {
-      how_are_you: {
-        text: 'Hi! How are you feeling today?',
-        translation: 'Oi! Como você está se sentindo hoje?',
-        replies: [
-          { text: 'I feel great today!', translation: 'Estou ótimo(a) hoje!', next: 'body_parts', accepts: ["I'm great", 'Very well'] },
-          { text: 'I have a headache.', translation: 'Estou com dor de cabeça.', next: 'head_pain', accepts: ['My head hurts'] },
-          { text: 'My legs are tired.', translation: 'Minhas pernas estão cansadas.', next: 'leg_pain', accepts: ['My legs hurt'] },
-        ],
-      },
-      head_pain: {
-        text: 'Oh no! Did you drink enough water today?',
-        translation: 'Ah não! Você bebeu água suficiente hoje?',
-        replies: [
-          { text: 'No, I forgot to drink water.', translation: 'Não, eu esqueci de beber água.', next: 'body_parts', accepts: ["I didn't drink water"] },
-          { text: 'Yes, but I slept badly.', translation: 'Sim, mas eu dormi mal.', next: 'body_parts', accepts: ['I slept badly'] },
-        ],
-      },
-      leg_pain: {
-        text: 'Did you exercise a lot yesterday?',
-        translation: 'Você se exercitou muito ontem?',
-        replies: [
-          { text: 'Yes, I ran for one hour.', translation: 'Sim, eu corri por uma hora.', next: 'body_parts', accepts: ['I ran yesterday'] },
-          { text: 'I walked a lot.', translation: 'Eu caminhei muito.', next: 'body_parts', accepts: ['I walked a lot'] },
-        ],
-      },
-      body_parts: {
-        text: 'Let\'s learn body parts! Can you point to your nose?',
-        translation: 'Vamos aprender partes do corpo! Você consegue apontar para o seu nariz?',
-        replies: [
-          { text: 'Yes! I can also point to my eyes and ears.', translation: 'Sim! Também consigo apontar meus olhos e ouvidos.', next: 'hands_feet', accepts: ['Eyes and ears'] },
-          { text: 'Nose! And mouth. And eyes.', translation: 'Nariz! E boca. E olhos.', next: 'hands_feet', accepts: ['Nose mouth eyes'] },
-        ],
-      },
-      hands_feet: {
-        text: 'Great! How many fingers do you have on one hand?',
-        translation: 'Ótimo! Quantos dedos você tem em uma mão?',
-        replies: [
-          { text: 'I have five fingers on one hand.', translation: 'Eu tenho cinco dedos em uma mão.', next: 'end_body', accepts: ['Five fingers'] },
-          { text: 'Five! And ten fingers total.', translation: 'Cinco! E dez dedos no total.', next: 'end_body', accepts: ['Five and ten total'] },
-        ],
-      },
-      end_body: {
-        text: 'Excellent! Take care of your body every day. Goodbye!',
-        translation: 'Excelente! Cuide do seu corpo todo dia. Tchau!',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'places_city',
-    topic: 'Places in the City',
-    topicPt: 'Lugares na cidade',
-    icon: '🏙️',
-    level: 1,
-    start: 'your_city',
-    nodes: {
-      your_city: {
-        text: 'Tell me about your city! Do you live in a big city or a small town?',
-        translation: 'Me fale sobre a sua cidade! Você mora em uma cidade grande ou numa cidadezinha?',
-        replies: [
-          { text: 'I live in a big city.', translation: 'Eu moro em uma cidade grande.', next: 'what_places', accepts: ['Big city'] },
-          { text: 'I live in a small town.', translation: 'Eu moro em uma cidade pequena.', next: 'what_places', accepts: ['Small town'] },
-        ],
-      },
-      what_places: {
-        text: 'What places are near your home?',
-        translation: 'Que lugares ficam perto da sua casa?',
-        replies: [
-          { text: 'There is a supermarket and a bank.', translation: 'Tem um supermercado e um banco.', next: 'favorite_place', accepts: ['Supermarket and bank'] },
-          { text: 'There is a park and a school.', translation: 'Tem um parque e uma escola.', next: 'favorite_place', accepts: ['Park and school'] },
-          { text: 'There is a hospital and a pharmacy.', translation: 'Tem um hospital e uma farmácia.', next: 'favorite_place', accepts: ['Hospital and pharmacy'] },
-        ],
-      },
-      favorite_place: {
-        text: 'What is your favorite place in the city?',
-        translation: 'Qual é o seu lugar favorito na cidade?',
-        replies: [
-          { text: 'I love the park.', translation: 'Eu adoro o parque.', next: 'go_how', accepts: ['The park'] },
-          { text: 'The shopping mall is my favorite.', translation: 'O shopping é o meu favorito.', next: 'go_how', accepts: ['The mall'] },
-          { text: 'I like the library.', translation: 'Eu gosto da biblioteca.', next: 'go_how', accepts: ['The library'] },
-        ],
-      },
-      go_how: {
-        text: 'How do you usually get around the city?',
-        translation: 'Como você geralmente se locomove pela cidade?',
-        replies: [
-          { text: 'I take the bus.', translation: 'Eu pego o ônibus.', next: 'dangerous', accepts: ['By bus'] },
-          { text: 'I walk or ride my bike.', translation: 'Eu caminho ou ando de bicicleta.', next: 'dangerous', accepts: ['Walk or bike'] },
-          { text: 'My parents drive me.', translation: 'Meus pais me levam de carro.', next: 'dangerous', accepts: ['My parents drive me'] },
-        ],
-      },
-      dangerous: {
-        text: 'Is your city safe?',
-        translation: 'A sua cidade é segura?',
-        replies: [
-          { text: 'Yes, it is very safe here.', translation: 'Sim, é muito seguro aqui.', next: 'end_city', accepts: ['Yes, very safe'] },
-          { text: 'It is okay in some areas.', translation: 'É ok em algumas áreas.', next: 'end_city', accepts: ['In some areas'] },
-        ],
-      },
-      end_city: {
-        text: 'Every city is unique! Thanks for sharing. See you!',
-        translation: 'Toda cidade é única! Obrigado por compartilhar. Até mais!',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'clothes',
-    topic: 'Clothes & Getting Dressed',
-    topicPt: 'Roupas e se vestir',
-    icon: '👕',
-    level: 1,
-    start: 'what_wearing',
-    nodes: {
-      what_wearing: {
-        text: 'Hello! What are you wearing today?',
-        translation: 'Olá! O que você está usando hoje?',
-        replies: [
-          { text: 'I am wearing a T-shirt and jeans.', translation: 'Estou usando uma camiseta e jeans.', next: 'color_clothes', accepts: ['T-shirt and jeans'] },
-          { text: 'I am wearing a dress.', translation: 'Estou usando um vestido.', next: 'color_clothes', accepts: ['A dress'] },
-          { text: 'I am wearing a shirt and trousers.', translation: 'Estou usando uma camisa e calça.', next: 'color_clothes', accepts: ['Shirt and trousers'] },
-        ],
-      },
-      color_clothes: {
-        text: 'Nice! What color are your clothes?',
-        translation: 'Legal! De que cor são suas roupas?',
-        replies: [
-          { text: 'My shirt is white and my pants are blue.', translation: 'Minha camiseta é branca e minha calça é azul.', next: 'shoes', accepts: ['White and blue'] },
-          { text: 'All black today.', translation: 'Tudo preto hoje.', next: 'shoes', accepts: ['Black'] },
-          { text: 'I have many colors on.', translation: 'Estou usando muitas cores.', next: 'shoes', accepts: ['Many colors'] },
-        ],
-      },
-      shoes: {
-        text: 'What kind of shoes are you wearing?',
-        translation: 'Que tipo de sapato você está usando?',
-        replies: [
-          { text: 'I am wearing sneakers.', translation: 'Estou usando tênis.', next: 'weather_dress', accepts: ['Sneakers'] },
-          { text: 'I am wearing sandals.', translation: 'Estou usando sandálias.', next: 'weather_dress', accepts: ['Sandals'] },
-          { text: 'I am wearing boots.', translation: 'Estou usando botas.', next: 'weather_dress', accepts: ['Boots'] },
-        ],
-      },
-      weather_dress: {
-        text: 'Do you dress differently in summer and winter?',
-        translation: 'Você se veste de forma diferente no verão e no inverno?',
-        replies: [
-          { text: 'Yes! In summer I wear shorts and in winter a coat.', translation: 'Sim! No verão uso shorts e no inverno um casaco.', next: 'favorite_outfit', accepts: ['Shorts in summer, coat in winter'] },
-          { text: 'I live in a warm place so always the same.', translation: 'Eu moro em um lugar quente então sempre igual.', next: 'favorite_outfit', accepts: ['Always the same'] },
-        ],
-      },
-      favorite_outfit: {
-        text: 'What is your favorite outfit?',
-        translation: 'Qual é o seu look favorito?',
-        replies: [
-          { text: 'I love jeans and a simple T-shirt.', translation: 'Eu adoro jeans e uma camiseta simples.', next: 'end_clothes', accepts: ['Jeans and T-shirt'] },
-          { text: 'I like to dress elegantly.', translation: 'Eu gosto de me vestir elegante.', next: 'end_clothes', accepts: ['Elegant clothes'] },
-          { text: 'Comfortable clothes are my favorite.', translation: 'Roupas confortáveis são meu favorito.', next: 'end_clothes', accepts: ['Comfortable clothes'] },
-        ],
-      },
-      end_clothes: {
-        text: 'Fashion is fun! Wear what makes you happy. Goodbye!',
-        translation: 'Moda é divertido! Use o que te faz feliz. Tchau!',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'classroom',
-    topic: 'In the Classroom',
-    topicPt: 'Na sala de aula',
-    icon: '📚',
-    level: 1,
-    start: 'good_morning_class',
-    nodes: {
-      good_morning_class: {
-        text: 'Good morning, class! Are you ready to learn?',
-        translation: 'Bom dia, turma! Vocês estão prontos para aprender?',
-        replies: [
-          { text: 'Yes, teacher! I am ready.', translation: 'Sim, professor(a)! Estou pronto(a).', next: 'sit_down', accepts: ["Yes, I'm ready"] },
-          { text: 'Good morning! I have a question.', translation: 'Bom dia! Tenho uma pergunta.', next: 'ask_question', accepts: ['I have a question'] },
-        ],
-      },
-      ask_question: {
-        text: 'Of course! What is your question?',
-        translation: 'Claro! Qual é a sua pergunta?',
-        replies: [
-          { text: 'Can you repeat that, please?', translation: 'Pode repetir isso, por favor?', next: 'sit_down', accepts: ['Please repeat'] },
-          { text: 'Can you speak more slowly?', translation: 'Pode falar mais devagar?', next: 'sit_down', accepts: ['Speak slowly please'] },
-          { text: 'What does this word mean?', translation: 'O que essa palavra significa?', next: 'sit_down', accepts: ['What does it mean?'] },
-        ],
-      },
-      sit_down: {
-        text: 'Please sit down. Open your books to page ten.',
-        translation: 'Por favor, sentem-se. Abram os livros na página dez.',
-        replies: [
-          { text: 'Okay, I am opening my book.', translation: 'Ok, estou abrindo meu livro.', next: 'classroom_objects', accepts: ['I opened my book'] },
-          { text: 'I forgot my book at home.', translation: 'Esqueci meu livro em casa.', next: 'forgot_book', accepts: ['I forgot my book'] },
-        ],
-      },
-      forgot_book: {
-        text: 'That is okay. You can share with your classmate.',
-        translation: 'Tudo bem. Você pode compartilhar com seu colega.',
-        replies: [
-          { text: 'Thank you, teacher.', translation: 'Obrigado(a), professor(a).', next: 'classroom_objects', accepts: ['Thank you'] },
-        ],
-      },
-      classroom_objects: {
-        text: 'What objects do you have on your desk?',
-        translation: 'Que objetos você tem sobre sua mesa?',
-        replies: [
-          { text: 'I have a pen, a pencil, and a ruler.', translation: 'Tenho uma caneta, um lápis e uma régua.', next: 'end_class', accepts: ['Pen, pencil, ruler'] },
-          { text: 'I have my notebook and an eraser.', translation: 'Tenho meu caderno e uma borracha.', next: 'end_class', accepts: ['Notebook and eraser'] },
-        ],
-      },
-      end_class: {
-        text: "Excellent! Class is over. See you tomorrow. Don't forget your homework!",
-        translation: 'Excelente! A aula acabou. Até amanhã. Não esqueçam o dever de casa!',
-        replies: [],
-      },
-    },
-  },
-
-  // ─── LEVEL 2 — novas conversas (+5) ─────────────────────────────────────────
-
-  {
-    id: 'birthday',
-    topic: 'Birthday Party',
-    topicPt: 'Festa de aniversário',
-    icon: '🎂',
-    level: 2,
-    start: 'happy_birthday',
-    nodes: {
-      happy_birthday: {
-        text: 'Happy birthday! How old are you today?',
-        translation: 'Feliz aniversário! Quantos anos você faz hoje?',
-        replies: [
-          { text: 'Thank you! I am turning eighteen.', translation: 'Obrigado(a)! Estou completando dezoito anos.', next: 'party_plans', accepts: ["I'm eighteen today"] },
-          { text: 'Thank you! I am twenty-five today.', translation: 'Obrigado(a)! Tenho vinte e cinco hoje.', next: 'party_plans', accepts: ["I'm 25"] },
-          { text: 'Thank you very much! I feel old!', translation: 'Muito obrigado(a)! Estou me sentindo velho(a)!', next: 'party_plans', accepts: ['I feel old!'] },
-        ],
-      },
-      party_plans: {
-        text: 'Are you having a party?',
-        translation: 'Você vai fazer uma festa?',
-        replies: [
-          { text: 'Yes, I am having a party at home tonight.', translation: 'Sim, vou fazer uma festa em casa hoje à noite.', next: 'who_invited', accepts: ['Yes, a party at home'] },
-          { text: 'No, just a small dinner with family.', translation: 'Não, só um jantarzinho com a família.', next: 'birthday_food', accepts: ['Small dinner'] },
-        ],
-      },
-      who_invited: {
-        text: 'Great! How many people did you invite?',
-        translation: 'Que ótimo! Quantas pessoas você convidou?',
-        replies: [
-          { text: 'About twenty friends.', translation: 'Uns vinte amigos.', next: 'birthday_food', accepts: ['Twenty friends'] },
-          { text: 'Only my best friends, about ten people.', translation: 'Só meus melhores amigos, umas dez pessoas.', next: 'birthday_food', accepts: ['Ten people', 'My best friends'] },
-        ],
-      },
-      birthday_food: {
-        text: 'What kind of cake did you get?',
-        translation: 'Que tipo de bolo você vai ter?',
-        replies: [
-          { text: 'Chocolate cake with strawberries.', translation: 'Bolo de chocolate com morangos.', next: 'gift', accepts: ['Chocolate cake'] },
-          { text: 'A vanilla and lemon cake.', translation: 'Bolo de baunilha com limão.', next: 'gift', accepts: ['Vanilla cake'] },
-        ],
-      },
-      gift: {
-        text: 'Did you get any special gifts?',
-        translation: 'Você ganhou algum presente especial?',
-        replies: [
-          { text: 'Yes! I got a new phone!', translation: 'Sim! Ganhei um celular novo!', next: 'end_birthday', accepts: ['A new phone'] },
-          { text: 'I got money and some clothes.', translation: 'Ganhei dinheiro e algumas roupas.', next: 'end_birthday', accepts: ['Money and clothes'] },
-          { text: 'The best gift is being with my friends.', translation: 'O melhor presente é estar com meus amigos.', next: 'end_birthday', accepts: ['Being with friends'] },
-        ],
-      },
-      end_birthday: {
-        text: 'That sounds wonderful! Happy birthday again. Have a great celebration!',
-        translation: 'Parece maravilhoso! Feliz aniversário de novo. Aproveite muito!',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'supermarket',
-    topic: 'At the Supermarket',
-    topicPt: 'No supermercado',
-    icon: '🛒',
-    level: 2,
-    start: 'welcome_super',
-    nodes: {
-      welcome_super: {
-        text: 'Welcome! Are you looking for something specific today?',
-        translation: 'Bem-vindo(a)! Você está procurando algo específico hoje?',
-        replies: [
-          { text: 'Yes, where is the bread section?', translation: 'Sim, onde fica a seção de pão?', next: 'bread_aisle', accepts: ['Where is the bread?'] },
-          { text: 'I need to find some vegetables.', translation: 'Eu preciso encontrar alguns legumes.', next: 'veggie_aisle', accepts: ['I need vegetables'] },
-          { text: 'No, I am just browsing today.', translation: 'Não, estou só dando uma olhada hoje.', next: 'have_list', accepts: ['Just browsing'] },
-        ],
-      },
-      bread_aisle: {
-        text: 'The bread is in aisle three, on the left side.',
-        translation: 'O pão fica no corredor três, do lado esquerdo.',
-        replies: [
-          { text: 'Thank you! Do you also have whole wheat bread?', translation: 'Obrigado(a)! Vocês também têm pão integral?', next: 'have_list', accepts: ['Whole wheat bread?'] },
-          { text: 'Great, I will find it. Thank you!', translation: 'Ótimo, vou encontrar. Obrigado(a)!', next: 'have_list', accepts: ['Thank you'] },
-        ],
-      },
-      veggie_aisle: {
-        text: 'The vegetables are in the fresh produce section, at the back of the store.',
-        translation: 'Os legumes ficam na seção de hortifrúti, no fundo da loja.',
-        replies: [
-          { text: 'Perfect. Do you have organic tomatoes?', translation: 'Perfeito. Vocês têm tomates orgânicos?', next: 'have_list', accepts: ['Organic tomatoes?'] },
-          { text: 'Thank you, I will go there now.', translation: 'Obrigado(a), vou lá agora.', next: 'have_list', accepts: ['Thank you'] },
-        ],
-      },
-      have_list: {
-        text: 'Do you have a shopping list today?',
-        translation: 'Você tem uma lista de compras hoje?',
-        replies: [
-          { text: 'Yes, I have a list on my phone.', translation: 'Sim, tenho uma lista no celular.', next: 'compare_prices', accepts: ['Yes, on my phone'] },
-          { text: 'No, I just buy what I need.', translation: 'Não, compro só o que preciso.', next: 'compare_prices', accepts: ['No list'] },
-        ],
-      },
-      compare_prices: {
-        text: 'We have a sale this week. Two for the price of one on juices!',
-        translation: 'Temos promoção essa semana. Dois pelo preço de um nos sucos!',
-        replies: [
-          { text: 'That is a great deal! I will take two.', translation: 'Que promoção ótima! Vou levar dois.', next: 'checkout', accepts: ["I'll take two"] },
-          { text: 'No, thank you. I do not drink juice.', translation: 'Não, obrigado(a). Eu não bebo suco.', next: 'checkout', accepts: ["I don't drink juice"] },
-        ],
-      },
-      checkout: {
-        text: 'Are you ready to pay? Our express line is open.',
-        translation: 'Está pronto(a) para pagar? Nossa fila expressa está aberta.',
-        replies: [
-          { text: 'Yes, I only have five items.', translation: 'Sim, tenho só cinco itens.', next: 'end_supermarket', accepts: ['Yes, five items'] },
-          { text: 'I need a few more things. Thank you!', translation: 'Preciso de mais algumas coisas. Obrigado(a)!', next: 'end_supermarket', accepts: ['A few more things'] },
-        ],
-      },
-      end_supermarket: {
-        text: 'Enjoy your shopping! Have a great day.',
-        translation: 'Aproveite suas compras! Tenha um ótimo dia.',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'weekend_plans',
-    topic: 'Weekend Plans',
-    topicPt: 'Planos para o fim de semana',
-    icon: '📅',
-    level: 2,
-    start: 'what_plans',
-    nodes: {
-      what_plans: {
-        text: 'Hey! Do you have any plans for this weekend?',
-        translation: 'Ei! Você tem algum plano para esse fim de semana?',
-        replies: [
-          { text: 'Yes! I am going to visit my grandparents.', translation: 'Sim! Vou visitar meus avós.', next: 'grandparents_where', accepts: ['Visiting my grandparents'] },
-          { text: 'I want to go to the cinema.', translation: 'Quero ir ao cinema.', next: 'what_movie', accepts: ['Going to the cinema'] },
-          { text: 'Nothing special, just resting.', translation: 'Nada especial, só descansando.', next: 'rest_why', accepts: ['Just resting'] },
-        ],
-      },
-      rest_why: {
-        text: 'Sometimes resting is the best plan. What do you do when you rest?',
-        translation: 'Às vezes descansar é o melhor plano. O que você faz quando descansa?',
-        replies: [
-          { text: 'I watch series on TV.', translation: 'Assisto séries na TV.', next: 'together_alone', accepts: ['Watch series'] },
-          { text: 'I sleep a lot and eat well.', translation: 'Durmo muito e como bem.', next: 'together_alone', accepts: ['Sleep and eat'] },
-        ],
-      },
-      grandparents_where: {
-        text: 'That is lovely! Do they live far from you?',
-        translation: 'Que bonito! Eles moram longe de você?',
-        replies: [
-          { text: 'Not so far, about one hour by car.', translation: 'Não muito longe, umas uma hora de carro.', next: 'together_alone', accepts: ['One hour by car'] },
-          { text: 'Yes, they live in another city.', translation: 'Sim, eles moram em outra cidade.', next: 'together_alone', accepts: ['Another city'] },
-        ],
-      },
-      what_movie: {
-        text: 'What kind of movie do you want to see?',
-        translation: 'Que tipo de filme você quer ver?',
-        replies: [
-          { text: 'I want to see an action film.', translation: 'Quero ver um filme de ação.', next: 'together_alone', accepts: ['Action film'] },
-          { text: 'I prefer a comedy or romance.', translation: 'Prefiro comédia ou romance.', next: 'together_alone', accepts: ['Comedy or romance'] },
-        ],
-      },
-      together_alone: {
-        text: 'Are you going alone or with someone?',
-        translation: 'Você vai sozinho(a) ou com alguém?',
-        replies: [
-          { text: 'I am going with my best friend.', translation: 'Vou com meu(minha) melhor amigo(a).', next: 'sunday_plan', accepts: ['With my best friend'] },
-          { text: 'With my family.', translation: 'Com minha família.', next: 'sunday_plan', accepts: ['With my family'] },
-          { text: 'I prefer to go alone.', translation: 'Prefiro ir sozinho(a).', next: 'sunday_plan', accepts: ['Alone'] },
-        ],
-      },
-      sunday_plan: {
-        text: 'What about Sunday? Any plans?',
-        translation: 'E no domingo? Algum plano?',
-        replies: [
-          { text: 'Sunday I stay home and prepare for the week.', translation: 'No domingo fico em casa e me preparo para a semana.', next: 'end_weekend', accepts: ['Prepare for the week'] },
-          { text: 'Sunday lunch with the family is a tradition.', translation: 'Almoço de domingo com a família é tradição.', next: 'end_weekend', accepts: ['Family lunch on Sunday'] },
-        ],
-      },
-      end_weekend: {
-        text: 'Sounds like a great weekend! Enjoy every moment. Bye!',
-        translation: 'Parece um ótimo fim de semana! Aproveite cada momento. Tchau!',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'sports_gym',
-    topic: 'Sports & the Gym',
-    topicPt: 'Esportes e academia',
-    icon: '🏋️',
-    level: 2,
-    start: 'do_sports',
-    nodes: {
-      do_sports: {
-        text: 'Do you play any sport or exercise regularly?',
-        translation: 'Você pratica algum esporte ou se exercita regularmente?',
-        replies: [
-          { text: 'Yes, I go to the gym three times a week.', translation: 'Sim, vou à academia três vezes por semana.', next: 'gym_activities', accepts: ['I go to the gym'] },
-          { text: 'I play football on weekends.', translation: 'Jogo futebol nos fins de semana.', next: 'play_position', accepts: ['Football on weekends'] },
-          { text: 'No, I am not very active.', translation: 'Não, não sou muito ativo(a).', next: 'want_to_start', accepts: ["I'm not active"] },
-        ],
-      },
-      want_to_start: {
-        text: 'Would you like to start exercising? What would you try?',
-        translation: 'Você gostaria de começar a se exercitar? O que você tentaria?',
-        replies: [
-          { text: 'Maybe I could try walking or running.', translation: 'Talvez eu pudesse tentar caminhar ou correr.', next: 'health_benefits', accepts: ['Walking or running'] },
-          { text: 'I would like to try swimming.', translation: 'Eu gostaria de tentar natação.', next: 'health_benefits', accepts: ['Swimming'] },
-        ],
-      },
-      gym_activities: {
-        text: 'What do you do at the gym?',
-        translation: 'O que você faz na academia?',
-        replies: [
-          { text: 'I lift weights and do cardio.', translation: 'Faço musculação e cardio.', next: 'health_benefits', accepts: ['Weights and cardio'] },
-          { text: 'I use the treadmill and the bike.', translation: 'Uso a esteira e a bicicleta.', next: 'health_benefits', accepts: ['Treadmill and bike'] },
-        ],
-      },
-      play_position: {
-        text: 'That is great! What position do you play?',
-        translation: 'Que ótimo! Qual posição você joga?',
-        replies: [
-          { text: 'I am a striker.', translation: 'Sou atacante.', next: 'health_benefits', accepts: ['Striker', 'Forward'] },
-          { text: 'I play in defense.', translation: 'Jogo na defesa.', next: 'health_benefits', accepts: ['Defense', 'Defender'] },
-          { text: 'I am the goalkeeper.', translation: 'Sou o goleiro.', next: 'health_benefits', accepts: ['Goalkeeper'] },
-        ],
-      },
-      health_benefits: {
-        text: 'Exercise is very good for our health. Do you feel different when you exercise?',
-        translation: 'Exercício é muito bom para a nossa saúde. Você se sente diferente quando se exercita?',
-        replies: [
-          { text: 'Yes, I have more energy and sleep better.', translation: 'Sim, tenho mais energia e durmo melhor.', next: 'end_sports', accepts: ['More energy and sleep better'] },
-          { text: 'Yes, I feel happier and less stressed.', translation: 'Sim, me sinto mais feliz e menos estressado(a).', next: 'end_sports', accepts: ['Happier and less stressed'] },
-        ],
-      },
-      end_sports: {
-        text: 'Keep it up! A healthy body is a happy body. Goodbye!',
-        translation: 'Continue assim! Um corpo saudável é um corpo feliz. Tchau!',
-        replies: [],
-      },
-    },
-  },
-
-  {
-    id: 'transportation',
-    topic: 'Getting Around',
-    topicPt: 'Locomovendo-se pela cidade',
-    icon: '🚌',
-    level: 2,
-    start: 'need_ride',
-    nodes: {
-      need_ride: {
-        text: 'Excuse me! How do I get to the city centre from here?',
-        translation: 'Com licença! Como eu vou ao centro da cidade daqui?',
-        replies: [
-          { text: 'You can take bus number twelve.', translation: 'Você pode pegar o ônibus número doze.', next: 'bus_stop', accepts: ['Bus twelve', 'Bus number 12'] },
-          { text: 'The subway is faster. Take line two.', translation: 'O metrô é mais rápido. Pegue a linha dois.', next: 'subway_info', accepts: ['The subway', 'Line two'] },
-          { text: 'You could take a taxi or use an app.', translation: 'Você pode pegar um táxi ou usar um aplicativo.', next: 'how_much', accepts: ['Taxi or app'] },
-        ],
-      },
-      bus_stop: {
-        text: 'The bus stop is around the corner. How often does the bus come?',
-        translation: 'A parada de ônibus fica na esquina. De quanto em quanto tempo o ônibus passa?',
-        replies: [
-          { text: 'Every fifteen minutes.', translation: 'A cada quinze minutos.', next: 'how_much', accepts: ['Every fifteen minutes'] },
-          { text: 'I am not sure. Maybe every ten minutes.', translation: 'Não tenho certeza. Talvez a cada dez minutos.', next: 'how_much', accepts: ['Every ten minutes maybe'] },
-        ],
-      },
-      subway_info: {
-        text: 'Where is the nearest subway station?',
-        translation: 'Onde fica a estação de metrô mais próxima?',
-        replies: [
-          { text: 'It is two blocks from here, on the right.', translation: 'Fica dois quarteirões daqui, à direita.', next: 'how_much', accepts: ['Two blocks right'] },
-          { text: 'Follow this street for five minutes.', translation: 'Siga essa rua por cinco minutos.', next: 'how_much', accepts: ['Five minutes down this street'] },
-        ],
-      },
-      how_much: {
-        text: 'How much does a bus or subway ticket cost?',
-        translation: 'Quanto custa um bilhete de ônibus ou metrô?',
-        replies: [
-          { text: 'It costs about two dollars.', translation: 'Custa uns dois dólares.', next: 'buy_ticket', accepts: ['Two dollars'] },
-          { text: 'I think it is one fifty.', translation: 'Acho que é um e cinquenta.', next: 'buy_ticket', accepts: ['One fifty'] },
-        ],
-      },
-      buy_ticket: {
-        text: 'Where can I buy a ticket?',
-        translation: 'Onde posso comprar um bilhete?',
-        replies: [
-          { text: 'You can buy it at the machine or on the app.', translation: 'Você pode comprar na máquina ou no aplicativo.', next: 'end_transport', accepts: ['Machine or app'] },
-          { text: 'You pay directly on the bus with change.', translation: 'Você paga direto no ônibus com troco.', next: 'end_transport', accepts: ['Pay on the bus'] },
-        ],
-      },
-      end_transport: {
-        text: 'Perfect, thank you so much! I think I can find my way now.',
-        translation: 'Perfeito, muito obrigado(a)! Acho que consigo encontrar o caminho agora.',
-        replies: [],
-      },
-    },
-  },
-
-  // ─── LEVEL 4 — novas conversas (+9) ─────────────────────────────────────────
+  // ─── LEVEL 1 — novas conversas (+8) ─────────────────────────────────────────,
 
   {
     id: 'renting_apartment',
@@ -2485,7 +2517,15 @@ export const conversations = [
         translation: 'Analisamos sua proposta. A qualidade parece excelente, mas o preço está acima do nosso orçamento.',
         replies: [
           { text: 'I understand your concern. What budget did you have in mind?', translation: 'Entendo sua preocupação. Qual orçamento você tinha em mente?', next: 'counter_offer', accepts: ['What is your budget?'] },
-          { text: 'Our pricing reflects the quality and service included.', translation: 'Nosso preço reflete a qualidade e o serviço incluídos.', next: 'counter_offer', accepts: ['Price reflects quality'] },
+          { text: 'Our pricing reflects the quality and service included.', translation: 'Nosso preço reflete a qualidade e o serviço incluídos.', next: 'pricing_justification', accepts: ['Price reflects quality'] },
+        ],
+      },
+      pricing_justification: {
+        text: 'I understand quality costs money. But our budget is limited. Can you adjust the terms?',
+        translation: 'Entendo que qualidade custa dinheiro. Mas nosso orçamento é limitado. Pode ajustar os termos?',
+        replies: [
+          { text: 'What if we adjust the payment terms?', translation: 'E se ajustarmos os termos de pagamento?', next: 'discuss_terms', accepts: ['Adjust payment terms'] },
+          { text: 'I need to consult my manager before reducing the price.', translation: 'Preciso consultar meu gerente antes de reduzir o preço.', next: 'discuss_terms', accepts: ['Consult my manager'] },
         ],
       },
       counter_offer: {
@@ -2712,6 +2752,5 @@ export const conversations = [
         replies: [],
       },
     },
-  },
+  }
 ];
-
