@@ -37,28 +37,6 @@ const TOTAL_ROUNDS = 5;
 
 const generateGuestName = () => `Aluno${Math.floor(1000 + Math.random() * 9000)}`;
 
-// Normaliza a pergunta que vem do servidor para o mesmo formato que o modo Bot
-// usa, para o JSX da partida servir aos dois modos. Nunca traz correctAnswer: o
-// servidor só revela quando a rodada fecha.
-const toDisplayQuestion = (q) => {
-  if (!q) return null;
-  const { type, prompt, options } = q;
-  switch (type) {
-    case 'trueFalse':
-      return { type, word: { en: prompt.en, pronunciation: prompt.pronunciation }, displayedPt: prompt.displayedPt, options };
-    case 'wordBuilder':
-      return { type, word: { pt: prompt.ptHint }, scrambledText: prompt.scrambledText, options };
-    case 'sentenceBuilder':
-      return { type, word: { example: prompt.exampleEn }, options };
-    case 'fillBlanks':
-      return { type, word: { examplePt: prompt.examplePt }, blankedSentence: prompt.blankedSentence, options };
-    case 'hangman':
-      return { type, word: { tip: prompt.tip }, options };
-    default: // translation, listening, memory
-      return { type, word: { en: prompt.en, pronunciation: prompt.pronunciation }, options };
-  }
-};
-
 const WhoKnowsMore = () => {
   // O app tem uma moeda só (estrelas = totalScore, a mesma da Loja).
   const { progress, addPoints, completeGame, setDisplayName } = useProgress();
@@ -527,7 +505,13 @@ const WhoKnowsMore = () => {
   };
 
   // ============ VALORES DERIVADOS ============
-  const activeQuestion = isHuman ? toDisplayQuestion(duel.question) : currentQuestion;
+  // No caminho humano, activeQuestion só serve pra checar "existe pergunta?"
+  // (linha do gameState 'playing' abaixo) — DuelOnlineGame consome
+  // duel.question direto, sem passar por toDisplayQuestion. Chamar
+  // toDisplayQuestion aqui quebrava toda partida de Memória online: a
+  // pergunta de memória nunca teve `prompt` (só `wordGroup`), e o caso
+  // default da função lê `prompt.en`, explodindo com TypeError.
+  const activeQuestion = isHuman ? duel.question : currentQuestion;
   const timeLeftDisplay = isHuman ? humanTimeLeft : timeLeft;
   const roundMsDisplay = isHuman ? duel.roundMs : BOT_ROUND_MS;
   const remainingMs = isHuman
