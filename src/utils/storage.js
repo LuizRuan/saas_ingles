@@ -115,12 +115,17 @@ const lista = (v) => (Array.isArray(v) ? v : []);
 const objeto = (v) =>
   v && typeof v === 'object' && !Array.isArray(v) ? v : {};
 
+const VALID_TIMESTAMP_MIN = 1700000000000;
+
 const saneiaEstatistica = (s) => {
   const o = objeto(s);
+  const rawLastSeen = o.lastSeen == null ? null : inteiro(o.lastSeen, 0);
+  const lastSeen = (rawLastSeen && rawLastSeen > VALID_TIMESTAMP_MIN) ? rawLastSeen : null;
+
   return {
     correct: inteiro(o.correct, 0),
     wrong: inteiro(o.wrong, 0),
-    lastSeen: o.lastSeen == null ? null : inteiro(o.lastSeen, 0),
+    lastSeen,
     timestamps: lista(o.timestamps).slice(-500).map(t => inteiro(t, 0)),
     ...(o.learned ? { learned: true } : {}),
   };
@@ -215,14 +220,25 @@ const migrateStats = (progress) => {
   };
 };
 
+export const getDefaultProgress = () => ({ ...defaultProgress });
+
+export const sanitizeProgress = (data) => {
+  try {
+    if (!data) return getDefaultProgress();
+    return migrateStats(saneiaProgresso(data));
+  } catch {
+    return getDefaultProgress();
+  }
+};
+
 export const loadProgress = () => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return { ...defaultProgress };
+    if (!data) return getDefaultProgress();
     // Sanear ANTES de migrar: a migração assume tipos corretos
-    return migrateStats(saneiaProgresso(JSON.parse(data)));
+    return sanitizeProgress(JSON.parse(data));
   } catch {
-    return { ...defaultProgress };
+    return getDefaultProgress();
   }
 };
 

@@ -31,8 +31,9 @@ const Home = () => {
 
     const now = Date.now();
     const MS_PER_DAY = 86_400_000;
+    const VALID_TIMESTAMP_MIN = 1700000000000;
     const oldestMs = withErrors.reduce(
-      (max, s) => s.lastSeen ? Math.max(max, now - s.lastSeen) : max, 0
+      (max, s) => (s.lastSeen && s.lastSeen > VALID_TIMESTAMP_MIN) ? Math.max(max, now - s.lastSeen) : max, 0
     );
     const daysOldest = Math.floor(oldestMs / MS_PER_DAY);
     return { level: daysOldest >= 2 ? 'urgent' : 'pending', count: withErrors.length, daysOldest };

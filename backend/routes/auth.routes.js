@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, logout, me, getProfile, updateProfile } from '../controllers/auth.controller.js';
+import { register, login, logout, me, getProfile, updateProfile, updateProgress } from '../controllers/auth.controller.js';
 import { requireDb } from '../middleware/requireDb.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { registerLimiter, loginLimiter } from '../middleware/rateLimiters.js';
@@ -20,3 +20,5 @@ authRouter.get('/me', requireAuth, me);
 // login/register, o apiLimiter geral em /api já cobre abuso.
 authRouter.get('/profile', requireAuth, requireDb, asyncHandler(getProfile));
 authRouter.patch('/profile', requireAuth, requireDb, asyncHandler(updateProfile));
+authRouter.patch('/progress', requireAuth, requireDb, asyncHandler(updateProgress));
+

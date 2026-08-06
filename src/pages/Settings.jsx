@@ -22,10 +22,24 @@ const Settings = () => {
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [nicknameStatus, setNicknameStatus] = useState('idle'); // idle | saving | saved | error
   const [nicknameError, setNicknameError] = useState('');
+  const [isEditingNickname, setIsEditingNickname] = useState(false);
+  const [showNicknameModal, setShowNicknameModal] = useState(false);
 
   useEffect(() => {
-    if (profile) setNicknameDraft(profile.nickname || '');
+    if (profile) {
+      setNicknameDraft(profile.nickname || '');
+      // Se a conta ainda não tem apelido definido, libera o campo direto
+      if (!profile.nickname) setIsEditingNickname(true);
+    }
   }, [profile]);
+
+  const getNicknameCooldownDays = useCallback((nicknameUpdatedAt) => {
+    if (!nicknameUpdatedAt) return 0;
+    const elapsed = Date.now() - new Date(nicknameUpdatedAt).getTime();
+    const cooldownMs = 30 * 24 * 60 * 60 * 1000;
+    if (elapsed >= cooldownMs) return 0;
+    return Math.ceil((cooldownMs - elapsed) / (24 * 60 * 60 * 1000));
+  }, []);
 
   const handleSaveNickname = useCallback(async () => {
     if (!isValidNickname(nicknameDraft)) {
@@ -39,13 +53,15 @@ const Settings = () => {
       const { user } = await updateProfileRequest(nicknameDraft.trim() || null);
       setNicknameDraft(user.nickname || '');
       applyNickname(user.nickname);
+      refetchAuthProfile();
       setNicknameStatus('saved');
+      setIsEditingNickname(false);
       setTimeout(() => setNicknameStatus('idle'), 2000);
     } catch (err) {
       setNicknameStatus('error');
       setNicknameError(err.message || 'Não foi possível salvar. Tente novamente.');
     }
-  }, [nicknameDraft, applyNickname]);
+  }, [nicknameDraft, applyNickname, refetchAuthProfile]);
 
   const updateSetting = useCallback((key, value) => {
     const updated = { ...settings, [key]: value };
@@ -128,38 +144,122 @@ const Settings = () => {
               </p>
             )}
 
-            {profileStatus === 'loaded' && profile && (
-              <>
-                <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
-                  Conectado como <strong>{profile.email}</strong>
-                </p>
-                <div className="form-group">
-                  <label htmlFor="nickname-input">Apelido</label>
-                  <input
-                    id="nickname-input"
-                    type="text"
-                    value={nicknameDraft}
-                    onChange={(e) => setNicknameDraft(e.target.value)}
-                    maxLength={MAX_NICKNAME_LENGTH}
-                    placeholder="Escolha um apelido"
-                    aria-invalid={nicknameStatus === 'error'}
-                  />
-                  {nicknameStatus === 'error' && <p className="form-error">{nicknameError}</p>}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                  <button
-                    className="btn btn-primary btn-sm"
-                    onClick={handleSaveNickname}
-                    disabled={nicknameStatus === 'saving'}
-                  >
-                    {nicknameStatus === 'saving' ? 'Salvando…' : 'Salvar apelido'}
-                  </button>
-                  {nicknameStatus === 'saved' && (
-                    <span style={{ color: 'var(--accent-green)', fontSize: 'var(--fs-sm)' }}>✅ Salvo!</span>
+            {profileStatus === 'loaded' && profile && (() => {
+              const cooldownDays = getNicknameCooldownDays(profile.nicknameUpdatedAt);
+              const hasNickname = Boolean(profile.nickname);
+
+              return (
+                <>
+                  <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
+                    Conectado como <strong>{profile.email}</strong>
+                  </p>
+
+                  {!isEditingNickname && hasNickname ? (
+                    <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
+                      <label>Apelido</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginTop: '4px' }}>
+                        <span style={{ fontSize: 'var(--fs-lg)', fontWeight: 700, color: 'var(--text-primary)' }}>
+                          {profile.nickname}
+                        </span>
+                        {cooldownDays > 0 ? (
+                          <span className="badge badge-purple" style={{ fontSize: 'var(--fs-xs)' }} title="Aguarde o prazo de 30 dias para alterar novamente">
+                            🔒 Alteração em {cooldownDays} dia(s)
+                          </span>
+                        ) : (
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => setShowNicknameModal(true)}
+                          >
+                            ✏️ Mudar apelido
+                          </button>
+                        )}
+                      </div>
+                      {cooldownDays > 0 && (
+                        <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginTop: '6px' }}>
+                          O apelido só pode ser alterado uma vez a cada 30 dias.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="form-group">
+                        <label htmlFor="nickname-input">Apelido</label>
+                        <input
+                          id="nickname-input"
+                          type="text"
+                          value={nicknameDraft}
+                          onChange={(e) => setNicknameDraft(e.target.value)}
+                          maxLength={MAX_NICKNAME_LENGTH}
+                          placeholder="Escolha um apelido"
+                          aria-invalid={nicknameStatus === 'error'}
+                        />
+                        {nicknameStatus === 'error' && <p className="form-error">{nicknameError}</p>}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={handleSaveNickname}
+                          disabled={nicknameStatus === 'saving'}
+                        >
+                          {nicknameStatus === 'saving' ? 'Salvando…' : 'Salvar apelido'}
+                        </button>
+                        {hasNickname && (
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => {
+                              setNicknameDraft(profile.nickname || '');
+                              setIsEditingNickname(false);
+                            }}
+                          >
+                            Cancelar
+                          </button>
+                        )}
+                        {nicknameStatus === 'saved' && (
+                          <span style={{ color: 'var(--accent-green)', fontSize: 'var(--fs-sm)' }}>✅ Salvo!</span>
+                        )}
+                      </div>
+                    </>
                   )}
-                </div>
-              </>
-            )}
+
+                  {/* Modal de Confirmação para Alterar Apelido */}
+                  {showNicknameModal && (
+                    <div className="modal-backdrop animate-fade-in" style={{
+                      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                      background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      zIndex: 9999, padding: 'var(--space-md)'
+                    }}>
+                      <div className="modal-card glass-card animate-bounce-in" style={{
+                        maxWidth: 440, width: '100%', padding: 'var(--space-xl)', textAlign: 'center'
+                      }}>
+                        <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: 'var(--space-xs)' }}>⚠️</span>
+                        <h3 style={{ marginBottom: 'var(--space-xs)' }}>Mudar Apelido?</h3>
+                        <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', lineHeight: 1.5, marginBottom: 'var(--space-lg)' }}>
+                          Tem certeza que quer mudar o apelido? Você não poderá mudá-lo nos próximos <strong>30 dias</strong>.
+                        </p>
+                        <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'center' }}>
+                          <button
+                            className="btn btn-ghost"
+                            onClick={() => setShowNicknameModal(false)}
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            className="btn btn-primary"
+                            onClick={() => {
+                              setShowNicknameModal(false);
+                              setIsEditingNickname(true);
+                            }}
+                          >
+                            Sim, quero mudar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         )}
 

@@ -10,6 +10,8 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   passwordHash: { type: String, required: true },
   nickname: { type: String, trim: true, default: null },
+  nicknameUpdatedAt: { type: Date, default: null },
+  progress: { type: Schema.Types.Mixed, default: null },
 }, { timestamps: true });
 
 export const User = mongoose.model('User', userSchema);

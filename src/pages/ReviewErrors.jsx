@@ -10,7 +10,8 @@ const ReviewErrors = () => {
   const { progress, handleCorrectAnswer, handleWrongAnswer, incrementReviewed } = useProgress();
   const { playCorrect, playWrong } = useSound();
   
-  const reviewWords = useMemo(() => getWordsToReview(progress, words), [progress]);
+  // Congela a lista de revisão para a sessão atual (evita recarregar/trocar a palavra no meio do feedback)
+  const [reviewWords] = useState(() => getWordsToReview(progress, words));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [selected, setSelected] = useState(null);

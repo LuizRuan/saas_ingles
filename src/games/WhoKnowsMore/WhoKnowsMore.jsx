@@ -35,7 +35,13 @@ const GAME_TYPES = [
 const BOT_ROUND_MS = 10_000;
 const TOTAL_ROUNDS = 5;
 
-const generateGuestName = () => `Aluno${Math.floor(1000 + Math.random() * 9000)}`;
+const MOCK_RANKED_LEADERBOARD = [
+  { id: 1, position: '#1', name: 'Camila Star', avatar: '🐱', level: 28, score: '2.450', wins: 186, trophyIcon: '🏆' },
+  { id: 2, position: '#2', name: 'Lucas G.', avatar: '🐊', level: 26, score: '2.130', wins: 162, trophyIcon: '🥈' },
+  { id: 3, position: '#3', name: 'Beatriz L.', avatar: '🧒', level: 24, score: '1.890', wins: 138, trophyIcon: '🥉' },
+  { id: 4, position: '#4', name: 'Felipe M.', avatar: '🧑', level: 22, score: '1.650', wins: 121, trophyIcon: '🏅' },
+  { id: 5, position: '#5', name: 'Ana Clara', avatar: '👩', level: 21, score: '1.420', wins: 108, trophyIcon: '🏅' },
+];
 
 const WhoKnowsMore = () => {
   // O app tem uma moeda só (estrelas = totalScore, a mesma da Loja).
@@ -54,6 +60,7 @@ const WhoKnowsMore = () => {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showBotSetupModal, setShowBotSetupModal] = useState(false);
   const [confirmExit, setConfirmExit] = useState(false);
+  const [showRankedTooltip, setShowRankedTooltip] = useState(false);
 
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [selectedGameType, setSelectedGameType] = useState('translation');
@@ -593,6 +600,72 @@ const WhoKnowsMore = () => {
                 <button className="btn btn-primary" style={{ marginTop: 'var(--space-md)', width: '100%' }} onClick={openBotSetup}>
                   ⚙️ Escolher Jogo &amp; Duelar
                 </button>
+              </div>
+            </div>
+
+            {/* ─── Seção Ranked / Top 5 do Mês ─────────────────────────────── */}
+            <div className="ranked-section">
+              <div className="ranked-section-header">
+                <span className="badge badge-green">🏆 RANKED</span>
+                <h2>Top 5 do Mês</h2>
+                <div className="ranked-subtitle-wrapper">
+                  <p className="text-secondary">
+                    Veja os jogadores com melhor desempenho no modo duelo.
+                  </p>
+                  <div className="ranked-info-tooltip-container">
+                    <button
+                      type="button"
+                      className="ranked-info-btn"
+                      onClick={() => setShowRankedTooltip(!showRankedTooltip)}
+                      onMouseEnter={() => setShowRankedTooltip(true)}
+                      onMouseLeave={() => setShowRankedTooltip(false)}
+                      title="Requisitos do Ranked"
+                      aria-label="Requisitos para aparecer no ranking"
+                    >
+                      ℹ️
+                    </button>
+                    {showRankedTooltip && (
+                      <div className="ranked-info-tooltip glass-card animate-fade-in-up">
+                        <span className="tooltip-icon">💡</span>
+                        <p>Para você aparecer no ranked você precisa estar logado em uma conta e ter escolhido um apelido.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="ranked-card glass-card">
+                <div className="ranked-list">
+                  {MOCK_RANKED_LEADERBOARD.map(player => (
+                    <div key={player.id} className={`ranked-item rank-pos-${player.id}`}>
+                      <div className="ranked-position-col">
+                        <span className={`ranked-position-num pos-${player.id}`}>{player.position}</span>
+                      </div>
+
+                      <div className="ranked-player-col">
+                        <div className="ranked-avatar" aria-hidden="true">{player.avatar}</div>
+                        <div className="ranked-player-details">
+                          <span className="ranked-player-name">{player.name}</span>
+                          <span className="ranked-level-badge">Nível {player.level}</span>
+                        </div>
+                      </div>
+
+                      <div className="ranked-score-col">
+                        <div className="ranked-score-main">
+                          <span className="ranked-trophy">{player.trophyIcon}</span>
+                          <strong>{player.score}</strong> <small>pontos</small>
+                        </div>
+                        <span className="ranked-wins-count">{player.wins} vitórias</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="ranked-footer">
+                  <button className="btn btn-ghost btn-sm ranked-full-btn" title="Ver ranking completo">
+                    📊 Ver Ranking Completo
+                  </button>
+                </div>
               </div>
             </div>
 

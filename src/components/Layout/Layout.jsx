@@ -53,13 +53,10 @@ const Layout = ({ children }) => {
               <span>📖</span> Palavras
             </NavLink>
             <NavLink to="/stories" title="Histórias" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
-              <span>📜</span> Histórias
-            </NavLink>
-            <NavLink to="/levels" title="Níveis" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
-              <span>📊</span> Níveis
+              <img src="/historias.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Histórias
             </NavLink>
             <NavLink to="/achievements" title="Conquistas" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
-              <span>🏆</span> Conquistas
+              <img src="/conquistas.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Conquistas
             </NavLink>
           </div>
 
@@ -73,9 +70,9 @@ const Layout = ({ children }) => {
               <span aria-hidden="true">💡</span>
               <span>{progress.hintsAvailable || 0}</span>
             </NavLink>
-            <NavLink to="/shop" className="navbar-link" style={{ padding: '6px 10px' }}
+            <NavLink to="/shop" className="navbar-link" style={{ padding: '4px 6px' }}
               title="Loja" aria-label="Abrir loja">
-              🎪
+              <img src="/loja.png" alt="Loja" style={{ height: '28px', width: 'auto', display: 'block', objectFit: 'contain' }} />
             </NavLink>
             <div className="navbar-stat">
               <span>🔥</span>

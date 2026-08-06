@@ -1,12 +1,10 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../hooks/useProgress';
 import { getCurrentLevel, getNextLevel, getLevelProgress } from '../utils/levelSystem';
-import { levels } from '../data/categories';
+import { levels, stages } from '../data/categories';
 import './Levels.css';
 
-// Os níveis são limiares sobre o total de palavras DISTINTAS já estudadas
-// (progress.wordsStudied), não baldes de palavras. Não confundir com o campo
-// `level` de data/words.js, que é dificuldade da palavra e vai só até 7.
 const situacaoDe = (nivel, atual) => {
   if (nivel.level < atual.level) return 'concluido';
   if (nivel.level === atual.level) return 'atual';
@@ -22,6 +20,7 @@ const ROTULO = {
 const Levels = () => {
   const { progress } = useProgress();
   const estudadas = progress.wordsStudied || 0;
+  const [selectedStage, setSelectedStage] = useState('all');
 
   const atual = getCurrentLevel(estudadas);
   const proximo = getNextLevel(estudadas);
@@ -31,6 +30,10 @@ const Levels = () => {
     acc[situacaoDe(n, atual)] += 1;
     return acc;
   }, { concluido: 0, atual: 0, bloqueado: 0 });
+
+  const filteredLevels = selectedStage === 'all'
+    ? levels
+    : levels.filter(n => n.stage === selectedStage);
 
   return (
     <div className="page">
@@ -42,8 +45,8 @@ const Levels = () => {
           <div className="levels-title">
             <span className="levels-title-icon" aria-hidden="true">📊</span>
             <div>
-              <h1>Níveis</h1>
-              <p className="text-secondary">Acompanhe sua evolução e desbloqueie novas fases</p>
+              <h1>Níveis ({levels.length})</h1>
+              <p className="text-secondary">Acompanhe sua evolução e desbloqueie as 50 fases do aprendizado</p>
             </div>
           </div>
 
@@ -77,7 +80,7 @@ const Levels = () => {
           <span className="levels-featured-icon" aria-hidden="true">{atual.icon}</span>
 
           <div className="levels-featured-body">
-            <p className="levels-eyebrow">Nível {atual.level}</p>
+            <p className="levels-eyebrow">Nível {atual.level} de 50</p>
             <h2>{atual.name}</h2>
             <p className="text-secondary">{atual.description}</p>
 
@@ -88,7 +91,7 @@ const Levels = () => {
             <p className="levels-featured-meta">
               {proximo
                 ? <><strong>{estudadas} / {proximo.wordsNeeded}</strong> palavras para o próximo nível</>
-                : <>Você chegou ao último nível com <strong>{estudadas}</strong> palavras estudadas</>}
+                : <>Você chegou ao último nível (Nível 50) com <strong>{estudadas}</strong> palavras estudadas!</>}
             </p>
           </div>
 
@@ -97,9 +100,26 @@ const Levels = () => {
           </Link>
         </section>
 
-        {/* A trilha completa. É uma sequência de verdade, então numerar informa. */}
+        {/* Filtros por Estágios */}
+        <div style={{ display: 'flex', gap: 'var(--space-xs)', overflowX: 'auto', paddingBottom: 'var(--space-md)', marginBottom: 'var(--space-md)' }}>
+          <button
+            className={`btn btn-sm ${selectedStage === 'all' ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setSelectedStage('all')}>
+            🌐 Todos os 50 Níveis
+          </button>
+          {stages.map(st => (
+            <button
+              key={st.stage}
+              className={`btn btn-sm ${selectedStage === st.stage ? 'btn-primary' : 'btn-ghost'}`}
+              onClick={() => setSelectedStage(st.stage)}>
+              {st.icon} Estágio {st.stage}: {st.name}
+            </button>
+          ))}
+        </div>
+
+        {/* A trilha de 50 níveis */}
         <ol className="levels-track">
-          {levels.map((nivel, i) => {
+          {filteredLevels.map((nivel, i) => {
             const situacao = situacaoDe(nivel, atual);
             const preenchimento = situacao === 'concluido' ? 100 : situacao === 'atual' ? percentual : 0;
             const faltam = Math.max(0, nivel.wordsNeeded - estudadas);
@@ -108,7 +128,7 @@ const Levels = () => {
               <li
                 key={nivel.level}
                 className={`glass-card levels-step ${situacao}`}
-                style={{ animationDelay: `${Math.min(i * 0.04, 0.4)}s` }}
+                style={{ animationDelay: `${Math.min(i * 0.03, 0.3)}s` }}
               >
                 <span className="levels-step-number" aria-hidden="true">
                   {situacao === 'concluido' ? '✓' : nivel.level}

@@ -54,3 +54,7 @@ export const getProfileRequest = () => callAuth('/api/auth/profile', { method: '
 
 export const updateProfileRequest = (nickname) =>
   callAuth('/api/auth/profile', { method: 'PATCH', body: { nickname } });
+
+export const updateProgressRequest = (progress) =>
+  callAuth('/api/auth/progress', { method: 'PATCH', body: { progress } });
+

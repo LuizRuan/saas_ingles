@@ -92,8 +92,7 @@ const DuelOnlineGame = ({
   onConfirmExit,
   onCancelExit,
 }) => {
-  const { speakText: speakNormal } = useSpeech({ rate: 1.0 });
-  const { speakText: speakSlow }   = useSpeech({ rate: 0.6 });
+  const { speakNormal, speakSlow } = useSpeech();
   const { playCorrect, playWrong } = useSound();
 
   // Timer baseado no roundDeadline do servidor

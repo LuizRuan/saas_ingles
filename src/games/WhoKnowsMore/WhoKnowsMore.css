@@ -779,3 +779,284 @@
   color: var(--text-primary);
 }
 
+/* === SEÇÃO RANKED (Top 5 do Mês) === */
+.ranked-section {
+  margin-top: var(--space-3xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  width: 100%;
+}
+
+.ranked-section-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.ranked-section-header h2 {
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  color: var(--accent-primary);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: var(--space-xs) 0 0 0;
+}
+
+.ranked-subtitle-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  position: relative;
+}
+
+.ranked-subtitle-wrapper p {
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+
+/* Tooltip de Requisitos do Ranked */
+.ranked-info-tooltip-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ranked-info-btn {
+  background: none;
+  border: none;
+  font-size: var(--fs-md);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  line-height: 1;
+}
+
+.ranked-info-btn:hover {
+  transform: scale(1.2);
+}
+
+.ranked-info-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  padding: var(--space-sm) var(--space-md);
+  width: 260px;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.ranked-info-tooltip .tooltip-icon {
+  font-size: var(--fs-md);
+  flex-shrink: 0;
+}
+
+.ranked-info-tooltip p {
+  font-size: var(--fs-xs);
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Card Principal do Ranking */
+.ranked-card {
+  width: 100%;
+  max-width: 720px;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.ranked-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Cada Linha do Jogador */
+.ranked-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  background: color-mix(in srgb, var(--bg-card) 60%, transparent);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  gap: var(--space-md);
+}
+
+.ranked-item:hover {
+  transform: translateX(4px);
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-card);
+}
+
+/* Destaque para #1, #2, #3 */
+.ranked-item.rank-pos-1 {
+  border-color: color-mix(in srgb, #f59e0b 50%, var(--border-light));
+  background: color-mix(in srgb, #f59e0b 8%, var(--bg-card));
+}
+
+.ranked-item.rank-pos-2 {
+  border-color: color-mix(in srgb, #94a3b8 40%, var(--border-light));
+}
+
+.ranked-item.rank-pos-3 {
+  border-color: color-mix(in srgb, #d97706 35%, var(--border-light));
+}
+
+/* Coluna Posição (#1, #2...) */
+.ranked-position-col {
+  min-width: 32px;
+  text-align: center;
+}
+
+.ranked-position-num {
+  font-size: var(--fs-md);
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.ranked-position-num.pos-1 {
+  color: #f59e0b;
+  font-size: var(--fs-lg);
+}
+
+.ranked-position-num.pos-2 {
+  color: #94a3b8;
+  font-size: var(--fs-lg);
+}
+
+.ranked-position-num.pos-3 {
+  color: #d97706;
+  font-size: var(--fs-lg);
+}
+
+/* Coluna Jogador (Avatar + Nome + Nível) */
+.ranked-player-col {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex: 1;
+}
+
+.ranked-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent-primary) 15%, var(--bg-card));
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.ranked-player-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.ranked-player-name {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ranked-level-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--accent-green) 15%, var(--bg-card));
+  color: var(--accent-green);
+  border: 1px solid color-mix(in srgb, var(--accent-green) 30%, transparent);
+}
+
+/* Coluna Pontuação & Vitórias */
+.ranked-score-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 120px;
+}
+
+.ranked-score-main {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+}
+
+.ranked-score-main strong {
+  font-weight: 800;
+  font-size: var(--fs-md);
+}
+
+.ranked-score-main small {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.ranked-trophy {
+  font-size: 1.1rem;
+}
+
+.ranked-wins-count {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* Rodapé do Ranking */
+.ranked-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-xs);
+}
+
+.ranked-full-btn {
+  width: 100%;
+  max-width: 280px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-purple);
+}
+
+@media (max-width: 600px) {
+  .ranked-item {
+    padding: var(--space-xs) var(--space-sm);
+    gap: var(--space-xs);
+  }
+  .ranked-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+  .ranked-player-name {
+    font-size: var(--fs-sm);
+  }
+  .ranked-score-col {
+    min-width: 90px;
+  }
+}
+

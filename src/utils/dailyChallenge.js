@@ -1,14 +1,39 @@
-// Geração determinística do desafio diário
-// Mesma seed por dia = mesmas atividades, na mesma ordem, com as mesmas
-// alternativas. Tudo que o usuário vê é decidido aqui, nunca no render —
-// caso contrário as alternativas se reembaralham a cada re-render.
+import { sentences as sentencesData, fillBlanks as fillBlanksData } from '../data/sentences';
 
-const getDaySeed = () => {
-  const today = new Date();
-  return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+/**
+ * Retorna a data no fuso horário de Brasília (America/Sao_Paulo / UTC-3).
+ * Garante renovação estrita às 00:00 BRT para todos os usuários.
+ */
+export const getTodayDateString = () => {
+  try {
+    const options = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' };
+    const formatter = new Intl.DateTimeFormat('en-US', options);
+    const parts = formatter.formatToParts(new Date());
+    const y = parts.find(p => p.type === 'year').value;
+    const m = parts.find(p => p.type === 'month').value;
+    const d = parts.find(p => p.type === 'day').value;
+    return `${y}-${m}-${d}`;
+  } catch (e) {
+    return new Date().toISOString().split('T')[0];
+  }
 };
 
-// Simple seeded random
+const getDaySeed = () => {
+  try {
+    const options = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' };
+    const formatter = new Intl.DateTimeFormat('en-US', options);
+    const parts = formatter.formatToParts(new Date());
+    const y = parseInt(parts.find(p => p.type === 'year').value, 10);
+    const m = parseInt(parts.find(p => p.type === 'month').value, 10);
+    const d = parseInt(parts.find(p => p.type === 'day').value, 10);
+    return y * 10000 + m * 100 + d;
+  } catch (e) {
+    const d = new Date();
+    return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  }
+};
+
+// Gerador pseudo-aleatório semeado (Linear Congruential Generator)
 const seededRandom = (seed) => {
   let s = seed;
   return () => {
@@ -17,8 +42,7 @@ const seededRandom = (seed) => {
   };
 };
 
-// Fisher-Yates com RNG semeado. Não use `sort(() => rng() - 0.5)`: um
-// comparador inconsistente não embaralha de forma uniforme.
+// Embaralhamento Fisher-Yates determinístico
 const seededShuffle = (rng, arr) => {
   const out = [...arr];
   for (let i = out.length - 1; i > 0; i--) {
@@ -28,14 +52,12 @@ const seededShuffle = (rng, arr) => {
   return out;
 };
 
-// 1 resposta certa + 3 distratores, em ordem determinística
+// Auxiliar para montar 4 opções (1 certa + 3 erradas)
 const buildOptions = (rng, answer, pool) => {
   if (!answer) return [];
-
   const distractors = [];
   const seen = new Set([answer.en]);
 
-  // O guard evita laço infinito se o acervo for menor que 4 palavras
   for (let guard = 0; distractors.length < 3 && guard < pool.length * 4; guard++) {
     const candidate = pool[Math.floor(rng() * pool.length)];
     if (candidate && !seen.has(candidate.en)) {
@@ -47,69 +69,190 @@ const buildOptions = (rng, answer, pool) => {
   return seededShuffle(rng, [answer, ...distractors]);
 };
 
+// Modalidades de jogos disponíveis para o Desafio Diário
+const ALL_GAME_MODES = [
+  {
+    type: 'listening',
+    title: 'Escuta',
+    description: 'Escute com atenção e descubra a palavra falada',
+    icon: '🎧',
+  },
+  {
+    type: 'memory',
+    title: 'Jogo da Memória',
+    description: 'Encontre os 3 pares correspondentes virando as cartas',
+    icon: '🃏',
+  },
+  {
+    type: 'hangman',
+    title: 'Jogo da Forca',
+    description: 'Descubra a palavra com o teclado antes do boneco ser enforcado',
+    icon: '🎯',
+  },
+  {
+    type: 'wordBuilder',
+    title: 'Montar Palavra',
+    description: 'Ordene as peças de letras para formar a palavra correta',
+    icon: '🔤',
+  },
+  {
+    type: 'sentenceBuilder',
+    title: 'Montar Frase',
+    description: 'Ordene os blocos de palavras para formar a frase em inglês',
+    icon: '🧩',
+  },
+  {
+    type: 'trueFalse',
+    title: 'Verdadeiro ou Falso',
+    description: 'Responda rápido se a tradução proposta está certa ou errada',
+    icon: '⚡',
+  },
+  {
+    type: 'fillBlanks',
+    title: 'Completar Lacunas',
+    description: 'Escolha a palavra certa para completar a frase',
+    icon: '✏️',
+  },
+  {
+    type: 'translation',
+    title: 'Quiz de Tradução',
+    description: 'Escolha a tradução correta para a palavra exibida',
+    icon: '🔄',
+  },
+];
+
+/**
+ * Gera as 5 etapas do Desafio Diário com modos aleatórios semeados pela data.
+ * Regra: gameTypes[i] !== gameTypes[i-1] (sem jogos repetidos em etapas seguidas).
+ */
 export const generateDailyChallenge = (words) => {
   const seed = getDaySeed();
   const rng = seededRandom(seed);
-  const shuffled = seededShuffle(rng, words);
 
-  if (shuffled.length === 0) {
-    return { date: new Date().toDateString(), seed, challenges: [], completed: false };
+  const shuffledWords = seededShuffle(rng, words.filter(w => w.en && w.pt && !w.en.includes(' ') && w.en.length >= 3));
+  const shuffledSentences = seededShuffle(rng, sentencesData || []);
+  const shuffledFillBlanks = seededShuffle(rng, fillBlanksData || []);
+
+  // Seleciona 5 modos de jogo sem repetição consecutiva
+  const selectedModes = [];
+  for (let i = 0; i < 5; i++) {
+    const previousType = selectedModes[i - 1]?.type;
+    const candidates = ALL_GAME_MODES.filter(m => m.type !== previousType);
+    const chosenMode = candidates[Math.floor(rng() * candidates.length)];
+    selectedModes.push(chosenMode);
   }
 
-  // Dá a volta no acervo: garante palavra definida mesmo com banco pequeno.
-  const at = (i) => shuffled[i % shuffled.length];
+  let wordIndex = 0;
+  let sentenceIndex = 0;
+  let fillBlankIndex = 0;
 
-  const specs = [
-    {
-      type: 'memory',
-      title: 'Jogo da Memória',
-      description: 'Encontre a palavra em inglês',
-      icon: '🃏',
-      words: [at(0), at(1), at(2)],
-      goal: 3,
-    },
-    {
-      type: 'hangman',
-      title: 'Jogo da Forca',
-      description: 'Descubra a palavra secreta',
-      icon: '🎯',
-      words: [at(3)],
-      goal: 1,
-    },
-    {
-      type: 'sentenceBuilder',
-      title: 'Montar Frase',
-      description: 'Escolha a palavra correta',
-      icon: '📝',
-      words: [at(8)],
-      goal: 1,
-    },
-    {
-      type: 'translation',
-      title: 'Tradução',
-      description: 'Traduza a palavra',
-      icon: '🔄',
-      words: [at(4), at(5)],
-      goal: 2,
-    },
-    {
-      type: 'trueFalse',
-      title: 'Verdadeiro ou Falso',
-      description: 'Escolha a tradução certa',
-      icon: '✅',
-      words: [at(6), at(7)],
-      goal: 2,
-    },
-  ];
+  const challenges = selectedModes.map((mode, stepIdx) => {
+    let payload = {};
 
-  // `answer` é a palavra cobrada no passo; `options` já vem embaralhado.
-  const challenges = specs.map(spec => {
-    const answer = spec.words[0];
-    return { ...spec, answer, options: buildOptions(rng, answer, shuffled) };
+    switch (mode.type) {
+      case 'memory': {
+        // Pega 3 palavras para formar 6 cartas (3 pares)
+        const pairWords = [
+          shuffledWords[wordIndex % shuffledWords.length],
+          shuffledWords[(wordIndex + 1) % shuffledWords.length],
+          shuffledWords[(wordIndex + 2) % shuffledWords.length],
+        ];
+        wordIndex += 3;
+        payload = {
+          words: pairWords,
+          answer: pairWords[0], // Usada para a explicação pedagógica ao final
+        };
+        break;
+      }
+      case 'hangman': {
+        const targetWord = shuffledWords[wordIndex % shuffledWords.length];
+        wordIndex += 1;
+        payload = {
+          answer: targetWord,
+          word: targetWord,
+        };
+        break;
+      }
+      case 'wordBuilder': {
+        const targetWord = shuffledWords[wordIndex % shuffledWords.length];
+        wordIndex += 1;
+        payload = {
+          answer: targetWord,
+          word: targetWord,
+        };
+        break;
+      }
+      case 'sentenceBuilder': {
+        const sentenceObj = shuffledSentences[sentenceIndex % shuffledSentences.length] || {
+          en: 'I love English.', pt: 'Eu amo inglês.', words: [{ en: 'I', pt: 'Eu' }, { en: 'love', pt: 'amo' }, { en: 'English', pt: 'inglês' }]
+        };
+        sentenceIndex += 1;
+        payload = {
+          sentence: sentenceObj,
+          answer: { en: sentenceObj.en, pt: sentenceObj.pt, tip: sentenceObj.grammar || 'Ordene as palavras em inglês.' },
+        };
+        break;
+      }
+      case 'trueFalse': {
+        const targetWord = shuffledWords[wordIndex % shuffledWords.length];
+        wordIndex += 1;
+        const isTrue = rng() > 0.5;
+        let displayPt = targetWord.pt;
+        if (!isTrue) {
+          const wrongCandidate = shuffledWords.find(w => w.en !== targetWord.en);
+          if (wrongCandidate) displayPt = wrongCandidate.pt;
+        }
+        payload = {
+          answer: targetWord,
+          displayPt,
+          isTrue,
+        };
+        break;
+      }
+      case 'fillBlanks': {
+        const fillObj = shuffledFillBlanks[fillBlankIndex % shuffledFillBlanks.length] || {
+          sentence: 'I ___ water.', answer: 'need', options: ['need', 'run', 'blue', 'cat']
+        };
+        fillBlankIndex += 1;
+        payload = {
+          fillObj,
+          answer: { en: fillObj.answer, pt: `Resposta da lacuna: ${fillObj.answer}` },
+          options: seededShuffle(rng, [...fillObj.options]),
+        };
+        break;
+      }
+      case 'listening': {
+        const targetWord = shuffledWords[wordIndex % shuffledWords.length];
+        wordIndex += 1;
+        const options = buildOptions(rng, targetWord, shuffledWords);
+        payload = {
+          answer: targetWord,
+          options,
+        };
+        break;
+      }
+      case 'translation':
+      default: {
+        const targetWord = shuffledWords[wordIndex % shuffledWords.length];
+        wordIndex += 1;
+        const options = buildOptions(rng, targetWord, shuffledWords);
+        payload = {
+          answer: targetWord,
+          options,
+        };
+        break;
+      }
+    }
+
+    return {
+      stepIndex: stepIdx + 1,
+      ...mode,
+      ...payload,
+    };
   });
 
   return {
-    date: new Date().toDateString(),
+    date: getTodayDateString(),
     seed,
     challenges,
     completed: false,
@@ -117,10 +260,6 @@ export const generateDailyChallenge = (words) => {
 };
 
 export const isDailyChallengeCompleted = (progress) => {
-  const today = new Date().toDateString();
+  const today = getTodayDateString();
   return progress.lastDailyChallengeDate === today;
-};
-
-export const getTodayDateString = () => {
-  return new Date().toDateString();
 };

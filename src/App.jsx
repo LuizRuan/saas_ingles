@@ -58,15 +58,12 @@ const CarregandoTela = () => (
 
 function App() {
   return (
-    <ProgressProvider>
-      {/* Presença por heartbeat HTTP, em toda página (ver usePresence.jsx).
-          O socket do duelo continua só na tela de "Quem Sabe Mais?". */}
-      <PresenceProvider>
-      {/* Estado de conta compartilhado entre a navbar (Layout) e a tela de
-          Perfil (Settings) — ver useAuthProfile.jsx para o porquê de ser
-          Context e não só um hook. */}
-      <AuthProfileProvider>
-      <BrowserRouter>
+    <AuthProfileProvider>
+      <ProgressProvider>
+        {/* Presença por heartbeat HTTP, em toda página (ver usePresence.jsx).
+            O socket do duelo continua só na tela de "Quem Sabe Mais?". */}
+        <PresenceProvider>
+        <BrowserRouter>
         {/* Manda quem ainda não escolheu como entrar para /welcome. Fica FORA do
             Layout porque as telas de entrada não têm navbar. */}
         <EntryGate>
@@ -108,9 +105,9 @@ function App() {
         </Layout>
         </EntryGate>
       </BrowserRouter>
-      </AuthProfileProvider>
-      </PresenceProvider>
-    </ProgressProvider>
+        </PresenceProvider>
+      </ProgressProvider>
+    </AuthProfileProvider>
   );
 }
 

@@ -1,10 +1,13 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import { loadProgress, saveProgress, resetProgress as clearStorage, updateDayStreak } from '../utils/storage';
+import { loadProgress, saveProgress, resetProgress as clearStorage, updateDayStreak, sanitizeProgress, getDefaultProgress } from '../utils/storage';
 import { calculatePoints, checkStreakBonus, POINTS } from '../utils/scoring';
 import { recordWordResult } from '../utils/reviewSystem';
 import { getCurrentLevel } from '../utils/levelSystem';
 import { applyTheme } from '../utils/appearance';
 import { achievementsList } from '../data/achievements';
+import { getTodayDateString } from '../utils/dailyChallenge';
+import { useAuthProfile } from './useAuthProfile';
+import { updateProgressRequest } from '../utils/authClient';
 
 const ProgressContext = createContext(null);
 
@@ -17,22 +20,69 @@ const activeMultiplier = (progress) =>
 export const EXTRA_TIME_SECONDS = 10;
 
 export const ProgressProvider = ({ children }) => {
+  const auth = useAuthProfile();
   const [progress, setProgress] = useState(() => loadProgress());
   const [newAchievement, setNewAchievement] = useState(null);
   const [scorePopup, setScorePopup] = useState(null);
   const [celebration, setCelebration] = useState(null);
 
   // Leitura síncrona do progresso atual para as ações abaixo.
-  // IMPORTANTE: as ações NÃO podem depender de `progress` diretamente — telas de
-  // fim de jogo chamam completeGame() dentro de um useEffect que tem a própria
-  // ação nas dependências, então uma identidade instável vira loop infinito.
   const progressRef = useRef(progress);
   progressRef.current = progress;
 
-  // Save to localStorage whenever progress changes
+  const entryChoice = auth?.entryChoice;
+  const userAccount = auth?.profile;
+  const userId = userAccount?.id;
+  const lastSyncedUserIdRef = useRef(null);
+  const syncTimerRef = useRef(null);
+
+  // ─── Sincronização do Progresso com a Nuvem (MongoDB) ───────────────────────
+  useEffect(() => {
+    if (entryChoice === 'account' && userAccount) {
+      if (lastSyncedUserIdRef.current !== userId) {
+        lastSyncedUserIdRef.current = userId;
+        if (userAccount.progress) {
+          // Restaura o progresso do usuário vindo da nuvem/banco de dados
+          const cloudProg = sanitizeProgress(userAccount.progress);
+          setProgress(cloudProg);
+        } else {
+          // Conta existente criada antes da nuvem: se tiver progresso no navegador,
+          // MIGRA o progresso para a conta e salva imediatamente no banco de dados (MongoDB)!
+          const currentLocal = loadProgress();
+          const hasExistingProgress = (currentLocal.totalScore || 0) > 0 ||
+                                     (currentLocal.currentLevel || 1) > 1 ||
+                                     Object.keys(currentLocal.wordStats || {}).length > 0;
+          if (hasExistingProgress) {
+            setProgress(currentLocal);
+            updateProgressRequest(currentLocal).catch(() => {});
+          } else {
+            // Conta realmente nova e sem histórico prévio: reseta para estado limpo (0)
+            const fresh = getDefaultProgress();
+            setProgress(fresh);
+            updateProgressRequest(fresh).catch(() => {});
+          }
+        }
+      }
+    } else if (entryChoice !== 'account' && lastSyncedUserIdRef.current !== null) {
+      lastSyncedUserIdRef.current = null;
+      setProgress(loadProgress());
+    }
+  }, [entryChoice, userAccount, userId]);
+
+  // Save to localStorage e envia alterações ao servidor em background (debounce)
   useEffect(() => {
     saveProgress(progress);
-  }, [progress]);
+
+    if (entryChoice === 'account' && lastSyncedUserIdRef.current) {
+      if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+      syncTimerRef.current = setTimeout(() => {
+        updateProgressRequest(progressRef.current).catch(() => {});
+      }, 1500);
+    }
+    return () => {
+      if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+    };
+  }, [progress, entryChoice]);
 
   // Update day streak on mount
   useEffect(() => {
@@ -201,7 +251,7 @@ export const ProgressProvider = ({ children }) => {
       const updated = {
         ...prev,
         dailyChallengesCompleted: (prev.dailyChallengesCompleted || 0) + 1,
-        lastDailyChallengeDate: new Date().toDateString(),
+        lastDailyChallengeDate: getTodayDateString(),
         totalScore: prev.totalScore + POINTS.DAILY_CHALLENGE,
       };
       return checkAchievements(updated);

@@ -47,12 +47,13 @@ export const getReviewUrgency = (progress, allWords) => {
   const { wordStats = {} } = progress;
   const now = Date.now();
   const MS_PER_DAY = 86_400_000;
+  const VALID_TIMESTAMP_MIN = 1700000000000;
 
   let oldestMs = 0;
   for (const word of wordsToReview) {
     const stats = wordStats[word.en];
-    if (stats?.lastSeen) {
-      const age = now - stats.lastSeen;
+    if (stats?.lastSeen && stats.lastSeen > VALID_TIMESTAMP_MIN) {
+      const age = Math.max(0, now - stats.lastSeen);
       if (age > oldestMs) oldestMs = age;
     }
   }
