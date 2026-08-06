@@ -68,7 +68,13 @@ const OnlineMemoryBoard = ({ wordGroup, onCompleted }) => {
             onClick={() => !isFlipped && handleCardClick(card)}
             disabled={isFlipped && !matched.has(card.pairKey) && flipped.length === 2}
           >
-            {isFlipped ? card.text : '?'}
+            <div className="memory-card-inner">
+              <div className="memory-card-front"><span>?</span></div>
+              <div className="memory-card-back">
+                <span className={`card-text ${card.type === 'en' ? 'en' : 'pt'}`}>{card.text}</span>
+                <span className="card-lang">{card.type === 'en' ? '🇺🇸' : '🇧🇷'}</span>
+              </div>
+            </div>
           </button>
         );
       })}
@@ -359,11 +365,12 @@ const DuelOnlineGame = ({
           <div className="question-card glass-card">
             <span className="question-label">🔡 Monte a palavra:</span>
             <p className="duel-hint">Dica: {question.prompt?.ptHint}</p>
-            <div className="word-slots">
+            <div className="wb-answer">
               {slots.map((s, i) => (
-                <div
+                <button
                   key={i}
-                  className="word-slot filled"
+                  className="wb-slot filled"
+                  disabled={playerDone}
                   onClick={() => {
                     if (playerDone) return;
                     const newSlots = slots.filter((_, si) => si !== i);
@@ -373,17 +380,17 @@ const DuelOnlineGame = ({
                   }}
                 >
                   {s.letter}
-                </div>
+                </button>
               ))}
               {Array.from({ length: Math.max(0, (question.prompt?.scrambledText?.replace(/ /g, '').length || 0) - slots.length) }).map((_, i) => (
-                <div key={`empty-${i}`} className="word-slot" />
+                <div key={`empty-${i}`} className="wb-slot" />
               ))}
             </div>
-            <div className="letter-tiles">
+            <div className="wb-letters">
               {tiles.filter(t => !t.used).map(tile => (
                 <button
                   key={tile.id}
-                  className="letter-tile"
+                  className="wb-letter-btn"
                   disabled={playerDone}
                   onClick={() => {
                     const newSlots = [...slots, tile];

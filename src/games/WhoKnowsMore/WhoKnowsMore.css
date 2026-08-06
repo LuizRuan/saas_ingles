@@ -752,54 +752,6 @@
   .game-type-selector-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* === LETTER TILES (WordBuilder no DuelOnlineGame) === */
-.word-slots {
-  display: flex;
-  gap: var(--space-xs);
-  justify-content: center;
-  flex-wrap: wrap;
-  margin: var(--space-sm) 0;
-}
-.word-slot {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: var(--fs-md);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.word-slot.filled {
-  background: var(--accent-blue);
-  color: white;
-  border-color: var(--accent-blue);
-}
-.letter-tiles {
-  display: flex;
-  gap: var(--space-xs);
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: var(--space-sm);
-}
-.letter-tile {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--accent-blue);
-  background: var(--bg-card);
-  font-weight: 700;
-  font-size: var(--fs-md);
-  cursor: pointer;
-  color: var(--text-primary);
-  transition: background 0.15s, transform 0.1s;
-}
-.letter-tile:hover { background: var(--accent-blue); color: white; transform: scale(1.08); }
-.letter-tile:disabled { opacity: 0.4; cursor: not-allowed; }
-
 /* === MEMORY GRID no DuelOnlineGame === */
 .memory-grid { margin-top: var(--space-md); }
 
