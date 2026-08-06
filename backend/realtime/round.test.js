@@ -63,6 +63,32 @@ describe('closeRound', () => {
     expect(out.scores.a).toBe(310);
     expect(out.scores.b).toBe(100);
   });
+
+  // REGRESSÃO: words.json usa capitalização ("Hello", "Good morning"). No
+  // Forca o jogador digita livremente (tende a minúsculas), e no Montar
+  // Palavra online o cliente monta a resposta só com letras MAIÚSCULAS dos
+  // blocos (ver makeTiles em DuelOnlineGame.jsx). Um `===` sensível a caixa
+  // marcava as duas como erradas mesmo quando a palavra estava certa.
+  it('ignora maiúsculas/minúsculas e espaços nas bordas ao comparar a resposta', () => {
+    const match = makeMatch({
+      currentQuestion: { correctAnswer: 'Good morning', options: [] },
+    });
+    match.answers.set('a', { choice: 'good morning', arrivedAt: 5_000 });  // Forca: digitado em minúsculas
+    match.answers.set('b', { choice: 'GOODMORNING', arrivedAt: 5_000 });   // não deve "acidentalmente" bater
+
+    const out = closeRound(match);
+    expect(out.results.find(r => r.id === 'a').correct).toBe(true);
+    expect(out.results.find(r => r.id === 'b').correct).toBe(false);
+  });
+
+  it('ignora maiúsculas/minúsculas com espaço entre letras, como o Montar Palavra online monta a resposta', () => {
+    const match = makeMatch({
+      currentQuestion: { correctAnswer: 'Hello', options: [] },
+    });
+    match.answers.set('a', { choice: 'HELLO', arrivedAt: 5_000 }); // blocos maiúsculos concatenados
+    const out = closeRound(match);
+    expect(out.results.find(r => r.id === 'a').correct).toBe(true);
+  });
 });
 
 describe('nextPhase', () => {

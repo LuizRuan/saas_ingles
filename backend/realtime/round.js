@@ -4,6 +4,17 @@
 // que o bug de pontuação dupla passou.
 import { scoreFor } from './scoring.js';
 
+// words.json usa capitalização ("Hello", "Good morning"). No Forca o jogador
+// digita livremente (tende a minúsculas) e no Montar Palavra online o
+// cliente monta a resposta só com letras MAIÚSCULAS dos blocos (ver
+// makeTiles em DuelOnlineGame.jsx) — um `===` puro marcava as duas como
+// erradas mesmo com a palavra certa. Tipos de múltipla escolha (translation,
+// trueFalse, listening, fillBlanks, sentenceBuilder) mandam de volta uma das
+// `options` literalmente, então normalizar aqui não muda o resultado deles.
+const answersMatch = (given, expected) =>
+  typeof given === 'string' && typeof expected === 'string' &&
+  given.trim().toLowerCase() === expected.trim().toLowerCase();
+
 /**
  * Fecha a rodada, de forma IDEMPOTENTE.
  *
@@ -49,7 +60,7 @@ export const closeRound = (match) => {
       const correctAnswer = pd?.currentQuestion?.correctAnswer
         ?? match.currentQuestion?.correctAnswer;
 
-      isCorrect = Boolean(answer) && answer.choice === correctAnswer;
+      isCorrect = Boolean(answer) && answersMatch(answer.choice, correctAnswer);
       points = answer ? scoreFor(isCorrect, match.roundDeadline, answer.arrivedAt) : 0;
     }
 

@@ -24,25 +24,41 @@ export const matches = new Map();
  * Emparelha os dois jogadores mais antigos que queiram o mesmo tipo de jogo.
  * Um jogador com preferência 'random' casa com qualquer outro.
  *
+ * Duas passadas, de propósito: uma busca gulosa de "primeira dupla casável"
+ * na ordem da fila deixava um jogador com preferência 'random' roubar a vaga
+ * de alguém que pediu o MESMO tipo específico de outro jogador — ex.: fila
+ * [A:hangman, B:random, C:hangman] casava A+B (já que 'random' casa com
+ * qualquer um), e C sobrava sozinho, podendo depois cair num pareamento
+ * genuinamente aleatório mesmo tendo pedido 'hangman'. A 1ª passada agora
+ * procura dois tipos específicos iguais em toda a fila antes de aceitar
+ * qualquer pareamento que dependa de um 'random' ceder.
+ *
  * Retorna o tipo resolvido em `resolvedType`:
  *   - Se ambos escolheram o mesmo tipo específico → esse tipo
  *   - Se um é 'random' e o outro tem um tipo → o tipo específico
  *   - Se ambos são 'random' → null (servidor sorteia depois)
  */
 export const tryMatch = (queue) => {
+  // 1ª passada: dois tipos específicos exatamente iguais, mais antigos primeiro.
+  for (let i = 0; i < queue.length; i++) {
+    const prefA = queue[i].gameTypePreference;
+    if (prefA === 'random') continue;
+    for (let j = i + 1; j < queue.length; j++) {
+      if (queue[j].gameTypePreference !== prefA) continue;
+      const rest = queue.filter((_, k) => k !== i && k !== j);
+      return { pair: [queue[i], queue[j]], rest, resolvedType: prefA };
+    }
+  }
+
+  // 2ª passada: qualquer dupla onde pelo menos um lado é 'random'.
   for (let i = 0; i < queue.length; i++) {
     for (let j = i + 1; j < queue.length; j++) {
       const a = queue[i], b = queue[j];
       const aRandom = a.gameTypePreference === 'random';
       const bRandom = b.gameTypePreference === 'random';
-      const typesMatch = aRandom || bRandom || a.gameTypePreference === b.gameTypePreference;
-      if (!typesMatch) continue;
+      if (!aRandom && !bRandom) continue; // tipos específicos diferentes — já tratado (ou não casável)
 
-      const resolvedType =
-        !aRandom ? a.gameTypePreference :
-        !bRandom ? b.gameTypePreference :
-        null; // ambos random → servidor sorteia
-
+      const resolvedType = !aRandom ? a.gameTypePreference : !bRandom ? b.gameTypePreference : null;
       const rest = queue.filter((_, k) => k !== i && k !== j);
       return { pair: [a, b], rest, resolvedType };
     }

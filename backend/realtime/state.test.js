@@ -19,6 +19,23 @@ describe('tryMatch', () => {
     tryMatch(queue);
     expect(queue).toHaveLength(2);
   });
+
+  it('prioriza dois jogadores com o MESMO tipo específico sobre um "random" que chegou entre eles', () => {
+    // Reproduz o bug reportado: A e C pedem 'hangman', mas B (preferência
+    // 'random') está na fila entre eles. O pareamento guloso por ordem de
+    // chegada casaria A+B (pois 'random' casa com qualquer um), roubando A
+    // de C — que sobraria sozinho e poderia acabar sorteado com outra pessoa
+    // num tipo totalmente diferente, mesmo tendo pedido 'hangman' também.
+    const queue = [
+      { socketId: 'a', gameTypePreference: 'hangman' },
+      { socketId: 'b', gameTypePreference: 'random' },
+      { socketId: 'c', gameTypePreference: 'hangman' },
+    ];
+    const { pair, rest, resolvedType } = tryMatch(queue);
+    expect(pair.map(p => p.socketId)).toEqual(['a', 'c']);
+    expect(rest.map(p => p.socketId)).toEqual(['b']);
+    expect(resolvedType).toBe('hangman');
+  });
 });
 
 const players = [{ socketId: 'a', nickname: 'Ana' }, { socketId: 'b', nickname: 'Beto' }];
