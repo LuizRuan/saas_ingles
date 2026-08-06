@@ -38,10 +38,10 @@ const Layout = ({ children }) => {
               e deixa só o ícone, então ele passa a ser a única dica no hover. */}
           <div className="navbar-links">
             <NavLink to="/" title="Início" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`} end>
-              <span>🏠</span> Início
+              <img src="/inicio.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Início
             </NavLink>
             <NavLink to="/games" title="Jogos" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
-              <span>🎮</span> Jogos
+              <img src="/jogos.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Jogos
             </NavLink>
             <NavLink to="/daily" title="Desafio" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>⚡</span> Desafio
@@ -103,11 +103,11 @@ const Layout = ({ children }) => {
       {/* Mobile Bottom Nav */}
       <nav className="mobile-nav hide-desktop">
         <NavLink to="/" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`} end>
-          <span className="icon">🏠</span>
+          <img src="/inicio.png" alt="" style={{ height: '22px', width: 'auto', objectFit: 'contain' }} />
           <span>Início</span>
         </NavLink>
         <NavLink to="/games" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
-          <span className="icon">🎮</span>
+          <img src="/jogos.png" alt="" style={{ height: '22px', width: 'auto', objectFit: 'contain' }} />
           <span>Jogos</span>
         </NavLink>
         <NavLink to="/daily" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
