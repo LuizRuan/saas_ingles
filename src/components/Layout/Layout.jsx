@@ -72,7 +72,7 @@ const Layout = ({ children }) => {
             </NavLink>
             <NavLink to="/shop" className="navbar-link" style={{ padding: '4px 6px' }}
               title="Loja" aria-label="Abrir loja">
-              <img src="/loja.png" alt="Loja" style={{ height: '28px', width: 'auto', display: 'block', objectFit: 'contain' }} />
+              <img src="/loja.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Loja
             </NavLink>
             <div className="navbar-stat">
               <span>🔥</span>

@@ -52,9 +52,14 @@ const Home = () => {
             <p className="hero-desc">
               Jogos divertidos, desafios diários e prática constante para transformar seu inglês de forma leve e eficaz.
             </p>
-            <Link to="/games" className="btn btn-primary btn-lg">
-              🎮 Começar a Jogar
-            </Link>
+            <div style={{ display: 'flex', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
+              <Link to="/games" className="btn btn-primary btn-lg">
+                🎮 Começar a Jogar
+              </Link>
+              <Link to="/shop" className="btn btn-secondary btn-lg">
+                🛍️ Loja
+              </Link>
+            </div>
           </div>
           <div className="hero-illustration animate-float">
             {/* Sem o wordmark: o <h1> ao lado já diz "EnglishPlay", e o texto

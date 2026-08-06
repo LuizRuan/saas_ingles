@@ -101,7 +101,7 @@ const Levels = () => {
         </section>
 
         {/* Filtros por Estágios */}
-        <div style={{ display: 'flex', gap: 'var(--space-xs)', overflowX: 'auto', paddingBottom: 'var(--space-md)', marginBottom: 'var(--space-md)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-xs)', marginBottom: 'var(--space-md)' }}>
           <button
             className={`btn btn-sm ${selectedStage === 'all' ? 'btn-primary' : 'btn-ghost'}`}
             onClick={() => setSelectedStage('all')}>

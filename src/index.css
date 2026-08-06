@@ -740,6 +740,7 @@ select {
 .navbar-avatar {
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   border-radius: var(--radius-full);
   background: var(--gradient-primary);
   color: white;
@@ -765,6 +766,10 @@ select {
   .navbar-links { gap: 2px; }
   .navbar-links .navbar-link { font-size: 0; gap: 0; padding: 8px 10px; }
   .navbar-links .navbar-link > span { font-size: 1.15rem; }
+  /* O link da Loja mora em .navbar-stats, não em .navbar-links, então a regra
+     acima não o alcança — sem isto "Loja" continuava por extenso até 769px e
+     espremia o avatar do lado. */
+  .navbar-stats .navbar-link { font-size: 0; padding: 6px; }
   /* O avatar sozinho já leva pra Configurações; o nome por extenso é o
      primeiro a ceder espaço pros links, que importam mais pra navegar. */
   .navbar-nickname { display: none; }

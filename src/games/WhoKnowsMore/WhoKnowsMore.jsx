@@ -35,6 +35,8 @@ const GAME_TYPES = [
 const BOT_ROUND_MS = 10_000;
 const TOTAL_ROUNDS = 5;
 
+const generateGuestName = () => `Aluno${Math.floor(1000 + Math.random() * 9000)}`;
+
 const MOCK_RANKED_LEADERBOARD = [
   { id: 1, position: '#1', name: 'Camila Star', avatar: '🐱', level: 28, score: '2.450', wins: 186, trophyIcon: '🏆' },
   { id: 2, position: '#2', name: 'Lucas G.', avatar: '🐊', level: 26, score: '2.130', wins: 162, trophyIcon: '🥈' },
@@ -619,7 +621,6 @@ const WhoKnowsMore = () => {
                       onClick={() => setShowRankedTooltip(!showRankedTooltip)}
                       onMouseEnter={() => setShowRankedTooltip(true)}
                       onMouseLeave={() => setShowRankedTooltip(false)}
-                      title="Requisitos do Ranked"
                       aria-label="Requisitos para aparecer no ranking"
                     >
                       ℹ️

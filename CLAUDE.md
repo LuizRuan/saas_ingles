@@ -220,6 +220,8 @@ Shared page furniture, added because it had already drifted:
 
 `.glass-card` is the shared elevated surface (background, border, radius, shadow) used by ~15 files. It deliberately sets **no padding**: callers either pair it with a component class that pads (`.tf-card`, `.difficulty-card`, `.tq-option`) or pass inline padding.
 
+**Navbar/bottom-nav icons are PNGs in `public/`, not emoji.** [Layout.jsx](src/components/Layout/Layout.jsx) renders `/inicio.png`, `/jogos.png`, `/historias.png`, `/conquistas.png`, `/loja.png` as `<img>` tags (inline-sized via `style`, not CSS classes) for the desktop navbar, mobile bottom nav, and the FAB. `⚡ Desafio` is the one nav entry still on an emoji — match whichever convention the surrounding items already use rather than mixing both in one nav row.
+
 Fonts are loaded **only** by the `<link>` in [index.html](index.html) — Inter (`--font-body`), Space Grotesk (`--font-heading`), JetBrains Mono (`--font-mono`). Don't add a CSS `@import` for fonts; it misses the preconnect and duplicates requests.
 
 Because `main.jsx` imports `App` before `./index.css`, **`index.css` lands last in the CSS bundle** and wins ties against component CSS at equal specificity. Avoid relying on that: give component rules higher specificity rather than counting on order.
