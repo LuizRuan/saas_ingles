@@ -8,7 +8,7 @@ import {
   buildQuestionPerPlayer, buildMemoryGroupPerPlayer,
   serializeQuestionForClient, pickRandomGameType, GAME_TYPE_IDS,
 } from './questionGenerator.js';
-import { closeRound, nextPhase, decideWinner, validateAnswer } from './round.js';
+import { closeRound, nextPhase, decideWinner, validateAnswer, validateLetterGuess, resolveLetterGuess } from './round.js';
 import { sanitizeNickname } from './nicknames.js';
 import { isRateLimited, sweepRateLimiter } from './rateLimiter.js';
 
@@ -93,6 +93,8 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
 
     pdA.currentQuestion = qA;
     pdB.currentQuestion = qB;
+    pdA.guessedLetters = new Set();
+    pdB.guessedLetters = new Set();
 
     // match.currentQuestion = null em partidas novas; mantido null pois
     // closeRound agora lê de playerData.
@@ -249,6 +251,23 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       ack?.({ ok: true });
 
       if (match.answers.size >= match.players.length) endRound(match);
+    });
+
+    // Forca online: um chute de letra por vez. O servidor nunca manda a
+    // palavra inteira — só se a letra está nela e em que posições.
+    socket.on('hangman:guess', (payload, ack) => {
+      if (isRateLimited(`hangman:${socket.id}`, { windowMs: 1_000, max: 15 })) {
+        return ack?.({ ok: false, error: 'Muitas tentativas em pouco tempo.' });
+      }
+
+      const match = matches.get(payload?.matchId);
+      const check = validateLetterGuess(match, socket.id, payload);
+      if (!check.ok) return ack?.(check);
+
+      const pd = match.playerData.get(socket.id);
+      pd.guessedLetters.add(payload.letter);
+      const { inWord, positions } = resolveLetterGuess(pd.currentQuestion?.correctAnswer, payload.letter);
+      ack?.({ ok: true, inWord, positions });
     });
 
     // Desistir de propósito (botão "Sair" na tela de partida).

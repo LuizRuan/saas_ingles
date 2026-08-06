@@ -146,13 +146,17 @@ describe('duelo — pontuação', () => {
     const results = [];
     p1.on('round:result', (r) => results.push(r));
 
+    // Tipo sorteado pode ser hangman (sem `options`) — a resposta em si não
+    // importa pra este teste, só o comportamento de fechamento/duplicação.
+    const anyChoice = r1.question.options?.[0] ?? 'x';
+
     // Só p1 responde; p2 fica calado para a rodada fechar por tempo.
-    await emitAck(p1, 'round:answer', { matchId: m1.matchId, roundIndex: 0, choice: r1.question.options[0] });
+    await emitAck(p1, 'round:answer', { matchId: m1.matchId, roundIndex: 0, choice: anyChoice });
     const firstResult = await once(p1, 'round:result');
     const scoresAfterFirst = { ...firstResult.scores };
 
     // p2 responde DEPOIS de fechada, dentro da janela de pausa.
-    const late = await emitAck(p2, 'round:answer', { matchId: m1.matchId, roundIndex: 0, choice: r1.question.options[0] });
+    const late = await emitAck(p2, 'round:answer', { matchId: m1.matchId, roundIndex: 0, choice: anyChoice });
     expect(late.ok).toBe(false);
     expect(late.error).toMatch(/encerrada/);
 
@@ -171,9 +175,11 @@ describe('duelo — pontuação', () => {
     const ends = [];
     p1.on('match:end', (e) => ends.push(e));
 
-    // Responde automaticamente cada rodada nos dois clientes.
+    // Responde automaticamente cada rodada nos dois clientes. O tipo sorteado
+    // pode ser hangman, que não tem `options` (a resposta em si não importa
+    // pra este teste — só fechar as 5 rodadas).
     const autoAnswer = (socket) => socket.on('round:start', (r) => {
-      socket.emit('round:answer', { matchId: r.matchId, roundIndex: r.roundIndex, choice: r.question.options[0] }, () => {});
+      socket.emit('round:answer', { matchId: r.matchId, roundIndex: r.roundIndex, choice: r.question.options?.[0] ?? 'x' }, () => {});
     });
     autoAnswer(p1);
     autoAnswer(p2);
@@ -252,5 +258,74 @@ describe('duelo — presença', () => {
     expect(first.ok).toBe(true);
     expect(second.ok).toBe(false);
     p1.disconnect();
+  });
+});
+
+describe('duelo — forca (hangman letra a letra)', () => {
+  const pairHangman = async () => {
+    const p1 = await connect();
+    const p2 = await connect();
+    const found1 = once(p1, 'match:found');
+    const found2 = once(p2, 'match:found');
+    const round1 = once(p1, 'round:start');
+    const round2 = once(p2, 'round:start');
+
+    await emitAck(p1, 'queue:join', { nickname: 'Ana', gameTypePreference: 'hangman' });
+    await emitAck(p2, 'queue:join', { nickname: 'Beto', gameTypePreference: 'hangman' });
+
+    const [m1, m2] = await Promise.all([found1, found2]);
+    const [r1, r2] = await Promise.all([round1, round2]);
+    return { p1, p2, m1, m2, r1, r2 };
+  };
+
+  it('resolve hangman quando os dois pedem, sem vazar options nem correctAnswer', async () => {
+    const { p1, p2, m1, r1 } = await pairHangman();
+    expect(m1.gameType).toBe('hangman');
+    expect(r1.question.type).toBe('hangman');
+    expect(r1.question).not.toHaveProperty('options');
+    expect(r1.question).not.toHaveProperty('correctAnswer');
+    expect(typeof r1.question.prompt.wordTemplate).toBe('string');
+    expect(r1.question.prompt.wordTemplate).not.toMatch(/[A-Za-z]/);
+    p1.disconnect(); p2.disconnect();
+  });
+
+  it('chutar uma letra devolve posições consistentes com o template', async () => {
+    const { p1, p2, m1, r1 } = await pairHangman();
+    const template = r1.question.prompt.wordTemplate;
+    const res = await emitAck(p1, 'hangman:guess', { matchId: m1.matchId, roundIndex: 0, letter: 'A' });
+    expect(res.ok).toBe(true);
+    if (res.inWord) {
+      expect(res.positions.length).toBeGreaterThan(0);
+      for (const pos of res.positions) expect(template[pos]).toBe('#');
+    } else {
+      expect(res.positions).toEqual([]);
+    }
+    p1.disconnect(); p2.disconnect();
+  });
+
+  it('recusa letra repetida', async () => {
+    const { p1, p2, m1 } = await pairHangman();
+    const first = await emitAck(p1, 'hangman:guess', { matchId: m1.matchId, roundIndex: 0, letter: 'A' });
+    expect(first.ok).toBe(true);
+    const second = await emitAck(p1, 'hangman:guess', { matchId: m1.matchId, roundIndex: 0, letter: 'A' });
+    expect(second.ok).toBe(false);
+    p1.disconnect(); p2.disconnect();
+  });
+
+  it('recusa formato de letra inválido', async () => {
+    const { p1, p2, m1 } = await pairHangman();
+    const lower = await emitAck(p1, 'hangman:guess', { matchId: m1.matchId, roundIndex: 0, letter: 'a' });
+    expect(lower.ok).toBe(false);
+    const multi = await emitAck(p1, 'hangman:guess', { matchId: m1.matchId, roundIndex: 0, letter: 'AB' });
+    expect(multi.ok).toBe(false);
+    p1.disconnect(); p2.disconnect();
+  });
+
+  it('recusa chute de letra depois que o jogador já enviou a palavra final', async () => {
+    const { p1, p2, m1 } = await pairHangman();
+    await emitAck(p1, 'round:answer', { matchId: m1.matchId, roundIndex: 0, choice: 'qualquer coisa' });
+    const afterAnswer = await emitAck(p1, 'hangman:guess', { matchId: m1.matchId, roundIndex: 0, letter: 'A' });
+    expect(afterAnswer.ok).toBe(false);
+    p1.disconnect(); p2.disconnect();
   });
 });

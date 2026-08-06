@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { closeRound, nextPhase, decideWinner, validateAnswer } from './round.js';
+import { closeRound, nextPhase, decideWinner, validateAnswer, validateLetterGuess, resolveLetterGuess } from './round.js';
 
 const makeMatch = (overrides = {}) => ({
   id: 'm1',
@@ -147,5 +147,80 @@ describe('validateAnswer', () => {
     expect(validateAnswer(match, 'a', { roundIndex: 0, choice: 123 }).ok).toBe(false);
     expect(validateAnswer(match, 'a', { roundIndex: 0 }).ok).toBe(false);
     expect(validateAnswer(match, 'a', { roundIndex: 0, choice: 'x'.repeat(300) }).ok).toBe(false);
+  });
+});
+
+describe('resolveLetterGuess', () => {
+  it('acha todas as posições de uma letra repetida na palavra', () => {
+    expect(resolveLetterGuess('Hello', 'L')).toEqual({ inWord: true, positions: [2, 3] });
+  });
+
+  it('devolve positions vazio quando a letra não está na palavra', () => {
+    expect(resolveLetterGuess('Hello', 'Z')).toEqual({ inWord: false, positions: [] });
+  });
+
+  it('ignora caixa da resposta certa (compara em maiúsculas)', () => {
+    // "good MORNING" também termina em 'g' — cobre as duas ocorrências.
+    expect(resolveLetterGuess('good morning', 'G')).toEqual({ inWord: true, positions: [0, 11] });
+  });
+
+  it('não confunde pontuação/espaço com a letra buscada', () => {
+    // Só a validação de formato (validateLetterGuess) impede um chute de
+    // apóstrofo chegar aqui — resolveLetterGuess é só o comparador puro de
+    // posições, então testamos que ele acerta a letra certa sem se confundir
+    // com o apóstrofo vizinho.
+    expect(resolveLetterGuess("I'm fine", 'M')).toEqual({ inWord: true, positions: [2] });
+  });
+});
+
+describe('validateLetterGuess', () => {
+  const makeMatchWithPlayerData = (guessed = []) => makeMatch({
+    playerData: new Map([
+      ['a', { guessedLetters: new Set(guessed) }],
+      ['b', { guessedLetters: new Set() }],
+    ]),
+  });
+
+  it('aceita uma letra válida ainda não tentada', () => {
+    const match = makeMatchWithPlayerData();
+    expect(validateLetterGuess(match, 'a', { roundIndex: 0, letter: 'A' }).ok).toBe(true);
+  });
+
+  it('recusa se a partida não existe', () => {
+    expect(validateLetterGuess(null, 'a', { roundIndex: 0, letter: 'A' }).ok).toBe(false);
+  });
+
+  it('recusa quando a rodada já está fechada', () => {
+    const match = makeMatchWithPlayerData();
+    match.roundClosed = true;
+    const r = validateLetterGuess(match, 'a', { roundIndex: 0, letter: 'A' });
+    expect(r.ok).toBe(false);
+    expect(r.error).toMatch(/encerrada/);
+  });
+
+  it('recusa rodada diferente', () => {
+    const match = makeMatchWithPlayerData();
+    expect(validateLetterGuess(match, 'a', { roundIndex: 3, letter: 'A' }).ok).toBe(false);
+  });
+
+  it('recusa se o jogador já enviou a palavra final da rodada', () => {
+    const match = makeMatchWithPlayerData();
+    match.answers.set('a', { choice: 'hello', arrivedAt: 1 });
+    expect(validateLetterGuess(match, 'a', { roundIndex: 0, letter: 'A' }).ok).toBe(false);
+  });
+
+  it('recusa letra repetida', () => {
+    const match = makeMatchWithPlayerData(['A']);
+    const r = validateLetterGuess(match, 'a', { roundIndex: 0, letter: 'A' });
+    expect(r.ok).toBe(false);
+    expect(r.error).toMatch(/já tentou/);
+  });
+
+  it('recusa formato inválido de letra', () => {
+    const match = makeMatchWithPlayerData();
+    expect(validateLetterGuess(match, 'a', { roundIndex: 0, letter: 'a' }).ok).toBe(false);   // minúscula
+    expect(validateLetterGuess(match, 'a', { roundIndex: 0, letter: 'AB' }).ok).toBe(false);  // mais de 1 caractere
+    expect(validateLetterGuess(match, 'a', { roundIndex: 0, letter: '5' }).ok).toBe(false);   // não é letra
+    expect(validateLetterGuess(match, 'a', { roundIndex: 0 }).ok).toBe(false);                 // ausente
   });
 });

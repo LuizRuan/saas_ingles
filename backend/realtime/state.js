@@ -84,6 +84,7 @@ export const createMatch = (players, gameType) => {
     playerData: new Map(players.map(p => [p.socketId, {
       usedIndices: [],
       currentQuestion: null,
+      guessedLetters: null, // só usado no Forca — startRound cria um Set novo a cada rodada
     }])),
 
     roundTimer: null,

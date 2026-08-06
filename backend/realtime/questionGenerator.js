@@ -40,6 +40,11 @@ const fourOptions = (correct, wrongPool, pickField) => {
   return shuffle([correct, ...wrongs]);
 };
 
+// Mascara letras A-Z como '#', preservando espaço e pontuação (a FORMA da
+// palavra, nunca o conteúdo) — usado pelo Forca online pra desenhar os
+// espaços em branco sem revelar nenhuma letra.
+export const maskWord = (word) => word.replace(/[A-Za-z]/g, '#');
+
 /**
  * Monta uma pergunta completa (com correctAnswer) para um tipo de jogo.
  * `usedIndices` evita repetir a mesma palavra dentro da mesma partida.
@@ -106,8 +111,7 @@ export const buildQuestion = (gameType, usedIndices = new Set()) => {
     case 'hangman': {
       return {
         type: 'hangman', wordIndex: index,
-        prompt: { tip: word.tip },
-        options: fourOptions(word.en, otherWords, w => w.en),
+        prompt: { tip: word.tip, wordTemplate: maskWord(word.en) },
         correctAnswer: word.en,
       };
     }
@@ -140,8 +144,10 @@ export const serializeQuestionForClient = (question) => {
   const base = {
     type: question.type,
     prompt: question.prompt,
-    options: question.options,
   };
+  // Hangman não tem options (ver maskWord) — só inclui a chave quando existe,
+  // pra não deixar `options: undefined` pendurado no objeto.
+  if (question.options) base.options = question.options;
   // Memory online usa wordGroup em vez de options
   if (question.wordGroup) base.wordGroup = question.wordGroup;
   return base;

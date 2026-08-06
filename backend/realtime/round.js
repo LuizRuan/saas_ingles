@@ -16,6 +16,20 @@ const answersMatch = (given, expected) =>
   given.trim().toLowerCase() === expected.trim().toLowerCase();
 
 /**
+ * Calcula o resultado de um chute de letra contra a resposta certa (nunca
+ * exposta ao cliente). Pura — quem decide o que fazer com o resultado
+ * (marcar guessedLetters, montar o ack) é o handler do socket.
+ */
+export const resolveLetterGuess = (correctAnswer, letter) => {
+  const upper = (correctAnswer || '').toUpperCase();
+  const positions = [];
+  for (let i = 0; i < upper.length; i++) {
+    if (upper[i] === letter) positions.push(i);
+  }
+  return { inWord: positions.length > 0, positions };
+};
+
+/**
  * Fecha a rodada, de forma IDEMPOTENTE.
  *
  * No novo modelo, cada jogador tem sua própria `currentQuestion` em
@@ -104,6 +118,27 @@ export const validateAnswer = (match, socketId, payload) => {
   if (match.answers.has(socketId)) return { ok: false, error: 'Você já respondeu esta rodada.' };
   if (typeof payload?.choice !== 'string' || payload.choice.length > 200) {
     return { ok: false, error: 'Resposta inválida.' };
+  }
+  return { ok: true };
+};
+
+/**
+ * Aceita este chute de letra agora? Motivo em texto quando não. Só usado
+ * pelo Forca (hangman) — cada jogador tem sua própria palavra em
+ * playerData, então guessedLetters vive lá, não em match.answers.
+ */
+export const validateLetterGuess = (match, socketId, payload) => {
+  if (!match) return { ok: false, error: 'Partida não encontrada.' };
+  if (match.roundClosed) return { ok: false, error: 'Rodada já encerrada.' };
+  if (payload?.roundIndex !== match.roundIndex) return { ok: false, error: 'Rodada já encerrada.' };
+  if (match.answers.has(socketId)) return { ok: false, error: 'Você já respondeu esta rodada.' };
+  const letter = payload?.letter;
+  if (typeof letter !== 'string' || !/^[A-Z]$/.test(letter)) {
+    return { ok: false, error: 'Letra inválida.' };
+  }
+  const pd = match.playerData?.get(socketId);
+  if (pd?.guessedLetters?.has(letter)) {
+    return { ok: false, error: 'Você já tentou essa letra.' };
   }
   return { ok: true };
 };

@@ -207,6 +207,15 @@ export const useDuelSocket = () => {
     });
   }, [roundIndex]);
 
+  /** Forca online: chuta uma letra, recebe { inWord, positions } (ou erro) pelo callback. */
+  const guessLetter = useCallback((letter, callback) => {
+    socketRef.current?.emit('hangman:guess', {
+      matchId: matchIdRef.current,
+      roundIndex,
+      letter,
+    }, (ack) => callback?.(ack));
+  }, [roundIndex]);
+
   /** Desistir de propósito, pelo botão "Sair" da tela de partida. */
   const forfeit = useCallback(() => {
     socketRef.current?.emit('duel:leave', { matchId: matchIdRef.current }, () => {});
@@ -237,7 +246,7 @@ export const useDuelSocket = () => {
     question, roundDeadline, roundMs, roundResult, scores, matchEnd,
     myId: myIdRef.current,
     clockOffsetRef,
-    joinQueue, leaveQueue, submitAnswer, forfeit, resetMatch,
+    joinQueue, leaveQueue, submitAnswer, guessLetter, forfeit, resetMatch,
   };
 };
 

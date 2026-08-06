@@ -63,6 +63,10 @@
 }
 .hangman-letter.revealed { color: var(--accent-green); border-color: var(--accent-green); }
 
+/* Espaço/pontuação dentro da palavra (ex.: "Good morning") — mostrado
+   direto, sem o traço de "letra por descobrir" das demais posições. */
+.hangman-letter--literal { border-bottom-color: transparent; color: var(--text-secondary); }
+
 .hangman-keyboard {
   display: flex;
   flex-wrap: wrap;

@@ -12,6 +12,7 @@
 import { useState, useEffect, useRef } from 'react';
 import useSpeech from '../../../hooks/useSpeech';
 import useSound from '../../../hooks/useSound';
+import OnlineHangman from './OnlineHangman';
 import '../../../games/WordBuilder/WordBuilder.css';
 import '../../../games/MemoryGame/MemoryGame.css';
 
@@ -71,58 +72,6 @@ const OnlineMemoryBoard = ({ wordGroup, onCompleted }) => {
           </button>
         );
       })}
-    </div>
-  );
-};
-
-// ─── Componente de Forca Online ──────────────────────────────────────────────
-const OnlineHangman = ({ tip, onAnswer }) => {
-  const [guesses, setGuesses] = useState(new Set());
-  const [phase, setPhase] = useState(0); // 0-6 erros
-  const answeredRef = useRef(false);
-
-  // Palavra secreta é substituída por "ANSWER" — o servidor não a envia.
-  // O jogador digita letras; o servidor valida a palavra completa.
-  const [wordInput, setWordInput] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-
-  const handleSubmit = () => {
-    if (submitted || !wordInput.trim()) return;
-    setSubmitted(true);
-    onAnswer(wordInput.trim());
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', alignItems: 'center' }}>
-      <div className="question-card glass-card" style={{ width: '100%' }}>
-        <span className="question-label">🎯 Dica:</span>
-        <p style={{ fontSize: 'var(--fs-lg)', fontStyle: 'italic', textAlign: 'center' }}>"{tip}"</p>
-      </div>
-
-      <div className="duel-field" style={{ width: '100%' }}>
-        <label>Qual é a palavra em inglês?</label>
-        <input
-          value={wordInput}
-          onChange={e => setWordInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-          placeholder="Digite sua resposta..."
-          disabled={submitted}
-          maxLength={50}
-          autoFocus
-          style={{ fontSize: 'var(--fs-lg)', textAlign: 'center' }}
-        />
-      </div>
-
-      <button
-        className="btn btn-primary"
-        onClick={handleSubmit}
-        disabled={submitted || !wordInput.trim()}
-        style={{ width: '100%' }}
-      >
-        {submitted ? '✅ Resposta enviada!' : '📤 Enviar Resposta'}
-      </button>
     </div>
   );
 };
@@ -286,12 +235,12 @@ const DuelOnlineGame = ({
 
       {/* Forca */}
       {question.type === 'hangman' && !playerDone && (
-        <>
-          <OnlineHangman
-            tip={question.prompt?.tip || ''}
-            onAnswer={handleAnswer}
-          />
-        </>
+        <OnlineHangman
+          tip={question.prompt?.tip || ''}
+          wordTemplate={question.prompt?.wordTemplate || ''}
+          duel={duel}
+          onAnswer={handleAnswer}
+        />
       )}
       {question.type === 'hangman' && playerDone && (
         <div className="question-card glass-card" style={{ textAlign: 'center' }}>
