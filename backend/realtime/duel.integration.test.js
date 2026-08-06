@@ -6,13 +6,17 @@
 // `correctAnswer`, e a pontuação dupla na janela de pausa entre rodadas. Os
 // tempos são injetados para uma partida de 5 rodadas rodar em ~1s em vez de
 // ~1 minuto.
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import http from 'node:http';
 import { io as ioClient } from 'socket.io-client';
 import { app } from '../app.js';
 import { attachRealtime } from './index.js';
 import { waitingQueue, matches } from './state.js';
 import { resetRateLimiter } from './rateLimiter.js';
+import { signDuelTicket } from '../utils/token.js';
+
+vi.mock('./trophyAward.js', () => ({ awardTrophy: vi.fn().mockResolvedValue(undefined) }));
+import { awardTrophy } from './trophyAward.js';
 
 const TIMING = {
   roundMs: 150,
@@ -42,6 +46,7 @@ beforeEach(() => {
   waitingQueue.length = 0;
   for (const id of [...matches.keys()]) matches.delete(id);
   resetRateLimiter();
+  vi.clearAllMocks();
 });
 
 // O servidor emite presence:count dentro do próprio handler de conexão, ou
@@ -326,6 +331,116 @@ describe('duelo — forca (hangman letra a letra)', () => {
     await emitAck(p1, 'round:answer', { matchId: m1.matchId, roundIndex: 0, choice: 'qualquer coisa' });
     const afterAnswer = await emitAck(p1, 'hangman:guess', { matchId: m1.matchId, roundIndex: 0, letter: 'A' });
     expect(afterAnswer.ok).toBe(false);
+    p1.disconnect(); p2.disconnect();
+  });
+});
+
+describe('duelo — identidade a partir do ticket', () => {
+  const ticketA = signDuelTicket({ id: 'user-conta-a', nickname: 'ContaA', avatar: '🦊' });
+  const ticketB = signDuelTicket({ id: 'user-conta-b', nickname: 'ContaB', avatar: '🐱' });
+
+  const pairComTickets = async (ticket1, ticket2) => {
+    const p1 = await connect();
+    const p2 = await connect();
+    const found1 = once(p1, 'match:found');
+    const found2 = once(p2, 'match:found');
+
+    await emitAck(p1, 'queue:join', { nickname: 'Guest1', authTicket: ticket1 });
+    await emitAck(p2, 'queue:join', { nickname: 'Guest2', authTicket: ticket2 });
+
+    const [m1, m2] = await Promise.all([found1, found2]);
+    return { p1, p2, m1, m2 };
+  };
+
+  it('guarda userId/avatar do ticket em playerData, e o nickname do ticket vence o digitado', async () => {
+    const { p1, p2, m1 } = await pairComTickets(ticketA, ticketB);
+    const match = matches.get(m1.matchId);
+
+    const p1Id = m1.players.find(pl => pl.nickname === 'ContaA').id;
+    const pd = match.playerData.get(p1Id);
+    expect(pd.userId).toBe('user-conta-a');
+    expect(pd.avatar).toBe('🦊');
+
+    p1.disconnect(); p2.disconnect();
+  });
+
+  it('ticket ausente ou inválido degrada para convidado sem derrubar a conexão', async () => {
+    const { p1, p2, m1 } = await pairComTickets('token-forjado-invalido', ticketB);
+    const match = matches.get(m1.matchId);
+
+    const p1Id = m1.players.find(pl => pl.nickname === 'Guest1').id;
+    const pd = match.playerData.get(p1Id);
+    expect(pd.userId).toBeNull();
+
+    p1.disconnect(); p2.disconnect();
+  });
+});
+
+describe('duelo — troféu de ranked', () => {
+  const ticketA = signDuelTicket({ id: 'user-conta-a', nickname: 'ContaA', avatar: '🦊' });
+  const ticketB = signDuelTicket({ id: 'user-conta-b', nickname: 'ContaB', avatar: '🐱' });
+
+  const pairMemoryComTickets = async (ticket1, ticket2) => {
+    const p1 = await connect();
+    const p2 = await connect();
+    const found1 = once(p1, 'match:found');
+    const found2 = once(p2, 'match:found');
+
+    await emitAck(p1, 'queue:join', { nickname: 'Guest1', gameTypePreference: 'memory', authTicket: ticket1 });
+    await emitAck(p2, 'queue:join', { nickname: 'Guest2', gameTypePreference: 'memory', authTicket: ticket2 });
+
+    const [m1, m2] = await Promise.all([found1, found2]);
+    return { p1, p2, m1, m2 };
+  };
+
+  it('vitória real entre duas contas diferentes chama awardTrophy uma vez para o vencedor', async () => {
+    const { p1, p2, m1 } = await pairMemoryComTickets(ticketA, ticketB);
+
+    // Memory pontua por ORDEM DE CHEGADA de choice:'completed', não por
+    // acerto (ver closeRound em round.js) — assim dá pra forçar p1 vencer
+    // todas as 5 rodadas de forma determinística e legítima: p1 sempre
+    // responde 'completed' assim que a rodada começa, p2 nunca responde.
+    p1.on('round:start', (r) => {
+      p1.emit('round:answer', { matchId: r.matchId, roundIndex: r.roundIndex, choice: 'completed' }, () => {});
+    });
+    p1.emit('round:answer', { matchId: m1.matchId, roundIndex: 0, choice: 'completed' }, () => {});
+
+    await once(p1, 'match:end', 6000);
+    await new Promise(r => setTimeout(r, 50)); // dá tempo do fire-and-forget rodar
+
+    expect(awardTrophy).toHaveBeenCalledTimes(1);
+    expect(awardTrophy).toHaveBeenCalledWith({ userId: 'user-conta-a', nickname: 'ContaA', avatar: '🦊' });
+
+    p1.disconnect(); p2.disconnect();
+  });
+
+  it('vitória por abandono (opponent_left) NUNCA chama awardTrophy', async () => {
+    const { p1, p2, m1 } = await pairMemoryComTickets(ticketA, ticketB);
+    const endPromise = once(p1, 'match:end');
+    p2.disconnect();
+
+    const end = await endPromise;
+    expect(end.reason).toBe('opponent_left');
+
+    await new Promise(r => setTimeout(r, 50));
+    expect(awardTrophy).not.toHaveBeenCalled();
+
+    p1.disconnect();
+  });
+
+  it('convidado vencendo contra uma conta real não chama awardTrophy', async () => {
+    const { p1, p2, m1 } = await pairMemoryComTickets('token-invalido', ticketB);
+
+    p1.on('round:start', (r) => {
+      p1.emit('round:answer', { matchId: r.matchId, roundIndex: r.roundIndex, choice: 'completed' }, () => {});
+    });
+    p1.emit('round:answer', { matchId: m1.matchId, roundIndex: 0, choice: 'completed' }, () => {});
+
+    await once(p1, 'match:end', 6000);
+    await new Promise(r => setTimeout(r, 50));
+
+    expect(awardTrophy).not.toHaveBeenCalled();
+
     p1.disconnect(); p2.disconnect();
   });
 });

@@ -11,6 +11,9 @@ import {
 import { closeRound, nextPhase, decideWinner, validateAnswer, validateLetterGuess, resolveLetterGuess } from './round.js';
 import { sanitizeNickname } from './nicknames.js';
 import { isRateLimited, sweepRateLimiter } from './rateLimiter.js';
+import { verifyDuelTicket } from '../utils/token.js';
+import { decideTrophyAward } from './trophy.js';
+import { awardTrophy } from './trophyAward.js';
 
 // Tempos padrão. Injetáveis para o teste de integração rodar uma partida de 5
 // rodadas em milissegundos em vez de ~1 minuto.
@@ -144,12 +147,19 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
         if (matches.has(match.id)) startRound(match);
       }, timing.roundPauseMs);
     } else {
+      const winnerId = decideWinner(match);
       io.to(roomName(match.id)).emit('match:end', {
         matchId: match.id,
         scores: closed.scores,
-        winnerId: decideWinner(match),
+        winnerId,
         reason: 'completed',
       });
+
+      // Fire-and-forget, DEPOIS do match:end já entregue — um Mongo lento ou
+      // fora do ar nunca atrasa nem derruba a partida para os jogadores.
+      const award = decideTrophyAward(match, winnerId);
+      if (award) awardTrophy(award).catch(() => {});
+
       destroyMatch(match.id);
     }
   };
@@ -178,8 +188,8 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
 
     const [a, b] = pair;
     const players = [
-      { socketId: a.socketId, nickname: a.nickname },
-      { socketId: b.socketId, nickname: b.nickname },
+      { socketId: a.socketId, nickname: a.nickname, userId: a.userId, avatar: a.avatar },
+      { socketId: b.socketId, nickname: b.nickname, userId: b.userId, avatar: b.avatar },
     ];
     // Usa o tipo resolvido pelo tryMatch, ou sorteia se ambos eram 'random'
     const gameType = resolvedType ?? pickRandomGameType();
@@ -220,13 +230,28 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
         return ack?.({ ok: false, error: 'Você já está na fila ou em uma partida.' });
       }
 
-      const nickname = sanitizeNickname(payload?.nickname);
+      // Ticket ausente, expirado ou inválido degrada pra convidado — nunca
+      // derruba a conexão. userId/avatar só existem quando o ticket é real.
+      let identity = { userId: null, avatar: null, ticketNickname: null };
+      if (payload?.authTicket) {
+        try {
+          const claim = verifyDuelTicket(payload.authTicket);
+          identity = { userId: claim.sub, avatar: claim.avatar, ticketNickname: claim.nickname };
+        } catch { /* segue como convidado */ }
+      }
+
+      // Identidade verificada vence o nickname solto do payload — nunca
+      // confiar no texto livre pra decidir QUEM é o jogador.
+      const nickname = sanitizeNickname(identity.ticketNickname ?? payload?.nickname);
 
       // Valida preferência de tipo: aceita 'random' ou qualquer GAME_TYPE_IDS válido
       const rawPref = payload?.gameTypePreference;
       const gameTypePreference = GAME_TYPE_IDS.includes(rawPref) ? rawPref : 'random';
 
-      waitingQueue.push({ socketId: socket.id, nickname, joinedAt: Date.now(), gameTypePreference });
+      waitingQueue.push({
+        socketId: socket.id, nickname, joinedAt: Date.now(), gameTypePreference,
+        userId: identity.userId, avatar: identity.avatar,
+      });
       ack?.({ ok: true });
       broadcastPresence();
       startMatchIfPossible();

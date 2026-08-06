@@ -58,3 +58,12 @@ export const updateProfileRequest = (nickname) =>
 export const updateProgressRequest = (progress) =>
   callAuth('/api/auth/progress', { method: 'PATCH', body: { progress } });
 
+// Ticket de 2 min pro Socket.IO do duelo provar identidade — buscado de novo
+// a cada "Procurar Oponente" (ver WhoKnowsMore.jsx), nunca guardado.
+export const getDuelTicketRequest = () => callAuth('/api/auth/duel-ticket', { method: 'POST' });
+
+export const getDuelLeaderboardRequest = (limit = 5) =>
+  callAuth(`/api/duel/leaderboard?limit=${limit}`, { method: 'GET' });
+
+export const getMyDuelRankRequest = () => callAuth('/api/duel/leaderboard/me', { method: 'GET' });
+

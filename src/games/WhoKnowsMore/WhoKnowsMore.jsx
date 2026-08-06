@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useProgress } from '../../hooks/useProgress';
 import { useAuthProfile } from '../../hooks/useAuthProfile';
 import { useDuelSocket } from '../../hooks/useDuelSocket';
+import { getDuelTicketRequest, getDuelLeaderboardRequest, getMyDuelRankRequest } from '../../utils/authClient';
 import { usePresence } from '../../hooks/usePresence';
 import { shuffleArray, words } from '../../data/words';
 import { msLeft, secondsLeft, barWidthPct } from '../../utils/duelClock';
@@ -38,14 +39,6 @@ const TOTAL_ROUNDS = 5;
 
 const generateGuestName = () => `Aluno${Math.floor(1000 + Math.random() * 9000)}`;
 
-const MOCK_RANKED_LEADERBOARD = [
-  { id: 1, position: '#1', name: 'Camila Star', avatar: '🐱', level: 28, score: '2.450', wins: 186, trophyIcon: '🏆' },
-  { id: 2, position: '#2', name: 'Lucas G.', avatar: '🐊', level: 26, score: '2.130', wins: 162, trophyIcon: '🥈' },
-  { id: 3, position: '#3', name: 'Beatriz L.', avatar: '🧒', level: 24, score: '1.890', wins: 138, trophyIcon: '🥉' },
-  { id: 4, position: '#4', name: 'Felipe M.', avatar: '🧑', level: 22, score: '1.650', wins: 121, trophyIcon: '🏅' },
-  { id: 5, position: '#5', name: 'Ana Clara', avatar: '👩', level: 21, score: '1.420', wins: 108, trophyIcon: '🏅' },
-];
-
 const WhoKnowsMore = () => {
   // O app tem uma moeda só (estrelas = totalScore, a mesma da Loja).
   const { progress, addPoints, completeGame, setDisplayName } = useProgress();
@@ -71,6 +64,13 @@ const WhoKnowsMore = () => {
   const [showBotSetupModal, setShowBotSetupModal] = useState(false);
   const [confirmExit, setConfirmExit] = useState(false);
   const [showRankedTooltip, setShowRankedTooltip] = useState(false);
+
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [leaderboardStatus, setLeaderboardStatus] = useState('loading'); // loading | loaded | error
+  const [showFullRankingModal, setShowFullRankingModal] = useState(false);
+  const [fullLeaderboard, setFullLeaderboard] = useState([]);
+  const [fullLeaderboardStatus, setFullLeaderboardStatus] = useState('idle'); // idle | loading | loaded | error
+  const [myRank, setMyRank] = useState(null); // { month, trophies, rank } | null
 
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [selectedGameType, setSelectedGameType] = useState('translation');
@@ -117,6 +117,26 @@ const WhoKnowsMore = () => {
   const setupRoundRef     = useRef(null); // preenchido após setupRound ser definido
 
   const isHuman = mode === 'human';
+
+  // Top 5 do card — busca uma vez ao entrar na tela.
+  useEffect(() => {
+    let cancelled = false;
+    getDuelLeaderboardRequest(5)
+      .then(({ entries }) => { if (!cancelled) { setLeaderboard(entries); setLeaderboardStatus('loaded'); } })
+      .catch(() => { if (!cancelled) setLeaderboardStatus('error'); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const openFullRanking = () => {
+    setShowFullRankingModal(true);
+    setFullLeaderboardStatus('loading');
+    getDuelLeaderboardRequest(50)
+      .then(({ entries }) => { setFullLeaderboard(entries); setFullLeaderboardStatus('loaded'); })
+      .catch(() => setFullLeaderboardStatus('error'));
+    if (estaLogado) {
+      getMyDuelRankRequest().then(setMyRank).catch(() => setMyRank(null));
+    }
+  };
 
   // ============ MODO BOT (inalterado no comportamento) ============
 
@@ -414,7 +434,7 @@ const WhoKnowsMore = () => {
     setShowSearchModal(true);
   };
 
-  const handleStartSearch = () => {
+  const handleStartSearch = async () => {
     // Logado: o apelido é sempre o da conta, nunca o que ficou no campo —
     // o campo é só leitura pra quem está logado (ver input abaixo).
     const name = estaLogado
@@ -422,7 +442,18 @@ const WhoKnowsMore = () => {
       : (nicknameDraft.trim() || generateGuestName()).slice(0, 20);
     setNicknameDraft(name);
     if (!estaLogado) setDisplayName(name);
-    duel.joinQueue(name, humanGameTypePreference);
+
+    let authTicket;
+    if (estaLogado) {
+      try {
+        const { ticket } = await getDuelTicketRequest();
+        authTicket = ticket;
+      } catch {
+        // Sessão pode ter expirado entre abrir o modal e clicar aqui — joga
+        // como convidado em vez de travar o botão "Procurar Oponente".
+      }
+    }
+    duel.joinQueue(name, humanGameTypePreference, authTicket);
   };
 
   const cancelHumanSearch = () => {
@@ -648,34 +679,49 @@ const WhoKnowsMore = () => {
               </div>
 
               <div className="ranked-card glass-card">
-                <div className="ranked-list">
-                  {MOCK_RANKED_LEADERBOARD.map(player => (
-                    <div key={player.id} className={`ranked-item rank-pos-${player.id}`}>
-                      <div className="ranked-position-col">
-                        <span className={`ranked-position-num pos-${player.id}`}>{player.position}</span>
-                      </div>
+                {leaderboardStatus === 'loading' && (
+                  <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                    Carregando ranking…
+                  </p>
+                )}
+                {leaderboardStatus === 'error' && (
+                  <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                    Não foi possível carregar o ranking agora.
+                  </p>
+                )}
+                {leaderboardStatus === 'loaded' && leaderboard.length === 0 && (
+                  <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                    Ninguém no ranking ainda este mês — vença um duelo pra ser o primeiro!
+                  </p>
+                )}
+                {leaderboardStatus === 'loaded' && leaderboard.length > 0 && (
+                  <div className="ranked-list">
+                    {leaderboard.map((entry, i) => (
+                      <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
+                        <div className="ranked-position-col">
+                          <span className={`ranked-position-num pos-${i + 1}`}>#{i + 1}</span>
+                        </div>
 
-                      <div className="ranked-player-col">
-                        <div className="ranked-avatar" aria-hidden="true">{player.avatar}</div>
-                        <div className="ranked-player-details">
-                          <span className="ranked-player-name">{player.name}</span>
-                          <span className="ranked-level-badge">Nível {player.level}</span>
+                        <div className="ranked-player-col">
+                          <div className="ranked-avatar" aria-hidden="true">{entry.avatar || 'U'}</div>
+                          <div className="ranked-player-details">
+                            <span className="ranked-player-name">{entry.nickname}</span>
+                          </div>
+                        </div>
+
+                        <div className="ranked-score-col">
+                          <div className="ranked-score-main">
+                            <span className="ranked-trophy">🏆</span>
+                            <strong>{entry.trophies}</strong> <small>troféus</small>
+                          </div>
                         </div>
                       </div>
-
-                      <div className="ranked-score-col">
-                        <div className="ranked-score-main">
-                          <span className="ranked-trophy">{player.trophyIcon}</span>
-                          <strong>{player.score}</strong> <small>pontos</small>
-                        </div>
-                        <span className="ranked-wins-count">{player.wins} vitórias</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
                 <div className="ranked-footer">
-                  <button className="btn btn-ghost btn-sm ranked-full-btn">
+                  <button className="btn btn-ghost btn-sm ranked-full-btn" onClick={openFullRanking}>
                     📊 Ver Ranking Completo
                   </button>
                 </div>
@@ -1078,6 +1124,71 @@ const WhoKnowsMore = () => {
               >
                 ⚔️ Iniciar Duelo
               </button>
+            </div>
+          </div>
+        )}
+
+        {showFullRankingModal && (
+          <div className="modal-overlay" onClick={() => setShowFullRankingModal(false)}>
+            <div className="modal-content glass-card animate-bounce-in" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowFullRankingModal(false)}
+                aria-label="Fechar"
+              >
+                ✕
+              </button>
+              <div className="modal-icon" aria-hidden="true">🏆</div>
+              <h2 style={{ textAlign: 'center' }}>Ranking Completo</h2>
+              <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', textAlign: 'center', marginBottom: 'var(--space-md)' }}>
+                Troféus deste mês
+              </p>
+
+              {fullLeaderboardStatus === 'loading' && (
+                <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>Carregando…</p>
+              )}
+              {fullLeaderboardStatus === 'error' && (
+                <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                  Não foi possível carregar o ranking agora.
+                </p>
+              )}
+              {fullLeaderboardStatus === 'loaded' && fullLeaderboard.length === 0 && (
+                <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                  Ninguém no ranking ainda este mês.
+                </p>
+              )}
+              {fullLeaderboardStatus === 'loaded' && fullLeaderboard.length > 0 && (
+                <div className="ranked-list" style={{ maxHeight: '50vh', overflowY: 'auto' }}>
+                  {fullLeaderboard.map((entry, i) => (
+                    <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
+                      <div className="ranked-position-col">
+                        <span className={`ranked-position-num pos-${i + 1}`}>#{i + 1}</span>
+                      </div>
+
+                      <div className="ranked-player-col">
+                        <div className="ranked-avatar" aria-hidden="true">{entry.avatar || 'U'}</div>
+                        <div className="ranked-player-details">
+                          <span className="ranked-player-name">{entry.nickname}</span>
+                        </div>
+                      </div>
+
+                      <div className="ranked-score-col">
+                        <div className="ranked-score-main">
+                          <span className="ranked-trophy">🏆</span>
+                          <strong>{entry.trophies}</strong> <small>troféus</small>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {estaLogado && myRank?.rank && (
+                <p className="text-secondary" style={{ textAlign: 'center', marginTop: 'var(--space-md)', fontSize: 'var(--fs-sm)' }}>
+                  Sua posição: <strong>#{myRank.rank}</strong> • 🏆 {myRank.trophies}
+                </p>
+              )}
             </div>
           </div>
         )}

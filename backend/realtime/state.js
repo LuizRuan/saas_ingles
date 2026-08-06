@@ -85,6 +85,8 @@ export const createMatch = (players, gameType) => {
       usedIndices: [],
       currentQuestion: null,
       guessedLetters: null, // só usado no Forca — startRound cria um Set novo a cada rodada
+      userId: p.userId ?? null,  // null = convidado, ou ticket ausente/inválido
+      avatar: p.avatar ?? null,
     }])),
 
     roundTimer: null,

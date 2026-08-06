@@ -982,16 +982,6 @@
   color: var(--text-primary);
 }
 
-.ranked-level-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--accent-green) 15%, var(--bg-card));
-  color: var(--accent-green);
-  border: 1px solid color-mix(in srgb, var(--accent-green) 30%, transparent);
-}
-
 /* Coluna Pontuação & Vitórias */
 .ranked-score-col {
   display: flex;
@@ -1021,11 +1011,6 @@
 
 .ranked-trophy {
   font-size: 1.1rem;
-}
-
-.ranked-wins-count {
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
 }
 
 /* Rodapé do Ranking */

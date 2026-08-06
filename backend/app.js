@@ -5,6 +5,7 @@ import { apiLimiter } from './middleware/rateLimiters.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authRouter } from './routes/auth.routes.js';
 import { presenceRouter } from './routes/presence.routes.js';
+import { duelRouter } from './routes/duel.routes.js';
 
 // Monta e exporta o app SEM chamar listen() — testável (supertest) sem
 // precisar de uma porta real, e reutilizável por server.js.
@@ -30,6 +31,7 @@ app.use(express.json({ limit: '10kb' }));
 app.use('/api', apiLimiter);
 app.use('/api/auth', authRouter);
 app.use('/api/presence', presenceRouter);
+app.use('/api/duel', duelRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 

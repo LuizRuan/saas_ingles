@@ -162,7 +162,7 @@ export const useDuelSocket = () => {
     };
   }, [clearQueueTimer]);
 
-  const joinQueue = useCallback((nickname, gameTypePreference = 'random') => {
+  const joinQueue = useCallback((nickname, gameTypePreference = 'random', authTicket) => {
     setQueueError(null);
     // Recusa cedo em vez de mentir: antes o estado já ia para 'searching' antes
     // de emitir, e com o socket desconectado o socket.io enfileira o emit — o
@@ -172,7 +172,7 @@ export const useDuelSocket = () => {
       return;
     }
 
-    socketRef.current.emit('queue:join', { nickname, gameTypePreference }, (ack) => {
+    socketRef.current.emit('queue:join', { nickname, gameTypePreference, authTicket }, (ack) => {
       if (!ack?.ok) {
         setMatchState('idle');
         setQueueError(ack?.error || 'Não foi possível entrar na fila.');

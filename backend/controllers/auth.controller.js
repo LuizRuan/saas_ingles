@@ -1,7 +1,7 @@
 import { User } from '../models/User.js';
 import { isValidEmailFormat, isValidPassword, isValidNickname, MIN_PASSWORD_LENGTH, MAX_NICKNAME_LENGTH } from '../utils/validators.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
-import { signSessionToken, sessionCookieOptions, clearSessionCookieOptions, SESSION_COOKIE_NAME } from '../utils/token.js';
+import { signSessionToken, sessionCookieOptions, clearSessionCookieOptions, SESSION_COOKIE_NAME, signDuelTicket } from '../utils/token.js';
 
 const NICKNAME_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias em ms
 
@@ -107,6 +107,21 @@ export const updateProfile = async (req, res) => {
 
   await user.save();
   res.status(200).json({ user: toPublicUser(user) });
+};
+
+export const issueDuelTicket = async (req, res) => {
+  const user = await User.findById(req.user.id);
+  if (!user) return res.status(404).json({ error: 'Conta não encontrada.' });
+  if (!user.nickname) {
+    return res.status(400).json({ error: 'Escolha um apelido antes de jogar ranked.' });
+  }
+
+  const ticket = signDuelTicket({
+    id: user._id.toString(),
+    nickname: user.nickname,
+    avatar: user.progress?.selectedAvatar || 'U',
+  });
+  res.status(200).json({ ticket });
 };
 
 export const updateProgress = async (req, res) => {

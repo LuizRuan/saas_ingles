@@ -124,3 +124,38 @@ describe('/api/auth/profile', () => {
     expect(res.status).toBe(503);
   });
 });
+
+describe('POST /api/auth/duel-ticket', () => {
+  it('rejeita sem cookie de sessão', async () => {
+    const res = await request(app).post('/api/auth/duel-ticket');
+    expect(res.status).toBe(401);
+  });
+
+  it('responde 503 com cookie válido mas sem banco conectado', async () => {
+    const token = jwt.sign({ sub: 'user-id-fake', email: 'ana@gmail.com' }, env.jwtSecret, { expiresIn: '7d' });
+    const res = await request(app)
+      .post('/api/auth/duel-ticket')
+      .set('Cookie', `${SESSION_COOKIE_NAME}=${token}`);
+    expect(res.status).toBe(503);
+  });
+});
+
+describe('/api/duel/leaderboard', () => {
+  it('GET responde 503 sem banco conectado (rota pública, mas depende do banco)', async () => {
+    const res = await request(app).get('/api/duel/leaderboard');
+    expect(res.status).toBe(503);
+  });
+
+  it('GET /me rejeita sem cookie de sessão', async () => {
+    const res = await request(app).get('/api/duel/leaderboard/me');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /me responde 503 com cookie válido mas sem banco conectado', async () => {
+    const token = jwt.sign({ sub: 'user-id-fake', email: 'ana@gmail.com' }, env.jwtSecret, { expiresIn: '7d' });
+    const res = await request(app)
+      .get('/api/duel/leaderboard/me')
+      .set('Cookie', `${SESSION_COOKIE_NAME}=${token}`);
+    expect(res.status).toBe(503);
+  });
+});

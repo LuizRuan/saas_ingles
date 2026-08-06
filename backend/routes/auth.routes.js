@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, logout, me, getProfile, updateProfile, updateProgress } from '../controllers/auth.controller.js';
+import { register, login, logout, me, getProfile, updateProfile, updateProgress, issueDuelTicket } from '../controllers/auth.controller.js';
 import { requireDb } from '../middleware/requireDb.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { registerLimiter, loginLimiter } from '../middleware/rateLimiters.js';
@@ -21,4 +21,8 @@ authRouter.get('/me', requireAuth, me);
 authRouter.get('/profile', requireAuth, requireDb, asyncHandler(getProfile));
 authRouter.patch('/profile', requireAuth, requireDb, asyncHandler(updateProfile));
 authRouter.patch('/progress', requireAuth, requireDb, asyncHandler(updateProgress));
+
+// Curta duração (2 min), consumida pelo Socket.IO do duelo pra provar quem
+// está logado sem cookie httpOnly (ver token.js e CLAUDE.md).
+authRouter.post('/duel-ticket', requireAuth, requireDb, asyncHandler(issueDuelTicket));
 

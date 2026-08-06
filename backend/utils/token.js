@@ -39,3 +39,18 @@ export const clearSessionCookieOptions = () => {
   const { maxAge, ...rest } = sessionCookieOptions();
   return rest;
 };
+
+// Ticket de curta duração para o duelo em tempo real (Socket.IO) provar
+// identidade sem cookie httpOnly — o socket conecta direto no Render, fora
+// da topologia same-origin do cookie de sessão (ver CLAUDE.md). Mesmo
+// segredo do JWT de sessão: mesmo processo Node, nenhum segredo novo.
+export const signDuelTicket = ({ id, nickname, avatar }) =>
+  jwt.sign({ sub: id, nickname, avatar, typ: 'duel' }, env.jwtSecret, { expiresIn: '2m' });
+
+// `typ: 'duel'` existe só para isto: um JWT de sessão comum (7 dias, sem
+// `typ`) não pode ser reaproveitado como ticket de duelo por engano.
+export const verifyDuelTicket = (ticket) => {
+  const payload = jwt.verify(ticket, env.jwtSecret);
+  if (payload.typ !== 'duel') throw new Error('Tipo de ticket inválido.');
+  return payload;
+};
