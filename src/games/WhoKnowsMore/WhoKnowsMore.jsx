@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../../hooks/useProgress';
+import { useAuthProfile } from '../../hooks/useAuthProfile';
 import { useDuelSocket } from '../../hooks/useDuelSocket';
 import { usePresence } from '../../hooks/usePresence';
 import { shuffleArray, words } from '../../data/words';
@@ -50,6 +51,13 @@ const WhoKnowsMore = () => {
   const { progress, addPoints, completeGame, setDisplayName } = useProgress();
   const { playCorrect, playWrong, playAchievement } = useSound();
   const { speakNormal, speakSlow } = useSpeech();
+
+  // Mesma checagem de sessão real que a navbar usa (ver Layout.jsx) — logado
+  // de verdade joga com o apelido da CONTA, travado, não com um nome solto
+  // digitado na hora (que é o que abria espaço pra alguém se passar por
+  // outra pessoa no ranking).
+  const { entryChoice, profile } = useAuthProfile();
+  const estaLogado = entryChoice === 'account' && Boolean(profile?.nickname);
 
   const duel = useDuelSocket();
   // "Quantas pessoas no site" vem do heartbeat HTTP (vale em toda página);
@@ -402,14 +410,18 @@ const WhoKnowsMore = () => {
 
   const openHumanSearch = () => {
     setMode('human');
-    setNicknameDraft(progress.displayName || generateGuestName());
+    setNicknameDraft(estaLogado ? profile.nickname : (progress.displayName || generateGuestName()));
     setShowSearchModal(true);
   };
 
   const handleStartSearch = () => {
-    const name = (nicknameDraft.trim() || generateGuestName()).slice(0, 20);
+    // Logado: o apelido é sempre o da conta, nunca o que ficou no campo —
+    // o campo é só leitura pra quem está logado (ver input abaixo).
+    const name = estaLogado
+      ? profile.nickname.slice(0, 20)
+      : (nicknameDraft.trim() || generateGuestName()).slice(0, 20);
     setNicknameDraft(name);
-    setDisplayName(name);
+    if (!estaLogado) setDisplayName(name);
     duel.joinQueue(name, humanGameTypePreference);
   };
 
@@ -663,7 +675,7 @@ const WhoKnowsMore = () => {
                 </div>
 
                 <div className="ranked-footer">
-                  <button className="btn btn-ghost btn-sm ranked-full-btn" title="Ver ranking completo">
+                  <button className="btn btn-ghost btn-sm ranked-full-btn">
                     📊 Ver Ranking Completo
                   </button>
                 </div>
@@ -890,6 +902,15 @@ const WhoKnowsMore = () => {
         {showSearchModal && (
           <div className="modal-overlay" onClick={cancelHumanSearch}>
             <div className="modal-content glass-card animate-bounce-in" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={cancelHumanSearch}
+                aria-label="Fechar"
+              >
+                ✕
+              </button>
+
               {duel.matchState === 'idle' && (
                 <>
                   <div className="modal-icon" aria-hidden="true">🔍</div>
@@ -903,7 +924,14 @@ const WhoKnowsMore = () => {
                       onChange={(e) => setNicknameDraft(e.target.value)}
                       maxLength={20}
                       placeholder="Como quer ser chamado?"
+                      disabled={estaLogado}
+                      aria-describedby={estaLogado ? 'duel-nickname-locked-hint' : undefined}
                     />
+                    {estaLogado && (
+                      <p id="duel-nickname-locked-hint" className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginTop: '4px' }}>
+                        🔒 Você está logado — o apelido da sua conta é usado no duelo.
+                      </p>
+                    )}
                   </div>
 
                   {/* Seletor de tipo de jogo */}
@@ -993,6 +1021,14 @@ const WhoKnowsMore = () => {
         {showBotSetupModal && (
           <div className="modal-overlay" onClick={() => setShowBotSetupModal(false)}>
             <div className="modal-content glass-card animate-bounce-in setup-modal-box" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowBotSetupModal(false)}
+                aria-label="Fechar"
+              >
+                ✕
+              </button>
               <div className="modal-icon" aria-hidden="true">⚙️</div>
               <h2 style={{ textAlign: 'center' }}>Duelo contra o Bot</h2>
               <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', margin: 'var(--space-sm) 0 var(--space-lg)', textAlign: 'center' }}>

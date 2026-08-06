@@ -35,10 +35,10 @@ const StoryWordModal = ({ wordKey, onClose }) => {
           {entry && <span className="word-pt">= {entry.pt}</span>}
           {isAvailable && (
             <div style={{ display: 'flex', gap: '4px' }}>
-              <button className="btn btn-sm btn-secondary" onClick={() => speakNormal(wordKey)} title="Ouvir pronúncia">
+              <button className="btn btn-sm btn-secondary" onClick={() => speakNormal(wordKey)} aria-label="Ouvir pronúncia">
                 🔊
               </button>
-              <button className="btn btn-sm btn-ghost" onClick={() => speakSlow(wordKey)} title="Ouvir devagar">
+              <button className="btn btn-sm btn-ghost" onClick={() => speakSlow(wordKey)} aria-label="Ouvir devagar">
                 🐢
               </button>
             </div>
@@ -57,7 +57,7 @@ const StoryWordModal = ({ wordKey, onClose }) => {
                 <button
                   className="btn btn-sm btn-ghost"
                   onClick={() => speakNormal(ex.en)}
-                  title="Ouvir este exemplo"
+                  aria-label="Ouvir este exemplo"
                   style={{ marginLeft: '6px' }}
                 >
                   🔊

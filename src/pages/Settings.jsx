@@ -24,6 +24,7 @@ const Settings = () => {
   const [nicknameError, setNicknameError] = useState('');
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [showNicknameModal, setShowNicknameModal] = useState(false);
+  const [showEditNicknameModal, setShowEditNicknameModal] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -56,6 +57,7 @@ const Settings = () => {
       refetchAuthProfile();
       setNicknameStatus('saved');
       setIsEditingNickname(false);
+      setShowEditNicknameModal(false);
       setTimeout(() => setNicknameStatus('idle'), 2000);
     } catch (err) {
       setNicknameStatus('error');
@@ -162,7 +164,7 @@ const Settings = () => {
                           {profile.nickname}
                         </span>
                         {cooldownDays > 0 ? (
-                          <span className="badge badge-purple" style={{ fontSize: 'var(--fs-xs)' }} title="Aguarde o prazo de 30 dias para alterar novamente">
+                          <span className="badge badge-purple" style={{ fontSize: 'var(--fs-xs)' }}>
                             🔒 Alteração em {cooldownDays} dia(s)
                           </span>
                         ) : (
@@ -444,10 +446,63 @@ const Settings = () => {
                 className="btn btn-primary"
                 onClick={() => {
                   setShowNicknameModal(false);
-                  setIsEditingNickname(true);
+                  setShowEditNicknameModal(true);
                 }}
               >
                 Sim, quero mudar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para digitar o novo apelido, aberto depois da confirmação acima —
+          antes disso caía numa edição inline no meio da página, uma transição
+          bem menos coerente vindo de um modal. */}
+      {showEditNicknameModal && (
+        <div className="modal-backdrop animate-fade-in" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          width: '100vw', height: '100vh',
+          background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(6px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 99999, padding: 'var(--space-md)'
+        }}>
+          <div className="modal-card glass-card animate-bounce-in" style={{
+            maxWidth: 440, width: '100%', padding: 'var(--space-xl)'
+          }}>
+            <h3 style={{ marginBottom: 'var(--space-md)' }}>✏️ Novo Apelido</h3>
+            <div className="form-group">
+              <label htmlFor="nickname-modal-input">Apelido</label>
+              <input
+                id="nickname-modal-input"
+                type="text"
+                value={nicknameDraft}
+                onChange={(e) => setNicknameDraft(e.target.value)}
+                maxLength={MAX_NICKNAME_LENGTH}
+                placeholder="Escolha um apelido"
+                aria-invalid={nicknameStatus === 'error'}
+                autoFocus
+              />
+              {nicknameStatus === 'error' && <p className="form-error">{nicknameError}</p>}
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'flex-end', marginTop: 'var(--space-md)' }}>
+              <button
+                className="btn btn-ghost"
+                onClick={() => {
+                  setNicknameDraft(profile?.nickname || '');
+                  setNicknameStatus('idle');
+                  setNicknameError('');
+                  setShowEditNicknameModal(false);
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleSaveNickname}
+                disabled={nicknameStatus === 'saving'}
+              >
+                {nicknameStatus === 'saving' ? 'Salvando…' : 'Salvar apelido'}
               </button>
             </div>
           </div>

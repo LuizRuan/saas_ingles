@@ -712,7 +712,7 @@ select {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 
 .navbar-stat {
@@ -757,7 +757,7 @@ select {
 @media (max-width: 1230px) {
   .navbar-inner { gap: var(--space-lg); }
   .navbar-link { padding: 6px 10px; }
-  .navbar-stats { gap: var(--space-sm); }
+  .navbar-stats { gap: var(--space-md); }
 }
 
 /* Abaixo de ~1040px nem os rótulos cabem: sobra só o ícone. O texto continua no
@@ -921,6 +921,7 @@ select {
 }
 
 .modal-content {
+  position: relative;
   background: var(--bg-card);
   border-radius: var(--radius-2xl);
   padding: var(--space-xl);
@@ -929,6 +930,32 @@ select {
   box-shadow: var(--shadow-xl);
   max-height: 90vh;
   overflow-y: auto;
+}
+
+/* Botão de fechar no canto — usar só em modais que têm uma saída óbvia
+   (clicar fora, Cancelar); NicknamePrompt não usa isto de propósito, porque
+   é obrigatório escolher um apelido antes de continuar. */
+.modal-close-btn {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.modal-close-btn:hover {
+  background: var(--bg-purple-subtle);
+  color: var(--accent-primary);
 }
 
 /* === TOAST === */

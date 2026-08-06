@@ -169,8 +169,8 @@ const Conversation = () => {
                 <div className="chat-actions">
                   {temVoz && (
                     <>
-                      <button className="chat-action" onClick={() => speakNormal(msg.text)} aria-label="Listen" title="Listen">🔊</button>
-                      <button className="chat-action" onClick={() => speakSlow(msg.text)} aria-label="Listen slowly" title="Listen slowly">🐢</button>
+                      <button className="chat-action" onClick={() => speakNormal(msg.text)} aria-label="Listen">🔊</button>
+                      <button className="chat-action" onClick={() => speakSlow(msg.text)} aria-label="Listen slowly">🐢</button>
                     </>
                   )}
                   <button
@@ -178,7 +178,6 @@ const Conversation = () => {
                     onClick={() => alternarTraducao(i)}
                     aria-pressed={mostrarTraducao}
                     aria-label="Translate"
-                    title="Translate"
                   >
                     🇧🇷
                   </button>
@@ -240,7 +239,7 @@ const Conversation = () => {
               <div className="chat-feedback-fix">
                 <span className="chat-feedback-en">{resultado.correcao}</span>
                 {temVoz && (
-                  <button className="chat-action" onClick={() => speakNormal(resultado.correcao)} aria-label="Listen" title="Listen">🔊</button>
+                  <button className="chat-action" onClick={() => speakNormal(resultado.correcao)} aria-label="Listen">🔊</button>
                 )}
               </div>
             )}

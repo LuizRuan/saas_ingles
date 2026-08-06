@@ -198,7 +198,6 @@ const WordBuilder = () => {
                 className={`wb-slot ${selectedLetters[i] ? 'filled' : ''} ${locked ? 'locked' : ''}`}
                 onClick={() => handleRemoveLetter(i)}
                 disabled={locked || !selectedLetters[i]}
-                title={locked ? 'Letra revelada por dica' : undefined}
               >
                 {selectedLetters[i]?.letter || ''}
               </button>

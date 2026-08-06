@@ -54,10 +54,10 @@ const Home = () => {
             </p>
             <div style={{ display: 'flex', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
               <Link to="/games" className="btn btn-primary btn-lg">
-                🎮 Começar a Jogar
+                <img src="/jogos.png" alt="" style={{ height: '22px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Começar a Jogar
               </Link>
               <Link to="/shop" className="btn btn-secondary btn-lg">
-                🛍️ Loja
+                <img src="/loja.png" alt="" style={{ height: '22px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Loja
               </Link>
             </div>
           </div>

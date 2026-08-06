@@ -34,28 +34,26 @@ const Layout = ({ children }) => {
             <span>EnglishPlay</span>
           </NavLink>
           
-          {/* O title não é decorativo: abaixo de 1040px o CSS esconde os rótulos
-              e deixa só o ícone, então ele passa a ser a única dica no hover. */}
           <div className="navbar-links">
-            <NavLink to="/" title="Início" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`} end>
+            <NavLink to="/" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`} end>
               <img src="/inicio.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Início
             </NavLink>
-            <NavLink to="/games" title="Jogos" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/games" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <img src="/jogos.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Jogos
             </NavLink>
-            <NavLink to="/daily" title="Desafio" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/daily" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>⚡</span> Desafio
             </NavLink>
-            <NavLink to="/conversation" title="Conversa" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/conversation" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>💬</span> Conversa
             </NavLink>
-            <NavLink to="/my-words" title="Palavras" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/my-words" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>📖</span> Palavras
             </NavLink>
-            <NavLink to="/stories" title="Histórias" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/stories" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <img src="/historias.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Histórias
             </NavLink>
-            <NavLink to="/achievements" title="Conquistas" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
+            <NavLink to="/achievements" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <img src="/conquistas.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Conquistas
             </NavLink>
           </div>
@@ -66,12 +64,12 @@ const Layout = ({ children }) => {
               <span>{progress.totalScore}</span>
             </div>
             <NavLink to="/shop" className="navbar-stat" style={{ textDecoration: 'none' }}
-              title="Dicas disponíveis" aria-label={`${progress.hintsAvailable || 0} dicas disponíveis — ir para a loja`}>
+              aria-label={`${progress.hintsAvailable || 0} dicas disponíveis — ir para a loja`}>
               <span aria-hidden="true">💡</span>
               <span>{progress.hintsAvailable || 0}</span>
             </NavLink>
             <NavLink to="/shop" className="navbar-link" style={{ padding: '4px 6px' }}
-              title="Loja" aria-label="Abrir loja">
+              aria-label="Abrir loja">
               <img src="/loja.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Loja
             </NavLink>
             <div className="navbar-stat">
@@ -82,12 +80,11 @@ const Layout = ({ children }) => {
               <NavLink to="/login" className="btn btn-secondary btn-sm">Entrar</NavLink>
             )}
             {estaLogado && profile.nickname && (
-              <NavLink to="/settings" className="navbar-nickname" title={profile.email}>
+              <NavLink to="/settings" className="navbar-nickname">
                 {profile.nickname}
               </NavLink>
             )}
             <NavLink to="/settings" className="navbar-avatar"
-              title={estaLogado ? (profile.nickname || profile.email) : 'Configurações'}
               aria-label={estaLogado ? `Perfil de ${profile.nickname || profile.email}` : 'Configurações e perfil'}>
               {progress.selectedAvatar || 'U'}
             </NavLink>

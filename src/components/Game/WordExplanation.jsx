@@ -32,15 +32,13 @@ const WordExplanation = ({ word, showTip = true, compact = false }) => {
             <button
               className="btn btn-sm btn-secondary"
               onClick={() => speakNormal(targetText)}
-              aria-label={`Ouvir pronúncia de ${targetText}`}
-              title="Ouvir pronúncia">
+              aria-label={`Ouvir pronúncia de ${targetText}`}>
               🔊
             </button>
             <button
               className="btn btn-sm btn-ghost"
               onClick={() => speakSlow(targetText)}
-              aria-label={`Ouvir ${targetText} devagar`}
-              title="Ouvir devagar">
+              aria-label={`Ouvir ${targetText} devagar`}>
               🐢
             </button>
           </div>

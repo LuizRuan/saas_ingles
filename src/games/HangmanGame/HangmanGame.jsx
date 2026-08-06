@@ -203,13 +203,12 @@ const HangmanGame = () => {
             {!tipTranslated && (progress.tipTranslationsAvailable || 0) > 0 && (
               <button
                 className="btn btn-secondary btn-sm"
-                onClick={() => { if (consumeTipTranslation()) setTipTranslated(true); }}
-                title="Traduzir dica para o português">
+                onClick={() => { if (consumeTipTranslation()) setTipTranslated(true); }}>
                 🌐 Traduzir Dica ({progress.tipTranslationsAvailable} disp.)
               </button>
             )}
             {(progress.hintsAvailable || 0) > 0 ? (
-              <button className="btn btn-secondary btn-sm" onClick={handleUseExtraHint} title="Revelar 1 letra">
+              <button className="btn btn-secondary btn-sm" onClick={handleUseExtraHint}>
                 💡 Revelar Letra ({progress.hintsAvailable} disps)
               </button>
             ) : (

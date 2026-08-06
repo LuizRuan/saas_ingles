@@ -28,7 +28,6 @@ const PasswordField = ({ id, label, value, onChange, onBlur, autoComplete, error
           className="password-field-toggle"
           onClick={() => setVisible(v => !v)}
           aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'}
-          title={visible ? 'Ocultar senha' : 'Mostrar senha'}
         >
           {visible ? '🙈' : '👁️'}
         </button>
