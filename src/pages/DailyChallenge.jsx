@@ -14,13 +14,21 @@ import DailyTrueFalseStep from '../components/DailyChallenge/DailyTrueFalseStep'
 import DailyFillBlanksStep from '../components/DailyChallenge/DailyFillBlanksStep';
 import DailyTranslationStep from '../components/DailyChallenge/DailyTranslationStep';
 
+import { getCurrentLevel } from '../utils/levelSystem';
 import './DailyChallenge.css';
 
 const DailyChallenge = () => {
   const { progress, handleCorrectAnswer, handleWrongAnswer, completeDailyChallenge } = useProgress();
 
   const isCompleted = isDailyChallengeCompleted(progress);
-  const [challenge] = useState(() => generateDailyChallenge(words));
+  const currentLevelObj = getCurrentLevel(progress.wordsStudied || 0);
+  const userLevel = currentLevelObj?.level || 1;
+
+  const [challenge] = useState(() => {
+    const levelWords = words.filter(w => (w.level || 1) <= userLevel);
+    const pool = levelWords.length >= 4 ? levelWords : words;
+    return generateDailyChallenge(pool);
+  });
   const [step, setStep] = useState(0);
   const [stepState, setStepState] = useState('playing'); // playing, feedback
   const [feedback, setFeedback] = useState(null); // correct, wrong

@@ -679,10 +679,10 @@ select {
 }
 
 .navbar-link {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
+  padding: 6px 16px;
   border-radius: var(--radius-full);
   font-size: var(--fs-sm);
   font-weight: 500;
@@ -690,6 +690,8 @@ select {
   text-decoration: none;
   transition: all var(--transition-fast);
   white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .navbar-link:hover {

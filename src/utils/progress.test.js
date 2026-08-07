@@ -2,7 +2,7 @@
 // diário. Cada bloco marcado "regressão" corresponde a um bug real já corrigido.
 import { describe, it, expect } from 'vitest';
 import { calculatePoints, checkStreakBonus, POINTS } from './scoring';
-import { getCurrentLevel, getNextLevel, getLevelProgress } from './levelSystem';
+import { getCurrentLevel, getNextLevel, getLevelProgress, getUserTitle } from './levelSystem';
 import { recordWordResult, getWordsToReview, mixReviewWords, LEARNED_THRESHOLD } from './reviewSystem';
 import { normalizeKey, resolveWordKey, mergeStats } from './wordKey';
 import { generateDailyChallenge, isDailyChallengeCompleted } from './dailyChallenge';
@@ -44,6 +44,20 @@ describe('níveis', () => {
       expect(v).toBeGreaterThanOrEqual(0);
       expect(v).toBeLessThanOrEqual(100);
     });
+  });
+
+  it('retorna os títulos certos a cada 10 níveis até o 100', () => {
+    expect(getUserTitle(1).title).toBe('Iniciante');
+    expect(getUserTitle(10).title).toBe('Estudante');
+    expect(getUserTitle(20).title).toBe('Conversador');
+    expect(getUserTitle(30).title).toBe('Poliglota');
+    expect(getUserTitle(40).title).toBe('Especialista');
+    expect(getUserTitle(50).title).toBe('Sábio');
+    expect(getUserTitle(60).title).toBe('Mestre das Frases');
+    expect(getUserTitle(70).title).toBe('Fluente Épico');
+    expect(getUserTitle(80).title).toBe('Lenda do Inglês');
+    expect(getUserTitle(90).title).toBe('Imortal do Idioma');
+    expect(getUserTitle(100).title).toBe('Supremo Mestre');
   });
 });
 

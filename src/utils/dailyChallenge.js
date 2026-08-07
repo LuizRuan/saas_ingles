@@ -134,14 +134,9 @@ export const generateDailyChallenge = (words) => {
   const shuffledSentences = seededShuffle(rng, sentencesData || []);
   const shuffledFillBlanks = seededShuffle(rng, fillBlanksData || []);
 
-  // Seleciona 5 modos de jogo sem repetição consecutiva
-  const selectedModes = [];
-  for (let i = 0; i < 5; i++) {
-    const previousType = selectedModes[i - 1]?.type;
-    const candidates = ALL_GAME_MODES.filter(m => m.type !== previousType);
-    const chosenMode = candidates[Math.floor(rng() * candidates.length)];
-    selectedModes.push(chosenMode);
-  }
+  // Seleciona 1 único modo de jogo e 1 única rodada para o desafio de hoje (semeado pela data)
+  const chosenMode = ALL_GAME_MODES[Math.floor(rng() * ALL_GAME_MODES.length)];
+  const selectedModes = [chosenMode];
 
   let wordIndex = 0;
   let sentenceIndex = 0;

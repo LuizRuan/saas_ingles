@@ -982,6 +982,18 @@
   color: var(--text-primary);
 }
 
+.ranked-player-tag {
+  display: inline-block;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--accent-purple-light);
+  background: var(--bg-purple-subtle);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  margin-top: 2px;
+}
+
 /* Coluna Pontuação & Vitórias */
 .ranked-score-col {
   display: flex;

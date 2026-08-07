@@ -12,6 +12,8 @@
 import { useState, useEffect, useRef } from 'react';
 import useSpeech from '../../../hooks/useSpeech';
 import useSound from '../../../hooks/useSound';
+import { useProgress } from '../../../hooks/useProgress';
+import { getCurrentLevel, getUserTitle } from '../../../utils/levelSystem';
 import OnlineHangman from './OnlineHangman';
 import '../../../games/WordBuilder/WordBuilder.css';
 import '../../../games/MemoryGame/MemoryGame.css';
@@ -189,6 +191,7 @@ const DuelOnlineGame = ({
           <div className="avatar" aria-hidden="true">{playerAvatar}</div>
           <div className="profile-info">
             <span className="profile-name">Você</span>
+            <span className="profile-title" style={{ fontSize: '11px', color: 'var(--accent-purple-light)', fontWeight: 600 }}>{userTitle.tag}</span>
             <span className="profile-score">{duel.scores?.[duel.myId] ?? 0} pts</span>
           </div>
         </div>
@@ -200,6 +203,7 @@ const DuelOnlineGame = ({
           <div className="avatar" aria-hidden="true">🧑</div>
           <div className="profile-info">
             <span className="profile-name">{opName}</span>
+            <span className="profile-title" style={{ fontSize: '11px', color: 'var(--accent-purple-light)', fontWeight: 600 }}>{opTitle.tag}</span>
             <span className="profile-score">{duel.scores?.[duel.opponent?.id] ?? 0} pts</span>
           </div>
         </div>

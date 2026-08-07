@@ -13,6 +13,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import useSpeech from '../../../hooks/useSpeech';
 import useSound from '../../../hooks/useSound';
+import { useProgress } from '../../../hooks/useProgress';
+import { getCurrentLevel, getUserTitle } from '../../../utils/levelSystem';
 import '../../../games/WordBuilder/WordBuilder.css';
 
 // Tempo máximo por rodada — uniforme para todos os tipos
@@ -198,6 +200,14 @@ const DuelBotGame = ({
   const timerPct   = (timeLeft / timeLimit) * 100;
   const timerUrgent = timeLeft <= 5;
 
+  const { progress } = useProgress();
+  const userLevelObj = getCurrentLevel(progress.wordsStudied || 0);
+  const userTitle = getUserTitle(userLevelObj?.level || 1);
+
+  const botLevelMap = { easy: 5, medium: 25, hard: 50 };
+  const botLevel = botLevelMap[botConfig?.id] || 10;
+  const botTitle = getUserTitle(botLevel);
+
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
     <div className="duel-match-container animate-fade-in-up">
@@ -221,6 +231,7 @@ const DuelBotGame = ({
           <div className="avatar">{playerAvatar || '👤'}</div>
           <div className="profile-info">
             <span className="profile-name">Você</span>
+            <span className="profile-title" style={{ fontSize: '11px', color: 'var(--accent-purple-light)', fontWeight: 600 }}>{userTitle.tag}</span>
             <span className="profile-score">{playerScore} pts</span>
           </div>
         </div>
@@ -232,6 +243,7 @@ const DuelBotGame = ({
           <div className="avatar">🤖</div>
           <div className="profile-info">
             <span className="profile-name">{botConfig.name}</span>
+            <span className="profile-title" style={{ fontSize: '11px', color: 'var(--accent-purple-light)', fontWeight: 600 }}>{botTitle.tag}</span>
             <span className="profile-score">{botScore} pts</span>
           </div>
         </div>

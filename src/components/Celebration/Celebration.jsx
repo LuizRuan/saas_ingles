@@ -58,13 +58,85 @@ const montarFogos = () =>
     };
   });
 
+const montarEstrelas = () =>
+  Array.from({ length: 28 }, (_, i) => ({
+    id: i,
+    char: i % 3 === 0 ? '✨' : '⭐',
+    style: {
+      left: `${entre(2, 98)}%`,
+      fontSize: `${entre(16, 28).toFixed(0)}px`,
+      animationDelay: `${entre(0, 0.4).toFixed(2)}s`,
+      animationDuration: `${entre(1.2, 1.8).toFixed(2)}s`,
+      '--deriva': `${entre(-60, 60).toFixed(0)}px`,
+      '--giro': `${entre(-360, 360).toFixed(0)}deg`,
+    },
+  }));
+
+const montarCoracoes = () =>
+  Array.from({ length: 25 }, (_, i) => ({
+    id: i,
+    char: ['💖', '💗', '❤️', '💕'][i % 4],
+    style: {
+      left: `${entre(5, 95)}%`,
+      bottom: '-30px',
+      fontSize: `${entre(18, 30).toFixed(0)}px`,
+      animationDelay: `${entre(0, 0.45).toFixed(2)}s`,
+      animationDuration: `${entre(1.4, 2.0).toFixed(2)}s`,
+      '--floatX': `${entre(-80, 80).toFixed(0)}px`,
+    },
+  }));
+
+const montarMoedas = () =>
+  Array.from({ length: 24 }, (_, i) => ({
+    id: i,
+    char: '🪙',
+    style: {
+      left: `${entre(3, 97)}%`,
+      fontSize: `${entre(20, 32).toFixed(0)}px`,
+      animationDelay: `${entre(0, 0.35).toFixed(2)}s`,
+      animationDuration: `${entre(1.1, 1.6).toFixed(2)}s`,
+      '--deriva': `${entre(-50, 50).toFixed(0)}px`,
+    },
+  }));
+
+const montarArcoIris = () =>
+  Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    char: '🌈',
+    style: {
+      left: `${entre(2, 98)}%`,
+      fontSize: `${entre(22, 34).toFixed(0)}px`,
+      animationDelay: `${entre(0, 0.4).toFixed(2)}s`,
+      animationDuration: `${entre(1.3, 1.9).toFixed(2)}s`,
+      '--deriva': `${entre(-70, 70).toFixed(0)}px`,
+      '--giro': `${entre(-180, 180).toFixed(0)}deg`,
+    },
+  }));
+
+const montarBolhas = () =>
+  Array.from({ length: 22 }, (_, i) => ({
+    id: i,
+    char: '🫧',
+    style: {
+      left: `${entre(4, 96)}%`,
+      bottom: '-30px',
+      fontSize: `${entre(20, 36).toFixed(0)}px`,
+      animationDelay: `${entre(0, 0.5).toFixed(2)}s`,
+      animationDuration: `${entre(1.5, 2.2).toFixed(2)}s`,
+      '--floatX': `${entre(-60, 60).toFixed(0)}px`,
+    },
+  }));
+
 // O Layout monta este componente com key={celebration.id}, então cada disparo é
-// uma instância nova. Isso é o que garante que o sorteio aconteça uma vez só: um
-// useMemo sem a remontagem manteria as partículas do efeito anterior, e sortear
-// no corpo do render mudaria as posições a cada re-render do Layout.
+// uma instância nova. Isso é o que garante que o sorteio aconteça uma vez só.
 const Celebration = ({ tipo }) => {
   const pecas = useMemo(() => (tipo === 'confetti' ? montarConfetti() : []), [tipo]);
   const fogos = useMemo(() => (tipo === 'fireworks' ? montarFogos() : []), [tipo]);
+  const estrelas = useMemo(() => (tipo === 'stars' ? montarEstrelas() : []), [tipo]);
+  const coracoes = useMemo(() => (tipo === 'hearts' ? montarCoracoes() : []), [tipo]);
+  const moedas = useMemo(() => (tipo === 'coins' ? montarMoedas() : []), [tipo]);
+  const arcoiris = useMemo(() => (tipo === 'rainbow' ? montarArcoIris() : []), [tipo]);
+  const bolhas = useMemo(() => (tipo === 'bubbles' ? montarBolhas() : []), [tipo]);
 
   return (
     <div className="celebration" aria-hidden="true">
@@ -77,6 +149,21 @@ const Celebration = ({ tipo }) => {
             <span key={p.id} className="celebration-faisca" style={p.style} />
           ))}
         </span>
+      ))}
+      {estrelas.map(p => (
+        <span key={p.id} className="celebration-estrela" style={p.style}>{p.char}</span>
+      ))}
+      {coracoes.map(p => (
+        <span key={p.id} className="celebration-coracao" style={p.style}>{p.char}</span>
+      ))}
+      {moedas.map(p => (
+        <span key={p.id} className="celebration-moeda" style={p.style}>{p.char}</span>
+      ))}
+      {arcoiris.map(p => (
+        <span key={p.id} className="celebration-arcoiris" style={p.style}>{p.char}</span>
+      ))}
+      {bolhas.map(p => (
+        <span key={p.id} className="celebration-bolha" style={p.style}>{p.char}</span>
       ))}
     </div>
   );

@@ -67,9 +67,9 @@ const Layout = ({ children }) => {
               <span aria-hidden="true">💡</span>
               <span>{progress.hintsAvailable || 0}</span>
             </div>
-            <NavLink to="/shop" className="navbar-link"
-              aria-label="Abrir loja">
-              <img src="/loja.png" alt="" width="1536" height="1024" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Loja
+            <NavLink to="/shop" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}
+              title="Loja" aria-label="Abrir loja">
+              <img src="/loja.png" alt="" width="1536" height="1024" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> <span>Loja</span>
             </NavLink>
             <div className="navbar-stat">
               <span>🔥</span>

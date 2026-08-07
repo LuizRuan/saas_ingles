@@ -46,7 +46,12 @@ const shopItems = [
 
   // ── Efeitos ───────────────────────────────────────────────────────────────
   { id: 'confetti',   name: 'Confetti',            description: 'Chuva de confete a cada resposta certa',      icon: '🎊', price: 1050,  category: 'efeito', type: 'effect', value: 'confetti'  },
+  { id: 'stars',      name: 'Chuva de Estrelas',   description: 'Estrelas reluzentes e brilhantes na tela',    icon: '⭐', price: 1100,  category: 'efeito', type: 'effect', value: 'stars'     },
+  { id: 'hearts',     name: 'Chuva de Corações',   description: 'Corações flutuantes cheios de amor',          icon: '💖', price: 1150,  category: 'efeito', type: 'effect', value: 'hearts'    },
+  { id: 'coins',      name: 'Moedas Douradas',     description: 'Moedas de ouro saltitando em rotação 3D',     icon: '🪙', price: 1250,  category: 'efeito', type: 'effect', value: 'coins'     },
   { id: 'fireworks',  name: 'Fogos de Artifício',  description: 'Fogos na tela ao terminar uma partida',       icon: '🎆', price: 1350,  category: 'efeito', type: 'effect', value: 'fireworks' },
+  { id: 'rainbow',    name: 'Arco-Íris Mágico',    description: 'Feixes em gradiente colorido caindo na tela', icon: '🌈', price: 1400,  category: 'efeito', type: 'effect', value: 'rainbow'   },
+  { id: 'bubbles',    name: 'Bolhas Brilhantes',   description: 'Bolhas de sabão translúcidas estourando',    icon: '🫧', price: 1500,  category: 'efeito', type: 'effect', value: 'bubbles'   },
 ];
 
 const categories = [

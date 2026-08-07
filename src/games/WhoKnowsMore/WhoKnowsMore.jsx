@@ -11,6 +11,7 @@ import { rewardFor, isRewarded } from '../../utils/duelReward';
 import { presenceLabel } from '../../utils/presenceLabel';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
+import { getUserTitle } from '../../utils/levelSystem';
 import DuelHangman from './games/DuelHangman';
 import DuelMemory  from './games/DuelMemory';
 import DuelBotGame from './games/DuelBotGame';
@@ -706,6 +707,7 @@ const WhoKnowsMore = () => {
                           <div className="ranked-avatar" aria-hidden="true">{entry.avatar || 'U'}</div>
                           <div className="ranked-player-details">
                             <span className="ranked-player-name">{entry.nickname}</span>
+                            <span className="ranked-player-tag">{entry.title || getUserTitle(entry.level || 1).tag}</span>
                           </div>
                         </div>
 
@@ -1170,6 +1172,7 @@ const WhoKnowsMore = () => {
                         <div className="ranked-avatar" aria-hidden="true">{entry.avatar || 'U'}</div>
                         <div className="ranked-player-details">
                           <span className="ranked-player-name">{entry.nickname}</span>
+                          <span className="ranked-player-tag">{entry.title || getUserTitle(entry.level || 1).tag}</span>
                         </div>
                       </div>
 

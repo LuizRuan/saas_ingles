@@ -56,9 +56,6 @@ const WordExplanation = ({ word, showTip = true, compact = false }) => {
         </div>
       )}
 
-      {showTip && tip && (
-        <div className="tip">💡 Dica: {tip}</div>
-      )}
     </div>
   );
 };

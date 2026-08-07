@@ -6,20 +6,20 @@ const MAX_WRONG = 6;
 
 // SVG Desenho da Forca
 const HangmanDrawing = ({ wrongCount }) => (
-  <svg viewBox="0 0 100 120" style={{ width: '130px', height: '150px', margin: '0 auto', display: 'block' }}>
-    {/* Base da forca */}
-    <line x1="10" y1="110" x2="90" y2="110" stroke="var(--text-secondary)" strokeWidth="4" strokeLinecap="round" />
-    <line x1="30" y1="110" x2="30" y2="10" stroke="var(--text-secondary)" strokeWidth="4" strokeLinecap="round" />
-    <line x1="30" y1="10" x2="70" y2="10" stroke="var(--text-secondary)" strokeWidth="4" strokeLinecap="round" />
-    <line x1="70" y1="10" x2="70" y2="25" stroke="var(--text-secondary)" strokeWidth="3" strokeLinecap="round" />
-
-    {/* Partes do boneco */}
-    {wrongCount >= 1 && <circle cx="70" cy="35" r="10" stroke="var(--accent-red)" strokeWidth="3" fill="none" />}
-    {wrongCount >= 2 && <line x1="70" y1="45" x2="70" y2="75" stroke="var(--accent-red)" strokeWidth="3" strokeLinecap="round" />}
-    {wrongCount >= 3 && <line x1="70" y1="55" x2="55" y2="65" stroke="var(--accent-red)" strokeWidth="3" strokeLinecap="round" />}
-    {wrongCount >= 4 && <line x1="70" y1="55" x2="85" y2="65" stroke="var(--accent-red)" strokeWidth="3" strokeLinecap="round" />}
-    {wrongCount >= 5 && <line x1="70" y1="75" x2="55" y2="95" stroke="var(--accent-red)" strokeWidth="3" strokeLinecap="round" />}
-    {wrongCount >= 6 && <line x1="70" y1="75" x2="85" y2="95" stroke="var(--accent-red)" strokeWidth="3" strokeLinecap="round" />}
+  <svg viewBox="0 0 200 250" className="hangman-svg" style={{ width: '150px', height: '180px', margin: '0 auto', display: 'block' }}>
+    {/* Gallows */}
+    <line x1="20" y1="230" x2="180" y2="230" stroke="var(--text-muted)" strokeWidth="3" />
+    <line x1="60" y1="230" x2="60" y2="20" stroke="var(--text-muted)" strokeWidth="3" />
+    <line x1="60" y1="20" x2="130" y2="20" stroke="var(--text-muted)" strokeWidth="3" />
+    <line x1="130" y1="20" x2="130" y2="50" stroke="var(--text-muted)" strokeWidth="3" />
+    
+    {/* Person parts */}
+    {wrongCount >= 1 && <circle cx="130" cy="65" r="15" stroke="var(--accent-red)" strokeWidth="3" fill="none" className="animate-fade-in" />}
+    {wrongCount >= 2 && <line x1="130" y1="80" x2="130" y2="150" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
+    {wrongCount >= 3 && <line x1="130" y1="100" x2="100" y2="130" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
+    {wrongCount >= 4 && <line x1="130" y1="100" x2="160" y2="130" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
+    {wrongCount >= 5 && <line x1="130" y1="150" x2="105" y2="200" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
+    {wrongCount >= 6 && <line x1="130" y1="150" x2="155" y2="200" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
   </svg>
 );
 
@@ -56,27 +56,23 @@ const DailyHangmanStep = ({ challenge, stepState, onAnswer }) => {
 
   return (
     <div className="daily-hangman-step animate-fade-in-up text-center">
-      <div className="glass-card" style={{ padding: 'var(--space-md)', marginBottom: 'var(--space-md)' }}>
-        <p className="daily-prompt-label">Dica: {answer.pt} ({answer.tip || 'Adivinhe a palavra em inglês'})</p>
-        <HangmanDrawing wrongCount={wrongCount} />
+      <div className="hangman-hint glass-card animate-fade-in-up" style={{ padding: 'var(--space-md)', marginBottom: 'var(--space-md)', textAlign: 'left' }}>
+        <span>💡 </span>
+        <span>Dica: {answer.tip || 'Adivinhe a palavra em inglês'}</span>
+      </div>
 
-        {/* Tracinhos da palavra secreta */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', margin: 'var(--space-md) 0' }}>
+      <div className="glass-card" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>
+        <div className="hangman-drawing">
+          <HangmanDrawing wrongCount={wrongCount} />
+        </div>
+
+        {/* Word Letters */}
+        <div className="hangman-word animate-fade-in-up" style={{ margin: 'var(--space-lg) 0 var(--space-md) 0' }}>
           {wordUpper.split('').map((char, idx) => {
             const isRevealed = guessed.includes(char) || stepState === 'feedback';
             return (
-              <span
-                key={idx}
-                style={{
-                  minWidth: '28px',
-                  fontSize: '1.75rem',
-                  fontFamily: 'var(--font-mono)',
-                  fontWeight: 700,
-                  borderBottom: '3px solid var(--accent-purple)',
-                  color: isRevealed ? 'var(--accent-purple-light)' : 'transparent',
-                  paddingBottom: '2px'
-                }}>
-                {char}
+              <span key={idx} className={`hangman-letter ${isRevealed ? 'revealed' : ''}`}>
+                {isRevealed ? char : '_'}
               </span>
             );
           })}
@@ -87,44 +83,20 @@ const DailyHangmanStep = ({ challenge, stepState, onAnswer }) => {
         </div>
       </div>
 
-      {/* Teclado Virtual A-Z */}
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        gap: '5px',
-        maxWidth: '480px',
-        margin: '0 auto'
-      }}>
+      {/* Keyboard */}
+      <div className="hangman-keyboard animate-fade-in-up">
         {ALPHABET.map((letter) => {
-          const isUsed = guessed.includes(letter);
-          const isRight = isUsed && wordUpper.includes(letter);
-          const isWrong = isUsed && !wordUpper.includes(letter);
-
-          let btnBg = 'var(--bg-card)';
-          let btnColor = 'var(--text-primary)';
-          if (isRight) { btnBg = 'var(--accent-green)'; btnColor = 'white'; }
-          else if (isWrong) { btnBg = 'var(--bg-red-subtle)'; btnColor = 'var(--accent-red-light)'; }
+          const isGuessed = guessed.includes(letter);
+          const isCorrect = isGuessed && wordUpper.includes(letter);
+          const isWrong = isGuessed && !wordUpper.includes(letter);
 
           return (
             <button
               key={letter}
+              className={`key-btn ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''}`}
               onClick={() => handleLetterClick(letter)}
-              disabled={isUsed || stepState !== 'playing'}
-              style={{
-                width: '36px',
-                height: '38px',
-                borderRadius: 'var(--radius-md)',
-                fontFamily: 'var(--font-mono)',
-                fontWeight: 700,
-                fontSize: '14px',
-                background: btnBg,
-                color: btnColor,
-                border: '1px solid var(--border-color)',
-                cursor: isUsed || stepState !== 'playing' ? 'default' : 'pointer',
-                opacity: isWrong ? 0.5 : 1,
-                transition: 'all 0.15s ease'
-              }}>
+              disabled={isGuessed || stepState !== 'playing'}
+            >
               {letter}
             </button>
           );

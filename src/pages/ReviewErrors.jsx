@@ -68,8 +68,7 @@ const ReviewErrors = () => {
             <h2 style={{ margin: 'var(--space-md) 0' }}>Revisão Concluída!</h2>
             <p className="text-secondary">Você revisou {reviewWords.length} palavras. Continue praticando!</p>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
-              <button className="btn btn-primary" onClick={() => { setCurrentIndex(0); setFeedback(null); }}>🔄 Revisar novamente</button>
-              <Link to="/games" className="btn btn-ghost">← Jogos</Link>
+              <Link to="/games" className="btn btn-primary">← Ir para os Jogos</Link>
             </div>
           </div>
         </div>

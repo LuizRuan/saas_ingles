@@ -7,6 +7,7 @@ import { THEMES, DEFAULT_THEME, applyAnimations } from '../utils/appearance';
 import { clearEntryChoice } from '../utils/entryChoice';
 import { logoutRequest, updateProfileRequest } from '../utils/authClient';
 import { isValidNickname, MAX_NICKNAME_LENGTH } from '../utils/authValidation';
+import { getCurrentLevel, getUserTitle } from '../utils/levelSystem';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -163,6 +164,9 @@ const Settings = () => {
                         <span style={{ fontSize: 'var(--fs-lg)', fontWeight: 700, color: 'var(--text-primary)' }}>
                           {profile.nickname}
                         </span>
+                        <span className="badge badge-purple" style={{ fontSize: 'var(--fs-xs)' }}>
+                          {getUserTitle(getCurrentLevel(progress.wordsStudied || 0).level).tag}
+                        </span>
                         {cooldownDays > 0 ? (
                           <span className="badge badge-purple" style={{ fontSize: 'var(--fs-xs)' }}>
                             🔒 Alteração em {cooldownDays} dia(s)
@@ -302,15 +306,27 @@ const Settings = () => {
         {(() => {
           const shopItems = progress.shopItems || [];
           const temConfetti = shopItems.includes('confetti');
+          const temStars = shopItems.includes('stars');
+          const temHearts = shopItems.includes('hearts');
+          const temCoins = shopItems.includes('coins');
           const temFireworks = shopItems.includes('fireworks');
-          if (!temConfetti && !temFireworks) return null;
+          const temRainbow = shopItems.includes('rainbow');
+          const temBubbles = shopItems.includes('bubbles');
+          const temAlgumEfeito = temConfetti || temStars || temHearts || temCoins || temFireworks || temRainbow || temBubbles;
+
+          if (!temAlgumEfeito) return null;
 
           const activeEffect = progress.selectedEffect || null;
 
           const effectOptions = [
             { id: null,         label: 'Nenhum',             icon: '🚫' },
             ...(temConfetti  ? [{ id: 'confetti',  label: 'Confetti',           icon: '🎊' }] : []),
+            ...(temStars     ? [{ id: 'stars',     label: 'Chuva de Estrelas',  icon: '⭐' }] : []),
+            ...(temHearts    ? [{ id: 'hearts',    label: 'Chuva de Corações',  icon: '💖' }] : []),
+            ...(temCoins     ? [{ id: 'coins',     label: 'Moedas Douradas',    icon: '🪙' }] : []),
             ...(temFireworks ? [{ id: 'fireworks', label: 'Fogos de Artifício', icon: '🎆' }] : []),
+            ...(temRainbow   ? [{ id: 'rainbow',   label: 'Arco-Íris Mágico',   icon: '🌈' }] : []),
+            ...(temBubbles   ? [{ id: 'bubbles',   label: 'Bolhas Brilhantes',  icon: '🫧' }] : []),
           ];
 
           return (
@@ -330,7 +346,7 @@ const Settings = () => {
                   </button>
                 ))}
               </div>
-              {activeEffect === null && (temConfetti || temFireworks) && (
+              {activeEffect === null && temAlgumEfeito && (
                 <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-sm)' }}>
                   Nenhum efeito ativo — selecione um para vê-lo durante os jogos.
                 </p>
@@ -413,7 +429,7 @@ const Settings = () => {
             Dá para jogar sem conta: seu progresso é salvo neste navegador.
           </p>
           <p className="text-muted" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-sm)' }}>
-            Versão 1.0 • Feito com ❤️ para brasileiros aprendendo inglês
+            Versão 3.0 • Feito com ❤️ para brasileiros aprendendo inglês
           </p>
         </div>
       </div>

@@ -63,6 +63,121 @@
   }
 }
 
+/* === CHUVA DE ESTRELAS === */
+.celebration-estrela {
+  position: absolute;
+  top: -30px;
+  animation-name: celebracaoEstrela;
+  animation-timing-function: cubic-bezier(0.25, 0.6, 0.5, 1);
+  animation-fill-mode: both;
+  user-select: none;
+}
+
+@keyframes celebracaoEstrela {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(0.6) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(calc(var(--deriva) * 0.5), 50vh, 0) scale(1.3) rotate(calc(var(--giro) * 0.5));
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--deriva), 105vh, 0) scale(0.8) rotate(var(--giro));
+  }
+}
+
+/* === CHUVA DE CORAÇÕES === */
+.celebration-coracao {
+  position: absolute;
+  animation-name: celebracaoCoracao;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+  user-select: none;
+}
+
+@keyframes celebracaoCoracao {
+  0% {
+    opacity: 0.9;
+    transform: translate3d(0, 0, 0) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translate3d(var(--floatX), -50vh, 0) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(var(--floatX) * 1.3), -105vh, 0) scale(0.9);
+  }
+}
+
+/* === MOEDAS DOURADAS === */
+.celebration-moeda {
+  position: absolute;
+  top: -30px;
+  animation-name: celebracaoMoeda;
+  animation-timing-function: cubic-bezier(0.3, 0.6, 0.4, 1);
+  animation-fill-mode: both;
+  user-select: none;
+}
+
+@keyframes celebracaoMoeda {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotateY(0deg) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--deriva), 105vh, 0) rotateY(720deg) scale(1.1);
+  }
+}
+
+/* === ARCO-ÍRIS MÁGICO === */
+.celebration-arcoiris {
+  position: absolute;
+  top: -40px;
+  animation-name: celebracaoArcoiris;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+  user-select: none;
+}
+
+@keyframes celebracaoArcoiris {
+  0% {
+    opacity: 0.95;
+    transform: translate3d(0, 0, 0) scale(0.7) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--deriva), 105vh, 0) scale(1.2) rotate(var(--giro));
+  }
+}
+
+/* === BOLHAS BRILHANTES === */
+.celebration-bolha {
+  position: absolute;
+  animation-name: celebracaoBolha;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+  user-select: none;
+  filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.4));
+}
+
+@keyframes celebracaoBolha {
+  0% {
+    opacity: 0.8;
+    transform: translate3d(0, 0, 0) scale(0.6);
+  }
+  80% {
+    opacity: 1;
+    transform: translate3d(var(--floatX), -85vh, 0) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--floatX), -105vh, 0) scale(1.4);
+  }
+}
+
 /* Sem animação, não há efeito nenhum a mostrar: as partículas apareceriam
    paradas na posição final. Melhor não renderizar. A regra global de
    prefers-reduced-motion zera as durações, o que deixaria exatamente isso. */
