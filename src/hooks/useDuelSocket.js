@@ -288,8 +288,7 @@ export const useDuelSocket = () => {
     return new Promise((resolve) => {
       setMatchState('queue');
       socketRef.current?.emit('room:create', {
-        authTicket: authTicketRef.current,
-        nickname: nicknameOverride || getTicketNickname(authTicketRef.current) || 'Jogador',
+        nickname: nicknameOverride || 'Jogador',
         gameTypePreference,
       }, (ack) => {
         if (ack?.ok) {
@@ -307,8 +306,7 @@ export const useDuelSocket = () => {
     return new Promise((resolve) => {
       setMatchState('queue');
       socketRef.current?.emit('room:join', {
-        authTicket: authTicketRef.current,
-        nickname: nicknameOverride || getTicketNickname(authTicketRef.current) || 'Jogador',
+        nickname: nicknameOverride || 'Jogador',
         roomCode,
       }, (ack) => {
         if (ack?.ok) {

@@ -84,27 +84,46 @@ export const buildQuestion = (gameType, usedIndices = new Set()) => {
     }
 
     case 'sentenceBuilder': {
-      const withSentence = otherWords.filter(w => w.examplePt);
+      // Garante que a palavra tem examplePt — sem isso correctAnswer seria undefined
+      const withSentence = words
+        .map((w, i) => ({ w, i }))
+        .filter(({ w, i }) => !usedIndices.has(i) && w.examplePt && w.example);
+      const sentPool = withSentence.length ? withSentence : words
+        .map((w, i) => ({ w, i }))
+        .filter(({ w }) => w.examplePt && w.example);
+      if (!sentPool.length) break; // fallback never reached with current data
+      const { w: sentWord, i: sentIdx } = sentPool[randomInt(sentPool.length)];
+      const sentOthers = words.filter((_, i) => i !== sentIdx && words[i]?.examplePt);
       return {
-        type: 'sentenceBuilder', wordIndex: index,
-        prompt: { exampleEn: word.example },
-        options: fourOptions(word.examplePt, withSentence, w => w.examplePt),
-        correctAnswer: word.examplePt,
+        type: 'sentenceBuilder', wordIndex: sentIdx,
+        prompt: { exampleEn: sentWord.example },
+        options: fourOptions(sentWord.examplePt, sentOthers, w => w.examplePt),
+        correctAnswer: sentWord.examplePt,
       };
     }
 
     case 'fillBlanks': {
-      const regex = new RegExp(`\\b${word.en}\\b`, 'gi');
-      let blanked = word.example.replace(regex, '_______');
-      if (blanked === word.example) {
-        const firstWord = word.en.split(' ')[0];
-        blanked = word.example.replace(new RegExp(firstWord, 'gi'), '_______');
+      // Garante que a palavra tem example — sem isso .replace() em undefined crasharia
+      const withExample = words
+        .map((w, i) => ({ w, i }))
+        .filter(({ w, i }) => !usedIndices.has(i) && w.example && !w.en.includes(' '));
+      const fbPool = withExample.length ? withExample : words
+        .map((w, i) => ({ w, i }))
+        .filter(({ w }) => w.example && !w.en.includes(' '));
+      if (!fbPool.length) break;
+      const { w: fbWord, i: fbIdx } = fbPool[randomInt(fbPool.length)];
+      const fbOthers = words.filter((_, i) => i !== fbIdx);
+      const fbRegex = new RegExp(`\\b${fbWord.en}\\b`, 'gi');
+      let fbBlanked = fbWord.example.replace(fbRegex, '_______');
+      if (fbBlanked === fbWord.example) {
+        const firstWord = fbWord.en.split(' ')[0];
+        fbBlanked = fbWord.example.replace(new RegExp(firstWord, 'gi'), '_______');
       }
       return {
-        type: 'fillBlanks', wordIndex: index,
-        prompt: { blankedSentence: blanked, examplePt: word.examplePt },
-        options: fourOptions(word.en, otherWords, w => w.en),
-        correctAnswer: word.en,
+        type: 'fillBlanks', wordIndex: fbIdx,
+        prompt: { blankedSentence: fbBlanked, examplePt: fbWord.examplePt },
+        options: fourOptions(fbWord.en, fbOthers, w => w.en),
+        correctAnswer: fbWord.en,
       };
     }
 

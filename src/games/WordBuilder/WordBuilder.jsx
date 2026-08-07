@@ -22,8 +22,11 @@ const makeLetters = (word) => {
 // Assim a dica pode revelar uma posição qualquer, e não só a próxima da fila.
 const emptySlots = (word) => new Array(word.en.length).fill(null);
 
+const generateGameWords = () =>
+  shuffleArray(words.filter(w => !w.en.includes(' ') && w.en.length >= 3 && w.en.length <= 8)).slice(0, ROUNDS);
+
 const WordBuilder = () => {
-  const [gameWords] = useState(() => shuffleArray(words.filter(w => !w.en.includes(' ') && w.en.length >= 3 && w.en.length <= 8)).slice(0, ROUNDS));
+  const [gameWords, setGameWords] = useState(() => generateGameWords());
   const [round, setRound] = useState(0);
   const [selectedLetters, setSelectedLetters] = useState(() => gameWords[0] ? emptySlots(gameWords[0]) : []);
   const [availableLetters, setAvailableLetters] = useState(() => gameWords[0] ? makeLetters(gameWords[0]) : []);
@@ -168,10 +171,22 @@ const WordBuilder = () => {
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
               <button className="btn btn-primary" onClick={() => {
+                const newWords = generateGameWords();
+                setGameWords(newWords);
                 setRound(0);
                 setScore(0);
                 setGameComplete(false);
-                setupRound(0);
+                // setupRound lerá gameWords depois que setGameWords aplicar
+                // via o próximo render — inicializar o estado diretamente aqui
+                const w = newWords[0];
+                if (w) {
+                  setSelectedLetters(emptySlots(w));
+                  setAvailableLetters(makeLetters(w));
+                  setLockedSlots([]);
+                  setFeedback(null);
+                  setShowExplanation(false);
+                  setHintUsed(false);
+                }
               }}>🔄 Jogar novamente</button>
               <Link to="/games" className="btn btn-ghost">← Outros jogos</Link>
             </div>

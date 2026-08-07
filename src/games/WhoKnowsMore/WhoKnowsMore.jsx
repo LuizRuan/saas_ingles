@@ -1061,7 +1061,10 @@ const WhoKnowsMore = () => {
                     className="btn btn-primary btn-lg"
                     style={{ width: '100%' }}
                     onClick={async () => {
-                      const res = await duel.createPrivateRoom('random', myNickname);
+                      const name = estaLogado
+                        ? profile.nickname.slice(0, 20)
+                        : (nicknameDraft.trim() || progress.displayName || generateGuestName()).slice(0, 20);
+                      const res = await duel.createPrivateRoom('random', name);
                       if (res.ok) {
                         setCreatedRoomCode(res.roomCode);
                         setPrivateRoomMode('waiting');
@@ -1136,7 +1139,10 @@ const WhoKnowsMore = () => {
                     style={{ width: '100%' }}
                     disabled={joinRoomInput.length < 5}
                     onClick={async () => {
-                      const res = await duel.joinPrivateRoom(joinRoomInput, myNickname);
+                      const name = estaLogado
+                        ? profile.nickname.slice(0, 20)
+                        : (nicknameDraft.trim() || progress.displayName || generateGuestName()).slice(0, 20);
+                      const res = await duel.joinPrivateRoom(joinRoomInput, name);
                       if (res.ok) {
                         setShowPrivateRoomModal(false);
                       } else {

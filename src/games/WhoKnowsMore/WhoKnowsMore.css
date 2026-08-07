@@ -28,7 +28,7 @@
 
 /* === LOBBY === */
 .lobby-container {
-  max-width: 900px;
+  max-width: 1060px;
   margin: 0 auto;
   text-align: center;
 }
@@ -67,9 +67,15 @@
 
 .mode-selection-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--space-xl);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
   margin-top: var(--space-xl);
+}
+
+@media (max-width: 780px) {
+  .mode-selection-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* .glass-card fornece fundo/borda/raio/sombra; aqui só o resto. */

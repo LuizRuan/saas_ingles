@@ -79,14 +79,13 @@ const shopItems = [
 ];
 
 const categories = [
-  { id: 'all', name: 'Todos', icon: '🏪' },
-  { id: 'tudo',    name: 'Todos os Itens',    icon: '🛍️' },
-  { id: 'powerup', name: 'Power-ups',       icon: '⚡' },
-  { id: 'avatar',  name: 'Avatares',        icon: '😊' },
-  { id: 'titulo',  name: 'Títulos 🏷️',      icon: '🏷️' },
-  { id: 'som',     name: 'Pacotes de Som 🎵', icon: '🎵' },
-  { id: 'efeito',  name: 'Efeitos',         icon: '✨' },
-  { id: 'coringa', name: 'Coringas 🃏',      icon: '🃏' },
+  { id: 'all',     name: 'Todos',             icon: '🏪' },
+  { id: 'powerup', name: 'Power-ups',          icon: '⚡' },
+  { id: 'avatar',  name: 'Avatares',           icon: '😊' },
+  { id: 'titulo',  name: 'Títulos 🏷️',         icon: '🏷️' },
+  { id: 'som',     name: 'Pacotes de Som 🎵',  icon: '🎵' },
+  { id: 'efeito',  name: 'Efeitos',            icon: '✨' },
+  { id: 'coringa', name: 'Coringas 🃏',         icon: '🃏' },
 ];
 
 const Shop = () => {
