@@ -7,7 +7,7 @@ import './Stories.css';
 
 // Tela de leitura pura: sem useProgress, sem pontos, sem conquista. Ler uma
 // história aqui não conta como jogo — é referência/estudo, igual a Palavras.
-const LEVEL_BADGE = { iniciante: 'badge-blue', intermediario: 'badge-purple' };
+const LEVEL_BADGE = { iniciante: 'badge-blue', intermediario: 'badge-purple', avancado: 'badge-red' };
 
 const Stories = () => {
   const [levelFilter, setLevelFilter] = useState('todos');

@@ -66,4 +66,68 @@ export const achievementsList = [
   { id: "truefalse_master", title: "Mestre do V ou F", description: "Completou 5 jogos de Verdadeiro ou Falso", icon: "✅", condition: (p) => (p.gamesCompleted?.trueFalse || 0) >= 5 },
   { id: "listening_master", title: "Mestre da Escuta", description: "Completou 5 jogos de Escuta", icon: "🎧", condition: (p) => (p.gamesCompleted?.listening || 0) >= 5 },
   { id: "duel_master", title: "Mestre dos Duelos", description: "Completou 5 partidas de Quem Sabe Mais?", icon: "⚔️", condition: (p) => (p.gamesCompleted?.whoKnowsMore || 0) >= 5 },
+
+  // ===== Vocabulário — novos marcos com 1000 palavras =====
+  { id: "words_300", title: "Vocabulário em Expansão", description: "Estudou 300 palavras", icon: "📙", condition: (p) => p.wordsStudied >= 300 },
+  { id: "words_500", title: "Meio Milhar de Palavras", description: "Estudou 500 palavras", icon: "📦", condition: (p) => p.wordsStudied >= 500 },
+  { id: "words_600", title: "Enciclopédia Viva", description: "Estudou 600 palavras", icon: "📔", condition: (p) => p.wordsStudied >= 600 },
+  { id: "words_750", title: "Vocabulário Vastíssimo", description: "Estudou 750 palavras", icon: "🗃️", condition: (p) => p.wordsStudied >= 750 },
+  { id: "words_850", title: "Quase Onisciente", description: "Estudou 850 palavras", icon: "🧿", condition: (p) => p.wordsStudied >= 850 },
+  { id: "words_950", title: "Última Fronteira do Vocabulário", description: "Estudou 950 palavras", icon: "🚩", condition: (p) => p.wordsStudied >= 950 },
+  { id: "words_1000", title: "Dicionário Ambulante", description: "Estudou todas as 1000 palavras do banco!", icon: "📕", condition: (p) => p.wordsStudied >= 1000 },
+  { id: "learned_200", title: "Vocabulário Dominado", description: "Dominou 200 palavras", icon: "🏗️", condition: (p) => (p.wordsLearned || 0) >= 200 },
+  { id: "learned_500", title: "Meio Milhar Dominado", description: "Dominou 500 palavras", icon: "🏰", condition: (p) => (p.wordsLearned || 0) >= 500 },
+  { id: "learned_700", title: "Arsenal de Palavras", description: "Dominou 700 palavras", icon: "🛡️", condition: (p) => (p.wordsLearned || 0) >= 700 },
+  { id: "learned_1000", title: "Mestre de Mil Palavras", description: "Dominou as 1000 palavras do banco!", icon: "👑", condition: (p) => (p.wordsLearned || 0) >= 1000 },
+
+  // ===== Níveis — novos marcos com 100 níveis =====
+  { id: "level_25", title: "Um Quarto do Caminho", description: "Alcançou o nível 25", icon: "🎯", condition: (p) => p.currentLevel >= 25 },
+  { id: "level_30", title: "Especialista Confirmado", description: "Alcançou o nível 30", icon: "🎖️", condition: (p) => p.currentLevel >= 30 },
+  { id: "level_40", title: "Comunicador Avançado", description: "Alcançou o nível 40", icon: "🌟", condition: (p) => p.currentLevel >= 40 },
+  { id: "level_50", title: "Meio Caminho Andado", description: "Alcançou o nível 50", icon: "🌌", condition: (p) => p.currentLevel >= 50 },
+  { id: "stage_profissional", title: "Fluência Profissional", description: "Alcançou o nível 60", icon: "🏢", condition: (p) => p.currentLevel >= 60 },
+  { id: "stage_cultural", title: "Curador Cultural", description: "Alcançou o nível 70", icon: "🖼️", condition: (p) => p.currentLevel >= 70 },
+  { id: "stage_cientifico", title: "Cientista Fluente", description: "Alcançou o nível 80", icon: "🥼", condition: (p) => p.currentLevel >= 80 },
+  { id: "level_75", title: "Quase Lá", description: "Alcançou o nível 75", icon: "🧗", condition: (p) => p.currentLevel >= 75 },
+  { id: "level_85", title: "Erudito em Ascensão", description: "Alcançou o nível 85", icon: "🏺", condition: (p) => p.currentLevel >= 85 },
+  { id: "stage_academico", title: "Acadêmico Fluente", description: "Alcançou o nível 90", icon: "🎓", condition: (p) => p.currentLevel >= 90 },
+  { id: "level_95", title: "Lenda Quase Completa", description: "Alcançou o nível 95", icon: "⚜️", condition: (p) => p.currentLevel >= 95 },
+  { id: "level_100", title: "Fluência Absoluta", description: "Alcançou o nível máximo — 100!", icon: "🏆", condition: (p) => p.currentLevel >= 100 },
+
+  // ===== Acertos =====
+  { id: "correct_300", title: "Trezentos Acertos", description: "Acertou 300 respostas", icon: "🎯", condition: (p) => p.totalCorrect >= 300 },
+  { id: "correct_750", title: "Três Quartos de Milhar", description: "Acertou 750 respostas", icon: "💠", condition: (p) => p.totalCorrect >= 750 },
+  { id: "correct_1000", title: "Milhar de Acertos", description: "Acertou 1000 respostas", icon: "💯", condition: (p) => p.totalCorrect >= 1000 },
+  { id: "correct_1500", title: "Precisão Cirúrgica", description: "Acertou 1500 respostas", icon: "🔬", condition: (p) => p.totalCorrect >= 1500 },
+  { id: "correct_2000", title: "Máquina Imparável", description: "Acertou 2000 respostas", icon: "🤖", condition: (p) => p.totalCorrect >= 2000 },
+
+  // ===== Sequências =====
+  { id: "streak_35", title: "Chama Eterna", description: "35 acertos seguidos", icon: "🔥", condition: (p) => p.bestStreak >= 35 },
+  { id: "streak_50", title: "Sequência Lendária", description: "50 acertos seguidos", icon: "🌠", condition: (p) => p.bestStreak >= 50 },
+  { id: "streak_60", title: "Onda Imparável", description: "60 acertos seguidos", icon: "🌊", condition: (p) => p.bestStreak >= 60 },
+  { id: "streak_75", title: "Recorde Absoluto", description: "75 acertos seguidos", icon: "🏅", condition: (p) => p.bestStreak >= 75 },
+
+  // ===== Dias consecutivos =====
+  { id: "days_60", title: "Dois Meses Seguidos", description: "Estudou 60 dias consecutivos", icon: "📅", condition: (p) => p.dayStreak >= 60 },
+  { id: "days_100", title: "Cem Dias de Dedicação", description: "Estudou 100 dias consecutivos", icon: "💯", condition: (p) => p.dayStreak >= 100 },
+  { id: "days_200", title: "Persistência Lendária", description: "Estudou 200 dias consecutivos", icon: "🌕", condition: (p) => p.dayStreak >= 200 },
+  { id: "days_365", title: "Um Ano Inteiro!", description: "Estudou 365 dias consecutivos", icon: "🎇", condition: (p) => p.dayStreak >= 365 },
+
+  // ===== Pontuação =====
+  { id: "points_5000", title: "Cofre Cheio", description: "Alcançou 5.000 pontos", icon: "💰", condition: (p) => p.totalScore >= 5000 },
+  { id: "points_25000", title: "Tesouro Estelar", description: "Alcançou 25.000 pontos", icon: "💎", condition: (p) => p.totalScore >= 25000 },
+  { id: "points_50000", title: "Império de Estrelas", description: "Alcançou 50.000 pontos", icon: "👑", condition: (p) => p.totalScore >= 50000 },
+  { id: "points_75000", title: "Fortuna Cósmica", description: "Alcançou 75.000 pontos", icon: "🌌", condition: (p) => p.totalScore >= 75000 },
+  { id: "points_100000", title: "Constelação Pessoal", description: "Alcançou 100.000 pontos", icon: "🌟", condition: (p) => p.totalScore >= 100000 },
+  { id: "points_150000", title: "Riqueza Sem Limites", description: "Alcançou 150.000 pontos", icon: "🪙", condition: (p) => p.totalScore >= 150000 },
+
+  // ===== Frases e desafios =====
+  { id: "sentences_100", title: "Construtor Experiente", description: "Completou 100 frases", icon: "🧱", condition: (p) => p.sentencesCompleted >= 100 },
+  { id: "sentences_200", title: "Duzentas Frases", description: "Completou 200 frases", icon: "📜", condition: (p) => p.sentencesCompleted >= 200 },
+  { id: "daily_45", title: "Hábito Consolidado", description: "Completou 45 desafios diários", icon: "🔑", condition: (p) => p.dailyChallengesCompleted >= 45 },
+  { id: "daily_60", title: "Dois Meses de Desafios", description: "Completou 60 desafios diários", icon: "🗝️", condition: (p) => p.dailyChallengesCompleted >= 60 },
+  { id: "daily_100", title: "Cem Desafios", description: "Completou 100 desafios diários", icon: "🏵️", condition: (p) => p.dailyChallengesCompleted >= 100 },
+  { id: "review_200", title: "Revisor Incansável", description: "Revisou 200 palavras", icon: "🧭", condition: (p) => p.wordsReviewed >= 200 },
+  { id: "review_300", title: "Memória de Elefante", description: "Revisou 300 palavras", icon: "🐘", condition: (p) => p.wordsReviewed >= 300 },
+  { id: "review_500", title: "Guardião da Revisão", description: "Revisou 500 palavras", icon: "🛡️", condition: (p) => p.wordsReviewed >= 500 },
 ];

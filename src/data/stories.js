@@ -37,6 +37,7 @@
 export const STORY_LEVELS = {
   iniciante: 'Iniciante',
   intermediario: 'Intermediário',
+  avancado: 'Avançado',
 };
 
 export const stories = [
@@ -265,6 +266,120 @@ export const stories = [
       'In the morning, Tom woke up early to explore. He came across a deer by the water.',
       "That night, they made a fire and his father brought along some old stories to tell.",
       "On the way back home, Tom said it was the best trip ever. He could not wait to come back.",
+    ],
+  },
+
+  // ─── Avançado ─────────────────────────────────────────────────────────
+  {
+    id: 'the-job-interview',
+    level: 'avancado',
+    icon: '💼',
+    title: 'The Job Interview',
+    titlePt: 'A Entrevista de Emprego',
+    summaryPt: 'Ana se prepara para uma entrevista de emprego difícil e precisa impressionar o entrevistador.',
+    paragraphs: [
+      'Ana had been preparing for this job interview for weeks. She had researched the company thoroughly and rehearsed her answers in front of the mirror.',
+      'When she arrived, the interviewer asked her a challenging question about a time she had failed. Ana hesitated for a moment, but then she explained the situation honestly and described what she had learned from it.',
+      "The interviewer seemed impressed by her confidence. He mentioned that most candidates avoid admitting their mistakes, but Ana's honesty stood out.",
+      'By the end of the interview, Ana felt relieved. A week later, she received an offer. Her hard work had finally paid off.',
+    ],
+  },
+  {
+    id: 'moving-abroad',
+    level: 'avancado',
+    icon: '✈️',
+    title: 'Moving Abroad',
+    titlePt: 'Mudando para o Exterior',
+    summaryPt: 'Tom recebe uma proposta de trabalho no exterior e precisa decidir se vale a pena deixar tudo para trás.',
+    paragraphs: [
+      'Tom received a job offer in another country. It was an incredible opportunity, but it meant leaving his family and friends behind.',
+      "He spent several nights weighing the pros and cons. On one hand, the salary was much higher and the company was well respected. On the other hand, he would miss his parents deeply.",
+      "Eventually, Tom decided to take the risk. He figured that he could always come back if things didn't work out, but he would never know unless he tried.",
+      "Six months later, Tom had adapted to his new life. He missed home, but he didn't regret his decision. Sometimes growth requires stepping outside your comfort zone.",
+    ],
+  },
+  {
+    id: 'the-difficult-decision',
+    level: 'avancado',
+    icon: '🤔',
+    title: 'The Difficult Decision',
+    titlePt: 'A Decisão Difícil',
+    summaryPt: 'Sofia precisa escolher entre duas oportunidades incríveis e pede conselho aos amigos.',
+    paragraphs: [
+      "Sofia had two job offers, and both seemed perfect. She couldn't decide which one to choose, so she asked her closest friends for advice.",
+      'Lucy suggested that Sofia should follow her passion, regardless of the salary. Leo, however, argued that financial stability mattered more at this stage of her career.',
+      'Sofia listened carefully to both opinions, but in the end, she realized that only she could make this decision. She had to trust her own judgment.',
+      "After much thought, Sofia chose the position that aligned with her long-term goals. It wasn't the easiest choice, but it felt like the right one.",
+    ],
+  },
+  {
+    id: 'the-negotiation',
+    level: 'avancado',
+    icon: '🤝',
+    title: 'The Negotiation',
+    titlePt: 'A Negociação',
+    summaryPt: 'Leo precisa negociar um contrato importante e aprende que compromisso é essencial.',
+    paragraphs: [
+      'Leo was responsible for negotiating an important contract with a new client. He knew that this deal could change the future of his company.',
+      'During the meeting, the client demanded a lower price. Leo remained calm and explained why the quality of their product justified the cost.',
+      'After a long discussion, both sides reached a compromise. Leo agreed to a small discount, while the client agreed to a longer contract.',
+      "Leo left the meeting satisfied. He had learned that successful negotiation isn't about winning everything — it's about finding a solution that benefits everyone involved.",
+    ],
+  },
+  {
+    id: 'the-documentary',
+    level: 'avancado',
+    icon: '🎥',
+    title: 'The Documentary',
+    titlePt: 'O Documentário',
+    summaryPt: 'Lucy produz um documentário sobre mudança climática e descobre o poder de contar histórias reais.',
+    paragraphs: [
+      'Lucy had always wanted to raise awareness about climate change. When she got the chance to produce a documentary, she knew this was her opportunity.',
+      'She traveled to remote villages and interviewed people whose lives had been affected by rising temperatures. Their stories were more powerful than any statistic.',
+      'Editing the footage took months. Lucy wanted every scene to reflect the truth without exaggerating the facts.',
+      'When the documentary was finally released, it received widespread attention. Lucy realized that storytelling could inspire change in ways that data alone could not.',
+    ],
+  },
+  {
+    id: 'the-reunion',
+    level: 'avancado',
+    icon: '🎊',
+    title: 'The Reunion',
+    titlePt: 'O Reencontro',
+    summaryPt: 'Depois de anos separados, Ana, Tom, Lucy, Sofia e Leo se reencontram e relembram o passado.',
+    paragraphs: [
+      'It had been ten years since Ana, Tom, Lucy, Sofia, and Leo had last seen each other. They finally organized a reunion in their hometown.',
+      'At first, the conversation felt slightly awkward, as if they were strangers catching up. However, as soon as they started sharing old memories, the years seemed to disappear.',
+      'They laughed about mistakes they had made in the past and admitted how much they had each changed. Yet, despite everything, their friendship remained as strong as ever.',
+      'By the end of the night, they promised not to wait another ten years. Some friendships, they realized, never truly fade away.',
+    ],
+  },
+  {
+    id: 'the-investigation',
+    level: 'avancado',
+    icon: '🔍',
+    title: 'The Investigation',
+    titlePt: 'A Investigação',
+    summaryPt: 'Quando Max desaparece novamente, Ana decide investigar como uma detetive para descobrir a verdade.',
+    paragraphs: [
+      'Max had disappeared again, but this time Ana was determined to solve the mystery once and for all. She decided to investigate like a real detective.',
+      'She questioned every neighbor and examined the area carefully for clues. Eventually, she noticed strange footprints leading toward an abandoned garden.',
+      "Following the trail, Ana discovered that Max had been sneaking into the neighbor's yard to visit another cat. The mystery, it turned out, was simply a secret friendship.",
+      'Ana could not help but laugh at how such a small investigation had taught her so much about patience and observation.',
+    ],
+  },
+  {
+    id: 'the-conference',
+    level: 'avancado',
+    icon: '🎤',
+    title: 'The Conference',
+    titlePt: 'A Conferência',
+    summaryPt: 'Ana é convidada para apresentar em uma conferência internacional e enfrenta o medo de falar em público.',
+    paragraphs: [
+      'Ana was invited to speak at an international conference. Although she was excited, the thought of speaking in front of hundreds of people terrified her.',
+      'She practiced her presentation every single day, anticipating every possible question the audience might ask.',
+      "When the moment finally arrived, Ana's hands were shaking. Nevertheless, she took a deep breath and began speaking with surprising confidence.",
+      'The audience applauded enthusiastically at the end. Ana realized that facing her fear had been the most rewarding part of the entire experience.',
     ],
   },
 ];

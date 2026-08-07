@@ -28,6 +28,23 @@ export const categories = [
   { id: "esportes", name: "Esportes & Jogos", icon: "⚽", color: "#ef4444", description: "Bola, xadrez, corrida..." },
   { id: "crimes", name: "Crimes & Investigação", icon: "🕵️", color: "#64748b", description: "Ladrão, veneno, pista..." },
   { id: "artes", name: "Artes & Mídia", icon: "🎨", color: "#ec4899", description: "Pintura, teatro, poema..." },
+
+  // Categorias avançadas (níveis 51-100)
+  { id: "negocios", name: "Negócios & Empreendedorismo", icon: "📊", color: "#0891b2", description: "Reuniões, contratos, startups..." },
+  { id: "medicina", name: "Medicina & Saúde Avançada", icon: "🩺", color: "#dc2626", description: "Diagnóstico, sintomas, tratamento..." },
+  { id: "direito", name: "Direito & Justiça", icon: "👨‍⚖️", color: "#78716c", description: "Contratos, julgamentos, leis..." },
+  { id: "psicologia", name: "Psicologia & Mente", icon: "🧠", color: "#9333ea", description: "Memória, comportamento, percepção..." },
+  { id: "meioambiente", name: "Meio Ambiente & Sustentabilidade", icon: "🌳", color: "#16a34a", description: "Clima, reciclagem, ecossistemas..." },
+  { id: "culinaria", name: "Culinária & Gastronomia", icon: "🍳", color: "#f97316", description: "Receitas, temperos, sabores..." },
+  { id: "viagem", name: "Viagens & Turismo", icon: "✈️", color: "#0ea5e9", description: "Aeroportos, roteiros, culturas..." },
+  { id: "musica", name: "Música & Instrumentos", icon: "🎵", color: "#db2777", description: "Ritmo, melodia, instrumentos..." },
+  { id: "cinema", name: "Cinema & Entretenimento", icon: "🎬", color: "#7c3aed", description: "Filmes, atores, roteiros..." },
+  { id: "matematica", name: "Matemática & Lógica", icon: "➗", color: "#2563eb", description: "Equações, teoremas, raciocínio..." },
+  { id: "historia_mundial", name: "História Mundial", icon: "📜", color: "#b45309", description: "Impérios, guerras, civilizações..." },
+  { id: "astronomia", name: "Astronomia & Espaço", icon: "🔭", color: "#4338ca", description: "Galáxias, órbitas, telescópios..." },
+  { id: "politica", name: "Política & Diplomacia", icon: "🏛️", color: "#57534e", description: "Tratados, nações, governo..." },
+  { id: "linguistica", name: "Linguística & Estilo", icon: "🗣️", color: "#be185d", description: "Sintaxe, ironia, nuances..." },
+  { id: "academico", name: "Vida Acadêmica", icon: "🎓", color: "#1d4ed8", description: "Teses, pesquisa, argumentação..." },
 ];
 
 // Níveis de progressão (1 a 50)
@@ -38,6 +55,15 @@ export const stages = [
   { stage: 3, name: "Intermediário (21-30)", icon: "💻", color: "#f59e0b" },
   { stage: 4, name: "Avançado (31-40)", icon: "🎭", color: "#ec4899" },
   { stage: 5, name: "Mestre (41-50)", icon: "👑", color: "#8b5cf6" },
+  // A partir daqui, fluência deixa de ser "saber palavras" e vira "usar o
+  // idioma em contexto profissional e erudito" — por isso os 5 novos
+  // estágios são domínios de aplicação (negócios, cultura, ciência,
+  // academia, maestria), não mais um salto linear de dificuldade.
+  { stage: 6, name: "Fluência Profissional (51-60)", icon: "📊", color: "#0891b2" },
+  { stage: 7, name: "Expressão Cultural (61-70)", icon: "🎭", color: "#db2777" },
+  { stage: 8, name: "Mente Científica (71-80)", icon: "🔬", color: "#7c3aed" },
+  { stage: 9, name: "Alta Cultura Acadêmica (81-90)", icon: "🎓", color: "#1d4ed8" },
+  { stage: 10, name: "Maestria Lendária (91-100)", icon: "🌌", color: "#eab308" },
 ];
 
 export const levels = [
@@ -100,4 +126,64 @@ export const levels = [
   { level: 48, stage: 5, name: "Erudição Linguística", description: "Domínio de textos eruditos e literários", wordsNeeded: 470, icon: "📖" },
   { level: 49, stage: 5, name: "Gran Mestre", description: "A um passo da maestria suprema!", wordsNeeded: 480, icon: "👑" },
   { level: 50, stage: 5, name: "Mestre Supremo", description: "Maestria e fluência total no idioma!", wordsNeeded: 490, icon: "🌌" },
+
+  // Estágio 6: Fluência Profissional (Níveis 51 ao 60)
+  { level: 51, stage: 6, name: "Mundo dos Negócios", description: "Reuniões, contratos e estratégia", wordsNeeded: 500, icon: "📊" },
+  { level: 52, stage: 6, name: "Empreendedorismo", description: "Startups, investidores e inovação", wordsNeeded: 510, icon: "🚀" },
+  { level: 53, stage: 6, name: "Marketing & Vendas", description: "Marcas, clientes e negociação", wordsNeeded: 520, icon: "📢" },
+  { level: 54, stage: 6, name: "Medicina Clínica", description: "Diagnóstico, sintomas e tratamento", wordsNeeded: 530, icon: "🩺" },
+  { level: 55, stage: 6, name: "Saúde Pública", description: "Epidemias, vacinas e bem-estar", wordsNeeded: 540, icon: "💉" },
+  { level: 56, stage: 6, name: "Direito Civil", description: "Contratos, direitos e obrigações", wordsNeeded: 550, icon: "👨‍⚖️" },
+  { level: 57, stage: 6, name: "Direito Penal", description: "Crimes, julgamentos e sentenças", wordsNeeded: 560, icon: "🔨" },
+  { level: 58, stage: 6, name: "Finanças Pessoais", description: "Orçamento, investimento e economia", wordsNeeded: 570, icon: "💰" },
+  { level: 59, stage: 6, name: "Liderança & Gestão", description: "Equipes, metas e decisões", wordsNeeded: 580, icon: "🧭" },
+  { level: 60, stage: 6, name: "Executivo Fluente", description: "Domina o inglês do mundo corporativo!", wordsNeeded: 590, icon: "🏢" },
+
+  // Estágio 7: Expressão Cultural (Níveis 61 ao 70)
+  { level: 61, stage: 7, name: "Cinema & Roteiro", description: "Filmes, atores e direção", wordsNeeded: 600, icon: "🎬" },
+  { level: 62, stage: 7, name: "Música & Composição", description: "Instrumentos, ritmo e letras", wordsNeeded: 610, icon: "🎵" },
+  { level: 63, stage: 7, name: "Literatura Clássica", description: "Romances, poesia e autores", wordsNeeded: 620, icon: "📚" },
+  { level: 64, stage: 7, name: "Culinária Internacional", description: "Receitas, temperos e sabores", wordsNeeded: 630, icon: "🍳" },
+  { level: 65, stage: 7, name: "Viagens pelo Mundo", description: "Aeroportos, culturas e roteiros", wordsNeeded: 640, icon: "✈️" },
+  { level: 66, stage: 7, name: "Moda & Estilo", description: "Tendências, tecidos e design", wordsNeeded: 650, icon: "👗" },
+  { level: 67, stage: 7, name: "Fotografia & Design", description: "Composição, cores e criatividade", wordsNeeded: 660, icon: "📷" },
+  { level: 68, stage: 7, name: "Teatro & Performance", description: "Palco, plateia e interpretação", wordsNeeded: 670, icon: "🎪" },
+  { level: 69, stage: 7, name: "Festivais & Tradições", description: "Celebrações ao redor do mundo", wordsNeeded: 680, icon: "🎉" },
+  { level: 70, stage: 7, name: "Curador Cultural", description: "Fluência plena em artes e cultura!", wordsNeeded: 690, icon: "🖼️" },
+
+  // Estágio 8: Mente Científica (Níveis 71 ao 80)
+  { level: 71, stage: 8, name: "Lógica & Matemática", description: "Equações, teoremas e raciocínio", wordsNeeded: 700, icon: "➗" },
+  { level: 72, stage: 8, name: "Física Avançada", description: "Energia, ondas e relatividade", wordsNeeded: 710, icon: "⚛️" },
+  { level: 73, stage: 8, name: "Astronomia Profunda", description: "Galáxias, órbitas e telescópios", wordsNeeded: 720, icon: "🔭" },
+  { level: 74, stage: 8, name: "Biotecnologia", description: "Genes, DNA e laboratórios", wordsNeeded: 730, icon: "🧬" },
+  { level: 75, stage: 8, name: "Meio Ambiente", description: "Sustentabilidade e mudança climática", wordsNeeded: 740, icon: "🌳" },
+  { level: 76, stage: 8, name: "Psicologia Cognitiva", description: "Memória, percepção e comportamento", wordsNeeded: 750, icon: "🧠" },
+  { level: 77, stage: 8, name: "Inteligência Artificial", description: "Algoritmos, dados e automação", wordsNeeded: 760, icon: "🤖" },
+  { level: 78, stage: 8, name: "Engenharia & Inovação", description: "Projetos, estruturas e protótipos", wordsNeeded: 770, icon: "⚙️" },
+  { level: 79, stage: 8, name: "Método Científico", description: "Hipóteses, testes e evidências", wordsNeeded: 780, icon: "🔬" },
+  { level: 80, stage: 8, name: "Cientista Fluente", description: "Domina o vocabulário da ciência!", wordsNeeded: 790, icon: "🥼" },
+
+  // Estágio 9: Alta Cultura Acadêmica (Níveis 81 ao 90)
+  { level: 81, stage: 9, name: "Redação Acadêmica", description: "Teses, ensaios e argumentação", wordsNeeded: 800, icon: "✍️" },
+  { level: 82, stage: 9, name: "Retórica & Persuasão", description: "Discursos, debates e convencimento", wordsNeeded: 810, icon: "🎙️" },
+  { level: 83, stage: 9, name: "Linguística Aplicada", description: "Sintaxe, semântica e fonética", wordsNeeded: 820, icon: "🗣️" },
+  { level: 84, stage: 9, name: "História Antiga", description: "Impérios, civilizações e legados", wordsNeeded: 830, icon: "🏺" },
+  { level: 85, stage: 9, name: "História Moderna", description: "Guerras, revoluções e tratados", wordsNeeded: 840, icon: "📜" },
+  { level: 86, stage: 9, name: "Filosofia Contemporânea", description: "Ética, existência e pensamento crítico", wordsNeeded: 850, icon: "🏛️" },
+  { level: 87, stage: 9, name: "Relações Internacionais", description: "Diplomacia, tratados e política externa", wordsNeeded: 860, icon: "🌐" },
+  { level: 88, stage: 9, name: "Sociologia & Comportamento", description: "Sociedade, cultura e interação", wordsNeeded: 870, icon: "🧩" },
+  { level: 89, stage: 9, name: "Pensamento Crítico", description: "Análise, lógica e argumentação refinada", wordsNeeded: 880, icon: "🔍" },
+  { level: 90, stage: 9, name: "Acadêmico Fluente", description: "Pronto para qualquer debate erudito!", wordsNeeded: 890, icon: "🎓" },
+
+  // Estágio 10: Maestria Lendária (Níveis 91 ao 100)
+  { level: 91, stage: 10, name: "Nuances do Idioma", description: "Ironia, sarcasmo e duplo sentido", wordsNeeded: 900, icon: "🎭" },
+  { level: 92, stage: 10, name: "Expressões Idiomáticas Avançadas", description: "Gírias raras e ditados populares", wordsNeeded: 910, icon: "💬" },
+  { level: 93, stage: 10, name: "Oratória Magistral", description: "Discursos memoráveis e inspiradores", wordsNeeded: 920, icon: "🎤" },
+  { level: 94, stage: 10, name: "Diplomacia Internacional", description: "Negociações e acordos entre nações", wordsNeeded: 930, icon: "🕊️" },
+  { level: 95, stage: 10, name: "Literatura Contemporânea", description: "Autores modernos e prêmios literários", wordsNeeded: 940, icon: "📖" },
+  { level: 96, stage: 10, name: "Escrita Criativa", description: "Ficção, narrativa e estilo próprio", wordsNeeded: 950, icon: "✒️" },
+  { level: 97, stage: 10, name: "Vocabulário Enciclopédico", description: "Termos raros de todas as áreas", wordsNeeded: 960, icon: "🌐" },
+  { level: 98, stage: 10, name: "Fluência Nativa", description: "Pensa e sonha em inglês naturalmente", wordsNeeded: 970, icon: "💭" },
+  { level: 99, stage: 10, name: "Lenda Poliglota", description: "A um passo da perfeição absoluta!", wordsNeeded: 980, icon: "⚜️" },
+  { level: 100, stage: 10, name: "Mestre Absoluto do Inglês", description: "Fluência total, do básico ao erudito!", wordsNeeded: 990, icon: "🏆" },
 ];
