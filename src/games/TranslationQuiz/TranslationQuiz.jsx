@@ -8,14 +8,13 @@ import './TranslationQuiz.css';
 
 const ROUNDS = 10;
 
+const generateQuizzes = () =>
+  shuffleArray([...translationQuizzes])
+    .slice(0, ROUNDS)
+    .map(q => ({ ...q, options: shuffleArray([...q.options]) }));
+
 const TranslationQuiz = () => {
-  // As alternativas vêm da fonte com a correta quase sempre em 1o lugar, então
-  // embaralhamos por pergunta. Feito uma única vez, aqui — nunca no render.
-  const [quizzes] = useState(() =>
-    shuffleArray([...translationQuizzes])
-      .slice(0, ROUNDS)
-      .map(q => ({ ...q, options: shuffleArray([...q.options]) }))
-  );
+  const [quizzes, setQuizzes] = useState(() => generateQuizzes());
   const [round, setRound] = useState(0);
   const [selected, setSelected] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -75,7 +74,15 @@ const TranslationQuiz = () => {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
-              <button className="btn btn-primary" onClick={() => window.location.reload()}>🔄 Jogar novamente</button>
+              <button className="btn btn-primary" onClick={() => {
+                setQuizzes(generateQuizzes());
+                setRound(0);
+                setSelected(null);
+                setFeedback(null);
+                setScore(0);
+                setCorrectCount(0);
+                setGameComplete(false);
+              }}>🔄 Jogar novamente</button>
               <Link to="/games" className="btn btn-ghost">← Outros jogos</Link>
             </div>
           </div>

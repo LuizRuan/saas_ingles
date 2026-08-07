@@ -17,7 +17,7 @@ const Feedback = () => {
     setStatus('loading');
     setErrorMsg('');
     try {
-      const res = await fetch('/api/feedback');
+      const res = await fetch('/api/feedback', { credentials: 'include' });
       const data = await res.json();
 
       if (res.status === 401 || res.status === 403) {
@@ -46,6 +46,7 @@ const Feedback = () => {
     try {
       const res = await fetch(`/api/feedback/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
       const data = await res.json();
 

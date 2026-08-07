@@ -8,7 +8,7 @@ export const LEARNED_THRESHOLD = 3; // Acertos necessários para considerar apre
 
 export const getWordStatus = (wordStats) => {
   if (!wordStats) return 'nova';
-  if (wordStats.correct >= LEARNED_THRESHOLD) return 'aprendida';
+  if (wordStats.learned || wordStats.correct >= LEARNED_THRESHOLD) return 'aprendida';
   if (wordStats.correct > 0 || wordStats.wrong > 0) return 'aprendendo';
   return 'nova';
 };
@@ -135,7 +135,7 @@ export const recordWordResult = (progress, rawKey, isCorrect) => {
 
   // Só vocabulário conta como palavra estudada/aprendida
   const vocab = updated.wordStats || {};
-  updated.wordsLearned = Object.values(vocab).filter(s => s.correct >= LEARNED_THRESHOLD).length;
+  updated.wordsLearned = Object.values(vocab).filter(s => s.learned || s.correct >= LEARNED_THRESHOLD).length;
   updated.wordsStudied = Object.keys(vocab).length;
 
   return updated;

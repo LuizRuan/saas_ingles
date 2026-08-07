@@ -9,9 +9,14 @@ import './WordBuilder.css';
 
 const ROUNDS = 8;
 
-// Embaralha as letras da palavra; cada uma tem id próprio para lidar com repetidas
-const makeLetters = (word) =>
-  shuffleArray(word.en.toUpperCase().split('').map((l, i) => ({ letter: l, id: i })));
+const makeLetters = (word) => {
+  const target = word.en.toUpperCase();
+  let letters = shuffleArray(target.split('').map((l, i) => ({ letter: l, id: i })));
+  if (letters.map(l => l.letter).join('') === target && target.length > 1) {
+    [letters[0], letters[1]] = [letters[1], letters[0]];
+  }
+  return letters;
+};
 
 // A resposta é um vetor POSICIONAL: cada índice é um espaço da palavra.
 // Assim a dica pode revelar uma posição qualquer, e não só a próxima da fila.
@@ -91,22 +96,39 @@ const WordBuilder = () => {
     setAvailableLetters(prev => [...prev, letterObj]);
   }, [feedback, lockedSlots, selectedLetters]);
 
-  // Sorteia um espaço vazio cuja letra ainda esteja disponível na bandeja
+  // Sorteia um espaço (vazio ou com letra errada não-travada) para aplicar a dica
   const pickHintSlot = useCallback(() => {
+    const targetWordUpper = currentWord.en.toUpperCase();
     const candidates = selectedLetters
-      .map((slot, i) => (slot === null ? i : -1))
+      .map((slot, i) => {
+        if (lockedSlots.includes(i)) return -1;
+        // Se o slot tem a letra correta no lugar certo, pula
+        if (slot !== null && slot.letter === targetWordUpper[i]) return -1;
+        return i;
+      })
       .filter(i => i !== -1)
-      .map(i => ({ slot: i, letterObj: availableLetters.find(l => l.letter === currentWord.en[i].toUpperCase()) }))
+      .map(i => {
+        const correctChar = targetWordUpper[i];
+        // Procura a letra na bandeja de disponíveis OU dentro do próprio slot não-travado
+        const letterObj = availableLetters.find(l => l.letter === correctChar) ||
+          selectedLetters.find((s, idx) => s && s.letter === correctChar && !lockedSlots.includes(idx));
+        return { slot: i, letterObj };
+      })
       .filter(c => c.letterObj);
 
     if (!candidates.length) return null;
     return candidates[Math.floor(Math.random() * candidates.length)];
-  }, [selectedLetters, availableLetters, currentWord]);
+  }, [selectedLetters, availableLetters, currentWord, lockedSlots]);
 
   const revealSlot = useCallback(({ slot, letterObj }) => {
+    // Se o slot destino já tinha uma letra errada não-travada, devolve-a para disponíveis
+    const existing = selectedLetters[slot];
+    if (existing && existing.id !== letterObj.id) {
+      setAvailableLetters(prev => [...prev, existing]);
+    }
     setLockedSlots(prev => [...prev, slot]);
     placeLetter(letterObj, slot, true);
-  }, [placeLetter]);
+  }, [selectedLetters, placeLetter]);
 
   const handleHint = useCallback(() => {
     if (hintUsed || feedback) return;
@@ -145,7 +167,12 @@ const WordBuilder = () => {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
-              <button className="btn btn-primary" onClick={() => window.location.reload()}>🔄 Jogar novamente</button>
+              <button className="btn btn-primary" onClick={() => {
+                setRound(0);
+                setScore(0);
+                setGameComplete(false);
+                setupRound(0);
+              }}>🔄 Jogar novamente</button>
               <Link to="/games" className="btn btn-ghost">← Outros jogos</Link>
             </div>
           </div>

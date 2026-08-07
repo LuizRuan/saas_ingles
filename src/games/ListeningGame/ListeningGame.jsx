@@ -9,11 +9,13 @@ import './ListeningGame.css';
 
 const ROUNDS = 10;
 
+const generateGameWords = () => {
+  const filtered = words.filter(w => !w.en.includes(' ') && w.en.length >= 3);
+  return shuffleArray(filtered).slice(0, ROUNDS);
+};
+
 const ListeningGame = () => {
-  const [gameWords] = useState(() => {
-    const filtered = words.filter(w => !w.en.includes(' ') && w.en.length >= 3);
-    return shuffleArray(filtered).slice(0, ROUNDS);
-  });
+  const [gameWords, setGameWords] = useState(() => generateGameWords());
   const [round, setRound] = useState(0);
   const [options, setOptions] = useState(() => generateOptions(gameWords, 0));
   const [selected, setSelected] = useState(null);
@@ -91,7 +93,16 @@ const ListeningGame = () => {
               <div className="result-stat"><span className="result-stat-value">{score}</span><span className="result-stat-label">Pontos</span></div>
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
-              <button className="btn btn-primary" onClick={() => window.location.reload()}>🔄 Jogar novamente</button>
+              <button className="btn btn-primary" onClick={() => {
+                const newWords = generateGameWords();
+                setGameWords(newWords);
+                setRound(0);
+                setOptions(generateOptions(newWords, 0));
+                setSelected(null);
+                setFeedback(null);
+                setScore(0);
+                setGameComplete(false);
+              }}>🔄 Jogar novamente</button>
               <Link to="/games" className="btn btn-ghost">← Outros jogos</Link>
             </div>
           </div>

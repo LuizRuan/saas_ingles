@@ -79,8 +79,15 @@ const WhoKnowsMore = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomCodeFromUrl = urlParams.get('room');
     if (roomCodeFromUrl && connected) {
+      // Limpa o parâmetro ?room= da URL para não repetir a requisição ao reconectar
+      window.history.replaceState({}, document.title, window.location.pathname);
       duel.joinPrivateRoom(roomCodeFromUrl).then((res) => {
-        if (!res.ok) setPrivateRoomError(res.error || 'Não foi possível entrar na sala.');
+        if (!res.ok) {
+          setPrivateRoomMode('join');
+          setJoinRoomInput(roomCodeFromUrl.toUpperCase());
+          setPrivateRoomError(res.error || 'Não foi possível entrar na sala.');
+          setShowPrivateRoomModal(true);
+        }
       });
     }
   }, [connected]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -745,7 +752,7 @@ const WhoKnowsMore = () => {
                           <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
                           <div className="ranked-player-details">
                             <span className="ranked-player-name">{entry.nickname}</span>
-                            <span className="ranked-player-tag">{entry.title || getUserTitle(entry.level || 1).tag}</span>
+                            <span className={`ranked-player-tag ${entry.title || ''}`}>{entry.title || getUserTitle(entry.level || 1).tag}</span>
                           </div>
                         </div>
 

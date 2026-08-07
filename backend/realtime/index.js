@@ -524,6 +524,14 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
 
     socket.on('disconnect', () => {
       removeFromQueue(socket.id);
+
+      // Limpa salas privadas criadas por este socket que ainda não tinham começado
+      for (const [code, room] of privateRooms.entries()) {
+        if (room.hostSocketId === socket.id) {
+          privateRooms.delete(code);
+        }
+      }
+
       const match = findMatchBySocket(socket.id);
       if (match) endByLeave(match, socket.id);
       broadcastPresence();

@@ -31,10 +31,11 @@ const useSpeech = () => {
       utterance.pitch = 1;
       utterance.volume = 0.8;
 
-      // Find an English voice
-      const englishVoice = voices.find(v => v.lang.startsWith('en'));
-      if (englishVoice) {
-        utterance.voice = englishVoice;
+      // Procura uma voz no idioma solicitado (ex: 'en', 'pt')
+      const targetLangPrefix = (lang || 'en').slice(0, 2);
+      const matchingVoice = voices.find(v => v.lang.startsWith(targetLangPrefix));
+      if (matchingVoice) {
+        utterance.voice = matchingVoice;
       }
 
       window.speechSynthesis.speak(utterance);
@@ -48,7 +49,7 @@ const useSpeech = () => {
   }, [speak]);
 
   const speakSlow = useCallback((text) => {
-    speak(text, 'en-US', 0.35);
+    speak(text, 'en-US', 0.7);
   }, [speak]);
 
   const stop = useCallback(() => {

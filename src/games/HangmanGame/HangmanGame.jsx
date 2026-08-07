@@ -55,8 +55,8 @@ const HangmanGame = () => {
         playWrong();
       }
     } else {
-      // Check if word is complete
-      const allRevealed = wordUpper.split('').every(l => newGuessed.includes(l));
+      // Check if word is complete (exempting non-alphabet characters like spaces/hyphens)
+      const allRevealed = wordUpper.split('').every(l => !/[A-Z]/.test(l) || newGuessed.includes(l));
       if (allRevealed) {
         setGameState('won');
         handleCorrectAnswer(currentWord.en, wrongCount === 0 ? 1 : 2);
@@ -70,7 +70,7 @@ const HangmanGame = () => {
     if (!currentWord || gameState !== 'playing') return;
     if ((progress.hintsAvailable || 0) <= 0) return;
 
-    const unrevealed = currentWord.en.toUpperCase().split('').filter(l => !guessedLetters.includes(l));
+    const unrevealed = currentWord.en.toUpperCase().split('').filter(l => /[A-Z]/.test(l) && !guessedLetters.includes(l));
     if (unrevealed.length === 0) return;
 
     const letterToReveal = unrevealed[0];
@@ -81,11 +81,15 @@ const HangmanGame = () => {
 
   const renderWord = () => {
     if (!currentWord) return null;
-    return currentWord.en.toUpperCase().split('').map((letter, i) => (
-      <span key={i} className={`hangman-letter ${guessedLetters.includes(letter) ? 'revealed' : ''}`}>
-        {guessedLetters.includes(letter) || gameState === 'lost' ? letter : '_'}
-      </span>
-    ));
+    return currentWord.en.toUpperCase().split('').map((letter, i) => {
+      const isLetter = /[A-Z]/.test(letter);
+      const isRevealed = !isLetter || guessedLetters.includes(letter) || gameState === 'lost';
+      return (
+        <span key={i} className={`hangman-letter ${isRevealed ? 'revealed' : ''}`}>
+          {isRevealed ? letter : '_'}
+        </span>
+      );
+    });
   };
 
   const renderHangman = () => {
@@ -188,10 +192,15 @@ const HangmanGame = () => {
           <div style={{ flex: 1 }}>
             <span>💡 </span>
             <span>Dica: {currentWord.tip}</span>
-            {tipTranslated && currentWord.examplePt && (() => {
-              // Oculta a palavra-resposta na frase em português para não entregar a resposta
-              const regex = new RegExp(currentWord.pt.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-              const frasePt = currentWord.examplePt.replace(regex, '___');
+            {tipTranslated && (currentWord.examplePt || currentWord.pt) && (() => {
+              // Se houver frase de exemplo, oculta a palavra-resposta. Senão, mostra a tradução direta.
+              let frasePt = '';
+              if (currentWord.examplePt) {
+                const regex = new RegExp((currentWord.pt || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                frasePt = currentWord.examplePt.replace(regex, '___');
+              } else {
+                frasePt = `Significa "${currentWord.pt}"`;
+              }
               return (
                 <div style={{ marginTop: '4px', fontSize: 'var(--fs-xs)', color: 'var(--accent-purple)', fontWeight: 600 }}>
                   🌎 Tradução: <em>{frasePt}</em>

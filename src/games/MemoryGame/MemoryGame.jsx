@@ -26,7 +26,7 @@ const MemoryGame = () => {
 
   const startGame = useCallback((diff) => {
     setDifficulty(diff);
-    const gameWords = shuffleArray(words.filter(w => w.level <= 4)).slice(0, diff.pairs);
+    const gameWords = shuffleArray([...words]).slice(0, diff.pairs);
     
     const cardPairs = gameWords.flatMap((word, idx) => [
       { id: idx * 2, wordIndex: idx, type: 'en', text: word.en, word },

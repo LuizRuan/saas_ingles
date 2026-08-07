@@ -37,6 +37,7 @@ const BugReportModal = () => {
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           message: message.trim(),
           page: location.pathname,

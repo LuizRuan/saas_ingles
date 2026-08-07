@@ -81,7 +81,7 @@ const Layout = ({ children }) => {
               <NavLink to="/login" className="btn btn-secondary btn-sm">Entrar</NavLink>
             )}
             {estaLogado && profile.nickname && (
-              <NavLink to="/settings" className="navbar-nickname" title={profile.nickname}>
+              <NavLink to="/settings" className={`navbar-nickname ${progress.selectedTitle || ''}`} title={profile.nickname}>
                 {profile.nickname.length > 10 ? `${profile.nickname.slice(0, 10)}...` : profile.nickname}
               </NavLink>
             )}
@@ -115,6 +115,10 @@ const Layout = ({ children }) => {
         <NavLink to="/my-words" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
           <span className="icon">📖</span>
           <span>Palavras</span>
+        </NavLink>
+        <NavLink to="/shop" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
+          <img src="/loja.png" alt="" width="1536" height="1024" style={{ height: '22px', width: 'auto', objectFit: 'contain' }} />
+          <span>Loja</span>
         </NavLink>
         <NavLink to="/settings" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
           <span className="icon">⚙️</span>

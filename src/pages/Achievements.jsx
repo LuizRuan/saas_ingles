@@ -4,7 +4,8 @@ import { achievementsList } from '../data/achievements';
 
 const Achievements = () => {
   const { progress } = useProgress();
-  const unlockedIds = progress.achievements || [];
+  const unlockedIds = Array.from(new Set(progress.achievements || []))
+    .filter(id => achievementsList.some(a => a.id === id));
 
   return (
     <div className="page">

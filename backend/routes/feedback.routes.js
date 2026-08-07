@@ -34,9 +34,9 @@ feedbackRouter.post('/', feedbackLimiter, requireDb, asyncHandler(async (req, re
     if (token) {
       const payload = verifySessionToken(token);
       if (payload?.sub) {
-        const user = await User.findById(payload.sub).select('nickname');
-        if (user?.nickname) {
-          nickname = user.nickname;
+        const user = await User.findById(payload.sub).select('nickname email');
+        if (user) {
+          nickname = user.nickname || user.email?.split('@')[0] || null;
         }
       }
     }

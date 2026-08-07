@@ -201,7 +201,7 @@ export const useDuelSocket = () => {
       setQuestion(null);
       setRematchProposed(null);
       setRematchStatus('idle');
-      setMatchState('match_intro');
+      setMatchState('matched');
     });
 
     return () => {

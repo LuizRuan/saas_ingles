@@ -3,10 +3,14 @@ import useSound from '../../hooks/useSound';
 
 // Embaralha as letras da palavra com id único para cada letra
 const makeLetters = (wordEn) => {
-  const letters = wordEn.toUpperCase().split('').map((char, i) => ({ id: i, char }));
+  const target = (wordEn || '').toUpperCase();
+  const letters = target.split('').map((char, i) => ({ id: i, char }));
   for (let i = letters.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [letters[i], letters[j]] = [letters[j], letters[i]];
+  }
+  if (letters.map(l => l.char).join('') === target && target.length > 1) {
+    [letters[0], letters[1]] = [letters[1], letters[0]];
   }
   return letters;
 };

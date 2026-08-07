@@ -206,6 +206,7 @@ export const ProgressProvider = ({ children }) => {
   }, [checkAchievements]);
 
   const completeGame = useCallback((gameType) => {
+    const currentMultiplier = activeMultiplier(progressRef.current);
     setProgress(prev => {
       const multiplier = activeMultiplier(prev);
       const gamesCompleted = { ...prev.gamesCompleted };
@@ -227,7 +228,7 @@ export const ProgressProvider = ({ children }) => {
       return updated;
     });
 
-    setScorePopup(POINTS.PHASE_COMPLETION * activeMultiplier(progressRef.current));
+    setScorePopup(POINTS.PHASE_COMPLETION * currentMultiplier);
     setTimeout(() => setScorePopup(null), 1200);
     dispararCelebracao('fireworks');
   }, [checkAchievements, dispararCelebracao]);
@@ -247,18 +248,24 @@ export const ProgressProvider = ({ children }) => {
   }, [checkAchievements]);
 
   const completeDailyChallenge = useCallback(() => {
+    let awarded = false;
     setProgress(prev => {
+      const today = getTodayDateString();
+      if (prev.lastDailyChallengeDate === today) return prev;
+      awarded = true;
       const updated = {
         ...prev,
         dailyChallengesCompleted: (prev.dailyChallengesCompleted || 0) + 1,
-        lastDailyChallengeDate: getTodayDateString(),
+        lastDailyChallengeDate: today,
         totalScore: prev.totalScore + POINTS.DAILY_CHALLENGE,
       };
       return checkAchievements(updated);
     });
     
-    setScorePopup(POINTS.DAILY_CHALLENGE);
-    setTimeout(() => setScorePopup(null), 1200);
+    if (awarded) {
+      setScorePopup(POINTS.DAILY_CHALLENGE);
+      setTimeout(() => setScorePopup(null), 1200);
+    }
   }, [checkAchievements]);
 
   const incrementReviewed = useCallback(() => {
@@ -311,8 +318,8 @@ export const ProgressProvider = ({ children }) => {
         updated.selectedEffect = item.value;
       }
       if (item.type === 'multiplier') {
-        updated.pointsMultiplier = item.value;
-        updated.multiplierGames = 1; // Lasts for 1 game
+        updated.pointsMultiplier = Math.max(prev.pointsMultiplier || 1, item.value);
+        updated.multiplierGames = (prev.multiplierGames || 0) + 1;
       }
       // type === 'wildcard': apenas armazena em shopItems (cada compra adiciona 1 uso)
       // O consumo é feito durante a partida — useWildcard() remove 1 id de shopItems
@@ -371,21 +378,35 @@ export const ProgressProvider = ({ children }) => {
   // Remove 1 uso de um coringa do inventário (consome o item).
   // Retorna true se havia pelo menos 1 para consumir.
   const useWildcard = useCallback((wildcardId) => {
-    let consumed = false;
+    const items = progressRef.current?.shopItems || [];
+    const idx = items.indexOf(wildcardId);
+    if (idx === -1) return false;
+
     setProgress(prev => {
-      const items = [...(prev.shopItems || [])];
-      const idx = items.indexOf(wildcardId);
-      if (idx === -1) return prev;
-      consumed = true;
-      items.splice(idx, 1); // remove apenas 1 ocorrência
-      return { ...prev, shopItems: items };
+      const currentItems = [...(prev.shopItems || [])];
+      const i = currentItems.indexOf(wildcardId);
+      if (i === -1) return prev;
+      currentItems.splice(i, 1); // remove apenas 1 ocorrência
+      return { ...prev, shopItems: currentItems };
     });
-    return consumed;
+    return true;
   }, []);
 
   const resetAllProgress = useCallback(() => {
     clearStorage();
     setProgress(loadProgress());
+  }, []);
+
+  const setSelectedAvatar = useCallback((avatar) => {
+    setProgress(prev => ({ ...prev, selectedAvatar: avatar }));
+  }, []);
+
+  const setSelectedTitle = useCallback((title) => {
+    setProgress(prev => ({ ...prev, selectedTitle: title }));
+  }, []);
+
+  const setSelectedSoundPack = useCallback((soundPack) => {
+    setProgress(prev => ({ ...prev, selectedSoundPack: soundPack }));
   }, []);
 
   const value = {
@@ -405,6 +426,9 @@ export const ProgressProvider = ({ children }) => {
     buyShopItem,
     setTheme,
     setSelectedEffect,
+    setSelectedAvatar,
+    setSelectedTitle,
+    setSelectedSoundPack,
     setDisplayName,
     consumeHint,
     consumeExtraTime,

@@ -27,15 +27,23 @@ const makeTiles = (word) =>
 // ─── Componente de Memória Online ───────────────────────────────────────────
 const OnlineMemoryBoard = ({ wordGroup, onCompleted }) => {
   // wordGroup: [{ en, pt, pronunciation }]
-  const cards = wordGroup.flatMap((w, i) => [
-    { id: `en-${i}`, text: w.en, pairKey: i, type: 'en' },
-    { id: `pt-${i}`, text: w.pt, pairKey: i, type: 'pt' },
-  ]).sort(() => Math.random() - 0.5);
+  const createDeck = (group) =>
+    (group || []).flatMap((w, i) => [
+      { id: `en-${i}`, text: w.en, pairKey: i, type: 'en' },
+      { id: `pt-${i}`, text: w.pt, pairKey: i, type: 'pt' },
+    ]).sort(() => Math.random() - 0.5);
 
-  const [deck, setDeck] = useState(cards);
+  const [deck, setDeck] = useState(() => createDeck(wordGroup));
   const [flipped, setFlipped] = useState([]);
   const [matched, setMatched] = useState(new Set());
   const completedRef = useRef(false);
+
+  useEffect(() => {
+    setDeck(createDeck(wordGroup));
+    setFlipped([]);
+    setMatched(new Set());
+    completedRef.current = false;
+  }, [wordGroup]);
 
   const handleCardClick = (card) => {
     if (matched.has(card.pairKey) || card.id === flipped[0]?.id) return;

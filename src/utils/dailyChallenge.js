@@ -147,16 +147,18 @@ export const generateDailyChallenge = (words) => {
 
     switch (mode.type) {
       case 'memory': {
-        // Pega 3 palavras para formar 6 cartas (3 pares)
-        const pairWords = [
-          shuffledWords[wordIndex % shuffledWords.length],
-          shuffledWords[(wordIndex + 1) % shuffledWords.length],
-          shuffledWords[(wordIndex + 2) % shuffledWords.length],
-        ];
-        wordIndex += 3;
+        // Pega 3 palavras estritamente distintas para formar 6 cartas (3 pares)
+        const pairWords = [];
+        for (let i = 0; pairWords.length < 3 && i < shuffledWords.length * 2; i++) {
+          const candidate = shuffledWords[(wordIndex + i) % shuffledWords.length];
+          if (candidate && !pairWords.some(p => p.en === candidate.en)) {
+            pairWords.push(candidate);
+          }
+        }
+        wordIndex += pairWords.length;
         payload = {
           words: pairWords,
-          answer: pairWords[0], // Usada para a explicação pedagógica ao final
+          answer: pairWords[0] || shuffledWords[0], // Usada para a explicação pedagógica ao final
         };
         break;
       }

@@ -46,7 +46,7 @@ const DailyHangmanStep = ({ challenge, stepState, onAnswer }) => {
         onAnswer({ en: 'errou' }, answer, false);
       }
     } else {
-      const isComplete = wordUpper.split('').every(l => newGuessed.includes(l));
+      const isComplete = wordUpper.split('').every(l => !/[A-Z]/.test(l) || newGuessed.includes(l));
       if (isComplete) {
         playCorrect();
         onAnswer(answer, answer, true);
@@ -69,7 +69,8 @@ const DailyHangmanStep = ({ challenge, stepState, onAnswer }) => {
         {/* Word Letters */}
         <div className="hangman-word animate-fade-in-up" style={{ margin: 'var(--space-lg) 0 var(--space-md) 0' }}>
           {wordUpper.split('').map((char, idx) => {
-            const isRevealed = guessed.includes(char) || stepState === 'feedback';
+            const isLetter = /[A-Z]/.test(char);
+            const isRevealed = !isLetter || guessed.includes(char) || stepState === 'feedback';
             return (
               <span key={idx} className={`hangman-letter ${isRevealed ? 'revealed' : ''}`}>
                 {isRevealed ? char : '_'}

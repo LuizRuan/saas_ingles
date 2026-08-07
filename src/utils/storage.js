@@ -54,9 +54,12 @@ export const defaultProgress = {
   shopItems: [],
   shopPurchases: 0,
   hintsAvailable: 0,
+  tipTranslationsAvailable: 0,
   // Usos de +10s guardados para o modo Contra o Relógio (não segundos soltos)
   extraTimeAvailable: 0,
   selectedAvatar: null,
+  selectedTitle: null,
+  selectedSoundPack: 'default',
   selectedTheme: 'default',
   // Apelido de convidado para o duelo humano de "Quem Sabe Mais?" — não tem
   // ligação com o sistema de Login/Cadastro (CLAUDE.md separa os dois de
@@ -178,8 +181,11 @@ const saneiaProgresso = (bruto) => {
     shopItems: lista(p.shopItems).filter(i => typeof i === 'string').slice(0, 500),
     shopPurchases: inteiro(p.shopPurchases, 0),
     hintsAvailable: inteiro(p.hintsAvailable, 0, { min: 0, max: 100000 }),
+    tipTranslationsAvailable: inteiro(p.tipTranslationsAvailable, 0, { min: 0, max: 100000 }),
     extraTimeAvailable: inteiro(p.extraTimeAvailable, 0, { min: 0, max: 100000 }),
     selectedAvatar: texto(p.selectedAvatar),
+    selectedTitle: texto(p.selectedTitle),
+    selectedSoundPack: ['default', 'retro', 'scifi', 'orchestra'].includes(p.selectedSoundPack) ? p.selectedSoundPack : 'default',
     selectedTheme: texto(p.selectedTheme, 'default') ?? 'default',
     // Cap próprio de 20: este texto é mostrado a um estranho no duelo, não só
     // usado localmente — mais estreito que o MAX_CHAVE genérico de 200.

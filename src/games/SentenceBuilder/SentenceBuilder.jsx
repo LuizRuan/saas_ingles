@@ -8,8 +8,10 @@ import './SentenceBuilder.css';
 
 const ROUNDS = 8;
 
+const generateGameSentences = () => shuffleArray([...sentences]).slice(0, ROUNDS);
+
 const SentenceBuilder = () => {
-  const [gameSentences] = useState(() => shuffleArray([...sentences]).slice(0, ROUNDS));
+  const [gameSentences, setGameSentences] = useState(() => generateGameSentences());
   const [round, setRound] = useState(0);
   const [selectedWords, setSelectedWords] = useState([]);
   const [availableWords, setAvailableWords] = useState(() => {
@@ -85,7 +87,17 @@ const SentenceBuilder = () => {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
-              <button className="btn btn-primary" onClick={() => window.location.reload()}>🔄 Jogar novamente</button>
+              <button className="btn btn-primary" onClick={() => {
+                const newSentences = generateGameSentences();
+                setGameSentences(newSentences);
+                setRound(0);
+                setScore(0);
+                setGameComplete(false);
+                const s = newSentences[0];
+                setSelectedWords([]);
+                setAvailableWords(s ? shuffleArray(s.words.map((w, i) => ({ ...w, id: i }))) : []);
+                setFeedback(null);
+              }}>🔄 Jogar novamente</button>
               <Link to="/games" className="btn btn-ghost">← Outros jogos</Link>
             </div>
           </div>

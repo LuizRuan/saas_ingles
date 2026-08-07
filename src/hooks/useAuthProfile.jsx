@@ -38,7 +38,10 @@ export const AuthProfileProvider = ({ children }) => {
         setProfile(user);
         setStatus('loaded');
       })
-      .catch(() => setStatus('error'));
+      .catch(() => {
+        setProfile(null);
+        setStatus('error');
+      });
   }, []);
 
   // Uma vez no carregamento: cobre quem já chega com entryChoice='account' de

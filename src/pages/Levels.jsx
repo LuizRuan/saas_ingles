@@ -20,11 +20,11 @@ const ROTULO = {
 const Levels = () => {
   const { progress } = useProgress();
   const estudadas = progress.wordsStudied || 0;
-  const [selectedStage, setSelectedStage] = useState(1);
-
   const atual = getCurrentLevel(estudadas);
   const proximo = getNextLevel(estudadas);
   const percentual = getLevelProgress(estudadas);
+
+  const [selectedStage, setSelectedStage] = useState(() => atual?.stage || 1);
 
   const contagem = levels.reduce((acc, n) => {
     acc[situacaoDe(n, atual)] += 1;

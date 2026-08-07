@@ -87,9 +87,9 @@ const MyWords = () => {
               Nenhuma palavra encontrada com esses filtros.
             </p>
           )}
-          {filtered.map((word, i) => (
-            <div key={i}>
-              <button className="glass-card" onClick={() => setExpandedWord(expandedWord === i ? null : i)}
+          {filtered.map((word) => (
+            <div key={word.en}>
+              <button className="glass-card" onClick={() => setExpandedWord(expandedWord === word.en ? null : word.en)}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 'var(--space-md)',
                   padding: 'var(--space-md) var(--space-lg)', cursor: 'pointer', border: 'none',
                   color: 'inherit', textAlign: 'left', background: 'var(--gradient-card)' }}>
@@ -108,9 +108,9 @@ const MyWords = () => {
                     <span style={{ color: 'var(--accent-red)' }}>✗{word.stats.wrong}</span>
                   </div>
                 )}
-                <span className="text-muted">{expandedWord === i ? '▲' : '▼'}</span>
+                <span className="text-muted">{expandedWord === word.en ? '▲' : '▼'}</span>
               </button>
-              {expandedWord === i && (
+              {expandedWord === word.en && (
                 <div style={{ padding: 'var(--space-md)', paddingTop: 0 }}>
                   <WordExplanation word={word} />
                 </div>

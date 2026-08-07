@@ -90,7 +90,7 @@ const categories = [
 ];
 
 const Shop = () => {
-  const { progress, buyShopItem, setSelectedEffect, setTheme } = useProgress();
+  const { progress, buyShopItem, setSelectedEffect, setTheme, setSelectedAvatar, setSelectedTitle, setSelectedSoundPack } = useProgress();
   const { playCorrect, playWrong } = useSound();
   const [filter, setFilter] = useState('all');
   const [buyResult, setBuyResult] = useState(null);
@@ -259,7 +259,38 @@ const Shop = () => {
                     {owned ? (
                       <div style={{ display: 'flex', gap: 'var(--space-xs)', alignItems: 'center', flexWrap: 'wrap' }}>
                         <span className="badge badge-green">✅ Comprado</span>
-                        {/* Efeito já comprado: permite trocar o ativo sem ir para Configurações */}
+
+                        {/* Avatar */}
+                        {item.type === 'avatar' && progress.selectedAvatar !== item.value && (
+                          <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedAvatar(item.value); playCorrect(); }}>
+                            ⚡ Equipar
+                          </button>
+                        )}
+                        {item.type === 'avatar' && progress.selectedAvatar === item.value && (
+                          <span className="badge badge-purple">✓ Equipado</span>
+                        )}
+
+                        {/* Título */}
+                        {item.type === 'title' && progress.selectedTitle !== item.value && (
+                          <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedTitle(item.value); playCorrect(); }}>
+                            ⚡ Equipar
+                          </button>
+                        )}
+                        {item.type === 'title' && progress.selectedTitle === item.value && (
+                          <span className="badge badge-purple">✓ Equipado</span>
+                        )}
+
+                        {/* Pacote de Som */}
+                        {item.type === 'soundpack' && progress.selectedSoundPack !== item.value && (
+                          <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedSoundPack(item.value); playCorrect(); }}>
+                            ⚡ Equipar
+                          </button>
+                        )}
+                        {item.type === 'soundpack' && progress.selectedSoundPack === item.value && (
+                          <span className="badge badge-purple">✓ Equipado</span>
+                        )}
+
+                        {/* Efeito já comprado */}
                         {item.type === 'effect' && progress.selectedEffect !== item.value && (
                           <button
                             className="btn btn-secondary btn-sm"
@@ -270,6 +301,8 @@ const Shop = () => {
                         {item.type === 'effect' && progress.selectedEffect === item.value && (
                           <span className="badge badge-purple">⚡ Ativo</span>
                         )}
+
+                        {/* Tema */}
                         {item.type === 'theme' && progress.selectedTheme !== item.value && (
                           <button
                             className="btn btn-secondary btn-sm"

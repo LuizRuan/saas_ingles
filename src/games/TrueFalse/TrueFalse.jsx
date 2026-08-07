@@ -10,8 +10,10 @@ import './TrueFalse.css';
 const ROUNDS = 12;
 const TEMPO_INICIAL = 75; // segundos para as 12 rodadas do modo cronometrado
 
+const generateQuestions = () => shuffleArray([...trueFalse]).slice(0, ROUNDS);
+
 const TrueFalse = () => {
-  const [questions] = useState(() => shuffleArray([...trueFalse]).slice(0, ROUNDS));
+  const [questions, setQuestions] = useState(() => generateQuestions());
   const [modo, setModo] = useState(null); // null = tela de escolha | 'calmo' | 'contrarelogio'
   const [round, setRound] = useState(0);
   const [feedback, setFeedback] = useState(null);
@@ -134,7 +136,17 @@ const TrueFalse = () => {
               <div className="result-stat"><span className="result-stat-value">{score}</span><span className="result-stat-label">Pontos</span></div>
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
-              <button className="btn btn-primary" onClick={() => window.location.reload()}>🔄 Jogar novamente</button>
+              <button className="btn btn-primary" onClick={() => {
+                setQuestions(generateQuestions());
+                setModo(null);
+                setRound(0);
+                setFeedback(null);
+                setScore(0);
+                setCorrectCount(0);
+                setTempo(TEMPO_INICIAL);
+                setTempoEsgotado(false);
+                setGameComplete(false);
+              }}>🔄 Jogar novamente</button>
               <Link to="/games" className="btn btn-ghost">← Outros jogos</Link>
             </div>
           </div>

@@ -30,6 +30,14 @@ const StoryWordModal = ({ wordKey, onClose }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content animate-bounce-in" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className="modal-close-btn"
+          onClick={onClose}
+          aria-label="Fechar"
+        >
+          ✕
+        </button>
         <div className="word-main">
           <span className="word-en">{wordKey}</span>
           {entry && <span className="word-pt">= {entry.pt}</span>}

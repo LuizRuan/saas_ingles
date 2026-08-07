@@ -8,14 +8,13 @@ import './FillBlanks.css';
 
 const ROUNDS = 10;
 
+const generateQuestions = () =>
+  shuffleArray([...fillBlanks])
+    .slice(0, ROUNDS)
+    .map(q => ({ ...q, options: shuffleArray([...q.options]) }));
+
 const FillBlanks = () => {
-  // A resposta certa vem sempre na posição 0 na fonte de dados; embaralha por
-  // pergunta, uma única vez aqui — nunca no render.
-  const [questions] = useState(() =>
-    shuffleArray([...fillBlanks])
-      .slice(0, ROUNDS)
-      .map(q => ({ ...q, options: shuffleArray([...q.options]) }))
-  );
+  const [questions, setQuestions] = useState(() => generateQuestions());
   const [round, setRound] = useState(0);
   const [selected, setSelected] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -64,7 +63,14 @@ const FillBlanks = () => {
               <div className="result-stat"><span className="result-stat-value">{score}</span><span className="result-stat-label">Pontos</span></div>
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
-              <button className="btn btn-primary" onClick={() => window.location.reload()}>🔄 Jogar novamente</button>
+              <button className="btn btn-primary" onClick={() => {
+                setQuestions(generateQuestions());
+                setRound(0);
+                setSelected(null);
+                setFeedback(null);
+                setScore(0);
+                setGameComplete(false);
+              }}>🔄 Jogar novamente</button>
               <Link to="/games" className="btn btn-ghost">← Outros jogos</Link>
             </div>
           </div>
