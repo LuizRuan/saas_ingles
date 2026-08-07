@@ -180,6 +180,7 @@ const Shop = () => {
             const isConsumable = item.category === 'powerup' || item.type === 'hints' || isWildcard;
             const owned = !isConsumable && (progress.shopItems || []).includes(item.id);
             const wildcardOwned = isWildcard ? (wildcardCounts[item.id] || 0) : 0;
+            const canAfford = balance >= item.price;
             return (
               <div key={item.id} className="card animate-fade-in-up" style={{
                 opacity: owned ? 0.65 : 1,
