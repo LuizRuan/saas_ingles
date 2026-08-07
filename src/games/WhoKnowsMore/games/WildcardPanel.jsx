@@ -9,9 +9,13 @@ const WILDCARD_CONFIGS = [
   { value: 'mute',       id: 'wildcard_mute',       icon: '🤫', name: 'Silenciar' },
 ];
 
-const WildcardPanel = ({ onUseWildcard, isRoundActive = true }) => {
+const EMOTE_OPTIONS = ['😂', '😎', '😱', '🔥', '👏', '💩'];
+
+const WildcardPanel = ({ onUseWildcard, onSendEmote, isRoundActive = true }) => {
   const { progress, useWildcard } = useProgress();
   const [usedInMatch, setUsedInMatch] = useState([]); // array de valores usados nesta partida
+  const [showEmotes, setShowEmotes]   = useState(false);
+  const [emoteCooldown, setEmoteCooldown] = useState(false);
 
   const shopItems = progress.shopItems || [];
 
@@ -21,10 +25,6 @@ const WildcardPanel = ({ onUseWildcard, isRoundActive = true }) => {
     acc[wc.value] = count;
     return acc;
   }, {});
-
-  const hasAnyWildcard = Object.values(inventoryCounts).some(c => c > 0);
-
-  if (!hasAnyWildcard) return null;
 
   const handleActivate = (wc) => {
     if (!isRoundActive) return;
@@ -39,11 +39,48 @@ const WildcardPanel = ({ onUseWildcard, isRoundActive = true }) => {
     }
   };
 
+  const handleEmoteClick = (emoji) => {
+    if (emoteCooldown || !onSendEmote) return;
+    onSendEmote(emoji);
+    setShowEmotes(false);
+    setEmoteCooldown(true);
+    setTimeout(() => setEmoteCooldown(false), 1500);
+  };
+
   return (
     <div className="wildcard-panel animate-fade-in-up">
-      <span style={{ fontSize: 'var(--fs-xs)', fontWeight: 800, color: 'var(--accent-purple, #a855f7)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+      {/* Botão de Reação / Emotes */}
+      <div className="emote-picker-container">
+        <button
+          className="wildcard-btn"
+          onClick={() => setShowEmotes(prev => !prev)}
+          disabled={emoteCooldown}
+          title="Enviar Reação / Emote ao oponente"
+          style={{ background: 'var(--bg-purple-subtle)', borderColor: 'var(--accent-purple, #a855f7)' }}
+        >
+          <span>😀</span>
+          <span>{emoteCooldown ? '...' : 'Reação'}</span>
+        </button>
+
+        {showEmotes && (
+          <div className="emote-picker-popover">
+            {EMOTE_OPTIONS.map(emoji => (
+              <button
+                key={emoji}
+                className="emote-btn-item"
+                onClick={() => handleEmoteClick(emoji)}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <span style={{ fontSize: 'var(--fs-xs)', fontWeight: 800, color: 'var(--accent-purple, #a855f7)', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'var(--space-xs)' }}>
         🃏 Coringas:
       </span>
+
       {WILDCARD_CONFIGS.map(wc => {
         const count = inventoryCounts[wc.value] || 0;
         const used = usedInMatch.includes(wc.value);

@@ -15,6 +15,7 @@ import useSpeech from '../../../hooks/useSpeech';
 import useSound from '../../../hooks/useSound';
 import { useProgress } from '../../../hooks/useProgress';
 import { getCurrentLevel, getUserTitle } from '../../../utils/levelSystem';
+import AvatarDisplay from '../../../components/Avatar/AvatarDisplay';
 import '../../../games/WordBuilder/WordBuilder.css';
 
 // Tempo máximo por rodada — uniforme para todos os tipos
@@ -228,7 +229,7 @@ const DuelBotGame = ({
       {/* Placar */}
       <div className="duel-scoreboard glass-card">
         <div className="player-profile player-profile--you">
-          <div className="avatar">{playerAvatar || '👤'}</div>
+          <AvatarDisplay avatar={playerAvatar || '👤'} size="sm" />
           <div className="profile-info">
             <span className="profile-name">Você</span>
             <span className="profile-title" style={{ fontSize: '11px', color: 'var(--accent-purple-light)', fontWeight: 600 }}>{userTitle.tag}</span>

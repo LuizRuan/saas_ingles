@@ -53,10 +53,17 @@ export const presenceLimiter = rateLimit({
   message: { error: 'Muitos pings de presença.' },
 });
 
+export const feedbackLimiter = rateLimit({
+  ...baseOptions,
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  message: { error: 'Limite de relatórios atingido. Tente novamente mais tarde.' },
+});
+
 // Defesa em profundidade adicional sobre /api inteiro, além dos limites
 // específicos acima.
 export const apiLimiter = rateLimit({
   ...baseOptions,
   windowMs: 15 * 60 * 1000,
-  limit: 300,
+  limit: 100,
 });

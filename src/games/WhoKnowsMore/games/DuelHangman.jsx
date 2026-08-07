@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import useSound from '../../../hooks/useSound';
+import AvatarDisplay from '../../../components/Avatar/AvatarDisplay';
 import '../../../games/HangmanGame/HangmanGame.css';
 
 const MAX_WRONG = 6;
@@ -145,7 +146,7 @@ const DuelHangman = ({
       {/* Placar */}
       <div className="duel-scoreboard glass-card">
         <div className="player-profile player-profile--you">
-          <div className="avatar">{playerAvatar || '👤'}</div>
+          <AvatarDisplay avatar={playerAvatar || '👤'} size="sm" />
           <div className="profile-info">
             <span className="profile-name">Você</span>
             <span className="profile-score">{playerScore} pts</span>

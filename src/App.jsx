@@ -43,6 +43,7 @@ const Settings = lazy(() => import('./pages/Settings'));
 const Shop = lazy(() => import('./pages/Shop'));
 const Register = lazy(() => import('./pages/Register'));
 const Login = lazy(() => import('./pages/Login'));
+const Feedback = lazy(() => import('./pages/Feedback'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 /* Fica DENTRO do Layout, então a navbar não some enquanto o pedaço da rota
@@ -96,6 +97,7 @@ function App() {
               <Route path="/shop" element={<Shop />} />
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/admin/feedback" element={<Feedback />} />
               {/* Sempre por último: React Router casa a primeira Route que bate,
                   então qualquer rota real acima desta continua vencendo. */}
               <Route path="*" element={<NotFound />} />

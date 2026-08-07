@@ -6,6 +6,9 @@ import { randomUUID } from 'node:crypto';
 // [{ socketId, nickname, joinedAt }] — mais antigo primeiro
 export const waitingQueue = [];
 
+// roomCode -> { roomCode, hostSocketId, hostInfo, gameTypePreference, createdAt }
+export const privateRooms = new Map();
+
 /**
  * matchId -> {
  *   id, players: [{ socketId, nickname }], gameType,

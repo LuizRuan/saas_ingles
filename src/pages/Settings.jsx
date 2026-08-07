@@ -7,6 +7,7 @@ import { THEMES, DEFAULT_THEME, applyAnimations } from '../utils/appearance';
 import { clearEntryChoice } from '../utils/entryChoice';
 import { logoutRequest, updateProfileRequest } from '../utils/authClient';
 import { isValidNickname, MAX_NICKNAME_LENGTH } from '../utils/authValidation';
+import AvatarDisplay from '../components/Avatar/AvatarDisplay';
 import { getCurrentLevel, getUserTitle } from '../utils/levelSystem';
 
 const Settings = () => {
@@ -159,14 +160,19 @@ const Settings = () => {
 
                   {!isEditingNickname && hasNickname ? (
                     <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
-                      <label>Apelido</label>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginTop: '4px' }}>
-                        <span style={{ fontSize: 'var(--fs-lg)', fontWeight: 700, color: 'var(--text-primary)' }}>
-                          {profile.nickname}
-                        </span>
-                        <span className="badge badge-purple" style={{ fontSize: 'var(--fs-xs)' }}>
-                          {getUserTitle(getCurrentLevel(progress.wordsStudied || 0).level).tag}
-                        </span>
+                      <label>Apelido & Avatar</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginTop: '8px' }}>
+                        <AvatarDisplay avatar={progress.selectedAvatar || profile?.nickname?.[0]?.toUpperCase() || 'U'} size="md" />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                            <span style={{ fontSize: 'var(--fs-lg)', fontWeight: 700, color: 'var(--text-primary)' }}>
+                              {profile.nickname}
+                            </span>
+                            <span className="badge badge-purple" style={{ fontSize: 'var(--fs-xs)' }}>
+                              {getUserTitle(getCurrentLevel(progress.wordsStudied || 0).level).tag}
+                            </span>
+                          </div>
+                        </div>
                         {cooldownDays > 0 ? (
                           <span className="badge badge-purple" style={{ fontSize: 'var(--fs-xs)' }}>
                             🔒 Alteração em {cooldownDays} dia(s)

@@ -16,6 +16,7 @@ import { useProgress } from '../../../hooks/useProgress';
 import { getCurrentLevel, getUserTitle } from '../../../utils/levelSystem';
 import OnlineHangman from './OnlineHangman';
 import WildcardPanel from './WildcardPanel';
+import AvatarDisplay from '../../../components/Avatar/AvatarDisplay';
 import '../../../games/WordBuilder/WordBuilder.css';
 import '../../../games/MemoryGame/MemoryGame.css';
 
@@ -118,11 +119,13 @@ const DuelOnlineGame = ({
   const [tiles,  setTiles]  = useState(() => question.type === 'wordBuilder' ? makeTiles(question.prompt?.scrambledText?.replace(/ /g, '') || '') : []);
   const [slots,  setSlots]  = useState([]);
 
-  // ── Estados de Coringa (Wildcard) ─────────────────────────────────────────
+  // ── Estados de Coringa (Wildcard) & Emotes ───────────────────────────────
   const [activeEffect, setActiveEffect]   = useState(null); // 'flip' | 'blur' | 'shuffle' | 'mute' | null
   const [alertBanner, setActiveBanner]    = useState(null); // texto de aviso
   const [shuffledOptions, setShuffledOptions] = useState(null);
   const [isMuted, setIsMuted]               = useState(false);
+  const [activeMyEmote, setActiveMyEmote]   = useState(null);
+  const [activeOppEmote, setActiveOppEmote] = useState(null);
 
   const timerRef = useRef(null);
   const submittedRef = useRef(false);
@@ -192,18 +195,21 @@ const DuelOnlineGame = ({
     }
   }, [duel.wildcardEffect]);
 
-  // Efeito do Ladrão de Tempo (notificação de delta)
+  // Escuta emotes recebidos em tempo real
   useEffect(() => {
-    if (!duel.wildcardTimeUpdate) return;
-    const { delta } = duel.wildcardTimeUpdate;
-    if (delta > 0) {
-      setActiveBanner(`⏩ Ladrão de Tempo! +${delta / 1000}s para você!`);
-    } else if (delta < 0) {
-      setActiveBanner(`⏩ Ladrão de Tempo! ${duel.opponent?.nickname || 'Oponente'} roubou ${Math.abs(delta / 1000)}s!`);
+    if (!duel.receivedEmote) return;
+    const { emoji, senderId, id } = duel.receivedEmote;
+    if (senderId === duel.myId) {
+      setActiveMyEmote({ emoji, key: id });
+    } else {
+      setActiveOppEmote({ emoji, key: id });
     }
-    const t = setTimeout(() => setActiveBanner(null), 3000);
-    return () => clearTimeout(t);
-  }, [duel.wildcardTimeUpdate]);
+  }, [duel.receivedEmote, duel.myId]);
+
+  const handleSendEmote = (emoji) => {
+    duel.sendEmote(emoji);
+    setActiveMyEmote({ emoji, key: Date.now() });
+  };
 
   // ── Fala a palavra no Listening ──────────────────────────────────────────
   useEffect(() => {
@@ -257,7 +263,7 @@ const DuelOnlineGame = ({
   };
 
   const timerPct = duel.roundDeadline
-    ? Math.max(0, Math.min(100, ((duel.roundDeadline - Date.now()) / (duel.roundMs ?? 20000)) * 100))
+    ? Math.max(0, Math.min(100, ((duel.roundDeadline - Date.now()) / (duel.roundMs ?? 60000)) * 100))
     : 0;
 
   const currentOptions = shuffledOptions || question.options || [];
@@ -293,9 +299,14 @@ const DuelOnlineGame = ({
       </div>
 
       {/* ── Placar ───────────────────────────────────────────────────────── */}
-      <div className="duel-scoreboard glass-card">
-        <div className="player-profile player-profile--you">
-          <div className="avatar" aria-hidden="true">{playerAvatar}</div>
+      <div className="duel-scoreboard glass-card" style={{ position: 'relative' }}>
+        <div className="player-profile player-profile--you" style={{ position: 'relative' }}>
+          {activeMyEmote && (
+            <div key={activeMyEmote.key} className="floating-emote-bubble">
+              {activeMyEmote.emoji}
+            </div>
+          )}
+          <AvatarDisplay avatar={playerAvatar || '👤'} size="sm" />
           <div className="profile-info">
             <span className="profile-name">Você</span>
             <span className="profile-title" style={{ fontSize: '11px', color: 'var(--accent-purple-light)', fontWeight: 600 }}>{userTitle.tag}</span>
@@ -306,8 +317,13 @@ const DuelOnlineGame = ({
           <span>VS</span>
           <small>Rodada {duel.roundIndex + 1}/{duel.totalRounds}</small>
         </div>
-        <div className="player-profile player-profile--opponent">
-          <div className="avatar" aria-hidden="true">🧑</div>
+        <div className="player-profile player-profile--opponent" style={{ position: 'relative' }}>
+          {activeOppEmote && (
+            <div key={activeOppEmote.key} className="floating-emote-bubble">
+              {activeOppEmote.emoji}
+            </div>
+          )}
+          <AvatarDisplay avatar={duel.opponent?.avatar || '🧑'} size="sm" />
           <div className="profile-info">
             <span className="profile-name">{opName}</span>
             <span className="profile-score">{duel.scores?.[duel.opponent?.id] ?? 0} pts</span>
@@ -324,10 +340,11 @@ const DuelOnlineGame = ({
         <span className="timer-text">⏱️ {timeLeft}s</span>
       </div>
 
-      {/* ── Painel de Ativação de Coringas ──────────────────────────────── */}
+      {/* ── Painel de Ativação de Coringas e Reações ─────────────────────── */}
       {!playerDone && (
         <WildcardPanel
           onUseWildcard={(wcValue) => duel.useWildcard(wcValue)}
+          onSendEmote={handleSendEmote}
           isRoundActive={!playerDone && timeLeft > 0}
         />
       )}

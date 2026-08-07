@@ -1,0 +1,110 @@
+/* ==========================================
+   BugReportModal.css — Botão Flutuante & Modal 🐛
+   ========================================== */
+
+.bug-report-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9990;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-primary, linear-gradient(135deg, #7f00ff, #e100ff));
+  color: white;
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(127, 0, 255, 0.35);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  user-select: none;
+}
+
+.bug-report-fab:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(225, 0, 255, 0.5);
+}
+
+.bug-report-fab:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.bug-report-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+}
+
+.bug-report-modal {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-purple, rgba(168, 85, 247, 0.3));
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.bug-report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.bug-report-header h3 {
+  margin: 0;
+  font-size: var(--fs-lg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bug-report-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.bug-report-textarea:focus {
+  border-color: var(--accent-purple, #a855f7);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+}
+
+.bug-report-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-md);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .bug-report-fab {
+    bottom: 80px;
+    right: 16px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+  }
+}

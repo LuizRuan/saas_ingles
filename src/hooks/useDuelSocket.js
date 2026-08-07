@@ -47,13 +47,16 @@ export const useDuelSocket = () => {
   const [totalRounds, setTotalRounds] = useState(5);
   const [question, setQuestion] = useState(null);
   const [roundDeadline, setRoundDeadline] = useState(null);
-  const [roundMs, setRoundMs] = useState(10_000);
+  const [roundMs, setRoundMs] = useState(60_000);
   const [roundResult, setRoundResult] = useState(null);
   const [scores, setScores] = useState({});
   const [matchEnd, setMatchEnd] = useState(null);
   const [answerError, setAnswerError] = useState(null);
   const [wildcardEffect, setWildcardEffect] = useState(null);   // { wildcardValue, id }
   const [wildcardTimeUpdate, setWildcardTimeUpdate] = useState(null); // { newDeadline, delta }
+  const [receivedEmote, setReceivedEmote] = useState(null);       // { emoji, id, senderId }
+  const [rematchProposed, setRematchProposed] = useState(null);   // { matchId, requesterName, timeoutMs }
+  const [rematchStatus, setRematchStatus]     = useState('idle'); // 'idle' | 'requesting' | 'declined'
 
   const socketRef = useRef(null);
   const matchIdRef = useRef(null);
@@ -135,7 +138,7 @@ export const useDuelSocket = () => {
       setRoundIndex(payload.roundIndex);
       setQuestion(payload.question);
       setRoundDeadline(payload.roundDeadline);
-      setRoundMs(payload.roundMs ?? 10_000);
+      setRoundMs(payload.roundMs ?? 60_000);
       setRoundResult(null);
       setAnswerError(null);
       setMatchState('playing');
@@ -170,6 +173,35 @@ export const useDuelSocket = () => {
       setWildcardTimeUpdate({ newDeadline: payload.newDeadline, delta: payload.delta });
       // Sobrescreve o deadline local para o timer continuar preciso
       setRoundDeadline(payload.newDeadline);
+    });
+
+    socket.on('emote:receive', (payload) => {
+      setReceivedEmote(prev => ({ emoji: payload.emoji, senderId: payload.senderId, id: (prev?.id ?? 0) + 1 }));
+    });
+
+    socket.on('rematch:proposed', (payload) => {
+      setRematchProposed(payload);
+    });
+
+    socket.on('rematch:declined', () => {
+      setRematchStatus('declined');
+      setRematchProposed(null);
+    });
+
+    socket.on('rematch:starting', (payload) => {
+      matchIdRef.current = payload.matchId;
+      const me  = payload.players.find(p => p.id === socket.id);
+      const opp = payload.players.find(p => p.id !== socket.id);
+      setOpponent(opp ?? null);
+      setGameType(payload.gameType);
+      setTotalRounds(payload.totalRounds);
+      setScores({ [me?.id]: 0, [opp?.id]: 0 });
+      setMatchEnd(null);
+      setRoundResult(null);
+      setQuestion(null);
+      setRematchProposed(null);
+      setRematchStatus('idle');
+      setMatchState('match_intro');
     });
 
     return () => {
@@ -243,6 +275,66 @@ export const useDuelSocket = () => {
     });
   }, []);
 
+  /** Envia um emote de reação em tempo real para o oponente. */
+  const sendEmote = useCallback((emoji) => {
+    socketRef.current?.emit('emote:send', {
+      matchId: matchIdRef.current,
+      emoji,
+    }, (ack) => {});
+  }, []);
+
+  /** Criar sala privada e receber código de 5 dígitos para convidar amigo. */
+  const createPrivateRoom = useCallback((gameTypePreference = 'random', nicknameOverride = null) => {
+    return new Promise((resolve) => {
+      setMatchState('queue');
+      socketRef.current?.emit('room:create', {
+        authTicket: authTicketRef.current,
+        nickname: nicknameOverride || getTicketNickname(authTicketRef.current) || 'Jogador',
+        gameTypePreference,
+      }, (ack) => {
+        if (ack?.ok) {
+          resolve({ ok: true, roomCode: ack.roomCode });
+        } else {
+          setMatchState('idle');
+          resolve({ ok: false, error: ack?.error });
+        }
+      });
+    });
+  }, []);
+
+  /** Entrar em sala privada usando o código de 5 dígitos. */
+  const joinPrivateRoom = useCallback((roomCode, nicknameOverride = null) => {
+    return new Promise((resolve) => {
+      setMatchState('queue');
+      socketRef.current?.emit('room:join', {
+        authTicket: authTicketRef.current,
+        nickname: nicknameOverride || getTicketNickname(authTicketRef.current) || 'Jogador',
+        roomCode,
+      }, (ack) => {
+        if (ack?.ok) {
+          resolve({ ok: true });
+        } else {
+          setMatchState('idle');
+          resolve({ ok: false, error: ack?.error });
+        }
+      });
+    });
+  }, []);
+
+  /** Solicitar revanche ao oponente no fim da partida. */
+  const requestRematch = useCallback(() => {
+    setRematchStatus('requesting');
+    socketRef.current?.emit('rematch:request', { matchId: matchIdRef.current }, (ack) => {
+      if (!ack?.ok) setRematchStatus('declined');
+    });
+  }, []);
+
+  /** Responder ao pedido de revanche recebido (aceitar / recusar). */
+  const respondRematch = useCallback((accept) => {
+    socketRef.current?.emit('rematch:respond', { matchId: matchIdRef.current, accept }, () => {});
+    setRematchProposed(null);
+  }, []);
+
   /** Desistir de propósito, pelo botão "Sair" da tela de partida. */
   const forfeit = useCallback(() => {
     socketRef.current?.emit('duel:leave', { matchId: matchIdRef.current }, () => {});
@@ -271,10 +363,10 @@ export const useDuelSocket = () => {
     matchState, queueError, answerError,
     opponent, gameType, roundIndex, totalRounds,
     question, roundDeadline, roundMs, roundResult, scores, matchEnd,
-    wildcardEffect, wildcardTimeUpdate,
+    wildcardEffect, wildcardTimeUpdate, receivedEmote, rematchProposed, rematchStatus,
     myId: myIdRef.current,
     clockOffsetRef,
-    joinQueue, leaveQueue, submitAnswer, guessLetter, forfeit, resetMatch, useWildcard,
+    joinQueue, leaveQueue, submitAnswer, guessLetter, forfeit, resetMatch, useWildcard, sendEmote, requestRematch, respondRematch, createPrivateRoom, joinPrivateRoom,
   };
 };
 

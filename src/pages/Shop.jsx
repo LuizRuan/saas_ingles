@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../hooks/useProgress';
 import useSound from '../hooks/useSound';
+import AvatarDisplay from '../components/Avatar/AvatarDisplay';
 
 // Preços em estrelas. Referência de ganho (ver utils/scoring.js): acerto = 10,
 // bônus de sequência = 20 a cada 5, conclusão de rodada = 50, desafio diário =
@@ -43,6 +44,23 @@ const shopItems = [
   { id: 'avatar_lion',      name: 'Avatar Leão',        description: 'Um leão corajoso como avatar',             icon: '🦁', price: 3150,  category: 'avatar', type: 'avatar', value: '🦁' },
   { id: 'avatar_unicorn',   name: 'Avatar Unicórnio',   description: 'Um unicórnio mágico como avatar',          icon: '🦄', price: 3600,  category: 'avatar', type: 'avatar', value: '🦄' },
   { id: 'avatar_dragon',    name: 'Avatar Dragão',      description: 'Um dragão épico como avatar',              icon: '🐉', price: 4050,  category: 'avatar', type: 'avatar', value: '🐉' },
+  // ── Avatares Animados ✨ ──────────────────────────────────────────────────
+  { id: 'avatar_anim_dragon', name: 'Dragão Flamejante', description: 'Avatar animado com aura de fogo em movimento!', icon: '🔥', price: 7500, category: 'avatar', type: 'avatar', value: 'anim_dragon', isAnimated: true },
+  { id: 'avatar_anim_robot',  name: 'Cyber Robô Neon',   description: 'Avatar animado com anel neon azul pulsante!',    icon: '⚡', price: 6750, category: 'avatar', type: 'avatar', value: 'anim_robot',  isAnimated: true },
+  { id: 'avatar_anim_cosmic', name: 'Astronauta Cósmico', description: 'Avatar animado com flutuação 3D e luz cósmica!', icon: '🌌', price: 8100, category: 'avatar', type: 'avatar', value: 'anim_cosmic', isAnimated: true },
+  { id: 'avatar_anim_king',   name: 'Rei Dourado',       description: 'Avatar animado com halo dourado e brilhantes!',  icon: '👑', price: 9000, category: 'avatar', type: 'avatar', value: 'anim_king',   isAnimated: true },
+  { id: 'avatar_anim_ghost',  name: 'Fantasma Místico',  description: 'Avatar animado com ondas roxas translúcidas!', icon: '👻', price: 5400, category: 'avatar', type: 'avatar', value: 'anim_ghost',  isAnimated: true },
+
+  // ── Títulos Animados e Coloridos 🏷️ ─────────────────────────────────────────
+  { id: 'title_anim_rainbow', name: 'Lenda do Inglês', description: 'Título com gradiente arco-íris giratório contínuo!', icon: '🌈', price: 9000, category: 'titulo', type: 'title', value: 'title-animated-rainbow', isAnimated: true },
+  { id: 'title_anim_neon',    name: 'Mestre Neon',     description: 'Título em ciano com brilho e pulso néon elétrico!', icon: '⚡', price: 6750, category: 'titulo', type: 'title', value: 'title-animated-neon',    isAnimated: true },
+  { id: 'title_anim_fire',    name: 'Imparável',        description: 'Título em chamas com degradê vermelho e amarelo!', icon: '🔥', price: 7500, category: 'titulo', type: 'title', value: 'title-animated-fire',    isAnimated: true },
+  { id: 'title_anim_diamond', name: 'Diamante',         description: 'Título em prata cristalina com feixes reluzentes!', icon: '💎', price: 8100, category: 'titulo', type: 'title', value: 'title-animated-diamond', isAnimated: true },
+
+  // ── Pacotes de Som 🎵 ──────────────────────────────────────────────────────
+  { id: 'soundpack_retro',     name: 'Sons 8-Bit Retro',    description: 'Transforma os efeitos sonoros em estilo videogame 8-bit NES!', icon: '🕹️', price: 4500, category: 'som', type: 'soundpack', value: 'retro' },
+  { id: 'soundpack_scifi',     name: 'Sci-Fi Cyberpunk',    description: 'Sintetizador futurista e efeitos sonoros laser sci-fi!',       icon: '🚀', price: 4500, category: 'som', type: 'soundpack', value: 'scifi' },
+  { id: 'soundpack_orchestra', name: 'Orquestra Majestosa', description: 'Acordes harmônicos clássicos e timbres de vitória!',          icon: '🎻', price: 4500, category: 'som', type: 'soundpack', value: 'orchestra' },
 
   // ── Efeitos ───────────────────────────────────────────────────────────────
   { id: 'confetti',   name: 'Confetti',            description: 'Chuva de confete a cada resposta certa',      icon: '🎊', price: 3150,  category: 'efeito', type: 'effect', value: 'confetti'  },
@@ -62,11 +80,13 @@ const shopItems = [
 
 const categories = [
   { id: 'all', name: 'Todos', icon: '🏪' },
-  { id: 'tema', name: 'Temas', icon: '🎨' },
-  { id: 'powerup', name: 'Power-ups', icon: '⚡' },
-  { id: 'avatar', name: 'Avatares', icon: '😊' },
-  { id: 'efeito', name: 'Efeitos', icon: '✨' },
-  { id: 'coringa', name: 'Coringa 🌐', icon: '🃏' },
+  { id: 'tudo',    name: 'Todos os Itens',    icon: '🛍️' },
+  { id: 'powerup', name: 'Power-ups',       icon: '⚡' },
+  { id: 'avatar',  name: 'Avatares',        icon: '😊' },
+  { id: 'titulo',  name: 'Títulos 🏷️',      icon: '🏷️' },
+  { id: 'som',     name: 'Pacotes de Som 🎵', icon: '🎵' },
+  { id: 'efeito',  name: 'Efeitos',         icon: '✨' },
+  { id: 'coringa', name: 'Coringas 🃏',      icon: '🃏' },
 ];
 
 const Shop = () => {
@@ -100,6 +120,8 @@ const Shop = () => {
     let msg = `🎉 Você comprou "${item.name}"!`;
     if (item.type === 'theme')  msg += ' 🎨 Tema aplicado automaticamente!';
     if (item.type === 'avatar') msg += ' 👤 Avatar equipado!';
+    if (item.type === 'title') msg += ' 🏷️ Título equipado!';
+    if (item.type === 'soundpack') msg += ' 🎵 Pacote de som equipado!';
     if (item.type === 'effect') msg += ' ✨ Efeito ativado — aparece nos acertos!';
 
     setBuyResult({ type: 'success', message: msg });
@@ -187,17 +209,35 @@ const Shop = () => {
                 borderColor: owned ? 'var(--accent-green)' : item.category === 'coringa' ? 'var(--accent-purple, #a855f7)' : undefined,
               }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-md)' }}>
-                  <div style={{
-                    width: 52, height: 52, minWidth: 52,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    borderRadius: 'var(--radius-lg)', fontSize: '1.5rem',
-                    background: owned ? 'var(--bg-green-subtle)' : item.category === 'coringa' ? 'var(--bg-purple-subtle)' : 'var(--bg-purple-subtle)',
-                  }}>
-                    {item.icon}
-                  </div>
+                  {item.type === 'avatar' ? (
+                    <AvatarDisplay avatar={item.value} size="md" />
+                  ) : (
+                    <div style={{
+                      width: 52, height: 52, minWidth: 52,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      borderRadius: 'var(--radius-lg)', fontSize: '1.5rem',
+                      background: owned ? 'var(--bg-green-subtle)' : item.category === 'coringa' ? 'var(--bg-purple-subtle)' : 'var(--bg-purple-subtle)',
+                    }}>
+                      {item.icon}
+                    </div>
+                  )}
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)', flexWrap: 'wrap', marginBottom: 2 }}>
-                      <h4 style={{ fontSize: 'var(--fs-base)', margin: 0 }}>{item.name}</h4>
+                      <h4 style={{ fontSize: 'var(--fs-base)', margin: 0 }}>
+                        {item.type === 'title' ? (
+                          <span className={item.value}>{item.name}</span>
+                        ) : (
+                          item.name
+                        )}
+                      </h4>
+                      {item.isAnimated && (
+                        <span style={{
+                          fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px',
+                          borderRadius: 99, background: 'linear-gradient(135deg, #7f00ff, #e100ff)',
+                          color: '#fff', letterSpacing: '0.05em', textTransform: 'uppercase',
+                          boxShadow: '0 0 8px rgba(225, 0, 255, 0.4)',
+                        }}>✨ Animado</span>
+                      )}
                       {item.category === 'coringa' && (
                         <span style={{
                           fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px',

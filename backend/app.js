@@ -6,6 +6,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { authRouter } from './routes/auth.routes.js';
 import { presenceRouter } from './routes/presence.routes.js';
 import { duelRouter } from './routes/duel.routes.js';
+import { feedbackRouter } from './routes/feedback.routes.js';
 
 // Monta e exporta o app SEM chamar listen() — testável (supertest) sem
 // precisar de uma porta real, e reutilizável por server.js.
@@ -18,7 +19,7 @@ export const app = express();
 // número de saltos diferente — direto no Render são 3, passando pela Vercel são
 // 4 — e um único número aqui não serve para as duas. Quem resolve o IP do
 // cliente agora é utils/clientIp.js, contando da direita para a esquerda.
-// Nunca trocar por `true`: aceitaria X-Forwarded-For forjado por qualquer um.
+// Nunca trocar por `true`: aceitaria X-Forwarded-For forjado por qualquer one.
 app.set('trust proxy', 1);
 
 app.use(securityHeaders);
@@ -32,6 +33,7 @@ app.use('/api', apiLimiter);
 app.use('/api/auth', authRouter);
 app.use('/api/presence', presenceRouter);
 app.use('/api/duel', duelRouter);
+app.use('/api/feedback', feedbackRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 

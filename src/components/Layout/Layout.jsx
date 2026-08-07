@@ -4,6 +4,8 @@ import { useAuthProfile } from '../../hooks/useAuthProfile';
 import { ROTAS_LIVRES } from '../../utils/entryChoice';
 import Celebration from '../Celebration/Celebration';
 import NicknamePrompt from '../Auth/NicknamePrompt';
+import AvatarDisplay from '../Avatar/AvatarDisplay';
+import BugReportModal from '../BugReport/BugReportModal';
 import './Layout.css';
 
 const Layout = ({ children }) => {
@@ -83,9 +85,9 @@ const Layout = ({ children }) => {
                 {profile.nickname.length > 10 ? `${profile.nickname.slice(0, 10)}...` : profile.nickname}
               </NavLink>
             )}
-            <NavLink to="/settings" className="navbar-avatar"
+            <NavLink to="/settings" style={{ textDecoration: 'none' }}
               aria-label={estaLogado ? `Perfil de ${profile.nickname || profile.email}` : 'Configurações e perfil'}>
-              {progress.selectedAvatar || 'U'}
+              <AvatarDisplay avatar={progress.selectedAvatar || profile?.nickname?.[0]?.toUpperCase() || 'U'} size="sm" />
             </NavLink>
           </div>
         </div>
@@ -146,6 +148,9 @@ const Layout = ({ children }) => {
       {/* Por cima de qualquer tela, sem botão de pular — ver NicknamePrompt.jsx
           pro porquê de ser obrigatório. */}
       {precisaEscolherApelido && <NicknamePrompt onSaved={applyNickname} />}
+
+      {/* Botão Flutuante de Reportar Bug 🐛 */}
+      <BugReportModal />
     </div>
   );
 };

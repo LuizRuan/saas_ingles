@@ -12,6 +12,7 @@ import { presenceLabel } from '../../utils/presenceLabel';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import { getUserTitle } from '../../utils/levelSystem';
+import AvatarDisplay from '../../components/Avatar/AvatarDisplay';
 import DuelHangman from './games/DuelHangman';
 import DuelMemory  from './games/DuelMemory';
 import DuelBotGame from './games/DuelBotGame';
@@ -61,10 +62,31 @@ const WhoKnowsMore = () => {
   // 'bot' | 'human'
   const [mode, setMode] = useState('bot');
   const [gameState, setGameState] = useState('lobby'); // lobby | playing | gameover
-  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showSearchModal, setShowSearchModal]   = useState(false);
+  const [showRankedTooltip, setShowRankedTooltip] = useState(false);
+  const [showFullRankedModal, setShowFullRankedModal] = useState(false);
+  
+  // Estados para Sala Privada com Amigos
+  const [showPrivateRoomModal, setShowPrivateRoomModal] = useState(false);
+  const [privateRoomMode, setPrivateRoomMode]         = useState('create'); // 'create' | 'join' | 'waiting'
+  const [createdRoomCode, setCreatedRoomCode]         = useState('');
+  const [joinRoomInput, setJoinRoomInput]             = useState('');
+  const [privateRoomError, setPrivateRoomError]       = useState(null);
+  const [linkCopied, setLinkCopied]                   = useState(false);
+
+  // Auto-join via URL ?room=AB7X2
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomCodeFromUrl = urlParams.get('room');
+    if (roomCodeFromUrl && connected) {
+      duel.joinPrivateRoom(roomCodeFromUrl).then((res) => {
+        if (!res.ok) setPrivateRoomError(res.error || 'Não foi possível entrar na sala.');
+      });
+    }
+  }, [connected]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [showBotSetupModal, setShowBotSetupModal] = useState(false);
   const [confirmExit, setConfirmExit] = useState(false);
-  const [showRankedTooltip, setShowRankedTooltip] = useState(false);
 
   const [leaderboard, setLeaderboard] = useState([]);
   const [leaderboardStatus, setLeaderboardStatus] = useState('loading'); // loading | loaded | error
@@ -647,6 +669,22 @@ const WhoKnowsMore = () => {
                   ⚙️ Escolher Jogo &amp; Duelar
                 </button>
               </div>
+
+              {/* SALA PRIVADA COM AMIGOS */}
+              <div className="mode-card glass-card" onClick={() => { setShowPrivateRoomModal(true); setPrivateRoomMode('create'); }} style={{ border: '2px solid var(--accent-purple, #a855f7)' }}>
+                <span className="badge badge-purple mode-badge">WhatsApp 📲</span>
+                <div className="mode-icon" aria-hidden="true">🔗</div>
+                <h3>Sala Privada (Amigos)</h3>
+                <p>Crie um código de 5 dígitos ou envie um link direto no WhatsApp para jogar!</p>
+                <button
+                  className="btn btn-secondary"
+                  style={{ marginTop: 'var(--space-md)', width: '100%', borderColor: 'var(--accent-purple, #a855f7)', color: 'var(--accent-purple, #a855f7)' }}
+                  onClick={() => { setShowPrivateRoomModal(true); setPrivateRoomMode('create'); }}
+                  disabled={!connected}
+                >
+                  🔗 Convidar Amigo
+                </button>
+              </div>
             </div>
 
             {/* ─── Seção Ranked / Top 5 do Mês ─────────────────────────────── */}
@@ -704,7 +742,7 @@ const WhoKnowsMore = () => {
                         </div>
 
                         <div className="ranked-player-col">
-                          <div className="ranked-avatar" aria-hidden="true">{entry.avatar || 'U'}</div>
+                          <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
                           <div className="ranked-player-details">
                             <span className="ranked-player-name">{entry.nickname}</span>
                             <span className="ranked-player-tag">{entry.title || getUserTitle(entry.level || 1).tag}</span>
@@ -918,9 +956,20 @@ const WhoKnowsMore = () => {
             )}
 
             <div className="gameover-actions">
-              {/* Repete o MESMO modo com as MESMAS configurações. Antes este
-                  botão abria um modal que não conseguia montar deste estado e,
-                  de quebra, reescrevia o resultado como empate 0 a 0. */}
+              {isHuman && (
+                <button
+                  className="btn btn-primary btn-lg"
+                  onClick={() => duel.requestRematch()}
+                  disabled={duel.rematchStatus === 'requesting'}
+                  style={{ background: 'var(--gradient-primary)' }}
+                >
+                  {duel.rematchStatus === 'requesting'
+                    ? '⏳ Solicitando Revanche...'
+                    : duel.rematchStatus === 'declined'
+                    ? '❌ Revanche Recusada'
+                    : '🔄 Pedir Revanche'}
+                </button>
+              )}
               <button
                 className="btn btn-primary btn-lg"
                 onClick={() => {
@@ -928,7 +977,7 @@ const WhoKnowsMore = () => {
                   else startBotGame();
                 }}
               >
-                🔁 Jogar Novamente
+                🔁 Procurar Novo Duelo
               </button>
               <button
                 className="btn btn-secondary btn-lg"
@@ -943,10 +992,173 @@ const WhoKnowsMore = () => {
           </div>
         )}
 
-        {/* ============ MODAIS ============
-            Fora de qualquer bloco de gameState, de propósito: antes viviam
-            dentro do bloco do lobby, então qualquer tentativa de abri-los a
-            partir da tela de resultado simplesmente não montava nada. */}
+        {/* Modal de Revanche Recebida */}
+        {isHuman && duel.rematchProposed && (
+          <div className="modal-backdrop animate-fade-in" style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-md)'
+          }}>
+            <div className="modal-card glass-card animate-bounce-in" style={{ maxWidth: 420, textAlign: 'center', padding: 'var(--space-xl)' }}>
+              <div style={{ fontSize: '3rem', marginBottom: 'var(--space-sm)' }}>🔄</div>
+              <h2>Pedido de Revanche!</h2>
+              <p className="text-secondary" style={{ margin: 'var(--space-sm) 0 var(--space-lg)' }}>
+                <strong>{duel.rematchProposed.requesterName}</strong> quer jogar uma revanche agora mesmo!
+              </p>
+              <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center' }}>
+                <button
+                  className="btn btn-primary btn-lg"
+                  onClick={() => duel.respondRematch(true)}
+                >
+                  ✅ Aceitar Revanche
+                </button>
+                <button
+                  className="btn btn-ghost btn-lg"
+                  onClick={() => duel.respondRematch(false)}
+                >
+                  ❌ Recusar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Modal de Sala Privada com Amigos */}
+        {showPrivateRoomModal && (
+          <div className="modal-backdrop animate-fade-in" onClick={() => setShowPrivateRoomModal(false)} style={{
+            position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-md)'
+          }}>
+            <div className="modal-card glass-card animate-bounce-in" onClick={e => e.stopPropagation()} style={{ maxWidth: 460, width: '100%', textAlign: 'center', padding: 'var(--space-xl)' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-sm)', marginBottom: 'var(--space-md)' }}>
+                <button
+                  className={`btn ${privateRoomMode !== 'join' ? 'btn-primary' : 'btn-ghost'} btn-sm`}
+                  onClick={() => { setPrivateRoomMode('create'); setPrivateRoomError(null); }}
+                >
+                  ➕ Criar Sala
+                </button>
+                <button
+                  className={`btn ${privateRoomMode === 'join' ? 'btn-primary' : 'btn-ghost'} btn-sm`}
+                  onClick={() => { setPrivateRoomMode('join'); setPrivateRoomError(null); }}
+                >
+                  🔑 Entrar com Código
+                </button>
+              </div>
+
+              {privateRoomMode === 'create' && (
+                <div>
+                  <h3 style={{ marginBottom: 'var(--space-xs)' }}>🔗 Criar Sala Privada</h3>
+                  <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
+                    Gere um código de 5 dígitos para convidar seu amigo pelo WhatsApp!
+                  </p>
+                  <button
+                    className="btn btn-primary btn-lg"
+                    style={{ width: '100%' }}
+                    onClick={async () => {
+                      const res = await duel.createPrivateRoom('random', myNickname);
+                      if (res.ok) {
+                        setCreatedRoomCode(res.roomCode);
+                        setPrivateRoomMode('waiting');
+                      } else {
+                        setPrivateRoomError(res.error);
+                      }
+                    }}
+                  >
+                    🎲 Criar Sala Privada
+                  </button>
+                </div>
+              )}
+
+              {privateRoomMode === 'waiting' && (
+                <div>
+                  <span style={{ fontSize: '2.5rem' }}>⌛</span>
+                  <h3>Aguardando amigo entrar…</h3>
+                  <div style={{
+                    margin: 'var(--space-md) 0', padding: 'var(--space-md)',
+                    background: 'var(--bg-purple-subtle)', borderRadius: 'var(--radius-lg)',
+                    border: '1px dashed var(--accent-purple, #a855f7)'
+                  }}>
+                    <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-secondary)' }}>CÓDIGO DA SALA</div>
+                    <div style={{ fontSize: 'var(--fs-3xl)', fontWeight: 800, letterSpacing: '0.2em', color: 'var(--accent-purple, #a855f7)' }}>
+                      {createdRoomCode}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)' }}>
+                    <a
+                      className="btn btn-primary btn-md"
+                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Vem jogar um duelo de inglês comigo no EnglishPlay! 🎮🇺🇸\nEntra por este link: ${window.location.origin}/who-knows-more?room=${createdRoomCode}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ background: '#25D366', borderColor: '#25D366', color: '#fff', textDecoration: 'none' }}
+                    >
+                      📲 Convidar via WhatsApp
+                    </a>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/who-knows-more?room=${createdRoomCode}`);
+                        setLinkCopied(true);
+                        setTimeout(() => setLinkCopied(false), 2500);
+                      }}
+                    >
+                      {linkCopied ? '✅ Link Copiado!' : '📋 Copiar Link Direto'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {privateRoomMode === 'join' && (
+                <div>
+                  <h3 style={{ marginBottom: 'var(--space-xs)' }}>🔑 Entrar em Sala Privada</h3>
+                  <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
+                    Digite o código de 5 dígitos recebido do seu amigo:
+                  </p>
+                  <input
+                    type="text"
+                    placeholder="Ex: AB7X2"
+                    maxLength={5}
+                    value={joinRoomInput}
+                    onChange={e => setJoinRoomInput(e.target.value.toUpperCase())}
+                    style={{
+                      textAlign: 'center', fontSize: 'var(--fs-xl)', letterSpacing: '0.2em',
+                      fontWeight: 800, textTransform: 'uppercase', marginBottom: 'var(--space-md)'
+                    }}
+                  />
+                  <button
+                    className="btn btn-primary btn-lg"
+                    style={{ width: '100%' }}
+                    disabled={joinRoomInput.length < 5}
+                    onClick={async () => {
+                      const res = await duel.joinPrivateRoom(joinRoomInput, myNickname);
+                      if (res.ok) {
+                        setShowPrivateRoomModal(false);
+                      } else {
+                        setPrivateRoomError(res.error);
+                      }
+                    }}
+                  >
+                    🚀 Entrar na Sala
+                  </button>
+                </div>
+              )}
+
+              {privateRoomError && (
+                <p style={{ color: 'var(--accent-red)', fontSize: 'var(--fs-sm)', marginTop: 'var(--space-md)', fontWeight: 600 }}>
+                  ⚠️ {privateRoomError}
+                </p>
+              )}
+
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setShowPrivateRoomModal(false)}
+                style={{ marginTop: 'var(--space-md)' }}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        )}
+
         {showSearchModal && (
           <div className="modal-overlay" onClick={cancelHumanSearch}>
             <div className="modal-content glass-card animate-bounce-in" onClick={(e) => e.stopPropagation()}>
@@ -1169,7 +1381,7 @@ const WhoKnowsMore = () => {
                       </div>
 
                       <div className="ranked-player-col">
-                        <div className="ranked-avatar" aria-hidden="true">{entry.avatar || 'U'}</div>
+                        <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
                         <div className="ranked-player-details">
                           <span className="ranked-player-name">{entry.nickname}</span>
                           <span className="ranked-player-tag">{entry.title || getUserTitle(entry.level || 1).tag}</span>

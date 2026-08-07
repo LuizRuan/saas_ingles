@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import { env } from '../config/env.js';
 import {
-  waitingQueue, matches, tryMatch, createMatch,
+  waitingQueue, privateRooms, matches, tryMatch, createMatch,
   removeFromQueue, findMatchBySocket, destroyMatch,
 } from './state.js';
 import {
@@ -18,7 +18,7 @@ import { awardTrophy } from './trophyAward.js';
 // Tempos padrão. Injetáveis para o teste de integração rodar uma partida de 5
 // rodadas em milissegundos em vez de ~1 minuto.
 export const DEFAULT_TIMING = {
-  roundMs: 20_000,            // 20s por rodada (igualado ao DuelBotGame)
+  roundMs: 60_000,            // 60s por rodada
   roundTimeoutMarginMs: 2_000, // tolerância de rede além do prazo
   roundPauseMs: 2_500,         // pausa para revelar o resultado
   matchIntroMs: 1_500,         // banner "Oponente encontrado!" antes da 1ª rodada
@@ -353,6 +353,173 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       }
 
       ack?.({ ok: true });
+    });
+
+    // ─── Emotes de Reação ────────────────────────────────────────────────────
+    socket.on('emote:send', (payload, ack) => {
+      if (isRateLimited(`emote:${socket.id}`, { windowMs: 2_000, max: 1 })) {
+        return ack?.({ ok: false, error: 'Aguarde para enviar outro emote.' });
+      }
+
+      const { matchId, emoji } = payload ?? {};
+      const match = matches.get(matchId);
+      if (!match) return ack?.({ ok: false, error: 'Partida não encontrada.' });
+
+      const opponent = match.players.find(p => p.socketId !== socket.id);
+      if (opponent) {
+        io.to(opponent.socketId).emit('emote:receive', { senderId: socket.id, emoji });
+      }
+      ack?.({ ok: true });
+    });
+
+    // ─── Revanche Imediata ───────────────────────────────────────────────────
+    socket.on('rematch:request', (payload, ack) => {
+      const { matchId } = payload ?? {};
+      // Procura o oponente na partida (ou partida recém encerrada)
+      const lastMatch = matches.get(matchId);
+      if (!lastMatch) return ack?.({ ok: false, error: 'Partida não encontrada para revanche.' });
+
+      const opponent = lastMatch.players.find(p => p.socketId !== socket.id);
+      if (!opponent) return ack?.({ ok: false, error: 'Oponente não encontrado.' });
+
+      // Notifica o oponente sobre a revanche solicitada (15s timeout)
+      io.to(opponent.socketId).emit('rematch:proposed', {
+        matchId,
+        requesterName: lastMatch.players.find(p => p.socketId === socket.id)?.nickname || 'Oponente',
+        timeoutMs: 15_000,
+      });
+      ack?.({ ok: true });
+    });
+
+    socket.on('rematch:respond', (payload, ack) => {
+      const { matchId, accept } = payload ?? {};
+      const lastMatch = matches.get(matchId);
+
+      if (!accept) {
+        const requester = lastMatch?.players.find(p => p.socketId !== socket.id);
+        if (requester) {
+          io.to(requester.socketId).emit('rematch:declined', { reason: 'refused' });
+        }
+        return ack?.({ ok: true });
+      }
+
+      if (!lastMatch) return ack?.({ ok: false, error: 'Partida expirada.' });
+
+      // Se aceitou: cria uma nova partida direta entre os 2 instantaneamente
+      const players = lastMatch.players;
+      const gameType = pickRandomGameType();
+      const newMatch = createMatch(players, gameType);
+      const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname }));
+
+      for (const p of players) {
+        io.sockets.sockets.get(p.socketId)?.join(roomName(newMatch.id));
+      }
+
+      io.to(roomName(newMatch.id)).emit('rematch:starting', {
+        matchId: newMatch.id,
+        gameType: newMatch.gameType,
+        totalRounds: timing.totalRounds,
+        players: publicPlayers,
+      });
+
+      newMatch.pauseTimer = setTimeout(() => {
+        if (matches.has(newMatch.id)) startRound(newMatch);
+      }, timing.matchIntroMs);
+
+      ack?.({ ok: true });
+    });
+
+    // ─── Salas Privadas com Amigos ────────────────────────────────────────────
+    socket.on('room:create', (payload, ack) => {
+      // Gera um código único de 5 caracteres alfanuméricos em maiúsculas (ex: AB7X2)
+      let roomCode = '';
+      const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      for (let i = 0; i < 5; i++) {
+        roomCode += CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+      }
+
+      let identity = { userId: null, avatar: null, ticketNickname: null };
+      if (payload?.authTicket) {
+        try {
+          const claim = verifyDuelTicket(payload.authTicket);
+          identity = { userId: claim.sub, avatar: claim.avatar, ticketNickname: claim.nickname };
+        } catch {}
+      }
+
+      const nickname = sanitizeNickname(identity.ticketNickname ?? payload?.nickname);
+      const rawPref = payload?.gameTypePreference;
+      const gameTypePreference = GAME_TYPE_IDS.includes(rawPref) ? rawPref : 'random';
+
+      const hostInfo = {
+        socketId: socket.id,
+        nickname,
+        userId: identity.userId,
+        avatar: identity.avatar,
+      };
+
+      privateRooms.set(roomCode, {
+        roomCode,
+        hostSocketId: socket.id,
+        hostInfo,
+        gameTypePreference,
+        createdAt: Date.now(),
+      });
+
+      ack?.({ ok: true, roomCode });
+    });
+
+    socket.on('room:join', (payload, ack) => {
+      const roomCode = (payload?.roomCode || '').toUpperCase().trim();
+      const room = privateRooms.get(roomCode);
+
+      if (!room) {
+        return ack?.({ ok: false, error: 'Sala privada não encontrada ou expirada.' });
+      }
+
+      if (room.hostSocketId === socket.id) {
+        return ack?.({ ok: false, error: 'Você já é o criador desta sala.' });
+      }
+
+      let identity = { userId: null, avatar: null, ticketNickname: null };
+      if (payload?.authTicket) {
+        try {
+          const claim = verifyDuelTicket(payload.authTicket);
+          identity = { userId: claim.sub, avatar: claim.avatar, ticketNickname: claim.nickname };
+        } catch {}
+      }
+
+      const nickname = sanitizeNickname(identity.ticketNickname ?? payload?.nickname);
+      const joinerInfo = {
+        socketId: socket.id,
+        nickname,
+        userId: identity.userId,
+        avatar: identity.avatar,
+      };
+
+      const players = [room.hostInfo, joinerInfo];
+      const gameType = room.gameTypePreference === 'random' ? pickRandomGameType() : room.gameTypePreference;
+
+      privateRooms.delete(roomCode);
+
+      const match = createMatch(players, gameType);
+      const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname }));
+
+      for (const p of players) {
+        io.sockets.sockets.get(p.socketId)?.join(roomName(match.id));
+      }
+
+      io.to(roomName(match.id)).emit('match:found', {
+        matchId: match.id,
+        gameType: match.gameType,
+        totalRounds: timing.totalRounds,
+        players: publicPlayers,
+      });
+
+      match.pauseTimer = setTimeout(() => {
+        if (matches.has(match.id)) startRound(match);
+      }, timing.matchIntroMs);
+
+      ack?.({ ok: true, matchId: match.id });
     });
 
     socket.on('disconnect', () => {

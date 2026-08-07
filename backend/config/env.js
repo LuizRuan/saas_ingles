@@ -20,11 +20,15 @@ if (!jwtSecret) {
 const rawOrigins = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
 const frontendOrigins = rawOrigins.split(',').map(o => o.trim()).filter(Boolean);
 
+const rawAdminEmails = process.env.ADMIN_EMAILS || '';
+const adminEmails = rawAdminEmails.split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+
 export const env = {
   port: Number(process.env.PORT) || 5000,
   mongoUri: process.env.MONGODB_URI || null,
   jwtSecret,
   frontendOrigins,
+  adminEmails,
   // Mantido no singular para quem só precisa de uma (logs, mensagens).
   frontendOrigin: frontendOrigins[0],
   isProduction,

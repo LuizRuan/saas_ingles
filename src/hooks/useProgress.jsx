@@ -296,6 +296,12 @@ export const ProgressProvider = ({ children }) => {
       if (item.type === 'avatar') {
         updated.selectedAvatar = item.value;
       }
+      if (item.type === 'title') {
+        updated.selectedTitle = item.value;
+      }
+      if (item.type === 'soundpack') {
+        updated.selectedSoundPack = item.value;
+      }
       if (item.type === 'theme') {
         updated.selectedTheme = item.value;
       }

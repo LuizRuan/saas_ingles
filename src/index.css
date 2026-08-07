@@ -724,6 +724,7 @@ select {
   font-weight: 700;
   font-size: var(--fs-sm);
   color: var(--text-primary);
+  flex-shrink: 0;
 }
 
 .navbar-stat span:first-child { font-size: 1rem; }
@@ -737,6 +738,7 @@ select {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .navbar-avatar {
@@ -1079,4 +1081,67 @@ select {
   .hide-desktop { display: flex !important; }
   .page { padding-bottom: 80px; }
   .container { padding: 0 var(--space-md); }
+}
+
+/* ==========================================
+   TÍTULOS ANIMADOS E COLORIDOS 🌈⚡🔥💎
+   ========================================== */
+
+.title-animated-rainbow {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff, #ff0000);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow-shift 3s linear infinite;
+  font-weight: 800 !important;
+}
+
+@keyframes rainbow-shift {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.title-animated-neon {
+  color: #00f2fe !important;
+  text-shadow: 0 0 6px #00f2fe, 0 0 12px #4facfe;
+  animation: neon-pulse 1.5s ease-in-out infinite alternate;
+  font-weight: 800 !important;
+}
+
+@keyframes neon-pulse {
+  0% { text-shadow: 0 0 4px #00f2fe, 0 0 10px #4facfe; }
+  100% { text-shadow: 0 0 10px #00f2fe, 0 0 22px #00f2fe, 0 0 30px #4facfe; }
+}
+
+.title-animated-fire {
+  background: linear-gradient(0deg, #ff4500, #ffa500, #ffff00);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: flame-pulse 1.2s ease-in-out infinite alternate;
+  font-weight: 800 !important;
+}
+
+@keyframes flame-pulse {
+  0% { filter: drop-shadow(0 0 2px #ff4500); }
+  100% { filter: drop-shadow(0 0 8px #ff0000); }
+}
+
+.title-animated-diamond {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 4px #38bdf8);
+  font-weight: 800 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-animated-rainbow,
+  .title-animated-neon,
+  .title-animated-fire,
+  .title-animated-diamond {
+    animation: none !important;
+  }
 }
