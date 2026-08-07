@@ -78,7 +78,7 @@ const WhoKnowsMore = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomCodeFromUrl = urlParams.get('room');
-    if (roomCodeFromUrl && connected) {
+    if (roomCodeFromUrl && duel.connected) {
       // Limpa o parâmetro ?room= da URL para não repetir a requisição ao reconectar
       window.history.replaceState({}, document.title, window.location.pathname);
       duel.joinPrivateRoom(roomCodeFromUrl).then((res) => {
@@ -90,7 +90,7 @@ const WhoKnowsMore = () => {
         }
       });
     }
-  }, [connected]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [duel.connected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [showBotSetupModal, setShowBotSetupModal] = useState(false);
   const [confirmExit, setConfirmExit] = useState(false);
