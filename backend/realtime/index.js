@@ -177,7 +177,7 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       // src/utils/duelReward.js): fechava um farm de ~1000 estrelas/minuto.
       reason: 'opponent_left',
     });
-    destroyMatch(match.id);
+    destroyMatch(match.id, 0);
   };
 
   const startMatchIfPossible = () => {
@@ -388,12 +388,21 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
         requesterName: lastMatch.players.find(p => p.socketId === socket.id)?.nickname || 'Oponente',
         timeoutMs: 15_000,
       });
+
+      // Limpa timer anterior se houver e agenda recusa por timeout
+      if (lastMatch.rematchTimer) clearTimeout(lastMatch.rematchTimer);
+      lastMatch.rematchTimer = setTimeout(() => {
+        io.to(socket.id).emit('rematch:declined', { reason: 'timeout' });
+      }, 15_000);
+
       ack?.({ ok: true });
     });
 
     socket.on('rematch:respond', (payload, ack) => {
       const { matchId, accept } = payload ?? {};
       const lastMatch = matches.get(matchId);
+
+      if (lastMatch?.rematchTimer) clearTimeout(lastMatch.rematchTimer);
 
       if (!accept) {
         const requester = lastMatch?.players.find(p => p.socketId !== socket.id);
@@ -407,6 +416,8 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
 
       // Se aceitou: cria uma nova partida direta entre os 2 instantaneamente
       const players = lastMatch.players;
+      destroyMatch(matchId, 0); // Destrói a anterior já que iniciou revanche
+
       const gameType = pickRandomGameType();
       const newMatch = createMatch(players, gameType);
       const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname }));
@@ -525,12 +536,15 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
     socket.on('disconnect', () => {
       removeFromQueue(socket.id);
 
-      // Limpa salas privadas criadas por este socket que ainda não tinham começado
-      for (const [code, room] of privateRooms.entries()) {
-        if (room.hostSocketId === socket.id) {
-          privateRooms.delete(code);
+      // Limpa salas privadas criadas por este socket que ainda não tinham começado (aguarda 20s para tratar reconexões rápidas de rede)
+      const socketIdToClean = socket.id;
+      setTimeout(() => {
+        for (const [code, room] of privateRooms.entries()) {
+          if (room.hostSocketId === socketIdToClean) {
+            privateRooms.delete(code);
+          }
         }
-      }
+      }, 20_000);
 
       const match = findMatchBySocket(socket.id);
       if (match) endByLeave(match, socket.id);

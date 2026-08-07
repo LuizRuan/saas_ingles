@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { shuffleArray } from '../../../data/words';
 import useSound from '../../../hooks/useSound';
+import useSpeech from '../../../hooks/useSpeech';
 import AvatarDisplay from '../../../components/Avatar/AvatarDisplay';
 import '../../../games/MemoryGame/MemoryGame.css';
 
@@ -47,6 +48,7 @@ const DuelMemory = ({
   const botDelayRef           = useRef(null);
   const roundEndCalledRef     = useRef(false);
   const { playFlip, playMatch, playCorrect } = useSound();
+  const { speakNormal } = useSpeech();
 
   // ─── Bot timer ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -100,6 +102,7 @@ const DuelMemory = ({
 
       if (c1.wordIndex === c2.wordIndex) {
         playMatch();
+        if (c1.word?.en) speakNormal(c1.word.en);
         const newMatched = [...matched, newFlipped[0], newFlipped[1]];
         setMatched(newMatched);
         setFlipped([]);

@@ -26,6 +26,7 @@ const makeTiles = (word) =>
 
 // ─── Componente de Memória Online ───────────────────────────────────────────
 const OnlineMemoryBoard = ({ wordGroup, onCompleted }) => {
+  const { speakNormal } = useSpeech();
   // wordGroup: [{ en, pt, pronunciation }]
   const createDeck = (group) =>
     (group || []).flatMap((w, i) => [
@@ -55,6 +56,9 @@ const OnlineMemoryBoard = ({ wordGroup, onCompleted }) => {
     if (next.length === 2) {
       if (next[0].pairKey === next[1].pairKey && next[0].type !== next[1].type) {
         // Par correto
+        const wordObj = wordGroup[card.pairKey];
+        if (wordObj?.en) speakNormal(wordObj.en);
+
         const newMatched = new Set([...matched, card.pairKey]);
         setMatched(newMatched);
         setFlipped([]);
@@ -483,7 +487,6 @@ const DuelOnlineGame = ({
             <h3 className="target-word" style={{ fontSize: 'var(--fs-xl)' }}>
               "{question.prompt?.blankedSentence}"
             </h3>
-            <span className="duel-hint">Tradução: {question.prompt?.examplePt}</span>
           </div>
           <div className="options-grid">
             {currentOptions.map((opt, i) => (

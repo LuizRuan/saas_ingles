@@ -4,13 +4,15 @@ import useSound from '../../hooks/useSound';
 // Normaliza string para comparação (remove pontuação final e espaço extra)
 const normalize = (str) => (str || '').toLowerCase().replace(/[.,?!]/g, '').trim();
 
+const stripPunctuation = (str) => (str || '').replace(/[.,?!:;'"“”]/g, '').trim();
+
 const DailySentenceBuilderStep = ({ challenge, stepState, onAnswer }) => {
   const { sentence, answer } = challenge;
   const { playClick, playCorrect, playWrong } = useSound();
 
   const [availableWords, setAvailableWords] = useState(() => {
     const rawWords = (sentence?.en || '').split(' ');
-    const items = rawWords.map((w, i) => ({ id: i, word: w }));
+    const items = rawWords.map((w, i) => ({ id: i, word: stripPunctuation(w) })).filter(item => item.word.length > 0);
     // Shuffle
     for (let i = items.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));

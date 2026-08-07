@@ -8,16 +8,17 @@ import './SentenceBuilder.css';
 
 const ROUNDS = 8;
 
+const stripPunctuation = (str) => (str || '').replace(/[.,?!:;'"“”]/g, '').trim();
+
 const generateGameSentences = () => shuffleArray([...sentences]).slice(0, ROUNDS);
+
+const prepareWords = (s) => (s ? shuffleArray(s.words.map((w, i) => ({ ...w, en: stripPunctuation(w.en), id: i }))) : []);
 
 const SentenceBuilder = () => {
   const [gameSentences, setGameSentences] = useState(() => generateGameSentences());
   const [round, setRound] = useState(0);
   const [selectedWords, setSelectedWords] = useState([]);
-  const [availableWords, setAvailableWords] = useState(() => {
-    const s = gameSentences[0];
-    return s ? shuffleArray(s.words.map((w, i) => ({ ...w, id: i }))) : [];
-  });
+  const [availableWords, setAvailableWords] = useState(() => prepareWords(gameSentences[0]));
   const [feedback, setFeedback] = useState(null);
   const [score, setScore] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
@@ -30,7 +31,7 @@ const SentenceBuilder = () => {
     const s = gameSentences[roundIdx];
     if (!s) { setGameComplete(true); completeGame('sentenceBuilder'); return; }
     setSelectedWords([]);
-    setAvailableWords(shuffleArray(s.words.map((w, i) => ({ ...w, id: i }))));
+    setAvailableWords(prepareWords(s));
     setFeedback(null);
   }, [gameSentences, completeGame]);
 
@@ -43,8 +44,8 @@ const SentenceBuilder = () => {
 
     // Check if sentence is complete
     if (newSelected.length === currentSentence.words.length) {
-      const formed = newSelected.map(w => w.en).join(' ');
-      const correct = currentSentence.words.map(w => w.en).join(' ');
+      const formed = newSelected.map(w => stripPunctuation(w.en)).join(' ');
+      const correct = currentSentence.words.map(w => stripPunctuation(w.en)).join(' ');
       
       if (formed.toLowerCase() === correct.toLowerCase()) {
         setFeedback('correct');
@@ -95,7 +96,7 @@ const SentenceBuilder = () => {
                 setGameComplete(false);
                 const s = newSentences[0];
                 setSelectedWords([]);
-                setAvailableWords(s ? shuffleArray(s.words.map((w, i) => ({ ...w, id: i }))) : []);
+                setAvailableWords(prepareWords(s));
                 setFeedback(null);
               }}>🔄 Jogar novamente</button>
               <Link to="/games" className="btn btn-ghost">← Outros jogos</Link>

@@ -113,17 +113,27 @@ export const removeFromQueue = (socketId) => {
 // desconexão e desistência no meio de uma rodada.
 export const findMatchBySocket = (socketId) => {
   for (const match of matches.values()) {
-    if (match.players.some(p => p.socketId === socketId)) return match;
+    if (!match.ended && match.players.some(p => p.socketId === socketId)) return match;
   }
   return null;
 };
 
-export const destroyMatch = (matchId) => {
+export const destroyMatch = (matchId, delayMs = 120_000) => {
   const match = matches.get(matchId);
   if (!match) return;
   // Os DOIS timers: o da rodada e o da pausa entre rodadas. Antes só o
   // primeiro era limpo, deixando o segundo pendurado depois de destruir.
   if (match.roundTimer) clearTimeout(match.roundTimer);
   if (match.pauseTimer) clearTimeout(match.pauseTimer);
-  matches.delete(matchId);
+  match.ended = true;
+
+  if (delayMs > 0) {
+    if (match.destroyTimer) clearTimeout(match.destroyTimer);
+    match.destroyTimer = setTimeout(() => {
+      matches.delete(matchId);
+    }, delayMs);
+  } else {
+    if (match.destroyTimer) clearTimeout(match.destroyTimer);
+    matches.delete(matchId);
+  }
 };

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { words, shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
+import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
 import './MemoryGame.css';
 
@@ -23,6 +24,7 @@ const MemoryGame = () => {
   const [showExplanation, setShowExplanation] = useState(false);
   const { handleCorrectAnswer, completeGame } = useProgress();
   const { playFlip, playMatch, playCorrect } = useSound();
+  const { speakNormal } = useSpeech();
 
   const startGame = useCallback((diff) => {
     setDifficulty(diff);
@@ -60,6 +62,7 @@ const MemoryGame = () => {
       if (card1.wordIndex === card2.wordIndex) {
         // Match found!
         playMatch();
+        if (card1.word?.en) speakNormal(card1.word.en);
         setCurrentMatch(card1.word);
         setShowExplanation(true);
         

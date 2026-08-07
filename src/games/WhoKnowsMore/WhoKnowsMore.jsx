@@ -79,6 +79,7 @@ const WhoKnowsMore = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomCodeFromUrl = urlParams.get('room');
     if (roomCodeFromUrl && duel.connected) {
+      setMode('human');
       // Limpa o parâmetro ?room= da URL para não repetir a requisição ao reconectar
       window.history.replaceState({}, document.title, window.location.pathname);
       duel.joinPrivateRoom(roomCodeFromUrl).then((res) => {
@@ -148,14 +149,18 @@ const WhoKnowsMore = () => {
 
   const isHuman = mode === 'human';
 
-  // Top 5 do card — busca uma vez ao entrar na tela.
-  useEffect(() => {
-    let cancelled = false;
+  // Top 5 do card — busca ao entrar na tela e sempre que voltar ao lobby.
+  const fetchLeaderboard = useCallback(() => {
     getDuelLeaderboardRequest(5)
-      .then(({ entries }) => { if (!cancelled) { setLeaderboard(entries); setLeaderboardStatus('loaded'); } })
-      .catch(() => { if (!cancelled) setLeaderboardStatus('error'); });
-    return () => { cancelled = true; };
+      .then(({ entries }) => { setLeaderboard(entries); setLeaderboardStatus('loaded'); })
+      .catch(() => setLeaderboardStatus('error'));
   }, []);
+
+  useEffect(() => {
+    if (gameState === 'lobby') {
+      fetchLeaderboard();
+    }
+  }, [gameState, fetchLeaderboard]);
 
   const openFullRanking = () => {
     setShowFullRankingModal(true);
@@ -502,7 +507,7 @@ const WhoKnowsMore = () => {
   // Espelha o estado da partida do servidor no estado de tela
   useEffect(() => {
     if (!isHuman) return;
-    if (duel.matchState === 'playing') {
+    if (duel.matchState === 'playing' || duel.matchState === 'matched') {
       setShowSearchModal(false);
       setGameState('playing');
     } else if (duel.matchState === 'ended' || duel.matchState === 'lost') {
@@ -678,7 +683,7 @@ const WhoKnowsMore = () => {
               </div>
 
               {/* SALA PRIVADA COM AMIGOS */}
-              <div className="mode-card glass-card" onClick={() => { setShowPrivateRoomModal(true); setPrivateRoomMode('create'); }} style={{ border: '2px solid var(--accent-purple, #a855f7)' }}>
+              <div className="mode-card glass-card" onClick={() => { setMode('human'); setShowPrivateRoomModal(true); setPrivateRoomMode('create'); }} style={{ border: '2px solid var(--accent-purple, #a855f7)' }}>
                 <span className="badge badge-purple mode-badge">WhatsApp 📲</span>
                 <div className="mode-icon" aria-hidden="true">🔗</div>
                 <h3>Sala Privada (Amigos)</h3>
@@ -686,7 +691,7 @@ const WhoKnowsMore = () => {
                 <button
                   className="btn btn-secondary"
                   style={{ marginTop: 'var(--space-md)', width: '100%', borderColor: 'var(--accent-purple, #a855f7)', color: 'var(--accent-purple, #a855f7)' }}
-                  onClick={() => { setShowPrivateRoomModal(true); setPrivateRoomMode('create'); }}
+                  onClick={() => { setMode('human'); setShowPrivateRoomModal(true); setPrivateRoomMode('create'); }}
                   disabled={!connected}
                 >
                   🔗 Convidar Amigo
@@ -1061,6 +1066,7 @@ const WhoKnowsMore = () => {
                     className="btn btn-primary btn-lg"
                     style={{ width: '100%' }}
                     onClick={async () => {
+                      setMode('human');
                       const name = estaLogado
                         ? profile.nickname.slice(0, 20)
                         : (nicknameDraft.trim() || progress.displayName || generateGuestName()).slice(0, 20);
@@ -1139,6 +1145,7 @@ const WhoKnowsMore = () => {
                     style={{ width: '100%' }}
                     disabled={joinRoomInput.length < 5}
                     onClick={async () => {
+                      setMode('human');
                       const name = estaLogado
                         ? profile.nickname.slice(0, 20)
                         : (nicknameDraft.trim() || progress.displayName || generateGuestName()).slice(0, 20);
