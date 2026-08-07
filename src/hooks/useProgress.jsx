@@ -270,7 +270,7 @@ export const ProgressProvider = ({ children }) => {
 
   const buyShopItem = useCallback((item) => {
     setProgress(prev => {
-      const isConsumable = item.category === 'powerup' || item.type === 'hints';
+      const isConsumable = item.category === 'powerup' || item.type === 'hints' || item.category === 'coringa';
       if (!isConsumable && (prev.shopItems || []).includes(item.id)) return prev;
       if (prev.totalScore < item.price) return prev;
       
@@ -308,6 +308,8 @@ export const ProgressProvider = ({ children }) => {
         updated.pointsMultiplier = item.value;
         updated.multiplierGames = 1; // Lasts for 1 game
       }
+      // type === 'wildcard': apenas armazena em shopItems (cada compra adiciona 1 uso)
+      // O consumo é feito durante a partida — useWildcard() remove 1 id de shopItems
       
       updated = checkAchievements(updated);
       return updated;
@@ -360,6 +362,21 @@ export const ProgressProvider = ({ children }) => {
     return true;
   }, []);
 
+  // Remove 1 uso de um coringa do inventário (consome o item).
+  // Retorna true se havia pelo menos 1 para consumir.
+  const useWildcard = useCallback((wildcardId) => {
+    let consumed = false;
+    setProgress(prev => {
+      const items = [...(prev.shopItems || [])];
+      const idx = items.indexOf(wildcardId);
+      if (idx === -1) return prev;
+      consumed = true;
+      items.splice(idx, 1); // remove apenas 1 ocorrência
+      return { ...prev, shopItems: items };
+    });
+    return consumed;
+  }, []);
+
   const resetAllProgress = useCallback(() => {
     clearStorage();
     setProgress(loadProgress());
@@ -386,6 +403,7 @@ export const ProgressProvider = ({ children }) => {
     consumeHint,
     consumeExtraTime,
     consumeTipTranslation,
+    useWildcard,
     resetAllProgress,
   };
 

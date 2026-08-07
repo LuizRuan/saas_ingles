@@ -20,7 +20,7 @@ const ROTULO = {
 const Levels = () => {
   const { progress } = useProgress();
   const estudadas = progress.wordsStudied || 0;
-  const [selectedStage, setSelectedStage] = useState('all');
+  const [selectedStage, setSelectedStage] = useState(1);
 
   const atual = getCurrentLevel(estudadas);
   const proximo = getNextLevel(estudadas);
@@ -31,9 +31,7 @@ const Levels = () => {
     return acc;
   }, { concluido: 0, atual: 0, bloqueado: 0 });
 
-  const filteredLevels = selectedStage === 'all'
-    ? levels
-    : levels.filter(n => n.stage === selectedStage);
+  const filteredLevels = levels.filter(n => n.stage === selectedStage);
 
   return (
     <div className="page">
@@ -46,7 +44,7 @@ const Levels = () => {
             <span className="levels-title-icon" aria-hidden="true">📊</span>
             <div>
               <h1>Níveis ({levels.length})</h1>
-              <p className="text-secondary">Acompanhe sua evolução e desbloqueie as 50 fases do aprendizado</p>
+              <p className="text-secondary">Acompanhe sua evolução e desbloqueie as {levels.length} fases do aprendizado</p>
             </div>
           </div>
 
@@ -80,7 +78,7 @@ const Levels = () => {
           <span className="levels-featured-icon" aria-hidden="true">{atual.icon}</span>
 
           <div className="levels-featured-body">
-            <p className="levels-eyebrow">Nível {atual.level} de 50</p>
+            <p className="levels-eyebrow">Nível {atual.level} de {levels.length}</p>
             <h2>{atual.name}</h2>
             <p className="text-secondary">{atual.description}</p>
 
@@ -91,7 +89,7 @@ const Levels = () => {
             <p className="levels-featured-meta">
               {proximo
                 ? <><strong>{estudadas} / {proximo.wordsNeeded}</strong> palavras para o próximo nível</>
-                : <>Você chegou ao último nível (Nível 50) com <strong>{estudadas}</strong> palavras estudadas!</>}
+                : <>Você chegou ao último nível (Nível {levels.length}) com <strong>{estudadas}</strong> palavras estudadas!</>}
             </p>
           </div>
 
@@ -102,17 +100,12 @@ const Levels = () => {
 
         {/* Filtros por Estágios */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-xs)', marginBottom: 'var(--space-md)' }}>
-          <button
-            className={`btn btn-sm ${selectedStage === 'all' ? 'btn-primary' : 'btn-ghost'}`}
-            onClick={() => setSelectedStage('all')}>
-            🌐 Todos os 50 Níveis
-          </button>
           {stages.map(st => (
             <button
               key={st.stage}
               className={`btn btn-sm ${selectedStage === st.stage ? 'btn-primary' : 'btn-ghost'}`}
               onClick={() => setSelectedStage(st.stage)}>
-              {st.icon} Estágio {st.stage}: {st.name}
+              {st.icon} Estágio {st.stage}: {st.name} ({st.minLevel}-{st.maxLevel})
             </button>
           ))}
         </div>

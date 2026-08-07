@@ -79,8 +79,8 @@ const Layout = ({ children }) => {
               <NavLink to="/login" className="btn btn-secondary btn-sm">Entrar</NavLink>
             )}
             {estaLogado && profile.nickname && (
-              <NavLink to="/settings" className="navbar-nickname">
-                {profile.nickname}
+              <NavLink to="/settings" className="navbar-nickname" title={profile.nickname}>
+                {profile.nickname.length > 10 ? `${profile.nickname.slice(0, 10)}...` : profile.nickname}
               </NavLink>
             )}
             <NavLink to="/settings" className="navbar-avatar"

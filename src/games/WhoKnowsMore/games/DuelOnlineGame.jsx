@@ -15,6 +15,7 @@ import useSound from '../../../hooks/useSound';
 import { useProgress } from '../../../hooks/useProgress';
 import { getCurrentLevel, getUserTitle } from '../../../utils/levelSystem';
 import OnlineHangman from './OnlineHangman';
+import WildcardPanel from './WildcardPanel';
 import '../../../games/WordBuilder/WordBuilder.css';
 import '../../../games/MemoryGame/MemoryGame.css';
 
@@ -109,8 +110,92 @@ const DuelOnlineGame = ({
   const [tiles,  setTiles]  = useState(() => question.type === 'wordBuilder' ? makeTiles(question.prompt?.scrambledText?.replace(/ /g, '') || '') : []);
   const [slots,  setSlots]  = useState([]);
 
+  // ── Estados de Coringa (Wildcard) ─────────────────────────────────────────
+  const [activeEffect, setActiveEffect]   = useState(null); // 'flip' | 'blur' | 'shuffle' | 'mute' | null
+  const [alertBanner, setActiveBanner]    = useState(null); // texto de aviso
+  const [shuffledOptions, setShuffledOptions] = useState(null);
+  const [isMuted, setIsMuted]               = useState(false);
+
   const timerRef = useRef(null);
   const submittedRef = useRef(false);
+
+  // Efeito de escuta respeita o mute do coringa
+  const safeSpeak = (fn, text) => {
+    if (isMuted) return;
+    fn(text);
+  };
+
+  // Re-inicializa estado por rodada
+  useEffect(() => {
+    setShuffledOptions(null);
+  }, [question]);
+
+  // Escuta efeitos de Coringa enviados pelo oponente
+  useEffect(() => {
+    if (!duel.wildcardEffect) return;
+    const { wildcardValue } = duel.wildcardEffect;
+
+    const opName = duel.opponent?.nickname || 'Oponente';
+
+    if (wildcardValue === 'flip') {
+      setActiveEffect('flip');
+      setActiveBanner(`🙃 ${opName} usou Mundo ao Contrário!`);
+      const t = setTimeout(() => {
+        setActiveEffect(null);
+        setActiveBanner(null);
+      }, 8000);
+      return () => clearTimeout(t);
+    }
+
+    if (wildcardValue === 'blur') {
+      setActiveEffect('blur');
+      setActiveBanner(`🌫️ ${opName} usou Névoa Mental!`);
+      const t = setTimeout(() => {
+        setActiveEffect(null);
+        setActiveBanner(null);
+      }, 6000);
+      return () => clearTimeout(t);
+    }
+
+    if (wildcardValue === 'shuffle') {
+      setActiveEffect('shuffle');
+      setActiveBanner(`🔀 ${opName} embaralhou suas opções!`);
+      if (question.options) {
+        setShuffledOptions([...question.options].sort(() => Math.random() - 0.5));
+      }
+      if (tiles.length > 0) {
+        setTiles([...tiles].sort(() => Math.random() - 0.5));
+      }
+      const t = setTimeout(() => {
+        setActiveEffect(null);
+        setActiveBanner(null);
+      }, 2000);
+      return () => clearTimeout(t);
+    }
+
+    if (wildcardValue === 'mute') {
+      setIsMuted(true);
+      setActiveBanner(`🤫 ${opName} silenciou seu áudio!`);
+      const t = setTimeout(() => {
+        setIsMuted(false);
+        setActiveBanner(null);
+      }, 10000);
+      return () => clearTimeout(t);
+    }
+  }, [duel.wildcardEffect]);
+
+  // Efeito do Ladrão de Tempo (notificação de delta)
+  useEffect(() => {
+    if (!duel.wildcardTimeUpdate) return;
+    const { delta } = duel.wildcardTimeUpdate;
+    if (delta > 0) {
+      setActiveBanner(`⏩ Ladrão de Tempo! +${delta / 1000}s para você!`);
+    } else if (delta < 0) {
+      setActiveBanner(`⏩ Ladrão de Tempo! ${duel.opponent?.nickname || 'Oponente'} roubou ${Math.abs(delta / 1000)}s!`);
+    }
+    const t = setTimeout(() => setActiveBanner(null), 3000);
+    return () => clearTimeout(t);
+  }, [duel.wildcardTimeUpdate]);
 
   // ── Fala a palavra no Listening ──────────────────────────────────────────
   useEffect(() => {
@@ -167,8 +252,22 @@ const DuelOnlineGame = ({
     ? Math.max(0, Math.min(100, ((duel.roundDeadline - Date.now()) / (duel.roundMs ?? 20000)) * 100))
     : 0;
 
+  const currentOptions = shuffledOptions || question.options || [];
+  const containerClass = `duel-match-container animate-fade-in-up ${
+    activeEffect === 'flip' ? 'wildcard-flipped' : ''
+  } ${activeEffect === 'blur' ? 'wildcard-blurred' : ''} ${
+    activeEffect === 'shuffle' ? 'wildcard-shuffling' : ''
+  }`;
+
   return (
-    <div className="duel-match-container animate-fade-in-up">
+    <div className={containerClass}>
+
+      {/* Banner de alerta de Coringa recebido */}
+      {alertBanner && (
+        <div className="wildcard-alert-banner">
+          {alertBanner}
+        </div>
+      )}
 
       {/* ── Topbar com saída ─────────────────────────────────────────────── */}
       <div className="duel-topbar">
@@ -218,6 +317,14 @@ const DuelOnlineGame = ({
         <span className="timer-text">⏱️ {timeLeft}s</span>
       </div>
 
+      {/* ── Painel de Ativação de Coringas ──────────────────────────────── */}
+      {!playerDone && (
+        <WildcardPanel
+          onUseWildcard={(wcValue) => duel.useWildcard(wcValue)}
+          isRoundActive={!playerDone && timeLeft > 0}
+        />
+      )}
+
       {/* ═══════════ CONTEÚDO POR TIPO DE JOGO ═══════════════════════════ */}
 
       {/* Memória */}
@@ -264,16 +371,16 @@ const DuelOnlineGame = ({
           <div className="question-card glass-card">
             <span className="question-label">🎧 Ouça e escolha a tradução correta</span>
             <div className="listening-controls">
-              <button className="btn btn-primary" onClick={() => speakNormal(question.prompt?.en)}>
-                🔊 Ouvir
+              <button className="btn btn-primary" onClick={() => safeSpeak(speakNormal, question.prompt?.en)} disabled={isMuted}>
+                {isMuted ? '🔇 Silenciado' : '🔊 Ouvir'}
               </button>
-              <button className="btn btn-secondary" onClick={() => speakSlow(question.prompt?.en)}>
+              <button className="btn btn-secondary" onClick={() => safeSpeak(speakSlow, question.prompt?.en)} disabled={isMuted}>
                 🐌 Devagar
               </button>
             </div>
           </div>
           <div className="options-grid">
-            {(question.options || []).map((opt, i) => (
+            {currentOptions.map((opt, i) => (
               <button
                 key={i}
                 className={`option-btn ${optionClass(opt)}`}
@@ -297,7 +404,7 @@ const DuelOnlineGame = ({
             <span className="pronunciation">{question.prompt?.pronunciation}</span>
           </div>
           <div className="options-grid">
-            {(question.options || []).map((opt, i) => (
+            {currentOptions.map((opt, i) => (
               <button
                 key={i}
                 className={`option-btn ${optionClass(opt)}`}
@@ -347,7 +454,7 @@ const DuelOnlineGame = ({
             <span className="duel-hint">Tradução: {question.prompt?.examplePt}</span>
           </div>
           <div className="options-grid">
-            {(question.options || []).map((opt, i) => (
+            {currentOptions.map((opt, i) => (
               <button
                 key={i}
                 className={`option-btn ${optionClass(opt)}`}
@@ -422,7 +529,7 @@ const DuelOnlineGame = ({
             </h3>
           </div>
           <div className="options-grid">
-            {(question.options || []).map((opt, i) => (
+            {currentOptions.map((opt, i) => (
               <button
                 key={i}
                 className={`option-btn ${optionClass(opt)}`}

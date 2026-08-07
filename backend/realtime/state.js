@@ -89,12 +89,17 @@ export const createMatch = (players, gameType) => {
       avatar: p.avatar ?? null,
     }])),
 
+    // Coringas usados por socketId -> Set<wildcardValue>
+    // Limita 1 uso por tipo por partida (não por rodada).
+    wildcardUsed: new Map(players.map(p => [p.socketId, new Set()])),
+
     roundTimer: null,
     pauseTimer: null,
   };
   matches.set(id, match);
   return match;
 };
+
 
 export const removeFromQueue = (socketId) => {
   const i = waitingQueue.findIndex(p => p.socketId === socketId);

@@ -52,6 +52,8 @@ export const useDuelSocket = () => {
   const [scores, setScores] = useState({});
   const [matchEnd, setMatchEnd] = useState(null);
   const [answerError, setAnswerError] = useState(null);
+  const [wildcardEffect, setWildcardEffect] = useState(null);   // { wildcardValue, id }
+  const [wildcardTimeUpdate, setWildcardTimeUpdate] = useState(null); // { newDeadline, delta }
 
   const socketRef = useRef(null);
   const matchIdRef = useRef(null);
@@ -155,6 +157,21 @@ export const useDuelSocket = () => {
       setMatchState('ended');
     });
 
+    // ─── Coringas recebidos do servidor ──────────────────────────────────────
+    socket.on('wildcard:effect', (payload) => {
+      if (payload.matchId !== matchIdRef.current) return;
+      // Usa id incremental para que o mesmo efeito enviado duas vezes dispare
+      // dois useEffect separados no componente consumidor.
+      setWildcardEffect(prev => ({ wildcardValue: payload.wildcardValue, id: (prev?.id ?? 0) + 1 }));
+    });
+
+    socket.on('wildcard:time_update', (payload) => {
+      if (payload.matchId !== matchIdRef.current) return;
+      setWildcardTimeUpdate({ newDeadline: payload.newDeadline, delta: payload.delta });
+      // Sobrescreve o deadline local para o timer continuar preciso
+      setRoundDeadline(payload.newDeadline);
+    });
+
     return () => {
       clearQueueTimer();
       socket.disconnect();
@@ -216,6 +233,16 @@ export const useDuelSocket = () => {
     }, (ack) => callback?.(ack));
   }, [roundIndex]);
 
+  /** Usa um coringa — consome 1 uso no inventário e notifica o servidor. */
+  const useWildcard = useCallback((wildcardValue) => {
+    socketRef.current?.emit('wildcard:use', {
+      matchId: matchIdRef.current,
+      wildcardValue,
+    }, (ack) => {
+      if (!ack?.ok) console.warn('[wildcard] falhou:', ack?.error);
+    });
+  }, []);
+
   /** Desistir de propósito, pelo botão "Sair" da tela de partida. */
   const forfeit = useCallback(() => {
     socketRef.current?.emit('duel:leave', { matchId: matchIdRef.current }, () => {});
@@ -244,9 +271,10 @@ export const useDuelSocket = () => {
     matchState, queueError, answerError,
     opponent, gameType, roundIndex, totalRounds,
     question, roundDeadline, roundMs, roundResult, scores, matchEnd,
+    wildcardEffect, wildcardTimeUpdate,
     myId: myIdRef.current,
     clockOffsetRef,
-    joinQueue, leaveQueue, submitAnswer, guessLetter, forfeit, resetMatch,
+    joinQueue, leaveQueue, submitAnswer, guessLetter, forfeit, resetMatch, useWildcard,
   };
 };
 

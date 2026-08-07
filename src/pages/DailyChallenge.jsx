@@ -45,8 +45,15 @@ const DailyChallenge = () => {
       setFeedback('wrong');
       if (answerObj?.en) handleWrongAnswer(answerObj.en);
     }
+
+    // Se for o último passo (1 rodada total), marca o desafio como concluído
+    // IMEDIATAMENTE no progresso para evitar ganho infinito de pontos ao clicar em Voltar.
+    if (step + 1 >= challenge.challenges.length) {
+      completeDailyChallenge();
+    }
+
     setStepState('feedback');
-  }, [stepState, handleCorrectAnswer, handleWrongAnswer]);
+  }, [stepState, step, challenge.challenges.length, handleCorrectAnswer, handleWrongAnswer, completeDailyChallenge]);
 
   const nextStep = useCallback(() => {
     if (step + 1 >= challenge.challenges.length) {

@@ -304,6 +304,57 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       broadcastPresence();
     });
 
+    // ─── Coringas (wildcards) ────────────────────────────────────────────────
+    // Rate-limit conservador: 3 usos por 30s por socket.
+    socket.on('wildcard:use', (payload, ack) => {
+      if (isRateLimited(`wildcard:${socket.id}`, { windowMs: 30_000, max: 3 })) {
+        return ack?.({ ok: false, error: 'Muitos coringas em pouco tempo.' });
+      }
+
+      const VALID_WILDCARDS = ['flip', 'blur', 'shuffle', 'time_steal', 'mute'];
+      const { matchId, wildcardValue } = payload ?? {};
+
+      if (!VALID_WILDCARDS.includes(wildcardValue)) {
+        return ack?.({ ok: false, error: 'Coringa inválido.' });
+      }
+
+      const match = matches.get(matchId);
+      if (!match) return ack?.({ ok: false, error: 'Partida não encontrada.' });
+      if (match.roundClosed) return ack?.({ ok: false, error: 'Rodada já encerrada.' });
+
+      // 1 uso por tipo por partida
+      const myUsed = match.wildcardUsed?.get(socket.id);
+      if (!myUsed) return ack?.({ ok: false, error: 'Partida inválida.' });
+      if (myUsed.has(wildcardValue)) {
+        return ack?.({ ok: false, error: 'Você já usou este coringa nesta partida.' });
+      }
+      myUsed.add(wildcardValue);
+
+      const opponent = match.players.find(p => p.socketId !== socket.id);
+      if (!opponent) return ack?.({ ok: false, error: 'Oponente não encontrado.' });
+
+      if (wildcardValue === 'time_steal') {
+        // Rouba 5s do oponente e adiciona ao atirador
+        const STEAL_MS = 5_000;
+        match.roundDeadline = match.roundDeadline + STEAL_MS; // mais tempo pra quem usou
+
+        // Notifica ambos com os novos deadlines
+        io.to(socket.id).emit('wildcard:time_update', {
+          matchId, newDeadline: match.roundDeadline, delta: +STEAL_MS,
+        });
+        io.to(opponent.socketId).emit('wildcard:time_update', {
+          matchId, newDeadline: match.roundDeadline - STEAL_MS * 2, delta: -STEAL_MS,
+        });
+      } else {
+        // Todos os outros: repassa o efeito direto ao oponente
+        io.to(opponent.socketId).emit('wildcard:effect', {
+          matchId, wildcardValue,
+        });
+      }
+
+      ack?.({ ok: true });
+    });
+
     socket.on('disconnect', () => {
       removeFromQueue(socket.id);
       const match = findMatchBySocket(socket.id);

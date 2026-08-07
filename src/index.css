@@ -772,9 +772,7 @@ select {
      acima não o alcança — sem isto "Loja" continuava por extenso até 769px e
      espremia o avatar do lado. */
   .navbar-stats .navbar-link { font-size: 0; padding: 6px; }
-  /* O avatar sozinho já leva pra Configurações; o nome por extenso é o
-     primeiro a ceder espaço pros links, que importam mais pra navegar. */
-  .navbar-nickname { display: none; }
+  .navbar-nickname { max-width: 100px; font-size: var(--fs-xs); }
 }
 
 /* === MOBILE NAV === */
