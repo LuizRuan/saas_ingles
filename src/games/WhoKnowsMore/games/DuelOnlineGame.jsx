@@ -97,6 +97,14 @@ const DuelOnlineGame = ({
 }) => {
   const { speakNormal, speakSlow } = useSpeech();
   const { playCorrect, playWrong } = useSound();
+  const { progress } = useProgress();
+
+  // Título do jogador com base no nível real (localStorage) — o oponente não
+  // tem essa informação: o servidor de duelo nunca recebe wordsStudied de
+  // ninguém (progresso é 100% client-side), então não há level real para
+  // exibir do outro lado. Mostrar um título inventado seria enganoso.
+  const userLevelObj = getCurrentLevel(progress.wordsStudied || 0);
+  const userTitle = getUserTitle(userLevelObj?.level || 1);
 
   // Timer baseado no roundDeadline do servidor
   const [timeLeft, setTimeLeft] = useState(() => {
@@ -302,7 +310,6 @@ const DuelOnlineGame = ({
           <div className="avatar" aria-hidden="true">🧑</div>
           <div className="profile-info">
             <span className="profile-name">{opName}</span>
-            <span className="profile-title" style={{ fontSize: '11px', color: 'var(--accent-purple-light)', fontWeight: 600 }}>{opTitle.tag}</span>
             <span className="profile-score">{duel.scores?.[duel.opponent?.id] ?? 0} pts</span>
           </div>
         </div>
