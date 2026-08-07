@@ -15,6 +15,9 @@ const duelTrophySchema = new Schema({
 }, { timestamps: true });
 
 duelTrophySchema.index({ userId: 1, month: 1 }, { unique: true });
-duelTrophySchema.index({ month: 1, trophies: -1 });
+// Cobre o sort do ranking por completo — trophies E o desempate por
+// updatedAt (quem bateu aquele total primeiro) — pra find().sort() nunca
+// precisar de um sort em memória depois de ler do índice.
+duelTrophySchema.index({ month: 1, trophies: -1, updatedAt: 1 });
 
 export const DuelTrophy = mongoose.model('DuelTrophy', duelTrophySchema);

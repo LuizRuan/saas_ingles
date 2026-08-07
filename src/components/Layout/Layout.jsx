@@ -36,10 +36,10 @@ const Layout = ({ children }) => {
           
           <div className="navbar-links">
             <NavLink to="/" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`} end>
-              <img src="/inicio.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Início
+              <img src="/inicio.png" alt="" width="1024" height="1024" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Início
             </NavLink>
             <NavLink to="/games" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
-              <img src="/jogos.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Jogos
+              <img src="/jogos.png" alt="" width="1536" height="1024" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Jogos
             </NavLink>
             <NavLink to="/daily" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
               <span>⚡</span> Desafio
@@ -51,10 +51,10 @@ const Layout = ({ children }) => {
               <span>📖</span> Palavras
             </NavLink>
             <NavLink to="/stories" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
-              <img src="/historias.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Histórias
+              <img src="/historias.png" alt="" width="1024" height="1024" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Histórias
             </NavLink>
             <NavLink to="/achievements" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}>
-              <img src="/conquistas.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Conquistas
+              <img src="/conquistas.png" alt="" width="1536" height="1024" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Conquistas
             </NavLink>
           </div>
 
@@ -63,14 +63,13 @@ const Layout = ({ children }) => {
               <span>⭐</span>
               <span>{progress.totalScore}</span>
             </div>
-            <NavLink to="/shop" className="navbar-stat" style={{ textDecoration: 'none' }}
-              aria-label={`${progress.hintsAvailable || 0} dicas disponíveis — ir para a loja`}>
+            <div className="navbar-stat" aria-label={`${progress.hintsAvailable || 0} dicas disponíveis`}>
               <span aria-hidden="true">💡</span>
               <span>{progress.hintsAvailable || 0}</span>
-            </NavLink>
-            <NavLink to="/shop" className="navbar-link" style={{ padding: '4px 6px' }}
+            </div>
+            <NavLink to="/shop" className="navbar-link"
               aria-label="Abrir loja">
-              <img src="/loja.png" alt="" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Loja
+              <img src="/loja.png" alt="" width="1536" height="1024" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Loja
             </NavLink>
             <div className="navbar-stat">
               <span>🔥</span>
@@ -100,11 +99,11 @@ const Layout = ({ children }) => {
       {/* Mobile Bottom Nav */}
       <nav className="mobile-nav hide-desktop">
         <NavLink to="/" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`} end>
-          <img src="/inicio.png" alt="" style={{ height: '22px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/inicio.png" alt="" width="1024" height="1024" style={{ height: '22px', width: 'auto', objectFit: 'contain' }} />
           <span>Início</span>
         </NavLink>
         <NavLink to="/games" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
-          <img src="/jogos.png" alt="" style={{ height: '22px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/jogos.png" alt="" width="1536" height="1024" style={{ height: '22px', width: 'auto', objectFit: 'contain' }} />
           <span>Jogos</span>
         </NavLink>
         <NavLink to="/daily" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>

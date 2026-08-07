@@ -52,7 +52,9 @@ export const login = async (req, res) => {
 
   if (!isValidEmailFormat(email) || !password) return invalidCredentials();
 
-  const user = await User.findOne({ email: String(email).toLowerCase().trim() });
+  // .lean(): só lemos os campos, nunca chamamos .save() neste caminho —
+  // devolve objeto JS puro em vez de um documento Mongoose completo.
+  const user = await User.findOne({ email: String(email).toLowerCase().trim() }).lean();
   if (!user) return invalidCredentials();
 
   const ok = await comparePassword(password, user.passwordHash);
@@ -73,7 +75,10 @@ export const me = (req, res) => {
 };
 
 export const getProfile = async (req, res) => {
-  const user = await User.findById(req.user.id);
+  // Só leitura: nunca precisa de passwordHash nem dos métodos de documento
+  // do Mongoose — .select() evita trazer o hash à toa, .lean() evita
+  // instanciar um documento completo só pra ler 4 campos.
+  const user = await User.findById(req.user.id).select('-passwordHash').lean();
   if (!user) return res.status(404).json({ error: 'Conta não encontrada.' });
   res.status(200).json({ user: toPublicUser(user) });
 };
@@ -85,7 +90,11 @@ export const updateProfile = async (req, res) => {
     return res.status(400).json({ error: `O apelido pode ter no máximo ${MAX_NICKNAME_LENGTH} caracteres.` });
   }
 
-  const user = await User.findById(req.user.id);
+  // Sem .lean() aqui: este caminho chama user.save() logo abaixo, precisa do
+  // documento Mongoose de verdade. .select() ainda vale — passwordHash não é
+  // lido nem alterado, e um campo excluído (não selecionado) e não
+  // modificado não entra na validação do save().
+  const user = await User.findById(req.user.id).select('-passwordHash');
   if (!user) return res.status(404).json({ error: 'Conta não encontrada.' });
 
   const trimmed = nickname == null || nickname === '' ? null : String(nickname).trim();
@@ -101,8 +110,13 @@ export const updateProfile = async (req, res) => {
         });
       }
     }
+    // A escolha inicial (de null pra um apelido) não inicia o cooldown — só
+    // TROCAR um apelido já existente conta como a "alteração" que trava por
+    // 30 dias. Sem isso, quem digitasse errado no primeiro apelido (logo
+    // depois do cadastro) ficava preso ao erro por um mês inteiro.
+    const isFirstChoice = user.nickname === null;
     user.nickname = trimmed;
-    user.nicknameUpdatedAt = new Date();
+    if (!isFirstChoice) user.nicknameUpdatedAt = new Date();
   }
 
   await user.save();
@@ -110,7 +124,7 @@ export const updateProfile = async (req, res) => {
 };
 
 export const issueDuelTicket = async (req, res) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user.id).select('nickname progress').lean();
   if (!user) return res.status(404).json({ error: 'Conta não encontrada.' });
   if (!user.nickname) {
     return res.status(400).json({ error: 'Escolha um apelido antes de jogar ranked.' });
@@ -130,11 +144,13 @@ export const updateProgress = async (req, res) => {
     return res.status(400).json({ error: 'Objeto de progresso inválido.' });
   }
 
+  // findByIdAndUpdate já é atômico (não passa por save()), então .lean()
+  // aqui só evita instanciar um documento Mongoose que ninguém vai usar.
   const user = await User.findByIdAndUpdate(
     req.user.id,
     { progress },
-    { new: true }
-  );
+    { new: true, select: '-passwordHash' }
+  ).lean();
 
   if (!user) return res.status(404).json({ error: 'Conta não encontrada.' });
   res.status(200).json({ user: toPublicUser(user) });

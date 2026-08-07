@@ -10,16 +10,19 @@ const clampLimit = (raw) => {
 export const getLeaderboard = async (req, res) => {
   const month = currentMonthKey();
   const limit = clampLimit(req.query.limit);
+  // .lean(): endpoint público e só-leitura — devolve objeto JS puro, sem
+  // instanciar um documento Mongoose completo pra cada linha do ranking.
   const entries = await DuelTrophy.find({ month })
     .sort({ trophies: -1, updatedAt: 1 })
     .limit(limit)
-    .select('nickname avatar trophies -_id');
+    .select('nickname avatar trophies -_id')
+    .lean();
   res.status(200).json({ month, entries });
 };
 
 export const getMyRank = async (req, res) => {
   const month = currentMonthKey();
-  const mine = await DuelTrophy.findOne({ userId: req.user.id, month });
+  const mine = await DuelTrophy.findOne({ userId: req.user.id, month }).select('trophies').lean();
   if (!mine) return res.status(200).json({ month, trophies: 0, rank: null });
 
   const ahead = await DuelTrophy.countDocuments({ month, trophies: { $gt: mine.trophies } });

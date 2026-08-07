@@ -54,10 +54,10 @@ const Home = () => {
             </p>
             <div style={{ display: 'flex', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
               <Link to="/games" className="btn btn-primary btn-lg">
-                <img src="/jogos.png" alt="" style={{ height: '22px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Começar a Jogar
+                <img src="/jogos.png" alt="" width="1536" height="1024" style={{ height: '22px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Começar a Jogar
               </Link>
               <Link to="/shop" className="btn btn-secondary btn-lg">
-                <img src="/loja.png" alt="" style={{ height: '22px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Loja
+                <img src="/loja.png" alt="" width="1536" height="1024" style={{ height: '22px', width: 'auto', display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }} /> Loja
               </Link>
             </div>
           </div>

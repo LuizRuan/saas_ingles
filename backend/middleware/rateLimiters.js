@@ -39,10 +39,17 @@ export const loginLimiter = rateLimit({
 // Heartbeat de presença: ~2 por minuto por aba em uso normal. Limite próprio
 // para os pings não comerem o orçamento do apiLimiter (que é compartilhado com
 // as rotas de conta).
+//
+// 20, não 10: usePresence.jsx dispara um ping IMEDIATO a cada mount (além do
+// heartbeat periódico de 30s) — alguém que abre várias abas de uma vez ou dá
+// vários reloads diretos em menos de um minuto (ex.: vários links `/games/*`
+// abertos em sequência, ou uma conexão instável recarregando sozinha) já
+// gastava a maior parte do orçamento só com esses pings imediatos, mesmo sem
+// nenhum uso anormal. 20/min ainda barra um flood automatizado de verdade.
 export const presenceLimiter = rateLimit({
   ...baseOptions,
   windowMs: 60 * 1000,
-  limit: 10,
+  limit: 20,
   message: { error: 'Muitos pings de presença.' },
 });
 
