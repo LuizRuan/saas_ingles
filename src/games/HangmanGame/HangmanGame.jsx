@@ -11,9 +11,22 @@ import './HangmanGame.css';
 const MAX_WRONG = 6;
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-const hangmanCategories = categories.filter(c => 
+const hangmanCategories = categories.filter(c =>
   ['animais', 'comidas', 'cores', 'familia', 'casa', 'escola', 'corpo', 'roupas', 'bebidas'].includes(c.id)
 );
+
+// words.js não tem uma tradução literal de `tip` (não existe campo tipPt, e
+// muitos tips são trocadilhos/curiosidades em inglês que não fariam sentido
+// traduzidos palavra por palavra) — por isso "traduzir a dica" na prática
+// mostra a frase de exemplo em português com a própria resposta ocultada,
+// uma dica equivalente sem entregar a palavra.
+const getTranslatedHint = (word) => {
+  if (word.examplePt) {
+    const escaped = (word.pt || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return word.examplePt.replace(new RegExp(escaped, 'gi'), '___');
+  }
+  return word.pt ? `Significa "${word.pt}"` : '';
+};
 
 const HangmanGame = () => {
   const [category, setCategory] = useState(null);
@@ -194,22 +207,13 @@ const HangmanGame = () => {
         <div className="hangman-hint glass-card animate-fade-in-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ flex: 1 }}>
             <span>💡 </span>
-            <span>Dica: {currentWord.tip}</span>
-            {tipTranslated && (currentWord.examplePt || currentWord.pt) && (() => {
-              // Se houver frase de exemplo, oculta a palavra-resposta. Senão, mostra a tradução direta.
-              let frasePt = '';
-              if (currentWord.examplePt) {
-                const regex = new RegExp((currentWord.pt || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-                frasePt = currentWord.examplePt.replace(regex, '___');
-              } else {
-                frasePt = `Significa "${currentWord.pt}"`;
-              }
-              return (
-                <div style={{ marginTop: '4px', fontSize: 'var(--fs-xs)', color: 'var(--accent-purple)', fontWeight: 600 }}>
-                  🌎 Tradução: <em>{frasePt}</em>
-                </div>
-              );
-            })()}
+            {tipTranslated ? (
+              <span style={{ color: 'var(--accent-purple)', fontWeight: 600 }}>
+                Dica (🌎 em português): <em>{getTranslatedHint(currentWord)}</em>
+              </span>
+            ) : (
+              <span>Dica: {currentWord.tip}</span>
+            )}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
             {!tipTranslated && (progress.tipTranslationsAvailable || 0) > 0 && (

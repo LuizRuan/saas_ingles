@@ -153,7 +153,7 @@ const SentenceBuilder = () => {
           {selectedWords.map((word, i) => (
             <button key={`sel-${word.id}`} className="sb-word-chip selected"
               onClick={() => handleRemoveWord(word, i)}>
-              {word.en}
+              {word.en.toLowerCase()}
             </button>
           ))}
         </div>
@@ -164,7 +164,7 @@ const SentenceBuilder = () => {
             {availableWords.map((word) => (
               <button key={`av-${word.id}`} className="sb-word-chip available"
                 onClick={() => handleWordClick(word)}>
-                {word.en}
+                {word.en.toLowerCase()}
               </button>
             ))}
           </div>

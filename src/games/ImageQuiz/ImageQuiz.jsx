@@ -269,8 +269,16 @@ const ImageQuiz = () => {
 
         <div className="iq-image-card glass-card animate-fade-in-up">
           <span className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>O que é isso em inglês?</span>
-          <span className="iq-emoji" style={{ fontSize: `${current.imageSize}px` }}>{current.target.emoji}</span>
+          <img
+            className="iq-image"
+            src={current.target.icon}
+            alt=""
+            style={{ width: `${current.imageSize}px`, height: `${current.imageSize}px` }}
+          />
         </div>
+        <p className="text-secondary iq-credit">
+          Ícones: <a href="https://openmoji.org" target="_blank" rel="noopener noreferrer">OpenMoji</a> (CC BY-SA 4.0)
+        </p>
 
         <div className="iq-options">
           {current.options.map((opt, i) => (
