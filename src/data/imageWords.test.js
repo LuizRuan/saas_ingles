@@ -5,6 +5,7 @@
 // palavra sumir em silêncio (ver o filter() em imageWords.js) ou uma
 // categoria pequena demais fazer o jogo cair pro fallback fora de categoria
 // com mais frequência do que deveria.
+import { existsSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 import { imageWords, RAW_IMAGE_WORDS_COUNT } from './imageWords';
 
@@ -36,15 +37,24 @@ describe('imageWords', () => {
     }
   });
 
-  it('todo `icon` é uma URL do host liberado na CSP (img-src em vercel.json)', () => {
-    // A CSP é `default-src 'self'` — qualquer host além de images.pexels.com
-    // aqui seria bloqueado pelo navegador em produção, quebrando a imagem em
-    // silêncio (sem erro visível além do console do DevTools).
+  it('todo `icon` aponta pra uma foto que existe de verdade em public/photos/', () => {
+    // Auto-hospedado — sem isto, uma entrada com `icon` apontando pra um
+    // arquivo inexistente só quebra em silêncio: o <img> renderiza vazio,
+    // sem erro nenhum além do console do DevTools.
     for (const w of imageWords) {
-      expect(w.icon, w.en).toMatch(/^https:\/\/images\.pexels\.com\//);
+      expect(w.icon, w.en).toMatch(/^\/photos\/[a-z0-9-]+\.(jpg|png)$/);
+      expect(existsSync(`public${w.icon}`), `${w.en} -> ${w.icon}`).toBe(true);
       expect(typeof w.iconAlt, w.en).toBe('string');
       expect(w.iconAlt.length, w.en).toBeGreaterThan(0);
     }
+  });
+
+  it('não repete o mesmo arquivo de foto entre palavras diferentes', () => {
+    // Regressão: a primeira leva de buscas no Pexels reaproveitou a mesma
+    // foto genérica pra Green/White/Orange/Purple (e outros pares) por
+    // engano — o jogador veria duas palavras diferentes com a mesma imagem.
+    const arquivos = imageWords.map((w) => w.icon);
+    expect(new Set(arquivos).size).toBe(arquivos.length);
   });
 
   it('o `word` resolvido carrega os campos que o WordExplanation precisa', () => {
