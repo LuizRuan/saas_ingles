@@ -68,7 +68,7 @@ const ReviewErrors = () => {
             <h2 style={{ margin: 'var(--space-md) 0' }}>Revisão Concluída!</h2>
             <p className="text-secondary">Você revisou {reviewWords.length} palavras. Continue praticando!</p>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
-              <Link to="/games" className="btn btn-primary">← Ir para os Jogos</Link>
+              <Link to="/" className="btn btn-primary">← Ir para o Início</Link>
             </div>
           </div>
         </div>

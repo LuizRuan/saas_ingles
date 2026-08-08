@@ -108,6 +108,9 @@ const WhoKnowsMore = () => {
   // — independente do ranking de troféus, sem reset mensal.
   const [levelLeaderboard, setLevelLeaderboard] = useState([]);
   const [levelLeaderboardStatus, setLevelLeaderboardStatus] = useState('loading'); // loading | loaded | error
+  const [showFullLevelModal, setShowFullLevelModal] = useState(false);
+  const [fullLevelLeaderboard, setFullLevelLeaderboard] = useState([]);
+  const [fullLevelLeaderboardStatus, setFullLevelLeaderboardStatus] = useState('idle'); // idle | loading | loaded | error
 
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [selectedGameType, setSelectedGameType] = useState('translation');
@@ -184,6 +187,14 @@ const WhoKnowsMore = () => {
     if (estaLogado) {
       getMyDuelRankRequest().then(setMyRank).catch(() => setMyRank(null));
     }
+  };
+
+  const openFullLevelRanking = () => {
+    setShowFullLevelModal(true);
+    setFullLevelLeaderboardStatus('loading');
+    getLevelLeaderboardRequest(50)
+      .then(({ entries }) => { setFullLevelLeaderboard(entries); setFullLevelLeaderboardStatus('loaded'); })
+      .catch(() => setFullLevelLeaderboardStatus('error'));
   };
 
   // ============ MODO BOT (inalterado no comportamento) ============
@@ -764,7 +775,10 @@ const WhoKnowsMore = () => {
                     )}
                     {leaderboardStatus === 'loaded' && leaderboard.length > 0 && (
                       <div className="ranked-list">
-                        {leaderboard.map((entry, i) => (
+                        {leaderboard.map((entry, i) => {
+                          const levelObj = getCurrentLevel(entry.wordsStudied || 0);
+                          const title = getUserTitle(levelObj?.level || 1);
+                          return (
                           <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
                             <div className="ranked-position-col">
                               <span className={`ranked-position-num pos-${i + 1}`}>#{i + 1}</span>
@@ -774,7 +788,7 @@ const WhoKnowsMore = () => {
                               <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
                               <div className="ranked-player-details">
                                 <span className="ranked-player-name">{entry.nickname}</span>
-                                <span className={`ranked-player-tag ${entry.title || ''}`}>{entry.title || getUserTitle(entry.level || 1).tag}</span>
+                                <span className="ranked-player-tag">{title.tag}</span>
                               </div>
                             </div>
 
@@ -785,7 +799,8 @@ const WhoKnowsMore = () => {
                               </div>
                             </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
 
@@ -820,7 +835,7 @@ const WhoKnowsMore = () => {
                         {showLevelTooltip && (
                           <div className="ranked-info-tooltip glass-card animate-fade-in-up">
                             <span className="tooltip-icon">💡</span>
-                            <p>Para você aparecer aqui, precisa estar logado em uma conta e ter escolhido um apelido. Só conta quem tem conta — o progresso de convidado fica só neste aparelho.</p>
+                            <p>Para você aparecer aqui você precisa estar logado em uma conta e ter escolhido um apelido.</p>
                           </div>
                         )}
                       </div>
@@ -873,6 +888,12 @@ const WhoKnowsMore = () => {
                         })}
                       </div>
                     )}
+
+                    <div className="ranked-footer">
+                      <button className="btn btn-ghost btn-sm ranked-full-btn" onClick={openFullLevelRanking}>
+                        📊 Ver Ranking Completo
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -1492,8 +1513,11 @@ const WhoKnowsMore = () => {
                 </p>
               )}
               {fullLeaderboardStatus === 'loaded' && fullLeaderboard.length > 0 && (
-                <div className="ranked-list" style={{ maxHeight: '50vh', overflowY: 'auto' }}>
-                  {fullLeaderboard.map((entry, i) => (
+                <div className="ranked-list" style={{ maxHeight: '50vh', overflowY: 'auto', overflowX: 'hidden' }}>
+                  {fullLeaderboard.map((entry, i) => {
+                    const levelObj = getCurrentLevel(entry.wordsStudied || 0);
+                    const title = getUserTitle(levelObj?.level || 1);
+                    return (
                     <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
                       <div className="ranked-position-col">
                         <span className={`ranked-position-num pos-${i + 1}`}>#{i + 1}</span>
@@ -1503,7 +1527,7 @@ const WhoKnowsMore = () => {
                         <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
                         <div className="ranked-player-details">
                           <span className="ranked-player-name">{entry.nickname}</span>
-                          <span className="ranked-player-tag">{entry.title || getUserTitle(entry.level || 1).tag}</span>
+                          <span className="ranked-player-tag">{title.tag}</span>
                         </div>
                       </div>
 
@@ -1514,7 +1538,8 @@ const WhoKnowsMore = () => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -1522,6 +1547,70 @@ const WhoKnowsMore = () => {
                 <p className="text-secondary" style={{ textAlign: 'center', marginTop: 'var(--space-md)', fontSize: 'var(--fs-sm)' }}>
                   Sua posição: <strong>#{myRank.rank}</strong> • 🏆 {myRank.trophies}
                 </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {showFullLevelModal && (
+          <div className="modal-overlay" onClick={() => setShowFullLevelModal(false)}>
+            <div className="modal-content glass-card animate-bounce-in" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowFullLevelModal(false)}
+                aria-label="Fechar"
+              >
+                ✕
+              </button>
+              <div className="modal-icon" aria-hidden="true">🎓</div>
+              <h2 style={{ textAlign: 'center' }}>Ranking Completo</h2>
+              <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', textAlign: 'center', marginBottom: 'var(--space-md)' }}>
+                Top níveis
+              </p>
+
+              {fullLevelLeaderboardStatus === 'loading' && (
+                <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>Carregando…</p>
+              )}
+              {fullLevelLeaderboardStatus === 'error' && (
+                <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                  Não foi possível carregar o ranking agora.
+                </p>
+              )}
+              {fullLevelLeaderboardStatus === 'loaded' && fullLevelLeaderboard.length === 0 && (
+                <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                  Ninguém no ranking ainda.
+                </p>
+              )}
+              {fullLevelLeaderboardStatus === 'loaded' && fullLevelLeaderboard.length > 0 && (
+                <div className="ranked-list" style={{ maxHeight: '50vh', overflowY: 'auto', overflowX: 'hidden' }}>
+                  {fullLevelLeaderboard.map((entry, i) => {
+                    const levelObj = getCurrentLevel(entry.wordsStudied || 0);
+                    const title = getUserTitle(levelObj?.level || 1);
+                    return (
+                    <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
+                      <div className="ranked-position-col">
+                        <span className={`ranked-position-num pos-${i + 1}`}>#{i + 1}</span>
+                      </div>
+
+                      <div className="ranked-player-col">
+                        <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
+                        <div className="ranked-player-details">
+                          <span className="ranked-player-name">{entry.nickname}</span>
+                          <span className="ranked-player-tag">{title.tag}</span>
+                        </div>
+                      </div>
+
+                      <div className="ranked-score-col">
+                        <div className="ranked-score-main">
+                          <span className="ranked-trophy">🎓</span>
+                          <strong>{levelObj?.level || 1}</strong> <small>nível</small>
+                        </div>
+                      </div>
+                    </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>

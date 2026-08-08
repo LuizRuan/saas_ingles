@@ -13,11 +13,26 @@ export const getLeaderboard = async (req, res) => {
   const limit = clampLimit(req.query.limit);
   // .lean(): endpoint público e só-leitura — devolve objeto JS puro, sem
   // instanciar um documento Mongoose completo pra cada linha do ranking.
-  const entries = await DuelTrophy.find({ month })
+  const trophies = await DuelTrophy.find({ month })
     .sort({ trophies: -1, updatedAt: 1 })
     .limit(limit)
-    .select('nickname avatar trophies -_id')
+    .select('userId nickname avatar trophies -_id')
     .lean();
+
+  // DuelTrophy não guarda nível (é denormalizado só do ticket de duelo, na
+  // hora da vitória) — sem isto, a tag de título sempre caía no "Iniciante"
+  // hardcoded, mesmo pra quem já tinha estudado bastante. wordsStudied é o
+  // mesmo dado usado no ranking de Níveis (getLevelLeaderboard), buscado
+  // aqui por userId pra manter as duas tags consistentes entre si.
+  const userIds = trophies.map(t => t.userId).filter(Boolean);
+  const users = await User.find({ _id: { $in: userIds } }).select('progress.wordsStudied').lean();
+  const wordsStudiedByUserId = new Map(users.map(u => [u._id.toString(), u.progress?.wordsStudied || 0]));
+
+  const entries = trophies.map(({ userId, ...entry }) => ({
+    ...entry,
+    wordsStudied: wordsStudiedByUserId.get(userId?.toString()) || 0,
+  }));
+
   res.status(200).json({ month, entries });
 };
 
