@@ -418,7 +418,7 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       const players = lastMatch.players;
       destroyMatch(matchId, 0); // Destrói a anterior já que iniciou revanche
 
-      const gameType = pickRandomGameType();
+      const gameType = lastMatch.gameType || pickRandomGameType();
       const newMatch = createMatch(players, gameType);
       const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname }));
 

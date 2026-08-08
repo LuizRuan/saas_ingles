@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useProgress } from '../../hooks/useProgress';
 import { useAuthProfile } from '../../hooks/useAuthProfile';
 import { useDuelSocket } from '../../hooks/useDuelSocket';
-import { getDuelTicketRequest, getDuelLeaderboardRequest, getMyDuelRankRequest } from '../../utils/authClient';
+import { getDuelTicketRequest, getDuelLeaderboardRequest, getMyDuelRankRequest, getLevelLeaderboardRequest } from '../../utils/authClient';
 import { usePresence } from '../../hooks/usePresence';
 import { shuffleArray, words } from '../../data/words';
 import { msLeft, secondsLeft, barWidthPct } from '../../utils/duelClock';
@@ -11,7 +11,7 @@ import { rewardFor, isRewarded } from '../../utils/duelReward';
 import { presenceLabel } from '../../utils/presenceLabel';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
-import { getUserTitle } from '../../utils/levelSystem';
+import { getCurrentLevel, getUserTitle } from '../../utils/levelSystem';
 import AvatarDisplay from '../../components/Avatar/AvatarDisplay';
 import DuelHangman from './games/DuelHangman';
 import DuelMemory  from './games/DuelMemory';
@@ -64,6 +64,7 @@ const WhoKnowsMore = () => {
   const [gameState, setGameState] = useState('lobby'); // lobby | playing | gameover
   const [showSearchModal, setShowSearchModal]   = useState(false);
   const [showRankedTooltip, setShowRankedTooltip] = useState(false);
+  const [showLevelTooltip, setShowLevelTooltip] = useState(false);
   const [showFullRankedModal, setShowFullRankedModal] = useState(false);
   
   // Estados para Sala Privada com Amigos
@@ -102,6 +103,11 @@ const WhoKnowsMore = () => {
   const [fullLeaderboard, setFullLeaderboard] = useState([]);
   const [fullLeaderboardStatus, setFullLeaderboardStatus] = useState('idle'); // idle | loading | loaded | error
   const [myRank, setMyRank] = useState(null); // { month, trophies, rank } | null
+
+  // Ranking por nível (contas com apelido, mais palavras estudadas primeiro)
+  // — independente do ranking de troféus, sem reset mensal.
+  const [levelLeaderboard, setLevelLeaderboard] = useState([]);
+  const [levelLeaderboardStatus, setLevelLeaderboardStatus] = useState('loading'); // loading | loaded | error
 
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [selectedGameType, setSelectedGameType] = useState('translation');
@@ -156,11 +162,18 @@ const WhoKnowsMore = () => {
       .catch(() => setLeaderboardStatus('error'));
   }, []);
 
+  const fetchLevelLeaderboard = useCallback(() => {
+    getLevelLeaderboardRequest(5)
+      .then(({ entries }) => { setLevelLeaderboard(entries); setLevelLeaderboardStatus('loaded'); })
+      .catch(() => setLevelLeaderboardStatus('error'));
+  }, []);
+
   useEffect(() => {
     if (gameState === 'lobby') {
       fetchLeaderboard();
+      fetchLevelLeaderboard();
     }
-  }, [gameState, fetchLeaderboard]);
+  }, [gameState, fetchLeaderboard, fetchLevelLeaderboard]);
 
   const openFullRanking = () => {
     setShowFullRankingModal(true);
@@ -699,84 +712,170 @@ const WhoKnowsMore = () => {
               </div>
             </div>
 
-            {/* ─── Seção Ranked / Top 5 do Mês ─────────────────────────────── */}
+            {/* ─── Seção Ranked: Troféus (esquerda) + Níveis (direita) ──────── */}
             <div className="ranked-section">
-              <div className="ranked-section-header">
-                <span className="badge badge-green">🏆 RANKED</span>
-                <h2>Top 5 do Mês</h2>
-                <div className="ranked-subtitle-wrapper">
-                  <p className="text-secondary">
-                    Veja os jogadores com melhor desempenho no modo duelo.
-                  </p>
-                  <div className="ranked-info-tooltip-container">
-                    <button
-                      type="button"
-                      className="ranked-info-btn"
-                      onClick={() => setShowRankedTooltip(!showRankedTooltip)}
-                      onMouseEnter={() => setShowRankedTooltip(true)}
-                      onMouseLeave={() => setShowRankedTooltip(false)}
-                      aria-label="Requisitos para aparecer no ranking"
-                    >
-                      ℹ️
-                    </button>
-                    {showRankedTooltip && (
-                      <div className="ranked-info-tooltip glass-card animate-fade-in-up">
-                        <span className="tooltip-icon">💡</span>
-                        <p>Para você aparecer no ranked você precisa estar logado em uma conta e ter escolhido um apelido.</p>
+              <div className="ranked-columns">
+
+                {/* Coluna esquerda — Top 5 do Mês (troféus de duelo) */}
+                <div className="ranked-column">
+                  <div className="ranked-section-header">
+                    <span className="badge badge-green">🏆 RANKED</span>
+                    <h2>Top 5 do Mês</h2>
+                    <div className="ranked-subtitle-wrapper">
+                      <p className="text-secondary">
+                        Veja os jogadores com melhor desempenho no modo duelo.
+                      </p>
+                      <div className="ranked-info-tooltip-container">
+                        <button
+                          type="button"
+                          className="ranked-info-btn"
+                          onClick={() => setShowRankedTooltip(!showRankedTooltip)}
+                          onMouseEnter={() => setShowRankedTooltip(true)}
+                          onMouseLeave={() => setShowRankedTooltip(false)}
+                          aria-label="Requisitos para aparecer no ranking"
+                        >
+                          ℹ️
+                        </button>
+                        {showRankedTooltip && (
+                          <div className="ranked-info-tooltip glass-card animate-fade-in-up">
+                            <span className="tooltip-icon">💡</span>
+                            <p>Para você aparecer no ranked você precisa estar logado em uma conta e ter escolhido um apelido.</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="ranked-card glass-card">
+                    {leaderboardStatus === 'loading' && (
+                      <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                        Carregando ranking…
+                      </p>
+                    )}
+                    {leaderboardStatus === 'error' && (
+                      <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                        Não foi possível carregar o ranking agora.
+                      </p>
+                    )}
+                    {leaderboardStatus === 'loaded' && leaderboard.length === 0 && (
+                      <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                        Ninguém no ranking ainda este mês — vença um duelo pra ser o primeiro!
+                      </p>
+                    )}
+                    {leaderboardStatus === 'loaded' && leaderboard.length > 0 && (
+                      <div className="ranked-list">
+                        {leaderboard.map((entry, i) => (
+                          <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
+                            <div className="ranked-position-col">
+                              <span className={`ranked-position-num pos-${i + 1}`}>#{i + 1}</span>
+                            </div>
+
+                            <div className="ranked-player-col">
+                              <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
+                              <div className="ranked-player-details">
+                                <span className="ranked-player-name">{entry.nickname}</span>
+                                <span className={`ranked-player-tag ${entry.title || ''}`}>{entry.title || getUserTitle(entry.level || 1).tag}</span>
+                              </div>
+                            </div>
+
+                            <div className="ranked-score-col">
+                              <div className="ranked-score-main">
+                                <span className="ranked-trophy">🏆</span>
+                                <strong>{entry.trophies}</strong> <small>troféus</small>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="ranked-footer">
+                      <button className="btn btn-ghost btn-sm ranked-full-btn" onClick={openFullRanking}>
+                        📊 Ver Ranking Completo
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Coluna direita — Top Níveis (contas com mais palavras estudadas) */}
+                <div className="ranked-column">
+                  <div className="ranked-section-header">
+                    <span className="badge badge-purple">🎓 NÍVEIS</span>
+                    <h2>Top Níveis</h2>
+                    <div className="ranked-subtitle-wrapper">
+                      <p className="text-secondary">
+                        Os alunos que mais avançaram nos estudos.
+                      </p>
+                      <div className="ranked-info-tooltip-container">
+                        <button
+                          type="button"
+                          className="ranked-info-btn"
+                          onClick={() => setShowLevelTooltip(!showLevelTooltip)}
+                          onMouseEnter={() => setShowLevelTooltip(true)}
+                          onMouseLeave={() => setShowLevelTooltip(false)}
+                          aria-label="Requisitos para aparecer no ranking de níveis"
+                        >
+                          ℹ️
+                        </button>
+                        {showLevelTooltip && (
+                          <div className="ranked-info-tooltip glass-card animate-fade-in-up">
+                            <span className="tooltip-icon">💡</span>
+                            <p>Para você aparecer aqui, precisa estar logado em uma conta e ter escolhido um apelido. Só conta quem tem conta — o progresso de convidado fica só neste aparelho.</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="ranked-card glass-card">
+                    {levelLeaderboardStatus === 'loading' && (
+                      <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                        Carregando ranking…
+                      </p>
+                    )}
+                    {levelLeaderboardStatus === 'error' && (
+                      <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                        Não foi possível carregar o ranking agora.
+                      </p>
+                    )}
+                    {levelLeaderboardStatus === 'loaded' && levelLeaderboard.length === 0 && (
+                      <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
+                        Ninguém no ranking ainda — crie uma conta e estude pra ser o primeiro!
+                      </p>
+                    )}
+                    {levelLeaderboardStatus === 'loaded' && levelLeaderboard.length > 0 && (
+                      <div className="ranked-list">
+                        {levelLeaderboard.map((entry, i) => {
+                          const levelObj = getCurrentLevel(entry.wordsStudied || 0);
+                          const title = getUserTitle(levelObj?.level || 1);
+                          return (
+                            <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
+                              <div className="ranked-position-col">
+                                <span className={`ranked-position-num pos-${i + 1}`}>#{i + 1}</span>
+                              </div>
+
+                              <div className="ranked-player-col">
+                                <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
+                                <div className="ranked-player-details">
+                                  <span className="ranked-player-name">{entry.nickname}</span>
+                                  <span className="ranked-player-tag">{title.tag}</span>
+                                </div>
+                              </div>
+
+                              <div className="ranked-score-col">
+                                <div className="ranked-score-main">
+                                  <span className="ranked-trophy">🎓</span>
+                                  <strong>{levelObj?.level || 1}</strong> <small>nível</small>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
                 </div>
-              </div>
 
-              <div className="ranked-card glass-card">
-                {leaderboardStatus === 'loading' && (
-                  <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
-                    Carregando ranking…
-                  </p>
-                )}
-                {leaderboardStatus === 'error' && (
-                  <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
-                    Não foi possível carregar o ranking agora.
-                  </p>
-                )}
-                {leaderboardStatus === 'loaded' && leaderboard.length === 0 && (
-                  <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
-                    Ninguém no ranking ainda este mês — vença um duelo pra ser o primeiro!
-                  </p>
-                )}
-                {leaderboardStatus === 'loaded' && leaderboard.length > 0 && (
-                  <div className="ranked-list">
-                    {leaderboard.map((entry, i) => (
-                      <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
-                        <div className="ranked-position-col">
-                          <span className={`ranked-position-num pos-${i + 1}`}>#{i + 1}</span>
-                        </div>
-
-                        <div className="ranked-player-col">
-                          <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
-                          <div className="ranked-player-details">
-                            <span className="ranked-player-name">{entry.nickname}</span>
-                            <span className={`ranked-player-tag ${entry.title || ''}`}>{entry.title || getUserTitle(entry.level || 1).tag}</span>
-                          </div>
-                        </div>
-
-                        <div className="ranked-score-col">
-                          <div className="ranked-score-main">
-                            <span className="ranked-trophy">🏆</span>
-                            <strong>{entry.trophies}</strong> <small>troféus</small>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="ranked-footer">
-                  <button className="btn btn-ghost btn-sm ranked-full-btn" onClick={openFullRanking}>
-                    📊 Ver Ranking Completo
-                  </button>
-                </div>
               </div>
             </div>
 

@@ -878,6 +878,34 @@
   margin: 0;
 }
 
+/* Duas colunas lado a lado: troféus à esquerda, níveis à direita.
+   Cada uma é uma seção completa (header + card) — empilha em telas estreitas
+   porque duas listas de 5 linhas lado a lado não cabem num card de celular. */
+.ranked-columns {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-xl);
+  width: 100%;
+}
+
+.ranked-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  max-width: 720px;
+}
+
+@media (max-width: 900px) {
+  .ranked-columns {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
 /* Card Principal do Ranking */
 .ranked-card {
   width: 100%;

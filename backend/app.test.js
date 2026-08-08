@@ -158,4 +158,9 @@ describe('/api/duel/leaderboard', () => {
       .set('Cookie', `${SESSION_COOKIE_NAME}=${token}`);
     expect(res.status).toBe(503);
   });
+
+  it('GET /level responde 503 sem banco conectado (rota pública, mas depende do banco)', async () => {
+    const res = await request(app).get('/api/duel/leaderboard/level');
+    expect(res.status).toBe(503);
+  });
 });

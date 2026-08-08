@@ -67,3 +67,6 @@ export const getDuelLeaderboardRequest = (limit = 5) =>
 
 export const getMyDuelRankRequest = () => callAuth('/api/duel/leaderboard/me', { method: 'GET' });
 
+export const getLevelLeaderboardRequest = (limit = 5) =>
+  callAuth(`/api/duel/leaderboard/level?limit=${limit}`, { method: 'GET' });
+
