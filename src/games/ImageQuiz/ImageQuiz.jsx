@@ -272,13 +272,13 @@ const ImageQuiz = () => {
           <img
             className="iq-image"
             src={current.target.icon}
-            alt=""
+            /* Alt genérico de propósito: o texto real do Pexels descreve a
+               foto (ex.: "a red-coated dog...") e entregaria a resposta pra
+               quem usa leitor de tela. */
+            alt="Imagem para adivinhar"
             style={{ width: `${current.imageSize}px`, height: `${current.imageSize}px` }}
           />
         </div>
-        <p className="text-secondary iq-credit">
-          Ícones: <a href="https://openmoji.org" target="_blank" rel="noopener noreferrer">OpenMoji</a> (CC BY-SA 4.0)
-        </p>
 
         <div className="iq-options">
           {current.options.map((opt, i) => (
