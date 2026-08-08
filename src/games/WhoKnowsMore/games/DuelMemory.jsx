@@ -92,6 +92,10 @@ const DuelMemory = ({
     if (flipped.length === 2 || flipped.includes(cardId) || matched.includes(cardId) || playerDone) return;
 
     playFlip();
+    // Fala a palavra ao virar a carta em inglês — mesma regra do
+    // MemoryGame.jsx: a voz é sempre en-US, só faz sentido no lado 'en'.
+    const clicked = cards.find(c => c.id === cardId);
+    if (clicked?.type === 'en') speakNormal(clicked.text);
     const newFlipped = [...flipped, cardId];
     setFlipped(newFlipped);
 
@@ -111,7 +115,7 @@ const DuelMemory = ({
         setTimeout(() => setFlipped([]), 1000);
       }
     }
-  }, [flipped, matched, cards, playerDone, playFlip, playMatch]);
+  }, [flipped, matched, cards, playerDone, playFlip, playMatch, speakNormal]);
 
   const pairsFound = matched.length / 2;
 

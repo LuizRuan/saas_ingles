@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import useSound from '../../../hooks/useSound';
+import useSpeech from '../../../hooks/useSpeech';
 import '../../../games/HangmanGame/HangmanGame.css';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -30,6 +31,7 @@ const renderHangman = (wrongCount) => (
  */
 const OnlineHangman = ({ tip, wordTemplate, duel, onAnswer }) => {
   const { playCorrect, playWrong, playClick } = useSound();
+  const { speakNormal } = useSpeech();
   const [correctLetters, setCorrectLetters] = useState(new Set());
   const [wrongLetters, setWrongLetters] = useState(new Set());
   const [positions, setPositions] = useState({}); // { [índice]: letra }
@@ -38,6 +40,7 @@ const OnlineHangman = ({ tip, wordTemplate, duel, onAnswer }) => {
   const handleGuess = (letter) => {
     if (answeredRef.current || correctLetters.has(letter) || wrongLetters.has(letter)) return;
     playClick();
+    speakNormal(letter);
     duel.guessLetter(letter, (ack) => {
       if (!ack?.ok) return; // rodada fechou / já tentada — o servidor já recusou, nada a fazer aqui
       if (ack.inWord) {

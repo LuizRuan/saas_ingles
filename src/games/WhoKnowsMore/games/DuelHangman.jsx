@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import useSound from '../../../hooks/useSound';
+import useSpeech from '../../../hooks/useSpeech';
 import AvatarDisplay from '../../../components/Avatar/AvatarDisplay';
 import '../../../games/HangmanGame/HangmanGame.css';
 
@@ -34,6 +35,7 @@ const DuelHangman = ({
   const [botWon, setBotWon] = useState(false);
   const roundEndCalledRef = useRef(false);
   const { playCorrect, playWrong, playClick } = useSound();
+  const { speakNormal } = useSpeech();
 
   const wordUpper = word.en.toUpperCase();
   const isRoundOver = playerState !== 'playing';
@@ -80,6 +82,7 @@ const DuelHangman = ({
     if (guessedLetters.includes(letter) || playerState !== 'playing') return;
 
     playClick();
+    speakNormal(letter);
     const newGuessed = [...guessedLetters, letter];
     setGuessedLetters(newGuessed);
 
@@ -97,7 +100,7 @@ const DuelHangman = ({
         playCorrect();
       }
     }
-  }, [guessedLetters, playerState, wordUpper, wrongCount, playClick, playWrong, playCorrect]);
+  }, [guessedLetters, playerState, wordUpper, wrongCount, playClick, speakNormal, playWrong, playCorrect]);
 
   // ─── Render helpers ───────────────────────────────────────────────────────
   const renderHangman = () => (

@@ -143,13 +143,18 @@ const DuelBotGame = ({
   const handleOptionClick = useCallback((opt) => {
     if (playerDone) return;
     playClick();
+    // Só fillBlanks tem opções em inglês (translation/trueFalse/listening/
+    // sentenceBuilder mostram a tradução em português) — a voz é sempre
+    // en-US (ver useSpeech.js), falar português com ela soaria errado.
+    if (question.type === 'fillBlanks') speakNormal(opt);
     finishPlayer(opt);
-  }, [playerDone, playClick, finishPlayer]);
+  }, [playerDone, playClick, speakNormal, question.type, finishPlayer]);
 
   // WordBuilder: clica numa letra disponível → coloca no próximo slot vazio
   const handleTileClick = useCallback((tile) => {
     if (playerDone || tile.used) return;
     playClick();
+    speakNormal(tile.letter);
 
     const nextEmpty = slots.findIndex(s => s === null);
     if (nextEmpty === -1) return;
@@ -164,18 +169,19 @@ const DuelBotGame = ({
       const formed = newSlots.map(s => s.letter).join('').toLowerCase();
       finishPlayer(formed);
     }
-  }, [playerDone, slots, playClick, finishPlayer]);
+  }, [playerDone, slots, playClick, speakNormal, finishPlayer]);
 
   // WordBuilder: clica num slot preenchido → devolve a letra
   const handleSlotClick = useCallback((slotIdx) => {
     if (playerDone) return;
     const tile = slots[slotIdx];
     if (!tile) return;
+    speakNormal(tile.letter);
     const newSlots = [...slots];
     newSlots[slotIdx] = null;
     setSlots(newSlots);
     setTiles(prev => prev.map(t => t.id === tile.id ? { ...t, used: false } : t));
-  }, [playerDone, slots]);
+  }, [playerDone, slots, speakNormal]);
 
   // WordBuilder: limpar tudo
   const handleClearWord = useCallback(() => {

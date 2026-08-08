@@ -253,6 +253,11 @@ const DuelOnlineGame = ({
     if (submittedRef.current) return;
     submittedRef.current = true;
     clearInterval(timerRef.current);
+    // Só fillBlanks tem opções em inglês (listening/translation/trueFalse/
+    // sentenceBuilder mostram a tradução em português, e memory manda
+    // 'completed' — não é uma palavra) — a voz é sempre en-US, não faz
+    // sentido nos outros tipos.
+    if (question.type === 'fillBlanks') speakNormal(choice);
     setPlayerAnswer(choice);
     setPlayerDone(true);
     duel.submitAnswer(choice);
@@ -518,6 +523,7 @@ const DuelOnlineGame = ({
                   disabled={playerDone}
                   onClick={() => {
                     if (playerDone) return;
+                    speakNormal(s.letter);
                     const newSlots = slots.filter((_, si) => si !== i);
                     const tile = tiles.find(t => t.id === s.id);
                     if (tile) setTiles(tiles.map(t => t.id === s.id ? { ...t, used: false } : t));
@@ -538,6 +544,7 @@ const DuelOnlineGame = ({
                   className="wb-letter-btn"
                   disabled={playerDone}
                   onClick={() => {
+                    speakNormal(tile.letter);
                     const newSlots = [...slots, tile];
                     setTiles(tiles.map(t => t.id === tile.id ? { ...t, used: true } : t));
                     setSlots(newSlots);
