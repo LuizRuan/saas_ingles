@@ -15,11 +15,16 @@ export const getWordStatus = (wordStats) => {
 
 export const getWordsToReview = (progress, allWords) => {
   const { wordStats = {} } = progress;
-  
-  // Get words that have been seen and have errors
+
+  // Uma palavra some da lista assim que a resposta MAIS RECENTE for um acerto
+  // — não precisa atingir o limiar de "aprendida" (3 acertos). Antes, o
+  // filtro exigia stats.correct < LEARNED_THRESHOLD, então acertar 1x durante
+  // a revisão quase nunca tirava a palavra da lista (ainda faltava chegar a
+  // 3 acertos totais), e a tela de "Revisão Concluída" não refletia nada.
+  // Um erro novo depois disso volta a marcar a palavra pra revisão.
   const wordsWithErrors = allWords.filter(word => {
     const stats = wordStats[word.en];
-    return stats && stats.wrong > 0 && stats.correct < LEARNED_THRESHOLD;
+    return stats && stats.wrong > 0 && stats.lastResult !== 'correct';
   });
   
   // Sort by error rate (most errors first)
@@ -112,6 +117,7 @@ export const recordWordResult = (progress, rawKey, isCorrect) => {
     wrong: (prev.wrong || 0) + (isCorrect ? 0 : 1),
     timestamps: isCorrect ? [...(prev.timestamps || []), now] : [...(prev.timestamps || [])],
     lastSeen: now,
+    lastResult: isCorrect ? 'correct' : 'wrong',
   };
 
   // "Aprendida": acertos suficientes em pelo menos 2 dias distintos

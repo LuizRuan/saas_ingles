@@ -27,6 +27,7 @@ export const gamesCatalog = [
     id: 'whoKnowsMore',
     name: 'Quem Sabe Mais?',
     icon: '⚔️',
+    iconImage: '/quemsabemais.png',
     color: '#ec4899',
     path: '/games/who-knows-more',
     desc: 'Duelo de Vocabulário',
@@ -114,6 +115,15 @@ export const gamesCatalog = [
     path: '/games/listening',
     desc: 'Ouça e identifique',
     descLong: 'Ouça a palavra em inglês e identifique o que foi falado.',
+  },
+  {
+    id: 'imageQuiz',
+    name: 'Jogo da Imagem',
+    icon: '🖼️',
+    color: '#f97316',
+    path: '/games/image-quiz',
+    desc: 'Veja e adivinhe',
+    descLong: 'Veja a imagem e escolha a palavra certa em inglês entre 4 opções bem parecidas.',
   },
 ];
 

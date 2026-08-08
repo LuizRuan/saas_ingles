@@ -166,6 +166,25 @@ describe('revisão', () => {
     for (let i = 0; i < LEARNED_THRESHOLD; i++) p = recordWordResult(p, 'Hello', true);
     expect(getWordsToReview(p, words)).toHaveLength(0);
   });
+
+  it('regressão: 1 acerto na revisão já remove a palavra, sem esperar o limiar', () => {
+    // Antes, a lista só considerava "revisada" ao atingir LEARNED_THRESHOLD
+    // acertos totais — quem terminava a tela "Revisão Concluída!" via a
+    // mesma palavra continuar aparecendo, porque 1 acerto raramente chega
+    // ao limiar sozinho.
+    let p = recordWordResult(progressoVazio(), 'Hello', false);
+    expect(getWordsToReview(p, words)).toHaveLength(1);
+    p = recordWordResult(p, 'Hello', true);
+    expect(getWordsToReview(p, words)).toHaveLength(0);
+  });
+
+  it('regressão: um erro novo depois de acertar volta a marcar a palavra pra revisão', () => {
+    let p = recordWordResult(progressoVazio(), 'Hello', false);
+    p = recordWordResult(p, 'Hello', true);
+    expect(getWordsToReview(p, words)).toHaveLength(0);
+    p = recordWordResult(p, 'Hello', false);
+    expect(getWordsToReview(p, words)).toHaveLength(1);
+  });
 });
 
 describe('desafio diário', () => {

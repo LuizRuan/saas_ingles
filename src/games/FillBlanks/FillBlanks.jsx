@@ -4,6 +4,7 @@ import { fillBlanks } from '../../data/sentences';
 import { shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
+import useSpeech from '../../hooks/useSpeech';
 import './FillBlanks.css';
 
 const ROUNDS = 10;
@@ -22,12 +23,14 @@ const FillBlanks = () => {
   const [gameComplete, setGameComplete] = useState(false);
   const { handleCorrectAnswer, handleWrongAnswer, completeGame } = useProgress();
   const { playCorrect, playWrong } = useSound();
+  const { speakNormal } = useSpeech();
 
   const current = questions[round];
 
   const handleSelect = useCallback((option) => {
     if (feedback) return;
     setSelected(option);
+    speakNormal(option);
     if (option === current.answer) {
       setFeedback('correct');
       setScore(prev => prev + 10);
@@ -38,7 +41,7 @@ const FillBlanks = () => {
       handleWrongAnswer(current.answer);
       playWrong();
     }
-  }, [feedback, current, handleCorrectAnswer, handleWrongAnswer, playCorrect, playWrong]);
+  }, [feedback, current, speakNormal, handleCorrectAnswer, handleWrongAnswer, playCorrect, playWrong]);
 
   const nextRound = useCallback(() => {
     if (round + 1 >= questions.length) {

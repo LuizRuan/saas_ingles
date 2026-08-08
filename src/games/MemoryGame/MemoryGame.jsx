@@ -51,6 +51,10 @@ const MemoryGame = () => {
     if (showExplanation) return;
 
     playFlip();
+    // Fala a palavra ao virar a carta em inglês — a voz é sempre en-US (ver
+    // useSpeech.js), então só faz sentido para o lado 'en' do par.
+    const clicked = cards.find(c => c.id === cardId);
+    if (clicked?.type === 'en') speakNormal(clicked.text);
     const newFlipped = [...flipped, cardId];
     setFlipped(newFlipped);
 
@@ -78,7 +82,7 @@ const MemoryGame = () => {
         }, 1000);
       }
     }
-  }, [flipped, matched, cards, showExplanation, playFlip, playMatch, handleCorrectAnswer]);
+  }, [flipped, matched, cards, showExplanation, playFlip, playMatch, speakNormal, handleCorrectAnswer]);
 
   const dismissExplanation = useCallback(() => {
     setShowExplanation(false);

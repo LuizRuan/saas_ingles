@@ -36,6 +36,7 @@ export const defaultProgress = {
     trueFalse: 0,
     listening: 0,
     whoKnowsMore: 0,
+    imageQuiz: 0,
   },
   // Vocabulário: { [word.en canônico]: { correct, wrong, lastSeen, timestamps, learned } }
   wordStats: {},
@@ -131,6 +132,9 @@ const saneiaEstatistica = (s) => {
     lastSeen,
     timestamps: lista(o.timestamps).slice(-500).map(t => inteiro(t, 0)),
     ...(o.learned ? { learned: true } : {}),
+    // Usado por getWordsToReview pra saber se a resposta mais recente foi um
+    // acerto — sem isto, essa informação some a cada reload (ver reviewSystem.js).
+    ...(o.lastResult === 'correct' || o.lastResult === 'wrong' ? { lastResult: o.lastResult } : {}),
   };
 };
 

@@ -1,0 +1,102 @@
+/* Tela de dificuldade — mesmo padrão visual do MemoryGame (.difficulty-grid),
+   copiado em vez de compartilhado: cada jogo carrega seu próprio CSS via
+   code-splitting, então importar o arquivo de outro jogo puxaria o chunk
+   dele junto. */
+.iq-difficulty-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.iq-difficulty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl);
+  cursor: pointer;
+}
+
+.iq-difficulty-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+  border-color: var(--accent-primary);
+}
+
+.iq-diff-icon { font-size: var(--fs-2xl); }
+.iq-diff-label { font-family: var(--font-heading); font-size: var(--fs-lg); font-weight: 700; color: var(--accent-primary); }
+.iq-diff-info { font-size: var(--fs-sm); color: var(--text-secondary); }
+
+@media (max-width: 600px) {
+  .iq-difficulty-grid { grid-template-columns: 1fr; max-width: 300px; }
+}
+
+/* Cronômetro da rodada — mesmo comportamento do .tf-clock do TrueFalse:
+   abaixo de um limiar ele pulsa. data-animations="off" e
+   prefers-reduced-motion já zeram a duração da animação, a cor sozinha
+   sustenta o aviso nesses casos. */
+.iq-clock .value { font-variant-numeric: tabular-nums; }
+
+.iq-clock.urgente {
+  color: var(--accent-red);
+  animation: iqPulso 1s ease-in-out infinite;
+}
+
+@keyframes iqPulso {
+  50% { transform: scale(1.12); }
+}
+
+/* Card da imagem — o emoji-alvo. O tamanho vem de um style inline em
+   ImageQuiz.jsx (font-size calculado por rodada) porque ele MUDA a cada
+   rodada conforme a dificuldade avança; não dá pra fixar em CSS estático. */
+.iq-image-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-2xl) var(--space-lg);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.iq-emoji {
+  line-height: 1;
+  /* Emoji não herda cor de texto nem tema — não precisa de token aqui. */
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+}
+
+/* Opções — mesmo padrão visual do .tq-option do TranslationQuiz. */
+.iq-options { display: flex; flex-direction: column; gap: var(--space-sm); margin-bottom: var(--space-lg); }
+
+.iq-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+  font-size: var(--fs-base);
+  transition: all var(--transition-fast);
+  animation: fadeInUp 0.3s ease-out both;
+}
+.iq-option:hover:not(.correct):not(.wrong):not(.dimmed) { border-color: var(--accent-primary); background: var(--bg-purple-subtle); }
+.iq-option.correct { border-color: var(--accent-green); background: var(--bg-green-subtle); color: var(--accent-green-dark); }
+.iq-option.wrong { border-color: var(--accent-red); background: var(--bg-red-subtle); animation: shake 0.5s ease-out; }
+.iq-option.dimmed { opacity: 0.4; }
+
+.iq-option-letter {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-purple-subtle);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--accent-primary);
+}

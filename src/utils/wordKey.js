@@ -37,5 +37,8 @@ export const mergeStats = (a, b) => {
     timestamps: [...(a.timestamps || []), ...(b.timestamps || [])].sort((x, y) => x - y),
     lastSeen: Math.max(a.lastSeen || 0, b.lastSeen || 0) || null,
     learned: Boolean(a.learned || b.learned),
+    // lastResult vem de quem tem o lastSeen mais recente — é o que
+    // getWordsToReview usa pra saber se a resposta mais recente foi um acerto.
+    lastResult: (a.lastSeen || 0) >= (b.lastSeen || 0) ? a.lastResult : b.lastResult,
   };
 };

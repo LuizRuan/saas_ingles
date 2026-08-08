@@ -4,6 +4,7 @@ import { words, shuffleArray } from '../../data/words';
 import { categories } from '../../data/categories';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
+import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
 import './HangmanGame.css';
 
@@ -22,6 +23,7 @@ const HangmanGame = () => {
   const [gameState, setGameState] = useState('select'); // select, playing, won, lost
   const { progress, consumeHint, consumeTipTranslation, handleCorrectAnswer, handleWrongAnswer, completeGame, addExploredCategory } = useProgress();
   const { playCorrect, playWrong, playClick } = useSound();
+  const { speakNormal } = useSpeech();
   const [tipTranslated, setTipTranslated] = useState(false);
 
   const startGame = useCallback((cat) => {
@@ -38,8 +40,9 @@ const HangmanGame = () => {
 
   const handleLetterGuess = useCallback((letter) => {
     if (guessedLetters.includes(letter) || gameState !== 'playing') return;
-    
+
     playClick();
+    speakNormal(letter);
     const newGuessed = [...guessedLetters, letter];
     setGuessedLetters(newGuessed);
     
@@ -64,7 +67,7 @@ const HangmanGame = () => {
         playCorrect();
       }
     }
-  }, [guessedLetters, gameState, currentWord, wrongCount, playClick, playWrong, playCorrect, handleCorrectAnswer, handleWrongAnswer, completeGame]);
+  }, [guessedLetters, gameState, currentWord, wrongCount, playClick, speakNormal, playWrong, playCorrect, handleCorrectAnswer, handleWrongAnswer, completeGame]);
 
   const handleUseExtraHint = useCallback(() => {
     if (!currentWord || gameState !== 'playing') return;

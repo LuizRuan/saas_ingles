@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { words, shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
+import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
 import { ACTIVE_COURSE } from '../../hooks/useCourse';
 import './WordBuilder.css';
@@ -39,6 +40,7 @@ const WordBuilder = () => {
   const [gameComplete, setGameComplete] = useState(false);
   const { progress, consumeHint, handleCorrectAnswer, handleWrongAnswer, completeGame } = useProgress();
   const { playCorrect, playWrong, playClick } = useSound();
+  const { speakNormal } = useSpeech();
 
   const currentWord = gameWords[round];
 
@@ -83,21 +85,23 @@ const WordBuilder = () => {
     const slot = selectedLetters.findIndex(s => s === null);
     if (slot === -1) return;
     playClick();
+    speakNormal(letterObj.letter);
     placeLetter(letterObj, slot);
-  }, [feedback, selectedLetters, playClick, placeLetter]);
+  }, [feedback, selectedLetters, playClick, speakNormal, placeLetter]);
 
   const handleRemoveLetter = useCallback((index) => {
     if (feedback) return;
     if (lockedSlots.includes(index)) return; // letra de dica não sai
     const letterObj = selectedLetters[index];
     if (!letterObj) return;
+    speakNormal(letterObj.letter);
     setSelectedLetters(prev => {
       const next = [...prev];
       next[index] = null;
       return next;
     });
     setAvailableLetters(prev => [...prev, letterObj]);
-  }, [feedback, lockedSlots, selectedLetters]);
+  }, [feedback, lockedSlots, selectedLetters, speakNormal]);
 
   // Sorteia um espaço (vazio ou com letra errada não-travada) para aplicar a dica
   const pickHintSlot = useCallback(() => {

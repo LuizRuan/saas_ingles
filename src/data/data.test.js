@@ -70,6 +70,7 @@ describe('conquistas', () => {
       gamesCompleted: {
         memory: 9, hangman: 9, wordBuilder: 9, sentenceBuilder: 9,
         translation: 9, fillBlanks: 9, trueFalse: 9, listening: 9, whoKnowsMore: 9,
+        imageQuiz: 9,
       },
     };
     const inalcancaveis = achievementsList.filter(a => !a.condition(tudo)).map(a => a.id);

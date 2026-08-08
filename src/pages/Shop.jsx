@@ -22,8 +22,6 @@ const shopItems = [
   // ── Power-ups ─────────────────────────────────────────────────────────────
   { id: 'hint_pack_5',   name: 'Pacote de 5 Dicas',   description: 'Ganhe 5 dicas extras para usar nos jogos',            icon: '💡', price: 2250,  category: 'powerup', type: 'hints', value: 5   },
   { id: 'hint_pack_15',  name: 'Pacote de 15 Dicas',  description: 'Ganhe 15 dicas extras — melhor custo por dica',       icon: '💡', price: 5400,  category: 'powerup', type: 'hints', value: 15  },
-  { id: 'hint_pack_30',  name: 'Pacote de 30 Dicas',  description: 'Ganhe 30 dicas extras — economia máxima!',            icon: '🔦', price: 9000,  category: 'powerup', type: 'hints', value: 30  },
-  { id: 'hint_pack_50',  name: 'Pacote de 50 Dicas',  description: '50 dicas de uma vez — para o estudante dedicado!',   icon: '🏮', price: 13500, category: 'powerup', type: 'hints', value: 50  },
   { id: 'extra_time_3',  name: 'Tempo Extra ×3',      description: '3 usos de +10s no modo Contra o Relógio',             icon: '⏰', price: 2700,  category: 'powerup', type: 'timer', value: 3   },
   { id: 'extra_time_5',  name: 'Tempo Extra ×5',      description: '5 usos de +10s no modo Contra o Relógio',             icon: '⏱️', price: 4050,  category: 'powerup', type: 'timer', value: 5   },
   { id: 'extra_time_10', name: 'Tempo Extra ×10',     description: '10 usos de +10s — estocar para a maratona!',          icon: '🕐', price: 6750,  category: 'powerup', type: 'timer', value: 10  },
@@ -71,11 +69,11 @@ const shopItems = [
   { id: 'rainbow',    name: 'Arco-Íris Mágico',    description: 'Feixes em gradiente colorido caindo na tela', icon: '🌈', price: 4200,  category: 'efeito', type: 'effect', value: 'rainbow'   },
   { id: 'bubbles',    name: 'Bolhas Brilhantes',   description: 'Bolhas de sabão translúcidas estourando',    icon: '🫧', price: 4500,  category: 'efeito', type: 'effect', value: 'bubbles'   },
   // ── Coringas (apenas online) ──────────────────────────────────────────────
-  { id: 'wildcard_flip',       name: 'Mundo ao Contrário', description: 'O teclado do oponente vira de cabeça para baixo por 8 segundos!',      icon: '🙃', price: 4500, category: 'coringa', type: 'wildcard', value: 'flip',       uses: 1 },
-  { id: 'wildcard_blur',       name: 'Névoa Mental',        description: 'A tela do oponente fica desfocada por 6 segundos — ele quase não vê nada!', icon: '🌫️', price: 4500, category: 'coringa', type: 'wildcard', value: 'blur',       uses: 1 },
-  { id: 'wildcard_shuffle',    name: 'Embaralhador',        description: 'As opções/letras do oponente são reembaralhadas com animação!',        icon: '🔀', price: 3600, category: 'coringa', type: 'wildcard', value: 'shuffle',    uses: 1 },
-  { id: 'wildcard_time_steal', name: 'Ladrão de Tempo',     description: 'Rouba 5 segundos do timer do oponente e adiciona ao seu!',            icon: '⏩', price: 5400, category: 'coringa', type: 'wildcard', value: 'time_steal', uses: 1 },
-  { id: 'wildcard_mute',       name: 'Silêncio Total',      description: 'Silencia o áudio e a fala do oponente por 10 segundos!',               icon: '🤫', price: 3600, category: 'coringa', type: 'wildcard', value: 'mute',       uses: 1 },
+  { id: 'wildcard_flip',       name: 'Mundo ao Contrário', description: 'O teclado do oponente vira de cabeça para baixo por 8 segundos!',      icon: '🙃', price: 2250, category: 'coringa', type: 'wildcard', value: 'flip',       uses: 1 },
+  { id: 'wildcard_blur',       name: 'Névoa Mental',        description: 'A tela do oponente fica desfocada por 6 segundos — ele quase não vê nada!', icon: '🌫️', price: 2250, category: 'coringa', type: 'wildcard', value: 'blur',       uses: 1 },
+  { id: 'wildcard_shuffle',    name: 'Embaralhador',        description: 'As opções/letras do oponente são reembaralhadas com animação!',        icon: '🔀', price: 1800, category: 'coringa', type: 'wildcard', value: 'shuffle',    uses: 1 },
+  { id: 'wildcard_time_steal', name: 'Ladrão de Tempo',     description: 'Rouba 5 segundos do timer do oponente e adiciona ao seu!',            icon: '⏩', price: 2700, category: 'coringa', type: 'wildcard', value: 'time_steal', uses: 1 },
+  { id: 'wildcard_mute',       name: 'Silêncio Total',      description: 'Silencia o áudio e a fala do oponente por 10 segundos!',               icon: '🤫', price: 1800, category: 'coringa', type: 'wildcard', value: 'mute',       uses: 1 },
 ];
 
 const categories = [

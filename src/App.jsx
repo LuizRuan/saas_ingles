@@ -31,6 +31,7 @@ const TranslationQuiz = lazy(() => import('./games/TranslationQuiz/TranslationQu
 const FillBlanks = lazy(() => import('./games/FillBlanks/FillBlanks'));
 const TrueFalse = lazy(() => import('./games/TrueFalse/TrueFalse'));
 const ListeningGame = lazy(() => import('./games/ListeningGame/ListeningGame'));
+const ImageQuiz = lazy(() => import('./games/ImageQuiz/ImageQuiz'));
 const WhoKnowsMore = lazy(() => import('./games/WhoKnowsMore/WhoKnowsMore'));
 const Conversation = lazy(() => import('./pages/Conversation'));
 const DailyChallenge = lazy(() => import('./pages/DailyChallenge'));
@@ -85,6 +86,7 @@ function App() {
               <Route path="/games/fill-blanks" element={<FillBlanks />} />
               <Route path="/games/true-false" element={<TrueFalse />} />
               <Route path="/games/listening" element={<ListeningGame />} />
+              <Route path="/games/image-quiz" element={<ImageQuiz />} />
               <Route path="/games/who-knows-more" element={<WhoKnowsMore />} />
               <Route path="/conversation" element={<Conversation />} />
               <Route path="/daily" element={<DailyChallenge />} />

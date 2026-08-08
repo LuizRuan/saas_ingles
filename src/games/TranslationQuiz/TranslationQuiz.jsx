@@ -4,6 +4,7 @@ import { translationQuizzes } from '../../data/sentences';
 import { shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
+import useSpeech from '../../hooks/useSpeech';
 import './TranslationQuiz.css';
 
 const ROUNDS = 10;
@@ -23,12 +24,17 @@ const TranslationQuiz = () => {
   const [gameComplete, setGameComplete] = useState(false);
   const { handleCorrectAnswer, handleWrongAnswer, completeGame } = useProgress();
   const { playCorrect, playWrong } = useSound();
+  const { speakNormal } = useSpeech();
 
   const current = quizzes[round];
 
   const handleSelect = useCallback((option) => {
     if (feedback) return;
     setSelected(option);
+    // As opções só estão em inglês quando a pergunta está em português — a
+    // voz é sempre en-US (ver useSpeech.js), falar o texto em português com
+    // ela soaria errado.
+    if (current.direction === 'pt-en') speakNormal(option);
 
     if (option === current.correct) {
       setFeedback('correct');
@@ -41,7 +47,7 @@ const TranslationQuiz = () => {
       handleWrongAnswer(current.question);
       playWrong();
     }
-  }, [feedback, current, handleCorrectAnswer, handleWrongAnswer, playCorrect, playWrong]);
+  }, [feedback, current, speakNormal, handleCorrectAnswer, handleWrongAnswer, playCorrect, playWrong]);
 
   const nextRound = useCallback(() => {
     const next = round + 1;

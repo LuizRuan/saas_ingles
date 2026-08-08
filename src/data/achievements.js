@@ -66,6 +66,7 @@ export const achievementsList = [
   { id: "truefalse_master", title: "Mestre do V ou F", description: "Completou 5 jogos de Verdadeiro ou Falso", icon: "✅", condition: (p) => (p.gamesCompleted?.trueFalse || 0) >= 5 },
   { id: "listening_master", title: "Mestre da Escuta", description: "Completou 5 jogos de Escuta", icon: "🎧", condition: (p) => (p.gamesCompleted?.listening || 0) >= 5 },
   { id: "duel_master", title: "Mestre dos Duelos", description: "Completou 5 partidas de Quem Sabe Mais?", icon: "⚔️", condition: (p) => (p.gamesCompleted?.whoKnowsMore || 0) >= 5 },
+  { id: "imagequiz_master", title: "Olho Clínico", description: "Completou 5 jogos do Jogo da Imagem", icon: "🖼️", condition: (p) => (p.gamesCompleted?.imageQuiz || 0) >= 5 },
 
   // ===== Vocabulário — novos marcos com 1000 palavras =====
   { id: "words_300", title: "Vocabulário em Expansão", description: "Estudou 300 palavras", icon: "📙", condition: (p) => p.wordsStudied >= 300 },

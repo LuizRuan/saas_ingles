@@ -4,6 +4,7 @@ import { sentences } from '../../data/sentences';
 import { shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
+import useSpeech from '../../hooks/useSpeech';
 import './SentenceBuilder.css';
 
 const ROUNDS = 8;
@@ -24,6 +25,7 @@ const SentenceBuilder = () => {
   const [gameComplete, setGameComplete] = useState(false);
   const { handleCorrectAnswer, handleWrongAnswer, completeSentence, completeGame } = useProgress();
   const { playCorrect, playWrong, playClick } = useSound();
+  const { speakNormal } = useSpeech();
 
   const currentSentence = gameSentences[round];
 
@@ -38,6 +40,7 @@ const SentenceBuilder = () => {
   const handleWordClick = useCallback((wordObj) => {
     if (feedback) return;
     playClick();
+    speakNormal(wordObj.en);
     const newSelected = [...selectedWords, wordObj];
     setSelectedWords(newSelected);
     setAvailableWords(prev => prev.filter(w => w.id !== wordObj.id));
@@ -59,13 +62,14 @@ const SentenceBuilder = () => {
         handleWrongAnswer(currentSentence.en);
       }
     }
-  }, [feedback, selectedWords, currentSentence, playClick, playCorrect, playWrong, handleCorrectAnswer, handleWrongAnswer, completeSentence]);
+  }, [feedback, selectedWords, currentSentence, playClick, speakNormal, playCorrect, playWrong, handleCorrectAnswer, handleWrongAnswer, completeSentence]);
 
   const handleRemoveWord = useCallback((wordObj, index) => {
     if (feedback) return;
+    speakNormal(wordObj.en);
     setSelectedWords(prev => prev.filter((_, i) => i !== index));
     setAvailableWords(prev => [...prev, wordObj]);
-  }, [feedback]);
+  }, [feedback, speakNormal]);
 
   const nextRound = useCallback(() => {
     const next = round + 1;

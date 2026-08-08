@@ -1132,15 +1132,18 @@ select {
 }
 
 .title-animated-neon {
-  color: #00f2fe !important;
-  text-shadow: 0 0 6px #00f2fe, 0 0 12px #4facfe;
+  /* #00f2fe (ciano puro) some em fundo claro — cor base mais escurecida,
+     o brilho ciano vivo fica só no text-shadow, que é onde o efeito "néon"
+     realmente aparece. */
+  color: #0891b2 !important;
+  text-shadow: 0 0 6px #22d3ee, 0 0 14px #06b6d4;
   animation: neon-pulse 1.5s ease-in-out infinite alternate;
   font-weight: 800 !important;
 }
 
 @keyframes neon-pulse {
-  0% { text-shadow: 0 0 4px #00f2fe, 0 0 10px #4facfe; }
-  100% { text-shadow: 0 0 10px #00f2fe, 0 0 22px #00f2fe, 0 0 30px #4facfe; }
+  0% { text-shadow: 0 0 4px #22d3ee, 0 0 10px #06b6d4; }
+  100% { text-shadow: 0 0 10px #22d3ee, 0 0 22px #22d3ee, 0 0 30px #06b6d4; }
 }
 
 .title-animated-fire {
@@ -1158,12 +1161,23 @@ select {
 }
 
 .title-animated-diamond {
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+  /* Gradiente antigo ia de quase-branco a azul claro — ilegível em fundo
+     claro (era só o filter fazendo o texto aparecer). Estes tons são
+     escuros o bastante pra ler em qualquer fundo, e o brilho ao centro
+     mais o shimmer animado é o que dá a sensação de "cristal reluzente". */
+  background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 25%, #bae6fd 50%, #0ea5e9 75%, #0369a1 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 0 4px #38bdf8);
+  animation: diamond-shine 3s linear infinite;
   font-weight: 800 !important;
+}
+
+@keyframes diamond-shine {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
