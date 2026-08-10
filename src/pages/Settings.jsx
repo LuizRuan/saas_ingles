@@ -371,7 +371,12 @@ const Settings = () => {
           <h4 style={{ marginBottom: 'var(--space-md)' }}>📊 Suas Estatísticas</h4>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-sm)', fontSize: 'var(--fs-sm)' }}>
             <div><span className="text-secondary">Pontuação total:</span> <strong>{progress.totalScore}</strong></div>
-            <div><span className="text-secondary">Nível:</span> <strong>{progress.currentLevel}</strong></div>
+            {/* Nível é derivado de wordsStudied na hora, nunca lido de
+                progress.currentLevel — esse campo guardado pode ficar
+                desatualizado (ex.: depois de uma migração que reduz
+                wordsStudied) e mostrar um número que não bate com mais nada
+                no app. Mesma regra da Home.jsx e do ranking de níveis. */}
+            <div><span className="text-secondary">Nível:</span> <strong>{getCurrentLevel(progress.wordsStudied || 0).level}</strong></div>
             <div><span className="text-secondary">Palavras estudadas:</span> <strong>{progress.wordsStudied}</strong></div>
             <div><span className="text-secondary">Palavras aprendidas:</span> <strong>{progress.wordsLearned}</strong></div>
             <div><span className="text-secondary">Total de acertos:</span> <strong>{progress.totalCorrect}</strong></div>
