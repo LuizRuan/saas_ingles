@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import { loadProgress, saveProgress, resetProgress as clearStorage, updateDayStreak, sanitizeProgress, getDefaultProgress } from '../utils/storage';
+import { loadProgress, saveProgress, resetProgress as clearStorage, updateDayStreak, sanitizeProgress } from '../utils/storage';
+import { isLocalMoreAdvanced } from '../utils/progressSync';
 import { calculatePoints, checkStreakBonus, POINTS } from '../utils/scoring';
 import { recordWordResult } from '../utils/reviewSystem';
 import { getCurrentLevel } from '../utils/levelSystem';
@@ -41,26 +42,24 @@ export const ProgressProvider = ({ children }) => {
     if (entryChoice === 'account' && userAccount) {
       if (lastSyncedUserIdRef.current !== userId) {
         lastSyncedUserIdRef.current = userId;
-        if (userAccount.progress) {
-          // Restaura o progresso do usuário vindo da nuvem/banco de dados
-          const cloudProg = sanitizeProgress(userAccount.progress);
-          setProgress(cloudProg);
+
+        // Regressão: antes, "tem progresso na nuvem" sempre vencia o local,
+        // sem comparar nada. Isso apagava progresso de verdade sempre que a
+        // pessoa logava num aparelho com uma sincronização mais antiga/menor
+        // já salva (ex.: um usuário avançado logando pela primeira vez num
+        // celular novo). Agora compara os dois lados e fica com o mais
+        // avançado — nuvem só "vence" quando é ela quem tem mais progresso.
+        const currentLocal = loadProgress();
+        const cloudProg = userAccount.progress ? sanitizeProgress(userAccount.progress) : null;
+
+        if (isLocalMoreAdvanced(currentLocal, cloudProg)) {
+          // Local está à frente (ou a nuvem ainda não tem nada) — usa o
+          // local e sobe pro servidor, pra nuvem não ficar pra trás.
+          setProgress(currentLocal);
+          updateProgressRequest(currentLocal).catch(() => {});
         } else {
-          // Conta existente criada antes da nuvem: se tiver progresso no navegador,
-          // MIGRA o progresso para a conta e salva imediatamente no banco de dados (MongoDB)!
-          const currentLocal = loadProgress();
-          const hasExistingProgress = (currentLocal.totalScore || 0) > 0 ||
-                                     (currentLocal.currentLevel || 1) > 1 ||
-                                     Object.keys(currentLocal.wordStats || {}).length > 0;
-          if (hasExistingProgress) {
-            setProgress(currentLocal);
-            updateProgressRequest(currentLocal).catch(() => {});
-          } else {
-            // Conta realmente nova e sem histórico prévio: reseta para estado limpo (0)
-            const fresh = getDefaultProgress();
-            setProgress(fresh);
-            updateProgressRequest(fresh).catch(() => {});
-          }
+          // Nuvem está à frente (ou empatada) — restaura o progresso dela.
+          setProgress(cloudProg);
         }
       }
     } else if (entryChoice !== 'account' && lastSyncedUserIdRef.current !== null) {
