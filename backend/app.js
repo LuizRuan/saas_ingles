@@ -25,9 +25,20 @@ app.set('trust proxy', 1);
 app.use(securityHeaders);
 app.use(corsPolicy);
 app.use(cookieParser());
-// Único payload esperado é { email, password } — 10kb é folga generosa
-// enquanto bloqueia corpo desproporcional.
-app.use(express.json({ limit: '10kb' }));
+// 10kb bastava quando o único payload era { email, password } — mas
+// PATCH /api/auth/progress manda o objeto de progresso inteiro (wordStats,
+// phraseStats, errorHistory, achievements...), que cresce com o uso. Um
+// usuário real travou aqui com 64kb de payload contra um limite de 10kb
+// (erro silencioso no cliente: updateProgressRequest() só faz .catch(() =>
+// {}), então a sincronização falhava pra sempre sem nenhum aviso).
+//
+// 1mb foi calibrado simulando o pior caso real: um usuário nível 100 (as
+// 1000 palavras do banco todas aprendidas) chega a ~135kb no caso típico
+// (3 acertos/palavra) e ~504kb num caso extremo de revisão pesada (30
+// acertos/palavra, perto do teto de 500 timestamps por palavra em
+// storage.js). 1mb mantém margem confortável nesse extremo sem abrir mão de
+// um teto contra abuso.
+app.use(express.json({ limit: '1mb' }));
 
 app.use('/api', apiLimiter);
 app.use('/api/auth', authRouter);
