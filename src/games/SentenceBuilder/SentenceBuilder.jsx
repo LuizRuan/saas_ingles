@@ -25,7 +25,7 @@ const SentenceBuilder = () => {
   const [gameComplete, setGameComplete] = useState(false);
   const { handleCorrectAnswer, handleWrongAnswer, completeSentence, completeGame } = useProgress();
   const { playCorrect, playWrong, playClick } = useSound();
-  const { speakNormal } = useSpeech();
+  const { speakNormal, speakSlow } = useSpeech();
 
   const currentSentence = gameSentences[round];
 
@@ -180,6 +180,14 @@ const SentenceBuilder = () => {
                   "{currentSentence.en}"
                 </p>
                 <p className="text-secondary">"{currentSentence.pt}"</p>
+                <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'center', marginTop: 'var(--space-sm)' }}>
+                  <button className="btn btn-primary btn-sm" onClick={() => speakNormal(currentSentence.en)}>
+                    🔊 Ouvir
+                  </button>
+                  <button className="btn btn-secondary btn-sm" onClick={() => speakSlow(currentSentence.en)}>
+                    🐌 Devagar
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="sb-wrong">

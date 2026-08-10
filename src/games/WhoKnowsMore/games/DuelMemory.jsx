@@ -105,8 +105,9 @@ const DuelMemory = ({
       const c2 = cards.find(c => c.id === newFlipped[1]);
 
       if (c1.wordIndex === c2.wordIndex) {
+        // Não fala a palavra aqui: o par sempre tem um lado 'en', e virar
+        // essa carta já falou a mesma palavra há poucos milissegundos.
         playMatch();
-        if (c1.word?.en) speakNormal(c1.word.en);
         const newMatched = [...matched, newFlipped[0], newFlipped[1]];
         setMatched(newMatched);
         setFlipped([]);

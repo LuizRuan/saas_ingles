@@ -120,14 +120,19 @@ const ImageQuiz = () => {
     if (submittedRef.current) return;
     submittedRef.current = true;
     setSelected(option);
-    speakNormal(option);
     if (option === current.target.en) {
+      // Não fala aqui: seria a mesma palavra que o WordExplanation abaixo já
+      // fala sozinho (pronúncia automática) — falar nos dois lugares dobrava
+      // o áudio num acerto de primeira.
       setFeedback('correct');
       setScore((s) => s + 10);
       setCorrectCount((c) => c + 1);
       handleCorrectAnswer(current.target.en, 1);
       playCorrect();
     } else {
+      // Errado: fala a opção errada clicada — a certa quem fala é o
+      // WordExplanation logo em seguida, então dá pra ouvir as duas.
+      speakNormal(option);
       setFeedback('wrong');
       handleWrongAnswer(current.target.en);
       playWrong();

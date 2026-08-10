@@ -64,9 +64,10 @@ const MemoryGame = () => {
       const card2 = cards.find(c => c.id === newFlipped[1]);
 
       if (card1.wordIndex === card2.wordIndex) {
-        // Match found!
+        // Match found! Não fala a palavra aqui: o par sempre tem um lado
+        // 'en', e virar essa carta (linha acima) já falou a mesma palavra
+        // há poucos milissegundos — falar de novo aqui só dobrava o áudio.
         playMatch();
-        if (card1.word?.en) speakNormal(card1.word.en);
         setCurrentMatch(card1.word);
         setShowExplanation(true);
         

@@ -51,7 +51,7 @@ const RAW_IMAGE_WORDS = [
   { en: 'Snake', emoji: '🐍', icon: '/photos/snake.jpg', iconAlt: 'A detailed close-up of a snake among lush green leaves in a natural setting.', category: 'animais' },
   { en: 'Frog', emoji: '🐸', icon: '/photos/frog.jpg', iconAlt: 'Detailed capture of a vibrant green frog on a log, highlighting its intricate patterns.', category: 'animais' },
   { en: 'Butterfly', emoji: '🦋', icon: '/photos/butterfly.jpg', iconAlt: 'Detailed monochrome image of a butterfly resting on a tree trunk, showcasing its intricate wing patterns.', category: 'animais' },
-  { en: 'Turtle', emoji: '🐢', icon: '/photos/turtle.jpg', iconAlt: 'Two turtles swimming in a sunlit pond with visible shell textures and aquatic plants.', category: 'animais' },
+  { en: 'Turtle', emoji: '🐢', icon: '/photos/turtle.jpg', iconAlt: 'A serene scene of a sea turtle gracefully swimming in crystal-clear tropical waters.', category: 'animais' },
   { en: 'Spider', emoji: '🕷️', icon: '/photos/spider.jpg', iconAlt: 'Detailed close-up of a spider on its web in Quy Nhơn, Bình Định, Việt Nam.', category: 'animais' },
   { en: 'Bat', emoji: '🦇', icon: '/photos/bat.jpg', iconAlt: 'Intimate close-up showing common big-eared bats hanging in Gamboa, Panama. Detailed view of nocturnal wildlife.', category: 'animais' },
   { en: 'Owl', emoji: '🦉', icon: '/photos/owl.jpg', iconAlt: 'A detailed close-up of an Eurasian Eagle-Owl showcasing its striking orange eyes and feather pattern.', category: 'animais' },
@@ -147,10 +147,10 @@ const RAW_IMAGE_WORDS = [
   { en: 'Green', emoji: '🟢', icon: '/photos/green.jpg', iconAlt: 'Smooth lime green fabric texture ideal for backgrounds and designs.', category: 'cores' },
   { en: 'Yellow', emoji: '🟡', icon: '/photos/yellow.jpg', iconAlt: 'Abstract yellow texture with grunge details for creative design.', category: 'cores' },
   { en: 'Black', emoji: '⚫', icon: '/photos/black.jpg', iconAlt: 'A minimalistic and textured black fabric background, ideal for use in design and artistic projects.', category: 'cores' },
-  { en: 'White', emoji: '⚪', icon: '/photos/white.png', iconAlt: 'High-resolution white background with subtle texture, ideal for design projects and presentations.', category: 'cores' },
+  { en: 'White', emoji: '⚪', icon: '/photos/white.jpg', iconAlt: 'High-resolution image of plain white paper texture, perfect for backgrounds.', category: 'cores' },
   { en: 'Orange', emoji: '🟠', icon: '/photos/orange.jpg', iconAlt: 'Close-up of a vibrant orange abstract texture on canvas with bold brushstrokes.', category: 'cores' },
-  { en: 'Pink', emoji: '🩷', icon: '/photos/pink.jpg', iconAlt: 'Detailed close-up of softly draped pink fabric displaying texture.', category: 'cores' },
-  { en: 'Purple', emoji: '🟣', icon: '/photos/purple.jpg', iconAlt: 'Vibrant purple abstract texture with dynamic brushstroke patterns.', category: 'cores' },
+  { en: 'Pink', emoji: '🩷', icon: '/photos/pink.jpg', iconAlt: 'A vivid pink textured background perfect for artistic and feminine designs.', category: 'cores' },
+  { en: 'Purple', emoji: '🟣', icon: '/photos/purple.jpg', iconAlt: 'Detailed close-up of a deep purple textured fabric surface.', category: 'cores' },
   { en: 'Brown', emoji: '🟤', icon: '/photos/brown.png', iconAlt: 'High-quality textured brown surface ideal for wallpapers or backgrounds.', category: 'cores' },
 
   // Esportes
