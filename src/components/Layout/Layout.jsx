@@ -6,7 +6,6 @@ import Celebration from '../Celebration/Celebration';
 import NicknamePrompt from '../Auth/NicknamePrompt';
 import AvatarDisplay from '../Avatar/AvatarDisplay';
 import BugReportModal from '../BugReport/BugReportModal';
-import CourseSelector from '../Navbar/CourseSelector';
 import './Layout.css';
 
 const Layout = ({ children }) => {
@@ -62,7 +61,6 @@ const Layout = ({ children }) => {
           </div>
 
           <div className="navbar-stats">
-            <CourseSelector />
             <div className="navbar-stat">
               <span>⭐</span>
               <span>{progress.totalScore}</span>

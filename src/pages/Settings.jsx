@@ -8,6 +8,7 @@ import { clearEntryChoice } from '../utils/entryChoice';
 import { logoutRequest, updateProfileRequest } from '../utils/authClient';
 import { isValidNickname, MAX_NICKNAME_LENGTH } from '../utils/authValidation';
 import AvatarDisplay from '../components/Avatar/AvatarDisplay';
+import CourseSelector from '../components/Navbar/CourseSelector';
 import { getCurrentLevel, getUserTitle } from '../utils/levelSystem';
 
 const Settings = () => {
@@ -107,6 +108,15 @@ const Settings = () => {
           <Link to="/" className="btn btn-ghost page-back">← Voltar</Link>
           <h1>⚙️ Configurações</h1>
           <p className="text-secondary">Som, pronúncia, tema e animações do EnglishPlay</p>
+        </div>
+
+        {/* Course */}
+        <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>
+          <h4 style={{ marginBottom: 'var(--space-xs)' }}>🌐 Idioma do curso</h4>
+          <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
+            O espanhol fica visivel aqui, mas ainda esta bloqueado.
+          </p>
+          <CourseSelector variant="settings" />
         </div>
 
         {/* Entrar/Cadastro — ponto de entrada mobile, já que o .mobile-nav não
