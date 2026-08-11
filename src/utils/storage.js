@@ -249,12 +249,26 @@ const migrateStats = (progress) => {
   };
 };
 
+const revertMonthlyBugBonus = (progress) => {
+  if (!progress) return progress;
+  const copy = { ...progress };
+  if (copy.lastMonthlyRewardMonth === '2026-08' && !copy.pendingMonthlyReward) {
+    delete copy.lastMonthlyRewardMonth;
+    copy.isMonthlyChampion = false;
+    if (typeof copy.totalScore === 'number' && copy.totalScore >= 5000) {
+      copy.totalScore = Math.max(0, copy.totalScore - 5000);
+    }
+  }
+  return copy;
+};
+
 export const getDefaultProgress = () => ({ ...defaultProgress });
 
 export const sanitizeProgress = (data) => {
   try {
     if (!data) return getDefaultProgress();
-    return migrateStats(saneiaProgresso(data));
+    const sanitized = migrateStats(saneiaProgresso(data));
+    return revertMonthlyBugBonus(sanitized);
   } catch {
     return getDefaultProgress();
   }
