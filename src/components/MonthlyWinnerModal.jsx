@@ -13,13 +13,12 @@ const MonthlyWinnerModal = () => {
     if (!progress) return;
     const status = checkMonthlyRewardStatus(progress);
 
-    // If eligible to claim and user was Top 1 / Top Podio (default simulation for highest level user or Top 1)
-    const isTopWinner = (progress.totalScore || 0) >= 50; // Qualified player
-    if (status.canClaim && isTopWinner) {
+    if (status.canClaim && status.rewardInfo) {
+      const rank = status.rewardInfo.rank || 1;
       setWinnerInfo({
-        rank: 1, // Top 1 Winner
-        reward: MONTHLY_REWARDS[1],
-        month: status.targetMonth || getPreviousMonthKey()
+        rank,
+        reward: MONTHLY_REWARDS[rank] || MONTHLY_REWARDS[1],
+        month: status.rewardInfo.month
       });
       playAchievement();
     }
@@ -28,7 +27,7 @@ const MonthlyWinnerModal = () => {
   if (!winnerInfo) return null;
 
   const handleClaim = () => {
-    // Add 5000 coins reward
+    // Add coins reward
     addPoints(winnerInfo.reward.coins);
 
     // Unlock title
@@ -36,11 +35,13 @@ const MonthlyWinnerModal = () => {
       buyShopItem({ id: winnerInfo.reward.titleId, price: 0, category: 'titulo' });
     }
 
-    // Update lastMonthlyRewardMonth in localStorage progress
+    // Update localStorage progress
+    const stored = JSON.parse(localStorage.getItem('englishplay_progress') || '{}');
     const updatedProgress = {
-      ...(JSON.parse(localStorage.getItem('englishplay_progress') || '{}')),
+      ...stored,
       lastMonthlyRewardMonth: winnerInfo.month,
-      isMonthlyChampion: true
+      pendingMonthlyReward: null,
+      isMonthlyChampion: winnerInfo.rank === 1
     };
     localStorage.setItem('englishplay_progress', JSON.stringify(updatedProgress));
 

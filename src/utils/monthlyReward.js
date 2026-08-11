@@ -34,13 +34,18 @@ export const isLastWeekendOfMonth = (date = new Date()) => {
 
 export const checkMonthlyRewardStatus = (progress) => {
   const currentMonth = getCurrentMonthKey();
-  const prevMonth = getPreviousMonthKey();
   const lastClaimed = progress?.lastMonthlyRewardMonth || null;
+  const pendingReward = progress?.pendingMonthlyReward || null;
 
-  // Se já resgatou neste mês o prêmio do mês anterior
-  if (lastClaimed === prevMonth || lastClaimed === currentMonth) {
+  // Só pode resgatar se houver um prêmio mensal pendente atribuído no encerramento do mês
+  if (!pendingReward || !pendingReward.month || pendingReward.claimed) {
+    return { canClaim: false };
+  }
+
+  // Se já resgatou o prêmio deste mês
+  if (lastClaimed === pendingReward.month || lastClaimed === currentMonth) {
     return { canClaim: false, claimedMonth: lastClaimed };
   }
 
-  return { canClaim: true, targetMonth: prevMonth };
+  return { canClaim: true, rewardInfo: pendingReward };
 };

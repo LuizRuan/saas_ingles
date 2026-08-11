@@ -27,7 +27,13 @@ describe('monthlyReward utils', () => {
   });
 
   it('should check monthly reward claim eligibility', () => {
-    const status = checkMonthlyRewardStatus({ lastMonthlyRewardMonth: '2026-07' });
-    expect(status.canClaim).toBe(false);
+    const noReward = checkMonthlyRewardStatus({ lastMonthlyRewardMonth: '2026-07' });
+    expect(noReward.canClaim).toBe(false);
+
+    const withReward = checkMonthlyRewardStatus({
+      pendingMonthlyReward: { month: '2026-07', rank: 1, claimed: false }
+    });
+    expect(withReward.canClaim).toBe(true);
+    expect(withReward.rewardInfo.rank).toBe(1);
   });
 });
