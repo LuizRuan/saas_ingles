@@ -56,9 +56,6 @@ export const achievementsList = [
   { id: "review_100", title: "Mestre da Revisão", description: "Revisou 100 palavras", icon: "🔍", condition: (p) => p.wordsReviewed >= 100 },
 
   // Nível
-  { id: "level_max", title: "Mestre Iniciante", description: "Alcançou o nível máximo", icon: "🥇", condition: (p) => p.currentLevel >= 10 },
-
-  // Um "mestre" para cada jogo restante do catálogo
   { id: "wordbuilder_master", title: "Mestre das Palavras", description: "Completou 5 jogos de Montar Palavras", icon: "🔤", condition: (p) => (p.gamesCompleted?.wordBuilder || 0) >= 5 },
   { id: "sentencebuilder_master", title: "Mestre da Construção", description: "Completou 5 jogos de Montar Frases", icon: "🧵", condition: (p) => (p.gamesCompleted?.sentenceBuilder || 0) >= 5 },
   { id: "translation_master", title: "Mestre da Tradução", description: "Completou 5 jogos de Tradução", icon: "🌐", condition: (p) => (p.gamesCompleted?.translation || 0) >= 5 },

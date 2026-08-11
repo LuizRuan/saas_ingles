@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 import { useProgress } from '../hooks/useProgress';
 import { getCurrentLevel, getNextLevel, getLevelProgress } from '../utils/levelSystem';
-import { LEARNED_THRESHOLD } from '../utils/reviewSystem';
 import { gamesCatalog, halo } from '../data/gamesCatalog';
 import './Home.css';
 
@@ -25,7 +24,7 @@ const Home = () => {
   const reviewUrgency = useMemo(() => {
     const statsValues = Object.values(progress.wordStats || {});
     const withErrors = statsValues.filter(
-      s => s.wrong > 0 && s.correct < LEARNED_THRESHOLD
+      s => s.wrong > 0 && s.lastResult !== 'correct'
     );
     if (withErrors.length === 0) return { level: 'none', count: 0, daysOldest: 0 };
 

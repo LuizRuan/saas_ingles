@@ -58,6 +58,8 @@ const CarregandoTela = () => (
   </div>
 );
 
+import ScrollToTop from './components/ScrollToTop';
+
 function App() {
   return (
     <AuthProfileProvider>
@@ -66,6 +68,7 @@ function App() {
             O socket do duelo continua só na tela de "Quem Sabe Mais?". */}
         <PresenceProvider>
         <BrowserRouter>
+        <ScrollToTop />
         {/* Manda quem ainda não escolheu como entrar para /welcome. Fica FORA do
             Layout porque as telas de entrada não têm navbar. */}
         <EntryGate>

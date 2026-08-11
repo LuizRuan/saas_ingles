@@ -25,9 +25,9 @@ import WordExplanation from '../../components/Game/WordExplanation';
 import './ImageQuiz.css';
 
 const DIFFICULTIES = [
-  { id: 'easy',   label: 'Fácil',   icon: '🌱', rounds: 8,  levelRange: [1, 20],  sizeRange: [112, 84], timeRange: [14, 10] },
-  { id: 'medium', label: 'Médio',   icon: '⚡', rounds: 10, levelRange: [10, 35], sizeRange: [96, 68],  timeRange: [11, 7] },
-  { id: 'hard',   label: 'Difícil', icon: '🔥', rounds: 12, levelRange: [20, 50], sizeRange: [86, 56],  timeRange: [8, 5] },
+  { id: 'easy',   label: 'Fácil',   icon: '🌱', rounds: 8,  levelRange: [1, 20],  sizeRange: [260, 220], timeRange: [14, 10] },
+  { id: 'medium', label: 'Médio',   icon: '⚡', rounds: 10, levelRange: [10, 35], sizeRange: [240, 190], timeRange: [11, 7] },
+  { id: 'hard',   label: 'Difícil', icon: '🔥', rounds: 12, levelRange: [20, 50], sizeRange: [220, 170], timeRange: [8, 5] },
 ];
 
 const lerp = (a, b, t) => Math.round(a + (b - a) * t);
@@ -89,6 +89,7 @@ const ImageQuiz = () => {
   const [score, setScore] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
   const { handleCorrectAnswer, handleWrongAnswer, completeGame } = useProgress();
   const { playCorrect, playWrong } = useSound();
   const { speakNormal } = useSpeech();
@@ -107,12 +108,14 @@ const ImageQuiz = () => {
     setScore(0);
     setCorrectCount(0);
     setGameComplete(false);
+    setIsZoomed(false);
   }, []);
 
   // Reseta o cronômetro sempre que uma rodada nova começa.
   useEffect(() => {
     if (!current) return;
     submittedRef.current = false;
+    setIsZoomed(false);
     setTimeLeft(current.timeSec);
   }, [roundIndex, current]);
 
@@ -274,16 +277,28 @@ const ImageQuiz = () => {
 
         <div className="iq-image-card glass-card animate-fade-in-up">
           <span className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>O que é isso em inglês?</span>
-          <img
-            className="iq-image"
-            src={current.target.icon}
-            /* Alt genérico de propósito: o texto real do Pexels descreve a
-               foto (ex.: "a red-coated dog...") e entregaria a resposta pra
-               quem usa leitor de tela. */
-            alt="Imagem para adivinhar"
-            style={{ width: `${current.imageSize}px`, height: `${current.imageSize}px` }}
-          />
+          <div className="iq-image-wrapper" onClick={() => setIsZoomed(true)} title="Clique para ampliar">
+            <img
+              className="iq-image"
+              src={current.target.icon}
+              alt="Imagem para adivinhar"
+              style={{ width: `${current.imageSize}px`, height: `${current.imageSize}px` }}
+            />
+            <span className="iq-zoom-hint">🔍 Ampliar</span>
+          </div>
         </div>
+
+        {isZoomed && (
+          <div className="iq-modal-overlay" onClick={() => setIsZoomed(false)}>
+            <div className="iq-modal-content animate-fade-in-up" onClick={(e) => e.stopPropagation()}>
+              <button className="iq-modal-close" onClick={() => setIsZoomed(false)}>✕</button>
+              <img className="iq-modal-image" src={current.target.icon} alt="Imagem ampliada" />
+              <p className="text-muted" style={{ marginTop: 'var(--space-sm)', fontSize: 'var(--fs-xs)' }}>
+                Clique fora para fechar
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="iq-options">
           {current.options.map((opt, i) => (

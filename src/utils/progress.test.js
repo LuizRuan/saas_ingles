@@ -185,6 +185,16 @@ describe('revisão', () => {
     p = recordWordResult(p, 'Hello', false);
     expect(getWordsToReview(p, words)).toHaveLength(1);
   });
+
+  it('regressão: filtro da Home oculta revisão quando lastResult é correct', () => {
+    let p = recordWordResult(progressoVazio(), 'Hello', false);
+    const withErrorsBefore = Object.values(p.wordStats).filter(s => s.wrong > 0 && s.lastResult !== 'correct');
+    expect(withErrorsBefore).toHaveLength(1);
+
+    p = recordWordResult(p, 'Hello', true);
+    const withErrorsAfter = Object.values(p.wordStats).filter(s => s.wrong > 0 && s.lastResult !== 'correct');
+    expect(withErrorsAfter).toHaveLength(0);
+  });
 });
 
 describe('desafio diário', () => {

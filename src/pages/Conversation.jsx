@@ -38,6 +38,7 @@ const Conversation = () => {
     setResultado(null);
     setTexto('');
     setTraduzidas(new Set());
+    window.scrollTo(0, 0);
   }, []);
 
   const alternarTraducao = useCallback((i) => {

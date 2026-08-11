@@ -83,11 +83,6 @@ export const ProgressProvider = ({ children }) => {
     };
   }, [progress, entryChoice]);
 
-  // Update day streak on mount
-  useEffect(() => {
-    setProgress(prev => updateDayStreak(prev));
-  }, []);
-
   // Keep the document in sync with the theme bought in the Shop
   useEffect(() => {
     applyTheme(progress.selectedTheme);
@@ -162,6 +157,7 @@ export const ProgressProvider = ({ children }) => {
     setProgress(prev => {
       const multiplier = activeMultiplier(prev);
       let updated = recordWordResult(prev, word, true);
+      updated = updateDayStreak(updated);
       updated.totalScore += points * multiplier;
 
       // Check streak bonus
@@ -223,6 +219,7 @@ export const ProgressProvider = ({ children }) => {
         pointsMultiplier: remainingMultiplierGames > 0 ? prev.pointsMultiplier : 1,
       };
 
+      updated = updateDayStreak(updated);
       updated = checkAchievements(updated);
       return updated;
     });
@@ -234,14 +231,16 @@ export const ProgressProvider = ({ children }) => {
 
   const completeSentence = useCallback(() => {
     setProgress(prev => {
-      const updated = { ...prev, sentencesCompleted: (prev.sentencesCompleted || 0) + 1 };
+      let updated = { ...prev, sentencesCompleted: (prev.sentencesCompleted || 0) + 1 };
+      updated = updateDayStreak(updated);
       return checkAchievements(updated);
     });
   }, [checkAchievements]);
 
   const completeConversation = useCallback(() => {
     setProgress(prev => {
-      const updated = { ...prev, conversationsCompleted: (prev.conversationsCompleted || 0) + 1 };
+      let updated = { ...prev, conversationsCompleted: (prev.conversationsCompleted || 0) + 1 };
+      updated = updateDayStreak(updated);
       return checkAchievements(updated);
     });
   }, [checkAchievements]);
@@ -252,12 +251,13 @@ export const ProgressProvider = ({ children }) => {
       const today = getTodayDateString();
       if (prev.lastDailyChallengeDate === today) return prev;
       awarded = true;
-      const updated = {
+      let updated = {
         ...prev,
         dailyChallengesCompleted: (prev.dailyChallengesCompleted || 0) + 1,
         lastDailyChallengeDate: today,
         totalScore: prev.totalScore + POINTS.DAILY_CHALLENGE,
       };
+      updated = updateDayStreak(updated);
       return checkAchievements(updated);
     });
     

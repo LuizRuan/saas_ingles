@@ -205,22 +205,41 @@ describe('configurações', () => {
 });
 
 describe('sequência de dias', () => {
-  const dia = (offset) => new Date(Date.now() + offset * 86400000).toDateString();
+  const dia = (offset) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    return d.toDateString();
+  };
 
-  it('começa em 1 no primeiro dia', () => {
+  it('começa em 1 no primeiro dia de estudo', () => {
     expect(updateDayStreak({}).dayStreak).toBe(1);
   });
 
-  it('incrementa em dias consecutivos', () => {
+  it('incrementa em dias consecutivos ao estudar', () => {
     expect(updateDayStreak({ lastStudyDate: dia(-1), dayStreak: 3 }).dayStreak).toBe(4);
   });
 
-  it('zera após pular um dia', () => {
+  it('reinicia em 1 após pular dias ao estudar novamente', () => {
     expect(updateDayStreak({ lastStudyDate: dia(-5), dayStreak: 9 }).dayStreak).toBe(1);
   });
 
   it('não conta duas vezes no mesmo dia', () => {
     const p = { lastStudyDate: dia(0), dayStreak: 3 };
     expect(updateDayStreak(p).dayStreak).toBe(3);
+  });
+
+  it('zera o streak ao carregar se o usuário ficou 2 ou mais dias sem estudar', () => {
+    localStorage.setItem('englishplay_progress', JSON.stringify({ lastStudyDate: dia(-3), dayStreak: 10 }));
+    const p = loadProgress();
+    expect(p.dayStreak).toBe(0);
+    expect(p.lastStudyDate).toBe(dia(-3));
+  });
+
+  it('mantém o streak ao carregar se o último estudo foi ontem ou hoje', () => {
+    localStorage.setItem('englishplay_progress', JSON.stringify({ lastStudyDate: dia(-1), dayStreak: 10 }));
+    expect(loadProgress().dayStreak).toBe(10);
+
+    localStorage.setItem('englishplay_progress', JSON.stringify({ lastStudyDate: dia(0), dayStreak: 10 }));
+    expect(loadProgress().dayStreak).toBe(10);
   });
 });

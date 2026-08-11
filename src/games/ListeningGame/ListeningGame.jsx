@@ -5,6 +5,7 @@ import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
+import { generateSimilarDistractors } from '../../utils/distractorGenerator';
 import './ListeningGame.css';
 
 const ROUNDS = 10;
@@ -31,8 +32,9 @@ const ListeningGame = () => {
   function generateOptions(allWords, idx) {
     const correct = allWords[idx];
     if (!correct) return [];
-    const others = shuffleArray(words.filter(w => w.en !== correct.en)).slice(0, 3);
-    return shuffleArray([correct, ...others]);
+    const distractorTexts = generateSimilarDistractors(correct.en, words);
+    const distractors = distractorTexts.map(text => ({ en: text, pt: '' }));
+    return shuffleArray([correct, ...distractors]);
   }
 
   const handleSelect = useCallback((word) => {
@@ -158,7 +160,7 @@ const ListeningGame = () => {
               <button key={i} className={cls} onClick={() => handleSelect(word)}
                 style={{ animationDelay: `${i * 0.05}s` }}>
                 <span className="lg-option-letter">{String.fromCharCode(65 + i)}</span>
-                <span>{word.en} — {word.pt}</span>
+                <span>{word.en}</span>
               </button>
             );
           })}

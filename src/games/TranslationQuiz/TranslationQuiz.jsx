@@ -5,6 +5,7 @@ import { shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
+import { generateTranslationDistractors } from '../../utils/distractorGenerator';
 import './TranslationQuiz.css';
 
 const ROUNDS = 10;
@@ -12,7 +13,7 @@ const ROUNDS = 10;
 const generateQuizzes = () =>
   shuffleArray([...translationQuizzes])
     .slice(0, ROUNDS)
-    .map(q => ({ ...q, options: shuffleArray([...q.options]) }));
+    .map(q => ({ ...q, options: generateTranslationDistractors(q, translationQuizzes) }));
 
 const TranslationQuiz = () => {
   const [quizzes, setQuizzes] = useState(() => generateQuizzes());

@@ -57,18 +57,114 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-2xl) var(--space-lg);
+  padding: var(--space-xl) var(--space-lg);
   margin-bottom: var(--space-lg);
   text-align: center;
 }
 
+.iq-image-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.iq-image-wrapper:hover {
+  transform: scale(1.03);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.iq-image-wrapper:hover .iq-zoom-hint {
+  opacity: 1;
+}
+
 .iq-image {
   display: block;
-  /* object-fit: as fotos vêm em proporções variadas do Pexels; sem isto, um
-     width/height quadrado igual esticaria/achataria a imagem. */
   object-fit: cover;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
+  max-width: 100%;
+}
+
+.iq-zoom-hint {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: var(--fs-xs);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+/* Modal de Zoom */
+.iq-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.iq-modal-content {
+  position: relative;
+  background: var(--bg-card);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-lg);
+  max-width: 90vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
+}
+
+.iq-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--bg-purple-subtle);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.iq-modal-close:hover {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+.iq-modal-image {
+  max-width: 480px;
+  max-height: 60vh;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
 }
 
 /* Opções — mesmo padrão visual do .tq-option do TranslationQuiz. */

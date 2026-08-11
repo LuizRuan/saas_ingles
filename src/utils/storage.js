@@ -80,6 +80,7 @@ export const defaultProgress = {
 
 const defaultSettings = {
   soundEnabled: true,
+  musicEnabled: true,
   animationsEnabled: true,
   autoPronounce: true,
 };
@@ -147,9 +148,27 @@ const saneiaBalde = (v) => {
   return saneado;
 };
 
+const getTodayStr = () => new Date().toDateString();
+
+const getYesterdayStr = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toDateString();
+};
+
 const saneiaProgresso = (bruto) => {
   const p = objeto(bruto);
   const jogos = objeto(p.gamesCompleted);
+
+  const today = getTodayStr();
+  const yesterday = getYesterdayStr();
+  const lastStudy = texto(p.lastStudyDate);
+  let dayStreak = inteiro(p.dayStreak, 0);
+
+  // Se o último dia de estudo for mais antigo que ontem, o streak expira e volta para 0
+  if (lastStudy && lastStudy !== today && lastStudy !== yesterday) {
+    dayStreak = 0;
+  }
 
   return {
     ...defaultProgress,
@@ -162,8 +181,8 @@ const saneiaProgresso = (bruto) => {
     totalWrong: inteiro(p.totalWrong, 0),
     bestStreak: inteiro(p.bestStreak, 0),
     currentStreak: inteiro(p.currentStreak, 0),
-    dayStreak: inteiro(p.dayStreak, 0),
-    lastStudyDate: texto(p.lastStudyDate),
+    dayStreak,
+    lastStudyDate: lastStudy,
     sentencesCompleted: inteiro(p.sentencesCompleted, 0),
     conversationsCompleted: inteiro(p.conversationsCompleted, 0),
     dailyChallengesCompleted: inteiro(p.dailyChallengesCompleted, 0),
@@ -280,6 +299,7 @@ export const loadSettings = () => {
     // Só booleanos entram: nada mais é aceito deste blob (entrada não confiável)
     const settings = {
       soundEnabled: booleano(stored.soundEnabled, defaultSettings.soundEnabled),
+      musicEnabled: booleano(stored.musicEnabled, defaultSettings.musicEnabled),
       animationsEnabled: booleano(stored.animationsEnabled, defaultSettings.animationsEnabled),
       autoPronounce: booleano(stored.autoPronounce, defaultSettings.autoPronounce),
     };
@@ -305,18 +325,19 @@ export const saveSettings = (settings) => {
 };
 
 export const updateDayStreak = (progress) => {
-  const today = new Date().toDateString();
-  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  if (!progress) return progress;
+  const today = getTodayStr();
+  const yesterday = getYesterdayStr();
   
   if (progress.lastStudyDate === today) {
-    return progress; // Already studied today
+    return progress; // Já estudou e atualizou hoje
   }
   
   const updated = { ...progress, lastStudyDate: today };
   
   if (progress.lastStudyDate === yesterday) {
     updated.dayStreak = (progress.dayStreak || 0) + 1;
-  } else if (progress.lastStudyDate !== today) {
+  } else {
     updated.dayStreak = 1;
   }
   

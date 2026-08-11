@@ -21,6 +21,8 @@ const DailyChallenge = () => {
   const { progress, handleCorrectAnswer, handleWrongAnswer, completeDailyChallenge } = useProgress();
 
   const isCompleted = isDailyChallengeCompleted(progress);
+  const [showCompletionScreen, setShowCompletionScreen] = useState(isCompleted);
+
   const currentLevelObj = getCurrentLevel(progress.wordsStudied || 0);
   const userLevel = currentLevelObj?.level || 1;
 
@@ -47,7 +49,7 @@ const DailyChallenge = () => {
     }
 
     // Se for o último passo (1 rodada total), marca o desafio como concluído
-    // IMEDIATAMENTE no progresso para evitar ganho infinito de pontos ao clicar em Voltar.
+    // no progresso para evitar ganho infinito de pontos ao clicar em Voltar.
     if (step + 1 >= challenge.challenges.length) {
       completeDailyChallenge();
     }
@@ -58,6 +60,7 @@ const DailyChallenge = () => {
   const nextStep = useCallback(() => {
     if (step + 1 >= challenge.challenges.length) {
       completeDailyChallenge();
+      setShowCompletionScreen(true);
       return;
     }
     setStep(prev => prev + 1);
@@ -65,7 +68,7 @@ const DailyChallenge = () => {
     setFeedback(null);
   }, [step, challenge.challenges.length, completeDailyChallenge]);
 
-  if (isCompleted) {
+  if (showCompletionScreen) {
     return (
       <div className="page">
         <div className="container game-container text-center animate-bounce-in">

@@ -15,17 +15,61 @@ const hangmanCategories = categories.filter(c =>
   ['animais', 'comidas', 'cores', 'familia', 'casa', 'escola', 'corpo', 'roupas', 'bebidas'].includes(c.id)
 );
 
-// words.js não tem uma tradução literal de `tip` (não existe campo tipPt, e
-// muitos tips são trocadilhos/curiosidades em inglês que não fariam sentido
-// traduzidos palavra por palavra) — por isso "traduzir a dica" na prática
-// mostra a frase de exemplo em português com a própria resposta ocultada,
-// uma dica equivalente sem entregar a palavra.
+const tipPtMap = {
+  "Dog": "Tem sido nosso companheiro leal há 15.000 anos. Um único farejo diz mais a ele sobre você do que qualquer documento de identidade.",
+  "Cat": "Os antigos egípcios o adoravam como divino. Ele consegue se desvirar no ar e sempre cai em pé da mesma forma.",
+  "Bird": "A maioria das criaturas da sua classe domina os céus, embora duas famosas — o pinguim e a avestruz — nunca saiam do chão.",
+  "Fish": "Passa a vida inteira respirando algo em que outras criaturas se afogariam. Seu plural em inglês é idêntico ao singular.",
+  "Horse": "Antes dos motores existirem, seu nome se tornou a unidade usada para medir a potência deles.",
+  "Cow": "Seu estômago tem quatro compartimentos e ele mastiga por até oito horas por dia. Civilizações inteiras construíram sua riqueza ao redor dele.",
+  "Pig": "Ao contrário de sua reputação, é um dos animais de fazenda mais limpos. Rolar na lama é apenas como ele regula sua temperatura.",
+  "Chicken": "Cruzou a estrada muito antes de alguém perguntar o porquê. Tanto sua forma de ovo quanto sua forma adulta estrelam frases famosas em inglês.",
+  "Duck": "Suas penas repelem água como se fossem enceradas. A frase 'como água nas costas de um pato' significa críticas que simplesmente não pegam.",
+  "Rabbit": "Aparece em chapéus de mágicos e tradições de Páscoa. Na ficção, já guiou uma garota a um mundo fantástico no subsolo.",
+  "Lion": "Apesar de ser chamado de rei da selva, ele na verdade evita selvas. Prefere a savana aberta — e as fêmeas fazem a maior parte da caça.",
+  "Elephant": "A maior criatura terrestre da Terra. É o único animal conhecido por lamentar seus mortos, ficando em silêncio sobre seus restos.",
+  "Monkey": "O parente mais famoso de Darwin. Consegue descascar sua comida favorita pelo lado de baixo — o lado que evita os fiapos.",
+  "Bear": "Ele dorme por meses sem comer, mas acorda bem. As crianças têm uma versão de pelúcia dele com o nome de um presidente americano.",
+  "Snake": "Não tem pálpebras e não consegue piscar. Na história do Jardim do Éden, mudou tudo com uma conversa decisiva.",
+  "Frog": "Passa o início da vida respirando debaixo d'água como uma criatura completamente diferente. Sua pele é um barômetro vivo da saúde ambiental.",
+  "Butterfly": "Dentro do casulo, ele se dissolve completamente em líquido antes de se reconstruir em algo totalmente diferente.",
+  "Turtle": "Carrega sua casa para todo lugar — e seu esqueleto é fundido a essa casa. Algumas espécies vivem mais que seus donos humanos por um século.",
+  "Spider": "Uma criatura de oito patas que tece teias de seda para capturar insetos. É um aracnídeo, não um inseto!",
+  "Bat": "O único mamífero que realmente voa! Ele dorme de cabeça para baixo durante o dia e usa som para 'ver' no escuro.",
+  "Owl": "Uma ave que caça à noite com olhos enormes para ver no escuro. Ela faz o som 'piu' e consegue girar a cabeça quase toda a volta!",
+  "Bee": "Um inseto voador que produz mel e poliniza flores. Vive em uma colmeia com milhares de outras abelhas. Sua picada dói!",
+  "Ant": "Não tem pulmões e respira por pequenos buracos no corpo. Uma única colônia pode mover toneladas de terra para construir uma cidade oculta.",
+  "Chameleon": "Um lagarto famoso por mudar de cor para se esconder ou se comunicar. Ele também tem olhos que se movem independentemente um do outro!",
+  "Tiger": "O maior felino selvagem do mundo, conhecido por sua pelagem listrada.",
+  "Wolf": "Um parente selvagem do cão que vive e caça em alcateias.",
+  "Fox": "Conhecida em histórias ao redor do mundo por ser esperta e astuta.",
+  "Deer": "Seu plural em inglês também é 'deer' — sem precisar adicionar 's'!",
+  "Sheep": "Singular e plural são a mesma palavra em inglês: 'one sheep', 'two sheep'.",
+  "Goat": "Um animal de fazenda conhecido por comer quase tudo e escalar muito bem.",
+  "Mouse": "O plural em inglês é 'mice', e não 'mouses' — um plural irregular!",
+  "Shark": "Um poderoso predador do oceano com fileiras de dentes afiados.",
+  "Water": "Essencial para toda a vida. Cobre mais de 70% da superfície da Terra.",
+  "Apple": "Fruta que cresce em árvores. Dizem que comer uma por dia mantém o médico longe!",
+  "Bread": "Alimento básico feito de farinha e água, assado no forno.",
+  "Cheese": "Feito de leite. Ratos adoram, e humanos colocam na pizza!",
+  "Coffee": "Uma bebida escura popular feita de grãos torrados que te ajuda a acordar.",
+  "Tea": "Uma bebida quente feita ao infusionar folhas secas em água quente.",
+  "Milk": "Um líquido branco produzido por vacas, rico em cálcio para ossos fortes.",
+  "Pizza": "Um famoso prato italiano com base de massa redonda coberta com queijo e molho de tomate.",
+  "Red": "A cor do fogo e das placas de pare.",
+  "Blue": "A cor do céu e do oceano.",
+  "Green": "A cor das plantas e da natureza.",
+  "Yellow": "A cor do sol e das bananas.",
+  "Black": "A ausência de luz. O oposto do branco.",
+  "White": "A cor da neve e do leite.",
+};
+
 const getTranslatedHint = (word) => {
-  if (word.examplePt) {
-    const escaped = (word.pt || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return word.examplePt.replace(new RegExp(escaped, 'gi'), '___');
-  }
-  return word.pt ? `Significa "${word.pt}"` : '';
+  if (!word) return '';
+  if (word.tipPt) return word.tipPt;
+  if (tipPtMap[word.en]) return tipPtMap[word.en];
+  if (word.examplePt) return word.examplePt;
+  return word.pt ? `Significado: "${word.pt}"` : word.tip || '';
 };
 
 const HangmanGame = () => {
@@ -206,14 +250,7 @@ const HangmanGame = () => {
         {/* Hint */}
         <div className="hangman-hint glass-card animate-fade-in-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ flex: 1 }}>
-            <span>💡 </span>
-            {tipTranslated ? (
-              <span style={{ color: 'var(--accent-purple)', fontWeight: 600 }}>
-                Dica (🌎 em português): <em>{getTranslatedHint(currentWord)}</em>
-              </span>
-            ) : (
-              <span>Dica: {currentWord.tip}</span>
-            )}
+            <span>💡 Dica: {tipTranslated ? getTranslatedHint(currentWord) : currentWord.tip}</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
             {!tipTranslated && (progress.tipTranslationsAvailable || 0) > 0 && (

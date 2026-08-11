@@ -45,11 +45,11 @@ const useSpeech = () => {
   }, [isAvailable, voices]);
 
   const speakNormal = useCallback((text) => {
-    speak(text, 'en-US', 1);
+    speak(text, 'en-US', 0.95);
   }, [speak]);
 
   const speakSlow = useCallback((text) => {
-    speak(text, 'en-US', 0.7);
+    speak(text, 'en-US', 0.5);
   }, [speak]);
 
   const stop = useCallback(() => {

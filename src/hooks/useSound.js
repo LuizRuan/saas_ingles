@@ -43,8 +43,9 @@ const useSound = () => {
   }, [getAudioCtx]);
 
   const playCorrect = useCallback(() => {
+    const settings = loadSettings();
     const progress = JSON.parse(localStorage.getItem('englishplay_progress') || '{}');
-    const pack = progress.selectedSoundPack || 'default';
+    const pack = settings.musicEnabled !== false ? (progress.selectedSoundPack || 'default') : 'default';
 
     if (pack === 'retro') {
       playTone(440, 0.08, 'square', 0.06);
@@ -65,8 +66,9 @@ const useSound = () => {
   }, [playTone]);
 
   const playWrong = useCallback(() => {
+    const settings = loadSettings();
     const progress = JSON.parse(localStorage.getItem('englishplay_progress') || '{}');
-    const pack = progress.selectedSoundPack || 'default';
+    const pack = settings.musicEnabled !== false ? (progress.selectedSoundPack || 'default') : 'default';
 
     if (pack === 'retro') {
       playTone(220, 0.12, 'square', 0.06);

@@ -49,6 +49,10 @@ describe('níveis', () => {
 });
 
 describe('conquistas', () => {
+  it('contém exatamente 100 conquistas', () => {
+    expect(achievementsList).toHaveLength(100);
+  });
+
   it('tem ids únicos', () => {
     const dupes = achievementsList.map(a => a.id).filter((v, i, a) => a.indexOf(v) !== i);
     expect(dupes).toEqual([]);

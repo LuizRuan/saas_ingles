@@ -255,6 +255,21 @@ const Settings = () => {
           </div>
         </div>
 
+        {/* Music */}
+        <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.03s' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <h4>🎵 Música</h4>
+              <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>Música de fundo e pacotes de som comprados</p>
+            </div>
+            <button
+              className={`btn ${settings.musicEnabled ? 'btn-success' : 'btn-secondary'} btn-sm`}
+              onClick={() => updateSetting('musicEnabled', !settings.musicEnabled)}>
+              {settings.musicEnabled ? 'Ligado' : 'Desligado'}
+            </button>
+          </div>
+        </div>
+
         {/* Animations */}
         <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.05s' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
