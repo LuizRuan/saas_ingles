@@ -255,6 +255,13 @@ const revertMonthlyBugBonus = (progress) => {
   if (copy.lastMonthlyRewardMonth === '2026-08' && !copy.pendingMonthlyReward) {
     delete copy.lastMonthlyRewardMonth;
     copy.isMonthlyChampion = false;
+    copy.shopItems = [];
+    copy.shopPurchases = 0;
+    copy.selectedTitle = null;
+    copy.selectedEffect = null;
+    copy.selectedTheme = 'default';
+    copy.selectedSoundPack = 'default';
+    copy.selectedAvatar = null;
     if (typeof copy.totalScore === 'number' && copy.totalScore >= 5000) {
       copy.totalScore = Math.max(0, copy.totalScore - 5000);
     }
