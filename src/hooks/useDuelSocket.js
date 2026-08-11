@@ -165,7 +165,11 @@ export const useDuelSocket = () => {
       if (payload.matchId !== matchIdRef.current) return;
       // Usa id incremental para que o mesmo efeito enviado duas vezes dispare
       // dois useEffect separados no componente consumidor.
-      setWildcardEffect(prev => ({ wildcardValue: payload.wildcardValue, id: (prev?.id ?? 0) + 1 }));
+      setWildcardEffect(prev => ({
+        wildcardValue: payload.wildcardValue,
+        durationMs: payload.durationMs ?? 10_000,
+        id: (prev?.id ?? 0) + 1,
+      }));
     });
 
     socket.on('wildcard:time_update', (payload) => {
@@ -265,13 +269,22 @@ export const useDuelSocket = () => {
     }, (ack) => callback?.(ack));
   }, [roundIndex]);
 
-  /** Usa um coringa — consome 1 uso no inventário e notifica o servidor. */
+  /** Solicita o uso de um coringa e devolve a confirmação do servidor. */
   const useWildcard = useCallback((wildcardValue) => {
-    socketRef.current?.emit('wildcard:use', {
-      matchId: matchIdRef.current,
-      wildcardValue,
-    }, (ack) => {
-      if (!ack?.ok) console.warn('[wildcard] falhou:', ack?.error);
+    return new Promise((resolve) => {
+      const socket = socketRef.current;
+      if (!socket?.connected) {
+        resolve({ ok: false, error: 'Conexão da partida indisponível.' });
+        return;
+      }
+
+      socket.emit('wildcard:use', {
+        matchId: matchIdRef.current,
+        wildcardValue,
+      }, (ack) => {
+        if (!ack?.ok) console.warn('[wildcard] falhou:', ack?.error);
+        resolve(ack ?? { ok: false, error: 'Sem resposta do servidor.' });
+      });
     });
   }, []);
 

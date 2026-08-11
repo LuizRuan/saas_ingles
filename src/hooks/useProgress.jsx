@@ -20,6 +20,16 @@ const activeMultiplier = (progress) =>
 // guarda USOS, não segundos — é esta constante que os converte.
 export const EXTRA_TIME_SECONDS = 10;
 
+const CELEBRATION_DURATION_MS = {
+  confetti: 2100,
+  stars: 2200,
+  hearts: 2500,
+  coins: 2000,
+  fireworks: 2400,
+  rainbow: 2300,
+  bubbles: 2700,
+};
+
 export const ProgressProvider = ({ children }) => {
   const auth = useAuthProfile();
   const [progress, setProgress] = useState(() => loadProgress());
@@ -107,7 +117,7 @@ export const ProgressProvider = ({ children }) => {
     setCelebration({ tipo, id: idCelebracao.current++ });
     celebrationTimer.current = setTimeout(
       () => setCelebration(null),
-      tipo === 'fireworks' ? 2400 : 2000,
+      CELEBRATION_DURATION_MS[tipo] ?? 2000,
     );
   }, []);
 
@@ -278,6 +288,10 @@ export const ProgressProvider = ({ children }) => {
     setProgress(prev => {
       const isConsumable = item.category === 'powerup' || item.type === 'hints' || item.category === 'coringa';
       if (!isConsumable && (prev.shopItems || []).includes(item.id)) return prev;
+      if (item.category === 'coringa') {
+        const ownedCount = (prev.shopItems || []).filter(id => id === item.id).length;
+        if (ownedCount >= 3) return prev;
+      }
       if (prev.totalScore < item.price) return prev;
       
       let updated = {

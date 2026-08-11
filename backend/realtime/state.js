@@ -92,9 +92,7 @@ export const createMatch = (players, gameType) => {
       avatar: p.avatar ?? null,
     }])),
 
-    // Coringas usados por socketId -> Set<wildcardValue>
-    // Limita 1 uso por tipo por partida (não por rodada).
-    wildcardUsed: new Map(players.map(p => [p.socketId, new Set()])),
+    wildcardCooldownUntil: new Map(players.map(p => [p.socketId, 0])),
 
     roundTimer: null,
     pauseTimer: null,

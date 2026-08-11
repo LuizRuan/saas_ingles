@@ -195,7 +195,7 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
     const gameType = resolvedType ?? pickRandomGameType();
     const match = createMatch(players, gameType);
     // Formato interno usa socketId; o que sai pela rede usa `id`.
-    const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname }));
+    const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname, avatar: p.avatar }));
 
     for (const p of players) {
       io.sockets.sockets.get(p.socketId)?.join(roomName(match.id));
@@ -312,6 +312,8 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       }
 
       const VALID_WILDCARDS = ['flip', 'blur', 'shuffle', 'time_steal', 'mute'];
+      const WILDCARD_COOLDOWN_MS = 60_000;
+      const WILDCARD_EFFECT_MS = 10_000;
       const { matchId, wildcardValue } = payload ?? {};
 
       if (!VALID_WILDCARDS.includes(wildcardValue)) {
@@ -322,16 +324,17 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       if (!match) return ack?.({ ok: false, error: 'Partida não encontrada.' });
       if (match.roundClosed) return ack?.({ ok: false, error: 'Rodada já encerrada.' });
 
-      // 1 uso por tipo por partida
-      const myUsed = match.wildcardUsed?.get(socket.id);
-      if (!myUsed) return ack?.({ ok: false, error: 'Partida inválida.' });
-      if (myUsed.has(wildcardValue)) {
-        return ack?.({ ok: false, error: 'Você já usou este coringa nesta partida.' });
-      }
-      myUsed.add(wildcardValue);
-
       const opponent = match.players.find(p => p.socketId !== socket.id);
       if (!opponent) return ack?.({ ok: false, error: 'Oponente não encontrado.' });
+
+      const now = Date.now();
+      const cooldownUntil = match.wildcardCooldownUntil?.get(socket.id) ?? 0;
+      if (cooldownUntil > now) {
+        const remainingSeconds = Math.ceil((cooldownUntil - now) / 1000);
+        return ack?.({ ok: false, error: `Aguarde ${remainingSeconds}s para usar outro coringa.`, cooldownUntil });
+      }
+      const nextCooldownUntil = now + WILDCARD_COOLDOWN_MS;
+      match.wildcardCooldownUntil?.set(socket.id, nextCooldownUntil);
 
       if (wildcardValue === 'time_steal') {
         // Rouba 5s do oponente e adiciona ao atirador
@@ -348,11 +351,11 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       } else {
         // Todos os outros: repassa o efeito direto ao oponente
         io.to(opponent.socketId).emit('wildcard:effect', {
-          matchId, wildcardValue,
+          matchId, wildcardValue, durationMs: WILDCARD_EFFECT_MS,
         });
       }
 
-      ack?.({ ok: true });
+      ack?.({ ok: true, cooldownUntil: nextCooldownUntil, cooldownMs: WILDCARD_COOLDOWN_MS });
     });
 
     // ─── Emotes de Reação ────────────────────────────────────────────────────
@@ -420,7 +423,7 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
 
       const gameType = lastMatch.gameType || pickRandomGameType();
       const newMatch = createMatch(players, gameType);
-      const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname }));
+      const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname, avatar: p.avatar }));
 
       for (const p of players) {
         io.sockets.sockets.get(p.socketId)?.join(roomName(newMatch.id));

@@ -28,7 +28,7 @@ const CourseSelector = ({ variant = 'dropdown' }) => {
 
   if (variant === 'settings') {
     return (
-      <div className="course-settings-panel">
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
         {AVAILABLE_COURSES.map((course) => {
           const isActive = course.id === activeCourseId;
           const isAvailable = course.available !== false;
@@ -37,21 +37,15 @@ const CourseSelector = ({ variant = 'dropdown' }) => {
             <button
               key={course.id}
               type="button"
-              className={`course-settings-option ${isActive ? 'active' : ''} ${!isAvailable ? 'disabled' : ''}`}
+              className={`btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => isAvailable && handleSelect(course.id)}
               disabled={!isAvailable}
               aria-pressed={isActive}
               title={!isAvailable ? 'Bloqueado por enquanto' : `Usar ${course.name}`}
+              style={!isAvailable ? { opacity: 0.55, cursor: 'not-allowed' } : undefined}
             >
-              <span className="course-settings-flag">{course.flag}</span>
-              <span className="course-settings-copy">
-                <span className="course-settings-name">{course.name}</span>
-                <span className="course-settings-meta">
-                  {isAvailable ? (isActive ? 'Curso ativo' : 'Disponivel') : 'Bloqueado'}
-                </span>
-              </span>
-              {isActive && <span className="course-settings-status">Ativo</span>}
-              {!isAvailable && <span className="course-settings-status locked">Bloqueado</span>}
+              {course.flag} {course.name}
+              {!isAvailable ? ' bloqueado' : ''}
             </button>
           );
         })}

@@ -69,8 +69,8 @@ const shopItems = [
   { id: 'rainbow',    name: 'Arco-Íris Mágico',    description: 'Feixes em gradiente colorido caindo na tela', icon: '🌈', price: 2100,  category: 'efeito', type: 'effect', value: 'rainbow'   },
   { id: 'bubbles',    name: 'Bolhas Brilhantes',   description: 'Bolhas de sabão translúcidas estourando',    icon: '🫧', price: 2250,  category: 'efeito', type: 'effect', value: 'bubbles'   },
   // ── Coringas (apenas online) ──────────────────────────────────────────────
-  { id: 'wildcard_flip',       name: 'Mundo ao Contrário', description: 'O teclado do oponente vira de cabeça para baixo por 8 segundos!',      icon: '🙃', price: 1125, category: 'coringa', type: 'wildcard', value: 'flip',       uses: 1 },
-  { id: 'wildcard_blur',       name: 'Névoa Mental',        description: 'A tela do oponente fica desfocada por 6 segundos — ele quase não vê nada!', icon: '🌫️', price: 1125, category: 'coringa', type: 'wildcard', value: 'blur',       uses: 1 },
+  { id: 'wildcard_flip',       name: 'Mundo ao Contrário', description: 'O teclado do oponente vira de cabeça para baixo por 10 segundos!',     icon: '🙃', price: 1125, category: 'coringa', type: 'wildcard', value: 'flip',       uses: 1 },
+  { id: 'wildcard_blur',       name: 'Névoa Mental',        description: 'A tela do oponente fica desfocada por 10 segundos — ele quase não vê nada!', icon: '🌫️', price: 1125, category: 'coringa', type: 'wildcard', value: 'blur',       uses: 1 },
   { id: 'wildcard_shuffle',    name: 'Embaralhador',        description: 'As opções/letras do oponente são reembaralhadas com animação!',        icon: '🔀', price: 900,  category: 'coringa', type: 'wildcard', value: 'shuffle',    uses: 1 },
   { id: 'wildcard_time_steal', name: 'Ladrão de Tempo',     description: 'Rouba 5 segundos do timer do oponente e adiciona ao seu!',            icon: '⏩', price: 1350, category: 'coringa', type: 'wildcard', value: 'time_steal', uses: 1 },
   { id: 'wildcard_mute',       name: 'Silêncio Total',      description: 'Silencia o áudio e a fala do oponente por 10 segundos!',               icon: '🤫', price: 900,  category: 'coringa', type: 'wildcard', value: 'mute',       uses: 1 },
@@ -101,8 +101,15 @@ const Shop = () => {
     const jaComprados = progress.shopItems || [];
     const saldo = progress.totalScore;
 
-    const isConsumable = item.category === 'powerup' || item.type === 'hints';
+    const isConsumable = item.category === 'powerup' || item.type === 'hints' || item.category === 'coringa';
+    const ownedCount = jaComprados.filter(id => id === item.id).length;
     if (!isConsumable && jaComprados.includes(item.id)) return;
+    if (item.category === 'coringa' && ownedCount >= 3) {
+      playWrong();
+      setBuyResult({ type: 'error', message: `Você já tem o máximo de 3 usos de "${item.name}".` });
+      setTimeout(() => setBuyResult(null), 3000);
+      return;
+    }
     if (saldo < item.price) {
       playWrong();
       setBuyResult({ type: 'error', message: `Estrelas insuficientes! Você precisa de ${item.price} ⭐ mas tem ${saldo} ⭐` });
@@ -111,7 +118,7 @@ const Shop = () => {
     }
 
     buyShopItem(item);
-    playCorrect();
+    playCorrect(item.type === 'soundpack' ? item.value : undefined);
 
     // Mensagem de sucesso contextual
     let msg = `🎉 Você comprou "${item.name}"!`;
@@ -199,6 +206,7 @@ const Shop = () => {
             const isConsumable = item.category === 'powerup' || item.type === 'hints' || isWildcard;
             const owned = !isConsumable && (progress.shopItems || []).includes(item.id);
             const wildcardOwned = isWildcard ? (wildcardCounts[item.id] || 0) : 0;
+            const reachedWildcardLimit = isWildcard && wildcardOwned >= 3;
             const canAfford = balance >= item.price;
             return (
               <div key={item.id} className="card animate-fade-in-up" style={{
@@ -249,7 +257,7 @@ const Shop = () => {
                     </p>
                     {item.category === 'coringa' && wildcardOwned > 0 && (
                       <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--accent-purple, #a855f7)', marginBottom: 'var(--space-xs)', fontWeight: 600 }}>
-                        🃏 {wildcardOwned} no inventário
+                        🃏 {wildcardOwned}/3 no inventário
                       </div>
                     )}
 
@@ -279,7 +287,7 @@ const Shop = () => {
 
                         {/* Pacote de Som */}
                         {item.type === 'soundpack' && progress.selectedSoundPack !== item.value && (
-                          <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedSoundPack(item.value); playCorrect(); }}>
+                          <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedSoundPack(item.value); playCorrect(item.value); }}>
                             ⚡ Equipar
                           </button>
                         )}
@@ -313,10 +321,11 @@ const Shop = () => {
                       </div>
                     ) : (
                       <button
-                        className={`btn ${canAfford ? 'btn-primary' : 'btn-ghost'} btn-sm`}
+                        className={`btn ${canAfford && !reachedWildcardLimit ? 'btn-primary' : 'btn-ghost'} btn-sm`}
                         onClick={() => handleBuy(item)}
-                        style={{ opacity: canAfford ? 1 : 0.5 }}>
-                        {item.category === 'coringa' ? '🃏 Comprar' : 'Comprar'} (⭐ {item.price})
+                        disabled={reachedWildcardLimit}
+                        style={{ opacity: canAfford && !reachedWildcardLimit ? 1 : 0.5 }}>
+                        {reachedWildcardLimit ? 'Limite atingido' : item.category === 'coringa' ? '🃏 Comprar' : 'Comprar'} (⭐ {item.price})
                       </button>
                     )}
                   </div>

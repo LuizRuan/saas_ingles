@@ -110,15 +110,6 @@ const Settings = () => {
           <p className="text-secondary">Som, pronúncia, tema e animações do EnglishPlay</p>
         </div>
 
-        {/* Course */}
-        <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>
-          <h4 style={{ marginBottom: 'var(--space-xs)' }}>🌐 Idioma do curso</h4>
-          <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
-            O espanhol fica visivel aqui, mas ainda esta bloqueado.
-          </p>
-          <CourseSelector variant="settings" />
-        </div>
-
         {/* Entrar/Cadastro — ponto de entrada mobile, já que o .mobile-nav não
             tem folga para um 6º item. No desktop o mesmo link mora em .navbar-stats.
             Só aparece sem conta: mostrar "Entre ou crie uma conta" pra quem já
@@ -348,6 +339,15 @@ const Settings = () => {
           if (!temAlgumEfeito) return null;
 
           const activeEffect = progress.selectedEffect || null;
+          const activeEffectLabel = {
+            confetti: 'Confetti 🎊',
+            stars: 'Chuva de Estrelas ⭐',
+            hearts: 'Chuva de Corações 💖',
+            coins: 'Moedas Douradas 🪙',
+            fireworks: 'Fogos de Artifício 🎆',
+            rainbow: 'Arco-Íris Mágico 🌈',
+            bubbles: 'Bolhas Brilhantes 🫧',
+          }[activeEffect];
 
           const effectOptions = [
             { id: null,         label: 'Nenhum',             icon: '🚫' },
@@ -384,7 +384,7 @@ const Settings = () => {
               )}
               {activeEffect && (
                 <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-sm)' }}>
-                  Efeito <strong>{activeEffect === 'confetti' ? 'Confetti 🎊' : 'Fogos de Artifício 🎆'}</strong> ativo — aparecerá nos acertos e ao concluir partidas.
+                  Efeito <strong>{activeEffectLabel}</strong> ativo — aparecerá nos acertos e ao concluir partidas.
                 </p>
               )}
             </div>
@@ -411,6 +411,15 @@ const Settings = () => {
             <div><span className="text-secondary">Conquistas:</span> <strong>{(progress.achievements || []).length}</strong></div>
             <div><span className="text-secondary">Desafios diários:</span> <strong>{progress.dailyChallengesCompleted || 0}</strong></div>
           </div>
+        </div>
+
+        {/* Course */}
+        <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.17s' }}>
+          <h4 style={{ marginBottom: 'var(--space-xs)' }}>🌐 Idioma do curso</h4>
+          <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
+            Escolha o idioma das atividades. Espanhol ainda está bloqueado.
+          </p>
+          <CourseSelector variant="settings" />
         </div>
 
         {/* Conta / saída.

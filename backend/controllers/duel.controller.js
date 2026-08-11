@@ -24,13 +24,14 @@ export const getLeaderboard = async (req, res) => {
   // DuelTrophy fica desatualizado quando o jogador troca de avatar depois).
   const userIds = trophies.map(t => t.userId).filter(Boolean);
   const users = await User.find({ _id: { $in: userIds } })
-    .select('progress.wordsStudied progress.selectedAvatar')
+    .select('progress.wordsStudied progress.selectedAvatar progress.selectedTitle')
     .lean();
   const userDataById = new Map(users.map(u => [
     u._id.toString(),
     {
       wordsStudied: u.progress?.wordsStudied || 0,
       avatar: u.progress?.selectedAvatar || 'U',
+      selectedTitle: u.progress?.selectedTitle || null,
     },
   ]));
 
@@ -40,6 +41,7 @@ export const getLeaderboard = async (req, res) => {
       ...entry,
       avatar: userData.avatar || 'U',
       wordsStudied: userData.wordsStudied || 0,
+      selectedTitle: userData.selectedTitle || null,
     };
   });
 
@@ -69,13 +71,14 @@ export const getLevelLeaderboard = async (req, res) => {
   })
     .sort({ 'progress.wordsStudied': -1 })
     .limit(limit)
-    .select('nickname progress.selectedAvatar progress.wordsStudied -_id')
+    .select('nickname progress.selectedAvatar progress.selectedTitle progress.wordsStudied -_id')
     .lean();
 
   const entries = users.map(u => ({
     nickname: u.nickname,
     avatar: u.progress?.selectedAvatar || 'U',
     wordsStudied: u.progress?.wordsStudied || 0,
+    selectedTitle: u.progress?.selectedTitle || null,
   }));
 
   res.status(200).json({ entries });

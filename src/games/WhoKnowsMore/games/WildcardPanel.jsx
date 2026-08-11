@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useProgress } from '../../../hooks/useProgress';
 
 const WILDCARD_CONFIGS = [
@@ -10,12 +10,14 @@ const WILDCARD_CONFIGS = [
 ];
 
 const EMOTE_OPTIONS = ['😂', '😎', '😱', '🔥', '👏', '💩'];
+const WILDCARD_COOLDOWN_MS = 60_000;
 
 const WildcardPanel = ({ onUseWildcard, onSendEmote, isRoundActive = true }) => {
-  const { progress, useWildcard } = useProgress();
-  const [usedInMatch, setUsedInMatch] = useState([]); // array de valores usados nesta partida
+  const { progress, useWildcard: consumeWildcard } = useProgress();
   const [showEmotes, setShowEmotes]   = useState(false);
   const [emoteCooldown, setEmoteCooldown] = useState(false);
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [now, setNow] = useState(Date.now());
 
   const shopItems = progress.shopItems || [];
 
@@ -26,17 +28,33 @@ const WildcardPanel = ({ onUseWildcard, onSendEmote, isRoundActive = true }) => 
     return acc;
   }, {});
 
-  const handleActivate = (wc) => {
-    if (!isRoundActive) return;
-    if (usedInMatch.includes(wc.value)) return;
+  const cooldownRemainingMs = Math.max(0, cooldownUntil - now);
+  const cooldownSeconds = Math.ceil(cooldownRemainingMs / 1000);
+  const isWildcardCooldown = cooldownRemainingMs > 0;
+
+  useEffect(() => {
+    if (!isWildcardCooldown) return undefined;
+    const timer = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(timer);
+  }, [isWildcardCooldown]);
+
+  const handleActivate = async (wc) => {
+    if (!isRoundActive || isWildcardCooldown) return;
     if ((inventoryCounts[wc.value] || 0) <= 0) return;
 
-    // Consome 1 item do inventário do jogador
-    const consumed = useWildcard(wc.id);
-    if (consumed) {
-      setUsedInMatch(prev => [...prev, wc.value]);
-      onUseWildcard(wc.value);
+    const ack = await onUseWildcard?.(wc.value);
+    if (!ack?.ok) {
+      if (ack?.cooldownUntil) {
+        setCooldownUntil(ack.cooldownUntil);
+        setNow(Date.now());
+      }
+      return;
     }
+
+    // Só consome depois de o servidor aceitar o uso na partida.
+    if (!consumeWildcard(wc.id)) return;
+    setCooldownUntil(ack.cooldownUntil ?? Date.now() + WILDCARD_COOLDOWN_MS);
+    setNow(Date.now());
   };
 
   const handleEmoteClick = (emoji) => {
@@ -78,21 +96,20 @@ const WildcardPanel = ({ onUseWildcard, onSendEmote, isRoundActive = true }) => 
       </div>
 
       <span style={{ fontSize: 'var(--fs-xs)', fontWeight: 800, color: 'var(--accent-purple, #a855f7)', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'var(--space-xs)' }}>
-        🃏 Coringas:
+        🃏 {isWildcardCooldown ? `Coringas: ${cooldownSeconds}s` : 'Coringas:'}
       </span>
 
       {WILDCARD_CONFIGS.map(wc => {
         const count = inventoryCounts[wc.value] || 0;
-        const used = usedInMatch.includes(wc.value);
-        if (count === 0 && !used) return null;
+        if (count === 0) return null;
 
         return (
           <button
             key={wc.value}
             className="wildcard-btn"
             onClick={() => handleActivate(wc)}
-            disabled={!isRoundActive || used || count === 0}
-            title={used ? 'Já usado nesta partida' : `Usar ${wc.name} (${count} no inventário)`}
+            disabled={!isRoundActive || isWildcardCooldown || count === 0}
+            title={isWildcardCooldown ? `Aguarde ${cooldownSeconds}s para usar outro coringa` : `Usar ${wc.name} (${count} no inventário)`}
           >
             <span>{wc.icon}</span>
             <span>{wc.name}</span>
@@ -100,10 +117,10 @@ const WildcardPanel = ({ onUseWildcard, onSendEmote, isRoundActive = true }) => 
               fontSize: '0.65rem',
               padding: '1px 5px',
               borderRadius: '99px',
-              background: used ? 'var(--text-muted)' : 'var(--accent-purple, #a855f7)',
+              background: isWildcardCooldown ? 'var(--text-muted)' : 'var(--accent-purple, #a855f7)',
               color: 'white',
             }}>
-              {used ? '✓' : `x${count}`}
+              {isWildcardCooldown ? `${cooldownSeconds}s` : `x${count}`}
             </span>
           </button>
         );

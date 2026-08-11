@@ -39,6 +39,16 @@ const GAME_TYPES = [
 const BOT_ROUND_MS = 10_000;
 const TOTAL_ROUNDS = 5;
 
+const ANIMATED_TITLE_CLASSES = new Set([
+  'title-animated-rainbow',
+  'title-animated-neon',
+  'title-animated-fire',
+  'title-animated-diamond',
+]);
+
+const rankedTitleClass = (selectedTitle) =>
+  ANIMATED_TITLE_CLASSES.has(selectedTitle) ? selectedTitle : '';
+
 const generateGuestName = () => `Aluno${Math.floor(1000 + Math.random() * 9000)}`;
 
 const WhoKnowsMore = () => {
@@ -788,7 +798,9 @@ const WhoKnowsMore = () => {
                               <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
                               <div className="ranked-player-details">
                                 <span className="ranked-player-name">{entry.nickname}</span>
-                                <span className="ranked-player-tag">{title.tag}</span>
+                                <span className="ranked-player-tag">
+                                  <span className={rankedTitleClass(entry.selectedTitle)}>{title.tag}</span>
+                                </span>
                               </div>
                             </div>
 
@@ -873,7 +885,9 @@ const WhoKnowsMore = () => {
                                 <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
                                 <div className="ranked-player-details">
                                   <span className="ranked-player-name">{entry.nickname}</span>
-                                  <span className="ranked-player-tag">{title.tag}</span>
+                                  <span className="ranked-player-tag">
+                                    <span className={rankedTitleClass(entry.selectedTitle)}>{title.tag}</span>
+                                  </span>
                                 </div>
                               </div>
 
@@ -1527,7 +1541,9 @@ const WhoKnowsMore = () => {
                         <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
                         <div className="ranked-player-details">
                           <span className="ranked-player-name">{entry.nickname}</span>
-                          <span className="ranked-player-tag">{title.tag}</span>
+                          <span className="ranked-player-tag">
+                            <span className={rankedTitleClass(entry.selectedTitle)}>{title.tag}</span>
+                          </span>
                         </div>
                       </div>
 
@@ -1597,7 +1613,9 @@ const WhoKnowsMore = () => {
                         <AvatarDisplay avatar={entry.avatar || '👤'} size="sm" />
                         <div className="ranked-player-details">
                           <span className="ranked-player-name">{entry.nickname}</span>
-                          <span className="ranked-player-tag">{title.tag}</span>
+                          <span className="ranked-player-tag">
+                            <span className={rankedTitleClass(entry.selectedTitle)}>{title.tag}</span>
+                          </span>
                         </div>
                       </div>
 

@@ -141,6 +141,16 @@ const DuelOnlineGame = ({
 
   const timerRef = useRef(null);
   const submittedRef = useRef(false);
+  const tilesRef = useRef(tiles);
+  const questionRef = useRef(question);
+
+  useEffect(() => {
+    tilesRef.current = tiles;
+  }, [tiles]);
+
+  useEffect(() => {
+    questionRef.current = question;
+  }, [question]);
 
   // Efeito de escuta respeita o mute do coringa
   const safeSpeak = (fn, text) => {
@@ -156,7 +166,7 @@ const DuelOnlineGame = ({
   // Escuta efeitos de Coringa enviados pelo oponente
   useEffect(() => {
     if (!duel.wildcardEffect) return;
-    const { wildcardValue } = duel.wildcardEffect;
+    const { wildcardValue, durationMs = 10_000 } = duel.wildcardEffect;
 
     const opName = duel.opponent?.nickname || 'Oponente';
 
@@ -166,7 +176,7 @@ const DuelOnlineGame = ({
       const t = setTimeout(() => {
         setActiveEffect(null);
         setActiveBanner(null);
-      }, 8000);
+      }, durationMs);
       return () => clearTimeout(t);
     }
 
@@ -176,15 +186,17 @@ const DuelOnlineGame = ({
       const t = setTimeout(() => {
         setActiveEffect(null);
         setActiveBanner(null);
-      }, 6000);
+      }, durationMs);
       return () => clearTimeout(t);
     }
 
     if (wildcardValue === 'shuffle') {
       setActiveEffect('shuffle');
       setActiveBanner(`🔀 ${opName} embaralhou suas opções!`);
-      if (question.options) {
-        setShuffledOptions([...question.options].sort(() => Math.random() - 0.5));
+      const activeQuestion = questionRef.current;
+      const previousTiles = tilesRef.current;
+      if (activeQuestion.options) {
+        setShuffledOptions([...activeQuestion.options].sort(() => Math.random() - 0.5));
       }
       if (tiles.length > 0) {
         setTiles([...tiles].sort(() => Math.random() - 0.5));
@@ -192,7 +204,9 @@ const DuelOnlineGame = ({
       const t = setTimeout(() => {
         setActiveEffect(null);
         setActiveBanner(null);
-      }, 2000);
+        setShuffledOptions(null);
+        if (previousTiles.length > 0) setTiles(previousTiles);
+      }, durationMs);
       return () => clearTimeout(t);
     }
 
@@ -202,7 +216,7 @@ const DuelOnlineGame = ({
       const t = setTimeout(() => {
         setIsMuted(false);
         setActiveBanner(null);
-      }, 10000);
+      }, durationMs);
       return () => clearTimeout(t);
     }
   }, [duel.wildcardEffect]);

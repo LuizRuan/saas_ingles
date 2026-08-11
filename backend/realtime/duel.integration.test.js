@@ -115,6 +115,16 @@ describe('duelo — pareamento e primeira rodada', () => {
     p1.disconnect(); p2.disconnect();
   });
 
+  it('inclui o avatar de cada jogador no evento de partida', async () => {
+    const { p1, p2, m1, m2 } = await pair();
+    expect(m1.players).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: p1.id, avatar: null }),
+      expect.objectContaining({ id: p2.id, avatar: null }),
+    ]));
+    expect(m2.players).toEqual(m1.players);
+    p1.disconnect(); p2.disconnect();
+  });
+
   it('cada jogador recebe uma pergunta DIFERENTE, mas do mesmo tipo e com o mesmo prazo', async () => {
     const { p1, p2, r1, r2 } = await pair();
     // Tipo de jogo é o mesmo para os dois
@@ -198,6 +208,37 @@ describe('duelo — pontuação', () => {
 
     await new Promise(r => setTimeout(r, 200));
     expect(ends).toHaveLength(1);
+
+    p1.disconnect(); p2.disconnect();
+  });
+});
+
+describe('duelo — coringas', () => {
+  it('aplica o efeito por 10 segundos e bloqueia outro uso por 1 minuto', async () => {
+    const { p1, p2, m1 } = await pair();
+    const effectPromise = once(p2, 'wildcard:effect');
+
+    const firstUse = await emitAck(p1, 'wildcard:use', {
+      matchId: m1.matchId,
+      wildcardValue: 'blur',
+    });
+    const effect = await effectPromise;
+
+    expect(firstUse.ok).toBe(true);
+    expect(firstUse.cooldownMs).toBe(60_000);
+    expect(effect).toMatchObject({
+      matchId: m1.matchId,
+      wildcardValue: 'blur',
+      durationMs: 10_000,
+    });
+
+    const secondUse = await emitAck(p1, 'wildcard:use', {
+      matchId: m1.matchId,
+      wildcardValue: 'mute',
+    });
+    expect(secondUse.ok).toBe(false);
+    expect(secondUse.error).toMatch(/Aguarde/);
+    expect(secondUse.cooldownUntil).toBe(firstUse.cooldownUntil);
 
     p1.disconnect(); p2.disconnect();
   });

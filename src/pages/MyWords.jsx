@@ -20,9 +20,9 @@ const MyWords = () => {
     return currentWords.map(word => ({
       ...word,
       stats: (progress.wordStats || {})[word.en] || null,
-      status: getWordStatus(progress.wordStats[word.en]),
+      status: getWordStatus((progress.wordStats || {})[word.en]),
     }));
-  }, [progress.wordStats]);
+  }, [currentWords, progress.wordStats]);
 
   const filtered = useMemo(() => {
     let result = wordsWithStats;
@@ -100,9 +100,9 @@ const MyWords = () => {
                 </span>
                 <div style={{ flex: 1 }}>
                   <span style={{ fontWeight: 600, color: 'var(--accent-purple-light)' }}>
-                    {word[ACTIVE_COURSE.targetLang]}
+                    {word.en}
                   </span>
-                  <span className="text-secondary"> — {word[ACTIVE_COURSE.sourceLang]}</span>
+                  <span className="text-secondary"> — {word.pt}</span>
                 </div>
                 {word.stats && (
                   <div style={{ display: 'flex', gap: 'var(--space-sm)', fontSize: 'var(--fs-xs)' }}>
@@ -122,7 +122,7 @@ const MyWords = () => {
         </div>
 
         <p className="text-center text-muted" style={{ marginTop: 'var(--space-lg)', fontSize: 'var(--fs-sm)' }}>
-          Mostrando {filtered.length} de {words.length} palavras
+          Mostrando {filtered.length} de {currentWords.length} palavras
         </p>
       </div>
     </div>
