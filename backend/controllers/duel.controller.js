@@ -16,22 +16,32 @@ export const getLeaderboard = async (req, res) => {
   const trophies = await DuelTrophy.find({ month })
     .sort({ trophies: -1, updatedAt: 1 })
     .limit(limit)
-    .select('userId nickname avatar trophies -_id')
+    .select('userId nickname trophies -_id')
     .lean();
 
-  // DuelTrophy não guarda nível (é denormalizado só do ticket de duelo, na
-  // hora da vitória) — sem isto, a tag de título sempre caía no "Iniciante"
-  // hardcoded, mesmo pra quem já tinha estudado bastante. wordsStudied é o
-  // mesmo dado usado no ranking de Níveis (getLevelLeaderboard), buscado
-  // aqui por userId pra manter as duas tags consistentes entre si.
+  // Busca wordsStudied E selectedAvatar atualizados do User para que o avatar
+  // reflita sempre o último item comprado na loja (o avatar denormalizado no
+  // DuelTrophy fica desatualizado quando o jogador troca de avatar depois).
   const userIds = trophies.map(t => t.userId).filter(Boolean);
-  const users = await User.find({ _id: { $in: userIds } }).select('progress.wordsStudied').lean();
-  const wordsStudiedByUserId = new Map(users.map(u => [u._id.toString(), u.progress?.wordsStudied || 0]));
+  const users = await User.find({ _id: { $in: userIds } })
+    .select('progress.wordsStudied progress.selectedAvatar')
+    .lean();
+  const userDataById = new Map(users.map(u => [
+    u._id.toString(),
+    {
+      wordsStudied: u.progress?.wordsStudied || 0,
+      avatar: u.progress?.selectedAvatar || 'U',
+    },
+  ]));
 
-  const entries = trophies.map(({ userId, ...entry }) => ({
-    ...entry,
-    wordsStudied: wordsStudiedByUserId.get(userId?.toString()) || 0,
-  }));
+  const entries = trophies.map(({ userId, ...entry }) => {
+    const userData = userDataById.get(userId?.toString()) || {};
+    return {
+      ...entry,
+      avatar: userData.avatar || 'U',
+      wordsStudied: userData.wordsStudied || 0,
+    };
+  });
 
   res.status(200).json({ month, entries });
 };
