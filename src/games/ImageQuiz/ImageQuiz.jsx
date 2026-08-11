@@ -16,9 +16,10 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { imageWords } from '../../data/imageWords';
+import { imageWords as defaultImageWords } from '../../data/imageWords';
 import { shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
+import useCourseData from '../../hooks/useCourseData';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
@@ -39,7 +40,7 @@ const lerp = (a, b, t) => Math.round(a + (b - a) * t);
  * Exportada para o teste de unidade poder conferir as garantias sem montar
  * o componente inteiro.
  */
-export const buildRounds = (difficulty) => {
+export const buildRounds = (difficulty, items = defaultImageWords) => {
   const { rounds, levelRange, sizeRange, timeRange } = difficulty;
   const used = new Set();
   const result = [];
@@ -53,22 +54,23 @@ export const buildRounds = (difficulty) => {
     // Alvo: respeita o teto de nível da rodada. Se essa faixa já estiver
     // esgotada (partida longa, poucas palavras naquele nível), cai pra
     // "qualquer uma ainda não usada" em vez de travar a rodada.
-    let pool = imageWords.filter((w) => w.word.level <= levelCap && !used.has(w.en));
-    if (pool.length === 0) pool = imageWords.filter((w) => !used.has(w.en));
-    if (pool.length === 0) pool = imageWords;
+    let pool = items.filter((w) => (w.level || 1) <= levelCap && !used.has(w.word || w.en));
+    if (pool.length === 0) pool = items.filter((w) => !used.has(w.word || w.en));
+    if (pool.length === 0) pool = items;
 
     const target = shuffleArray(pool)[0];
-    used.add(target.en);
+    const targetKey = target.word || target.en;
+    used.add(targetKey);
 
     // Distratores: SEMPRE da mesma categoria visual, sem filtro de nível —
     // são só texto, o jogador nunca vê o nível deles.
     const sameCategory = shuffleArray(
-      imageWords.filter((w) => w.category === target.category && w.en !== target.en)
+      items.filter((w) => w.category === target.category && (w.word || w.en) !== targetKey)
     );
     let distractors = sameCategory.slice(0, 3);
     if (distractors.length < 3) {
-      const usedEn = new Set([target.en, ...distractors.map((d) => d.en)]);
-      const fillers = shuffleArray(imageWords.filter((w) => !usedEn.has(w.en)));
+      const usedEn = new Set([targetKey, ...distractors.map((d) => d.word || d.en)]);
+      const fillers = shuffleArray(items.filter((w) => !usedEn.has(w.word || w.en)));
       distractors = [...distractors, ...fillers].slice(0, 3);
     }
 
@@ -101,7 +103,7 @@ const ImageQuiz = () => {
 
   const startGame = useCallback((diff) => {
     setDifficulty(diff);
-    setRounds(buildRounds(diff));
+    setRounds(buildRounds(diff, imageWords));
     setRoundIndex(0);
     setSelected(null);
     setFeedback(null);

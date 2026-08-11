@@ -1,11 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { words } from '../data/words';
+import { getWords } from '../data/index';
 import { categories } from '../data/categories';
 import { useProgress } from '../hooks/useProgress';
 import { getWordStatus } from '../utils/reviewSystem';
 import WordExplanation from '../components/Game/WordExplanation';
-import { ACTIVE_COURSE } from '../hooks/useCourse';
 
 const MyWords = () => {
   const { progress } = useProgress();
@@ -14,10 +13,13 @@ const MyWords = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [expandedWord, setExpandedWord] = useState(null);
 
+  const activeCourse = progress.activeCourse || 'en-pt';
+  const currentWords = useMemo(() => getWords(activeCourse), [activeCourse]);
+
   const wordsWithStats = useMemo(() => {
-    return words.map(word => ({
+    return currentWords.map(word => ({
       ...word,
-      stats: progress.wordStats[word.en] || null,
+      stats: (progress.wordStats || {})[word.en] || null,
       status: getWordStatus(progress.wordStats[word.en]),
     }));
   }, [progress.wordStats]);

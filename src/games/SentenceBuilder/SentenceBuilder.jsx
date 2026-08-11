@@ -5,6 +5,9 @@ import { shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
+import MicButton from '../../components/Game/MicButton';
+import PronunciationFeedbackModal from '../../components/Game/PronunciationFeedbackModal';
+import { evaluatePronunciation } from '../../utils/pronunciationCheck';
 import './SentenceBuilder.css';
 
 const ROUNDS = 8;
@@ -16,6 +19,7 @@ const generateGameSentences = () => shuffleArray([...sentences]).slice(0, ROUNDS
 const prepareWords = (s) => (s ? shuffleArray(s.words.map((w, i) => ({ ...w, en: stripPunctuation(w.en), id: i }))) : []);
 
 const SentenceBuilder = () => {
+  const [speechEvaluation, setSpeechEvaluation] = useState(null);
   const [gameSentences, setGameSentences] = useState(() => generateGameSentences());
   const [round, setRound] = useState(0);
   const [selectedWords, setSelectedWords] = useState([]);
@@ -137,13 +141,31 @@ const SentenceBuilder = () => {
         </div>
 
         {/* Translation */}
-        <div className="sb-prompt glass-card animate-fade-in-up">
-          <span style={{ fontSize: '1.5rem' }}>🇧🇷</span>
-          <div>
-            <div style={{ fontSize: 'var(--fs-sm)', color: 'var(--text-secondary)' }}>Monte esta frase em inglês:</div>
-            <div style={{ fontSize: 'var(--fs-lg)', fontWeight: 600 }}>"{currentSentence.pt}"</div>
+        <div className="sb-prompt glass-card animate-fade-in-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '1.5rem' }}>🇧🇷</span>
+            <div>
+              <div style={{ fontSize: 'var(--fs-sm)', color: 'var(--text-secondary)' }}>Monte esta frase em inglês:</div>
+              <div style={{ fontSize: 'var(--fs-lg)', fontWeight: 600 }}>"{currentSentence.pt}"</div>
+            </div>
           </div>
+          <MicButton
+            onSpeechEnd={({ transcript, audioUrl }) => {
+              const target = currentSentence.en;
+              const evalRes = evaluatePronunciation(transcript, target);
+              setSpeechEvaluation({ ...evalRes, audioUrl });
+            }}
+            size="md"
+          />
         </div>
+
+        {speechEvaluation && (
+          <PronunciationFeedbackModal
+            evaluation={speechEvaluation}
+            targetText={currentSentence.en}
+            onClose={() => setSpeechEvaluation(null)}
+          />
+        )}
 
         {/* Answer area */}
         <div className={`sb-answer ${feedback === 'correct' ? 'correct' : ''} ${feedback === 'wrong' ? 'wrong' : ''}`}>

@@ -1,10 +1,11 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { conversations } from '../data/conversations';
+import { getConversations } from '../data/index';
 import { verificarResposta } from '../utils/answerCheck';
 import { useProgress } from '../hooks/useProgress';
 import useSound from '../hooks/useSound';
 import useSpeech from '../hooks/useSpeech';
+import MicButton from '../components/Game/MicButton';
 import './Conversation.css';
 
 // ATENÇÃO AO IDIOMA: esta é a única tela do app com a interface em inglês —
@@ -13,17 +14,20 @@ import './Conversation.css';
 // quem ainda não lê inglês não ensinaria nada.
 
 const Conversation = () => {
+  const { progress, handleCorrectAnswer, handleWrongAnswer, completeConversation } = useProgress();
   const [convo, setConvo] = useState(null);
   const [nodeId, setNodeId] = useState(null);
   const [historico, setHistorico] = useState([]);
   const [completa, setCompleta] = useState(false);
   const [texto, setTexto] = useState('');
+
+  const activeCourse = progress?.activeCourse || 'en-pt';
+  const currentConversations = useMemo(() => getConversations(activeCourse), [activeCourse]);
   const [resultado, setResultado] = useState(null);
   const [traduzirTudo, setTraduzirTudo] = useState(false);
   const [traduzidas, setTraduzidas] = useState(() => new Set());
 
   const entradaRef = useRef(null);
-  const { completeConversation, handleCorrectAnswer, handleWrongAnswer } = useProgress();
   const { playClick, playCorrect, playWrong } = useSound();
   const { speakNormal, speakSlow, isAvailable: temVoz } = useSpeech();
 
@@ -121,7 +125,7 @@ const Conversation = () => {
             </p>
           </div>
           <div className="convo-topics">
-            {[...conversations].sort((a, b) => (a.level || 1) - (b.level || 1)).map((c) => (
+            {[...currentConversations].sort((a, b) => (a.level || 1) - (b.level || 1)).map((c) => (
               <button key={c.id} className="glass-card convo-topic-card" onClick={() => iniciar(c)}>
                 <span className="convo-topic-icon">{c.icon}</span>
                 <div className="convo-topic-body">
@@ -218,10 +222,15 @@ const Conversation = () => {
                 type="text"
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
-                placeholder="…or type your own reply in English"
+                placeholder="…or type or speak your reply"
                 className="chat-input"
                 aria-label="Type your reply in English"
                 autoComplete="off"
+              />
+              <MicButton
+                onTranscriptChange={(t) => setTexto(t)}
+                lang={activeCourse === 'es-pt' ? 'es-ES' : 'en-US'}
+                size="sm"
               />
               <button type="submit" className="btn btn-primary btn-sm">Send</button>
             </form>

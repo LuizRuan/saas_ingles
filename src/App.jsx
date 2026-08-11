@@ -59,6 +59,8 @@ const CarregandoTela = () => (
 );
 
 import ScrollToTop from './components/ScrollToTop';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
+import MonthlyWinnerModal from './components/MonthlyWinnerModal';
 
 function App() {
   return (
@@ -73,6 +75,8 @@ function App() {
             Layout porque as telas de entrada não têm navbar. */}
         <EntryGate>
         <Layout>
+          <PWAInstallPrompt />
+          <MonthlyWinnerModal />
           {/* Dentro do Layout de propósito: se uma tela quebrar, a navbar
               continua na página e dá para sair para outra rota sem recarregar. */}
           <ErrorBoundary>

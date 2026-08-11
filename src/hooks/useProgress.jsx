@@ -408,6 +408,10 @@ export const ProgressProvider = ({ children }) => {
     setProgress(prev => ({ ...prev, selectedSoundPack: soundPack }));
   }, []);
 
+  const setActiveCourse = useCallback((courseId) => {
+    setProgress(prev => ({ ...prev, activeCourse: courseId }));
+  }, []);
+
   const value = {
     progress,
     newAchievement,
@@ -428,6 +432,7 @@ export const ProgressProvider = ({ children }) => {
     setSelectedAvatar,
     setSelectedTitle,
     setSelectedSoundPack,
+    setActiveCourse,
     setDisplayName,
     consumeHint,
     consumeExtraTime,

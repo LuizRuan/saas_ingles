@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { stories, STORY_LEVELS } from '../data/stories';
+import { getStories } from '../data/index';
+import { STORY_LEVELS } from '../data/stories';
+import { useProgress } from '../hooks/useProgress';
 import StoryText from '../components/Story/StoryText';
 import StoryWordModal from '../components/Story/StoryWordModal';
 import './Stories.css';
@@ -10,13 +12,17 @@ import './Stories.css';
 const LEVEL_BADGE = { iniciante: 'badge-blue', intermediario: 'badge-purple', avancado: 'badge-red' };
 
 const Stories = () => {
+  const { progress } = useProgress();
   const [levelFilter, setLevelFilter] = useState('todos');
   const [activeStory, setActiveStory] = useState(null);
   const [activeWordKey, setActiveWordKey] = useState(null);
 
+  const activeCourse = progress?.activeCourse || 'en-pt';
+  const currentStories = useMemo(() => getStories(activeCourse), [activeCourse]);
+
   const visibleStories = levelFilter === 'todos'
-    ? stories
-    : stories.filter((s) => s.level === levelFilter);
+    ? currentStories
+    : currentStories.filter((s) => s.level === levelFilter);
 
   if (activeStory) {
     return (

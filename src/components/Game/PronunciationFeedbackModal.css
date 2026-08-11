@@ -1,0 +1,87 @@
+.pronunciation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pronunciation-modal-card {
+  max-width: 420px;
+  width: 100%;
+  padding: 28px 24px;
+  text-align: center;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, rgba(124, 58, 237, 0.2));
+  border-radius: var(--radius-xl, 24px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+}
+
+.pronunciation-score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+}
+
+.pronunciation-feedback-title {
+  font-size: 1.25rem;
+  color: var(--text-main, #1e1b4b);
+  margin-bottom: 16px;
+}
+
+.pronunciation-word-results {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: var(--bg-hover, #f8fafc);
+  border-radius: var(--radius-md, 12px);
+  margin-bottom: 20px;
+}
+
+.pronunciation-word {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.pronunciation-word.correct {
+  color: #059669;
+  background: #d1fae5;
+}
+
+.pronunciation-word.missing {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.pronunciation-audio-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.pronunciation-close-btn {
+  width: 100%;
+}

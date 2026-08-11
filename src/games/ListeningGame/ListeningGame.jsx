@@ -6,6 +6,9 @@ import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
 import { generateSimilarDistractors } from '../../utils/distractorGenerator';
+import MicButton from '../../components/Game/MicButton';
+import PronunciationFeedbackModal from '../../components/Game/PronunciationFeedbackModal';
+import { evaluatePronunciation } from '../../utils/pronunciationCheck';
 import './ListeningGame.css';
 
 const ROUNDS = 10;
@@ -16,6 +19,7 @@ const generateGameWords = () => {
 };
 
 const ListeningGame = () => {
+  const [speechEvaluation, setSpeechEvaluation] = useState(null);
   const [gameWords, setGameWords] = useState(() => generateGameWords());
   const [round, setRound] = useState(0);
   const [options, setOptions] = useState(() => generateOptions(gameWords, 0));
@@ -138,14 +142,29 @@ const ListeningGame = () => {
         <div className="listen-card glass-card animate-fade-in-up">
           <p className="text-secondary" style={{ marginBottom: 'var(--space-md)' }}>Ouça a palavra e escolha a correta:</p>
           <div className="listen-buttons">
-            <button className="btn btn-primary btn-lg" onClick={() => speakNormal(current.en)}>
-              🔊 Ouvir
+            <button className="btn btn-primary btn-lg listen-btn" onClick={() => speakNormal(current.en)} disabled={!isAvailable}>
+              🔊 Normal
             </button>
-            <button className="btn btn-secondary" onClick={() => speakSlow(current.en)}>
-              🐢 Ouvir devagar
+            <button className="btn btn-secondary btn-lg listen-btn" onClick={() => speakSlow(current.en)} disabled={!isAvailable}>
+              🐌 Lento
             </button>
+            <MicButton
+              onSpeechEnd={({ transcript, audioUrl }) => {
+                const evalRes = evaluatePronunciation(transcript, current.en);
+                setSpeechEvaluation({ ...evalRes, audioUrl });
+              }}
+              size="lg"
+            />
           </div>
         </div>
+
+        {speechEvaluation && (
+          <PronunciationFeedbackModal
+            evaluation={speechEvaluation}
+            targetText={current.en}
+            onClose={() => setSpeechEvaluation(null)}
+          />
+        )}
 
         {/* Options */}
         <div className="lg-options">

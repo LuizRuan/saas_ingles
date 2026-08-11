@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { words, shuffleArray } from '../../data/words';
+import { shuffleArray } from '../../data/words';
 import { categories } from '../../data/categories';
 import { useProgress } from '../../hooks/useProgress';
+import useCourseData from '../../hooks/useCourseData';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
@@ -12,7 +13,7 @@ const MAX_WRONG = 6;
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 const hangmanCategories = categories.filter(c =>
-  ['animais', 'comidas', 'cores', 'familia', 'casa', 'escola', 'corpo', 'roupas', 'bebidas'].includes(c.id)
+  ['animais', 'comidas', 'cores', 'familia', 'casa', 'escola', 'corpo', 'roupas', 'bebidas', 'cumprimentos', 'numeros'].includes(c.id)
 );
 
 const tipPtMap = {
@@ -73,6 +74,7 @@ const getTranslatedHint = (word) => {
 };
 
 const HangmanGame = () => {
+  const { words } = useCourseData();
   const [category, setCategory] = useState(null);
   const [currentWord, setCurrentWord] = useState(null);
   const [guessedLetters, setGuessedLetters] = useState([]);

@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { words, shuffleArray } from '../../data/words';
+import { shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
+import useCourseData from '../../hooks/useCourseData';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
@@ -14,6 +15,7 @@ const DIFFICULTIES = [
 ];
 
 const MemoryGame = () => {
+  const { words } = useCourseData();
   const [difficulty, setDifficulty] = useState(null);
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState([]);

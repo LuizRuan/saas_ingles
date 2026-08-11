@@ -1,0 +1,99 @@
+.hall-container {
+  padding: var(--space-xl, 24px);
+  margin-bottom: var(--space-xl, 24px);
+  border-radius: var(--radius-xl, 24px);
+}
+
+.hall-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.hall-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.hall-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-main, #1e1b4b);
+}
+
+.hall-header p {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+}
+
+.hall-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.hall-card {
+  background: var(--bg-hover, #f8fafc);
+  border: 1px solid var(--border-color, rgba(124, 58, 237, 0.15));
+  border-radius: var(--radius-lg, 16px);
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.hall-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.12);
+}
+
+.hall-month {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary, #64748b);
+  margin-bottom: 10px;
+}
+
+.hall-avatar-wrapper {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.hall-crown {
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  font-size: 1.2rem;
+}
+
+.hall-name {
+  font-size: 1rem;
+  color: var(--text-main, #1e1b4b);
+}
+
+.hall-title-tag {
+  font-size: 0.75rem;
+  color: var(--accent-purple, #7c3aed);
+  font-weight: 600;
+  margin: 4px 0 10px;
+}
+
+.hall-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  font-size: 0.8rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.hall-prize {
+  font-weight: 700;
+  color: var(--accent-gold, #f59e0b);
+}

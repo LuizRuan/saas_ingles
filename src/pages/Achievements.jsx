@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useProgress } from '../hooks/useProgress';
 import { achievementsList } from '../data/achievements';
+import HallOfFame from '../components/HallOfFame';
 
 const Achievements = () => {
   const { progress } = useProgress();
@@ -17,6 +18,9 @@ const Achievements = () => {
             {unlockedIds.length} de {achievementsList.length} conquistas desbloqueadas
           </p>
         </div>
+
+        {/* Hall da Fama dos Campeões Mensais */}
+        <HallOfFame />
 
         <div className="progress-bar" style={{ marginBottom: 'var(--space-xl)' }}>
           <div className="progress-bar-fill" style={{ width: `${(unlockedIds.length / achievementsList.length) * 100}%` }}></div>

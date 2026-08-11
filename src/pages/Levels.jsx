@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useProgress } from '../hooks/useProgress';
 import { getCurrentLevel, getNextLevel, getLevelProgress } from '../utils/levelSystem';
 import { levels, stages } from '../data/categories';
+import MonthlyLeaderboardCard from '../components/MonthlyLeaderboardCard';
 import './Levels.css';
 
 const situacaoDe = (nivel, atual) => {
@@ -72,6 +73,9 @@ const Levels = () => {
             </li>
           </ul>
         </header>
+
+        {/* Card do Campeonato Mensal de Níveis (Prêmio de 5.000 Moedas) */}
+        <MonthlyLeaderboardCard />
 
         {/* Nível atual em destaque */}
         <section className="glass-card levels-featured animate-fade-in-up">
