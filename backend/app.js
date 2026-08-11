@@ -40,9 +40,9 @@ app.use(cookieParser());
 // um teto contra abuso.
 app.use(express.json({ limit: '1mb' }));
 
+app.use('/api/presence', presenceRouter);
 app.use('/api', apiLimiter);
 app.use('/api/auth', authRouter);
-app.use('/api/presence', presenceRouter);
 app.use('/api/duel', duelRouter);
 app.use('/api/feedback', feedbackRouter);
 

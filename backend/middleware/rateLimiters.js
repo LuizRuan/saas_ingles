@@ -66,4 +66,5 @@ export const apiLimiter = rateLimit({
   ...baseOptions,
   windowMs: 15 * 60 * 1000,
   limit: 100,
+  message: { error: 'Muitas requisições. Tente novamente mais tarde.' },
 });

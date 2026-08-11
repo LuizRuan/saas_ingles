@@ -109,3 +109,27 @@
   padding: 2px 6px;
   border-radius: 4px;
 }
+
+/* Em telas mais estreitas onde a navbar já esconde os rótulos dos links
+   (breakpoint 1040px), o CourseSelector também encolhe para só exibir a
+   bandeira — assim não empurra nem sobrepõe o link "Conquistas". */
+@media (max-width: 1040px) {
+  .course-name,
+  .course-arrow {
+    display: none;
+  }
+
+  .course-selector-btn {
+    padding: 5px 8px;
+    gap: 0;
+  }
+}
+
+/* Em telas muito próximas do breakpoint mobile (< 880px), reduz ainda mais
+   o padding do botão para não vazar a navbar. */
+@media (max-width: 880px) {
+  .course-selector-btn {
+    padding: 4px 6px;
+  }
+}
+
