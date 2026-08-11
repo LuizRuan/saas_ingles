@@ -11,8 +11,8 @@ import * as esConversations from './courses/es/conversations.js';
 import * as esImageWords from './courses/es/imageWords.js';
 
 export const AVAILABLE_COURSES = [
-  { id: 'en-pt', name: 'Inglês', flag: '🇺🇸', langCode: 'en-US', targetName: 'Inglês' },
-  { id: 'es-pt', name: 'Espanhol', flag: '🇪🇸', langCode: 'es-ES', targetName: 'Espanhol' }
+  { id: 'en-pt', name: 'Inglês', flag: '🇺🇸', langCode: 'en-US', targetName: 'Inglês', available: true },
+  { id: 'es-pt', name: 'Espanhol', flag: '🇪🇸', langCode: 'es-ES', targetName: 'Espanhol', available: false }
 ];
 
 const courseDataMap = {

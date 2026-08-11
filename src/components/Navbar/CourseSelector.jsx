@@ -44,15 +44,20 @@ const CourseSelector = () => {
           <div className="course-dropdown-header">Cursos Disponíveis</div>
           {AVAILABLE_COURSES.map((course) => {
             const isActive = course.id === activeCourseId;
+            const isAvailable = course.available !== false;
+
             return (
               <button
                 key={course.id}
-                className={`course-option ${isActive ? 'active' : ''}`}
-                onClick={() => handleSelect(course.id)}
+                className={`course-option ${isActive ? 'active' : ''} ${!isAvailable ? 'disabled' : ''}`}
+                onClick={() => isAvailable && handleSelect(course.id)}
+                disabled={!isAvailable}
+                title={!isAvailable ? 'Em breve!' : ''}
               >
                 <span className="course-flag">{course.flag}</span>
                 <span className="course-label">{course.name}</span>
                 {isActive && <span className="course-check">✓</span>}
+                {!isAvailable && <span className="course-lock-badge">🔒 Em breve</span>}
               </button>
             );
           })}
