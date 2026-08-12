@@ -5,7 +5,6 @@ import { verificarResposta } from '../utils/answerCheck';
 import { useProgress } from '../hooks/useProgress';
 import useSound from '../hooks/useSound';
 import useSpeech from '../hooks/useSpeech';
-import MicButton from '../components/Game/MicButton';
 import './Conversation.css';
 
 // ATENÇÃO AO IDIOMA: esta é a única tela do app com a interface em inglês —
@@ -222,15 +221,10 @@ const Conversation = () => {
                 type="text"
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
-                placeholder="…or type or speak your reply"
+                placeholder="…or type your reply"
                 className="chat-input"
                 aria-label="Type your reply in English"
                 autoComplete="off"
-              />
-              <MicButton
-                onTranscriptChange={(t) => setTexto(t)}
-                lang={activeCourse === 'es-pt' ? 'es-ES' : 'en-US'}
-                size="sm"
               />
               <button type="submit" className="btn btn-primary btn-sm">Send</button>
             </form>

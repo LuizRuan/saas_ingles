@@ -93,7 +93,10 @@ const WhoKnowsMore = () => {
       setMode('human');
       // Limpa o parâmetro ?room= da URL para não repetir a requisição ao reconectar
       window.history.replaceState({}, document.title, window.location.pathname);
-      duel.joinPrivateRoom(roomCodeFromUrl).then((res) => {
+      const name = estaLogado
+        ? profile.nickname.slice(0, 20)
+        : (nicknameDraft.trim() || progress.displayName || generateGuestName()).slice(0, 20);
+      duel.joinPrivateRoom(roomCodeFromUrl, name).then((res) => {
         if (!res.ok) {
           setPrivateRoomMode('join');
           setJoinRoomInput(roomCodeFromUrl.toUpperCase());
@@ -531,6 +534,16 @@ const WhoKnowsMore = () => {
     setMode('bot');
   };
 
+  const closePrivateRoomModal = () => {
+    if (duel.privateRoom?.roomCode) {
+      duel.leavePrivateRoom(duel.privateRoom.roomCode);
+    }
+    setShowPrivateRoomModal(false);
+    setPrivateRoomMode('create');
+    setPrivateRoomError(null);
+    setMode('bot');
+  };
+
   const returnToLobby = useCallback(() => {
     if (isHuman) duel.resetMatch();
     setMode('bot');
@@ -543,11 +556,20 @@ const WhoKnowsMore = () => {
     if (!isHuman) return;
     if (duel.matchState === 'playing' || duel.matchState === 'matched') {
       setShowSearchModal(false);
+      setShowPrivateRoomModal(false);
       setGameState('playing');
     } else if (duel.matchState === 'ended' || duel.matchState === 'lost') {
       setGameState('gameover');
     }
   }, [isHuman, duel.matchState]);
+
+  useEffect(() => {
+    if (!duel.privateRoom?.roomCode) return;
+    setMode('human');
+    setCreatedRoomCode(duel.privateRoom.roomCode);
+    setPrivateRoomMode('waiting');
+    setShowPrivateRoomModal(true);
+  }, [duel.privateRoom?.roomCode]);
 
   // Nova rodada: limpa a escolha. Chaveado em roundIndex (primitivo) — antes
   // dependia de `speakNormal`, cuja identidade muda quando as vozes carregam.
@@ -664,6 +686,13 @@ const WhoKnowsMore = () => {
     : duel.status === 'offline' ? 'Servidor indisponível' : 'Conectando…';
 
   const matchLost = isHuman && duel.matchState === 'lost';
+  const privateRoom = duel.privateRoom;
+  const privateRoomPlayers = privateRoom?.players ?? [];
+  const privateRoomMe = privateRoomPlayers.find(p => p.id === duel.myId);
+  const privateRoomOpponent = privateRoomPlayers.find(p => p.id !== duel.myId);
+  const privateRoomIsHost = Boolean(privateRoom && privateRoom.hostId === duel.myId);
+  const privateRoomReady = Boolean(privateRoomMe?.ready);
+  const privateRoomSelectedGame = GAME_TYPES.find(gt => gt.id === privateRoom?.gameTypePreference);
 
   return (
     <div className="who-knows-more-page page">
@@ -1170,11 +1199,12 @@ const WhoKnowsMore = () => {
         )}
         {/* Modal de Sala Privada com Amigos */}
         {showPrivateRoomModal && (
-          <div className="modal-backdrop animate-fade-in" onClick={() => setShowPrivateRoomModal(false)} style={{
+          <div className="modal-backdrop animate-fade-in" onClick={closePrivateRoomModal} style={{
             position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)',
             backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-md)'
           }}>
-            <div className="modal-card glass-card animate-bounce-in" onClick={e => e.stopPropagation()} style={{ maxWidth: 460, width: '100%', textAlign: 'center', padding: 'var(--space-xl)' }}>
+            <div className="modal-card glass-card animate-bounce-in" onClick={e => e.stopPropagation()} style={{ maxWidth: 640, width: '100%', textAlign: 'center', padding: 'var(--space-xl)' }}>
+              {privateRoomMode !== 'waiting' && (
               <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-sm)', marginBottom: 'var(--space-md)' }}>
                 <button
                   className={`btn ${privateRoomMode !== 'join' ? 'btn-primary' : 'btn-ghost'} btn-sm`}
@@ -1189,6 +1219,7 @@ const WhoKnowsMore = () => {
                   🔑 Entrar com Código
                 </button>
               </div>
+              )}
 
               {privateRoomMode === 'create' && (
                 <div>
@@ -1221,7 +1252,7 @@ const WhoKnowsMore = () => {
               {privateRoomMode === 'waiting' && (
                 <div>
                   <span style={{ fontSize: '2.5rem' }}>⌛</span>
-                  <h3>Aguardando amigo entrar…</h3>
+                  <h3>Sala privada</h3>
                   <div style={{
                     margin: 'var(--space-md) 0', padding: 'var(--space-md)',
                     background: 'var(--bg-purple-subtle)', borderRadius: 'var(--radius-lg)',
@@ -1233,7 +1264,62 @@ const WhoKnowsMore = () => {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)' }}>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: 'var(--space-sm)',
+                    marginBottom: 'var(--space-md)'
+                  }}>
+                    {[privateRoomMe, privateRoomOpponent].map((player, index) => (
+                      <div
+                        key={player?.id ?? index}
+                        className="glass-card"
+                        style={{
+                          padding: 'var(--space-md)',
+                          background: 'var(--gradient-card)',
+                          minHeight: 94,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <strong>{player?.nickname || (index === 0 ? 'Você' : 'Aguardando amigo')}</strong>
+                        <span className={`badge ${player?.ready ? 'badge-green' : 'badge-purple'}`} style={{ alignSelf: 'center' }}>
+                          {player?.ready ? '✅ Pronto' : '⌛ Aguardando'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ textAlign: 'left', marginBottom: 'var(--space-md)' }}>
+                    <label className="setup-label">🎮 Modo da partida</label>
+                    {privateRoomIsHost ? (
+                      <div className="game-type-selector-grid" style={{ marginTop: 'var(--space-xs)' }}>
+                        {[{ id: 'random', icon: '🎲', name: 'Aleatório' }, ...GAME_TYPES].map((gt) => (
+                          <button
+                            key={gt.id}
+                            className={`game-type-btn ${privateRoom?.gameTypePreference === gt.id ? 'selected' : ''}`}
+                            onClick={() => duel.selectPrivateRoomGame(privateRoom.roomCode, gt.id)}
+                            disabled={privateRoomReady}
+                          >
+                            <span className="gt-icon">{gt.icon}</span>
+                            <span className="gt-label">{gt.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="glass-card" style={{ padding: 'var(--space-md)', marginTop: 'var(--space-xs)', background: 'var(--gradient-card)' }}>
+                        <strong>{privateRoom?.gameTypePreference === 'random' ? '🎲 Aleatório' : `${privateRoomSelectedGame?.icon ?? '🎮'} ${privateRoomSelectedGame?.name ?? 'Modo escolhido'}`}</strong>
+                        <p className="text-secondary" style={{ margin: '4px 0 0', fontSize: 'var(--fs-sm)' }}>
+                          O dono da sala escolhe o modo.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {!privateRoomOpponent && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)', marginBottom: 'var(--space-md)' }}>
                     <a
                       className="btn btn-primary btn-md"
                       href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Vem jogar um duelo de inglês comigo no EnglishPlay! 🎮🇺🇸\nEntra por este link: ${window.location.origin}/who-knows-more?room=${createdRoomCode}`)}`}
@@ -1254,6 +1340,16 @@ const WhoKnowsMore = () => {
                       {linkCopied ? '✅ Link Copiado!' : '📋 Copiar Link Direto'}
                     </button>
                   </div>
+                  )}
+
+                  <button
+                    className={`btn ${privateRoomReady ? 'btn-success' : 'btn-primary'} btn-lg`}
+                    style={{ width: '100%' }}
+                    disabled={!privateRoom || (!privateRoomOpponent && !privateRoomIsHost)}
+                    onClick={() => duel.setPrivateRoomReady(privateRoom.roomCode, !privateRoomReady)}
+                  >
+                    {privateRoomReady ? '✅ Pronto' : '✅ Marcar como pronto'}
+                  </button>
                 </div>
               )}
 
@@ -1285,7 +1381,8 @@ const WhoKnowsMore = () => {
                         : (nicknameDraft.trim() || progress.displayName || generateGuestName()).slice(0, 20);
                       const res = await duel.joinPrivateRoom(joinRoomInput, name);
                       if (res.ok) {
-                        setShowPrivateRoomModal(false);
+                        setCreatedRoomCode(joinRoomInput.toUpperCase());
+                        setPrivateRoomMode('waiting');
                       } else {
                         setPrivateRoomError(res.error);
                       }
@@ -1304,7 +1401,7 @@ const WhoKnowsMore = () => {
 
               <button
                 className="btn btn-ghost btn-sm"
-                onClick={() => setShowPrivateRoomModal(false)}
+                onClick={closePrivateRoomModal}
                 style={{ marginTop: 'var(--space-md)' }}
               >
                 Fechar

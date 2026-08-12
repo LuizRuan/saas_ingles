@@ -51,7 +51,7 @@ describe('createMatch', () => {
     expect(m.pauseTimer).toBeNull();
     expect(m.roundTimer).toBeNull();
     expect(Object.fromEntries(m.scores)).toEqual({ a: 0, b: 0 });
-    destroyMatch(m.id);
+    destroyMatch(m.id, 0);
   });
 });
 
@@ -68,7 +68,7 @@ describe('destroyMatch', () => {
     m.roundTimer = setTimeout(() => { roundFired = true; }, 50);
     m.pauseTimer = setTimeout(() => { pauseFired = true; }, 50);
 
-    destroyMatch(m.id);
+    destroyMatch(m.id, 0);
     vi.advanceTimersByTime(200);
 
     expect(roundFired).toBe(false);

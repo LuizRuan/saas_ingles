@@ -47,6 +47,11 @@ const MyWords = () => {
     return counts;
   }, [wordsWithStats]);
 
+  const toggleWord = (word) => {
+    if (word.status === 'nova') return;
+    setExpandedWord(current => current === word.en ? null : word.en);
+  };
+
   return (
     <div className="page">
       <div className="container">
@@ -91,10 +96,12 @@ const MyWords = () => {
           )}
           {filtered.map((word) => (
             <div key={word.en}>
-              <button className="glass-card" onClick={() => setExpandedWord(expandedWord === word.en ? null : word.en)}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 'var(--space-md)',
-                  padding: 'var(--space-md) var(--space-lg)', cursor: 'pointer', border: 'none',
-                  color: 'inherit', textAlign: 'left', background: 'var(--gradient-card)' }}>
+              <button
+                className={`glass-card my-words-row${word.status === 'nova' ? ' locked' : ''}`}
+                onClick={() => toggleWord(word)}
+                disabled={word.status === 'nova'}
+                title={word.status === 'nova' ? 'Aprenda esta palavra em um jogo para desbloquear os exemplos.' : undefined}
+              >
                 <span style={{ fontSize: '1.2rem', minWidth: 30 }}>
                   {word.status === 'aprendida' ? '✅' : word.status === 'aprendendo' ? '📝' : '🆕'}
                 </span>
@@ -110,11 +117,11 @@ const MyWords = () => {
                     <span style={{ color: 'var(--accent-red)' }}>✗{word.stats.wrong}</span>
                   </div>
                 )}
-                <span className="text-muted">{expandedWord === word.en ? '▲' : '▼'}</span>
+                <span className="text-muted">{word.status === 'nova' ? '🔒' : expandedWord === word.en ? '▲' : '▼'}</span>
               </button>
-              {expandedWord === word.en && (
+              {expandedWord === word.en && word.status !== 'nova' && (
                 <div style={{ padding: 'var(--space-md)', paddingTop: 0 }}>
-                  <WordExplanation word={word} />
+                  <WordExplanation word={word} exampleCount={2} />
                 </div>
               )}
             </div>

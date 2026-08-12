@@ -3,7 +3,7 @@ import useSpeech from '../../hooks/useSpeech';
 import useCourse from '../../hooks/useCourse';
 import { loadSettings } from '../../utils/storage';
 
-const WordExplanation = ({ word, showTip = true, compact = false }) => {
+const WordExplanation = ({ word, showTip = true, compact = false, exampleCount = 1 }) => {
   const { speakNormal, speakSlow, isAvailable } = useSpeech();
 
   // Pronúncia automática (Configurações > Pronúncia automática).
@@ -21,6 +21,17 @@ const WordExplanation = ({ word, showTip = true, compact = false }) => {
   if (!word) return null;
 
   const { targetText, sourceText, tip, exampleTarget, exampleSource } = useCourse(word);
+  const examples = exampleTarget
+    ? [
+        { target: exampleTarget, source: exampleSource },
+        ...(exampleCount > 1
+          ? [{
+              target: `I can use "${targetText}" in a sentence.`,
+              source: `Eu posso usar "${sourceText}" em uma frase.`,
+            }]
+          : []),
+      ]
+    : [];
 
   return (
     <div className={`word-explanation ${compact ? 'compact' : ''}`}>
@@ -49,10 +60,14 @@ const WordExplanation = ({ word, showTip = true, compact = false }) => {
         <div className="pronunciation">🗣️ Pronúncia: "{word.pronunciation}"</div>
       )}
 
-      {exampleTarget && (
-        <div className="example">
-          <div className="en">📝 "{exampleTarget}"</div>
-          <div className="pt">"{exampleSource}"</div>
+      {examples.length > 0 && (
+        <div className={`word-examples ${examples.length > 1 ? 'two-columns' : ''}`}>
+          {examples.map((example, index) => (
+            <div className="example" key={`${example.target}-${index}`}>
+              <div className="en">📝 "{example.target}"</div>
+              <div className="pt">"{example.source}"</div>
+            </div>
+          ))}
         </div>
       )}
 

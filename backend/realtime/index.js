@@ -26,6 +26,7 @@ export const DEFAULT_TIMING = {
 };
 
 const roomName = (matchId) => `match:${matchId}`;
+const privateRoomName = (roomCode) => `private-room:${roomCode}`;
 
 export const attachRealtime = (httpServer, timingOverrides = {}) => {
   const timing = { ...DEFAULT_TIMING, ...timingOverrides };
@@ -214,6 +215,53 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
     }, timing.matchIntroMs);
 
     broadcastPresence(); // a fila mudou
+  };
+
+  const serializePrivateRoom = (room) => ({
+    roomCode: room.roomCode,
+    hostId: room.hostSocketId,
+    gameTypePreference: room.gameTypePreference,
+    players: [room.hostInfo, room.joinerInfo].filter(Boolean).map(p => ({
+      id: p.socketId,
+      nickname: p.nickname,
+      avatar: p.avatar,
+      ready: Boolean(room.ready?.get(p.socketId)),
+    })),
+  });
+
+  const emitPrivateRoomUpdate = (room) => {
+    io.to(privateRoomName(room.roomCode)).emit('room:update', serializePrivateRoom(room));
+  };
+
+  const startPrivateRoomIfReady = (room) => {
+    if (!room?.hostInfo || !room?.joinerInfo) return false;
+    if (!room.ready?.get(room.hostInfo.socketId) || !room.ready?.get(room.joinerInfo.socketId)) return false;
+
+    const players = [room.hostInfo, room.joinerInfo];
+    const gameType = room.gameTypePreference === 'random' ? pickRandomGameType() : room.gameTypePreference;
+    privateRooms.delete(room.roomCode);
+
+    const match = createMatch(players, gameType);
+    const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname, avatar: p.avatar }));
+
+    for (const p of players) {
+      const playerSocket = io.sockets.sockets.get(p.socketId);
+      playerSocket?.leave(privateRoomName(room.roomCode));
+      playerSocket?.join(roomName(match.id));
+    }
+
+    io.to(roomName(match.id)).emit('match:found', {
+      matchId: match.id,
+      gameType: match.gameType,
+      totalRounds: timing.totalRounds,
+      players: publicPlayers,
+    });
+
+    match.pauseTimer = setTimeout(() => {
+      if (matches.has(match.id)) startRound(match);
+    }, timing.matchIntroMs);
+
+    return true;
   };
 
   io.on('connection', (socket) => {
@@ -475,11 +523,16 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
         roomCode,
         hostSocketId: socket.id,
         hostInfo,
+        joinerInfo: null,
         gameTypePreference,
+        ready: new Map([[socket.id, false]]),
         createdAt: Date.now(),
       });
 
-      ack?.({ ok: true, roomCode });
+      socket.join(privateRoomName(roomCode));
+      const room = privateRooms.get(roomCode);
+      ack?.({ ok: true, roomCode, room: serializePrivateRoom(room) });
+      emitPrivateRoomUpdate(room);
     });
 
     socket.on('room:join', (payload, ack) => {
@@ -510,30 +563,65 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
         avatar: identity.avatar,
       };
 
-      const players = [room.hostInfo, joinerInfo];
-      const gameType = room.gameTypePreference === 'random' ? pickRandomGameType() : room.gameTypePreference;
-
-      privateRooms.delete(roomCode);
-
-      const match = createMatch(players, gameType);
-      const publicPlayers = players.map(p => ({ id: p.socketId, nickname: p.nickname }));
-
-      for (const p of players) {
-        io.sockets.sockets.get(p.socketId)?.join(roomName(match.id));
+      if (room.joinerInfo && room.joinerInfo.socketId !== socket.id) {
+        return ack?.({ ok: false, error: 'Esta sala já está cheia.' });
       }
 
-      io.to(roomName(match.id)).emit('match:found', {
-        matchId: match.id,
-        gameType: match.gameType,
-        totalRounds: timing.totalRounds,
-        players: publicPlayers,
-      });
+      room.joinerInfo = joinerInfo;
+      room.ready = new Map([
+        [room.hostInfo.socketId, false],
+        [joinerInfo.socketId, false],
+      ]);
+      socket.join(privateRoomName(roomCode));
+      emitPrivateRoomUpdate(room);
 
-      match.pauseTimer = setTimeout(() => {
-        if (matches.has(match.id)) startRound(match);
-      }, timing.matchIntroMs);
+      ack?.({ ok: true, room: serializePrivateRoom(room) });
+    });
 
-      ack?.({ ok: true, matchId: match.id });
+    socket.on('room:select_game', (payload, ack) => {
+      const roomCode = (payload?.roomCode || '').toUpperCase().trim();
+      const room = privateRooms.get(roomCode);
+      if (!room) return ack?.({ ok: false, error: 'Sala privada não encontrada ou expirada.' });
+      if (room.hostSocketId !== socket.id) return ack?.({ ok: false, error: 'Apenas o dono da sala escolhe o modo.' });
+
+      const rawPref = payload?.gameTypePreference;
+      room.gameTypePreference = GAME_TYPE_IDS.includes(rawPref) ? rawPref : 'random';
+      room.ready = new Map([
+        [room.hostInfo.socketId, false],
+        ...(room.joinerInfo ? [[room.joinerInfo.socketId, false]] : []),
+      ]);
+      emitPrivateRoomUpdate(room);
+      ack?.({ ok: true, room: serializePrivateRoom(room) });
+    });
+
+    socket.on('room:ready', (payload, ack) => {
+      const roomCode = (payload?.roomCode || '').toUpperCase().trim();
+      const room = privateRooms.get(roomCode);
+      if (!room) return ack?.({ ok: false, error: 'Sala privada não encontrada ou expirada.' });
+      const inRoom = room.hostSocketId === socket.id || room.joinerInfo?.socketId === socket.id;
+      if (!inRoom) return ack?.({ ok: false, error: 'Você não está nesta sala.' });
+
+      room.ready?.set(socket.id, Boolean(payload?.ready));
+      const started = startPrivateRoomIfReady(room);
+      if (!started) emitPrivateRoomUpdate(room);
+      ack?.({ ok: true, started });
+    });
+
+    socket.on('room:leave', (payload, ack) => {
+      const roomCode = (payload?.roomCode || '').toUpperCase().trim();
+      const room = privateRooms.get(roomCode);
+      if (!room) return ack?.({ ok: true });
+
+      socket.leave(privateRoomName(roomCode));
+      if (room.hostSocketId === socket.id) {
+        privateRooms.delete(roomCode);
+        io.to(privateRoomName(roomCode)).emit('room:closed', { reason: 'host_left' });
+      } else if (room.joinerInfo?.socketId === socket.id) {
+        room.joinerInfo = null;
+        room.ready = new Map([[room.hostInfo.socketId, false]]);
+        emitPrivateRoomUpdate(room);
+      }
+      ack?.({ ok: true });
     });
 
     socket.on('disconnect', () => {
@@ -545,6 +633,11 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
         for (const [code, room] of privateRooms.entries()) {
           if (room.hostSocketId === socketIdToClean) {
             privateRooms.delete(code);
+            io.to(privateRoomName(code)).emit('room:closed', { reason: 'host_left' });
+          } else if (room.joinerInfo?.socketId === socketIdToClean) {
+            room.joinerInfo = null;
+            room.ready = new Map([[room.hostInfo.socketId, false]]);
+            emitPrivateRoomUpdate(room);
           }
         }
       }, 20_000);

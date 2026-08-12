@@ -11,7 +11,7 @@ import http from 'node:http';
 import { io as ioClient } from 'socket.io-client';
 import { app } from '../app.js';
 import { attachRealtime } from './index.js';
-import { waitingQueue, matches } from './state.js';
+import { waitingQueue, privateRooms, matches } from './state.js';
 import { resetRateLimiter } from './rateLimiter.js';
 import { signDuelTicket } from '../utils/token.js';
 
@@ -44,6 +44,7 @@ afterAll(async () => {
 
 beforeEach(() => {
   waitingQueue.length = 0;
+  privateRooms.clear();
   for (const id of [...matches.keys()]) matches.delete(id);
   resetRateLimiter();
   vi.clearAllMocks();
@@ -149,6 +150,72 @@ describe('duelo — pareamento e primeira rodada', () => {
     expect(typeof r1.serverNow).toBe('number');
     expect(typeof r1.roundMs).toBe('number');
     p1.disconnect(); p2.disconnect();
+  });
+});
+
+describe('duelo — sala privada', () => {
+  it('mantem os jogadores no lobby e so inicia apos os dois ficarem prontos', async () => {
+    const host = await connect();
+    const guest = await connect();
+
+    const hostLobbyUpdates = [];
+    const guestLobbyUpdates = [];
+    host.on('room:update', (payload) => hostLobbyUpdates.push(payload));
+    guest.on('room:update', (payload) => guestLobbyUpdates.push(payload));
+
+    const created = await emitAck(host, 'room:create', {
+      nickname: 'Dono',
+      gameTypePreference: 'translation',
+    });
+    expect(created.ok).toBe(true);
+    expect(created.room.players).toHaveLength(1);
+    expect(created.room.gameTypePreference).toBe('translation');
+    expect(privateRooms.has(created.roomCode)).toBe(true);
+    expect(matches.size).toBe(0);
+
+    const foundTooEarly = vi.fn();
+    host.on('match:found', foundTooEarly);
+    guest.on('match:found', foundTooEarly);
+
+    const joined = await emitAck(guest, 'room:join', {
+      roomCode: created.roomCode,
+      nickname: 'Convidado',
+    });
+    expect(joined.ok).toBe(true);
+    expect(joined.room.players).toHaveLength(2);
+    expect(matches.size).toBe(0);
+    await new Promise(r => setTimeout(r, 40));
+    expect(foundTooEarly).not.toHaveBeenCalled();
+
+    await emitAck(host, 'room:select_game', {
+      roomCode: created.roomCode,
+      gameTypePreference: 'hangman',
+    });
+
+    const foundHost = once(host, 'match:found');
+    const foundGuest = once(guest, 'match:found');
+    const roundHost = once(host, 'round:start');
+    const roundGuest = once(guest, 'round:start');
+
+    const hostReady = await emitAck(host, 'room:ready', { roomCode: created.roomCode, ready: true });
+    expect(hostReady.ok).toBe(true);
+    expect(hostReady.started).toBe(false);
+    expect(privateRooms.has(created.roomCode)).toBe(true);
+
+    const guestReady = await emitAck(guest, 'room:ready', { roomCode: created.roomCode, ready: true });
+    expect(guestReady.ok).toBe(true);
+    expect(guestReady.started).toBe(true);
+
+    const [m1, m2] = await Promise.all([foundHost, foundGuest]);
+    expect(m1.matchId).toBe(m2.matchId);
+    expect(m1.gameType).toBe('hangman');
+    expect(privateRooms.has(created.roomCode)).toBe(false);
+
+    await Promise.all([roundHost, roundGuest]);
+    expect(hostLobbyUpdates.length).toBeGreaterThan(0);
+    expect(guestLobbyUpdates.length).toBeGreaterThan(0);
+
+    host.disconnect(); guest.disconnect();
   });
 });
 

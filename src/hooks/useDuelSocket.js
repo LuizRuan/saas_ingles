@@ -38,7 +38,7 @@ export const useDuelSocket = () => {
   const [queueCount, setQueueCount] = useState(null);
   const [queueByType, setQueueByType] = useState({}); // { hangman: 2, ... }
 
-  // 'idle' | 'searching' | 'matched' | 'playing' | 'ended' | 'lost'
+  // 'idle' | 'searching' | 'room' | 'matched' | 'playing' | 'ended' | 'lost'
   const [matchState, setMatchState] = useState('idle');
   const [queueError, setQueueError] = useState(null);
   const [opponent, setOpponent] = useState(null);
@@ -57,6 +57,7 @@ export const useDuelSocket = () => {
   const [receivedEmote, setReceivedEmote] = useState(null);       // { emoji, id, senderId }
   const [rematchProposed, setRematchProposed] = useState(null);   // { matchId, requesterName, timeoutMs }
   const [rematchStatus, setRematchStatus]     = useState('idle'); // 'idle' | 'requesting' | 'declined'
+  const [privateRoom, setPrivateRoom] = useState(null);
 
   const socketRef = useRef(null);
   const matchIdRef = useRef(null);
@@ -130,6 +131,19 @@ export const useDuelSocket = () => {
       setMatchEnd(null);
       setAnswerError(null);
       setScores({});
+      setPrivateRoom(null);
+    });
+
+    socket.on('room:update', (payload) => {
+      setPrivateRoom(payload);
+      setQueueError(null);
+      setMatchState('room');
+    });
+
+    socket.on('room:closed', () => {
+      setPrivateRoom(null);
+      setMatchState('idle');
+      setQueueError('A sala foi encerrada pelo dono.');
     });
 
     socket.on('round:start', (payload) => {
@@ -299,13 +313,14 @@ export const useDuelSocket = () => {
   /** Criar sala privada e receber código de 5 dígitos para convidar amigo. */
   const createPrivateRoom = useCallback((gameTypePreference = 'random', nicknameOverride = null) => {
     return new Promise((resolve) => {
-      setMatchState('queue');
+      setMatchState('room');
       socketRef.current?.emit('room:create', {
         nickname: nicknameOverride || 'Jogador',
         gameTypePreference,
       }, (ack) => {
         if (ack?.ok) {
-          resolve({ ok: true, roomCode: ack.roomCode });
+          setPrivateRoom(ack.room ?? null);
+          resolve({ ok: true, roomCode: ack.roomCode, room: ack.room });
         } else {
           setMatchState('idle');
           resolve({ ok: false, error: ack?.error });
@@ -317,19 +332,43 @@ export const useDuelSocket = () => {
   /** Entrar em sala privada usando o código de 5 dígitos. */
   const joinPrivateRoom = useCallback((roomCode, nicknameOverride = null) => {
     return new Promise((resolve) => {
-      setMatchState('queue');
+      setMatchState('room');
       socketRef.current?.emit('room:join', {
         nickname: nicknameOverride || 'Jogador',
         roomCode,
       }, (ack) => {
         if (ack?.ok) {
-          resolve({ ok: true });
+          setPrivateRoom(ack.room ?? null);
+          resolve({ ok: true, room: ack.room });
         } else {
           setMatchState('idle');
           resolve({ ok: false, error: ack?.error });
         }
       });
     });
+  }, []);
+
+  const selectPrivateRoomGame = useCallback((roomCode, gameTypePreference) => {
+    return new Promise((resolve) => {
+      socketRef.current?.emit('room:select_game', { roomCode, gameTypePreference }, (ack) => {
+        if (ack?.ok) setPrivateRoom(ack.room ?? null);
+        resolve(ack ?? { ok: false, error: 'Sem resposta do servidor.' });
+      });
+    });
+  }, []);
+
+  const setPrivateRoomReady = useCallback((roomCode, ready = true) => {
+    return new Promise((resolve) => {
+      socketRef.current?.emit('room:ready', { roomCode, ready }, (ack) => {
+        resolve(ack ?? { ok: false, error: 'Sem resposta do servidor.' });
+      });
+    });
+  }, []);
+
+  const leavePrivateRoom = useCallback((roomCode) => {
+    socketRef.current?.emit('room:leave', { roomCode }, () => {});
+    setPrivateRoom(null);
+    setMatchState('idle');
   }, []);
 
   /** Solicitar revanche ao oponente no fim da partida. */
@@ -355,6 +394,7 @@ export const useDuelSocket = () => {
     matchIdRef.current = null;
     clearQueueTimer();
     setMatchState('idle');
+    setPrivateRoom(null);
     setOpponent(null);
     setGameType(null);
     setQuestion(null);
@@ -374,10 +414,11 @@ export const useDuelSocket = () => {
     matchState, queueError, answerError,
     opponent, gameType, roundIndex, totalRounds,
     question, roundDeadline, roundMs, roundResult, scores, matchEnd,
-    wildcardEffect, wildcardTimeUpdate, receivedEmote, rematchProposed, rematchStatus,
+    wildcardEffect, wildcardTimeUpdate, receivedEmote, rematchProposed, rematchStatus, privateRoom,
     myId: myIdRef.current,
     clockOffsetRef,
-    joinQueue, leaveQueue, submitAnswer, guessLetter, forfeit, resetMatch, useWildcard, sendEmote, requestRematch, respondRematch, createPrivateRoom, joinPrivateRoom,
+    joinQueue, leaveQueue, submitAnswer, guessLetter, forfeit, resetMatch, useWildcard, sendEmote, requestRematch, respondRematch,
+    createPrivateRoom, joinPrivateRoom, selectPrivateRoomGame, setPrivateRoomReady, leavePrivateRoom,
   };
 };
 
