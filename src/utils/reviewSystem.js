@@ -39,33 +39,57 @@ export const getWordsToReview = (progress, allWords) => {
   return wordsWithErrors;
 };
 
+// Regressão: jogos como Montar Frases, Tradução e Conversa gravam o erro com
+// a FRASE inteira como chave (ex.: "I am happy."), não uma palavra do banco
+// — resolveWordKey() não reconhece isso e manda pro balde phraseStats (ver
+// recordWordResult). getWordsToReview só olha wordStats, então quem errava
+// só em jogos de frase nunca via nada pra revisar, mesmo errando bastante.
+export const getPhrasesToReview = (progress) => {
+  const { phraseStats = {} } = progress;
+
+  const entries = Object.entries(phraseStats).filter(
+    ([, stats]) => stats && stats.wrong > 0 && stats.lastResult !== 'correct'
+  );
+
+  entries.sort(([, a], [, b]) => {
+    const errorRateA = a.wrong / ((a.correct || 0) + a.wrong);
+    const errorRateB = b.wrong / ((b.correct || 0) + b.wrong);
+    return errorRateB - errorRateA;
+  });
+
+  return entries.map(([text, stats]) => ({ text, wrong: stats.wrong }));
+};
+
 /**
- * Calcula a urgência das revisões pendentes.
- * - 'urgent'  → a palavra mais antiga foi vista há mais de 2 dias
- * - 'pending' → há palavras para revisar, mas tudo recente
+ * Calcula a urgência das revisões pendentes (palavras + frases).
+ * - 'urgent'  → o item mais antigo foi visto há mais de 2 dias
+ * - 'pending' → há itens para revisar, mas tudo recente
  * - 'none'    → nenhuma revisão pendente
  */
 export const getReviewUrgency = (progress, allWords) => {
   const wordsToReview = getWordsToReview(progress, allWords);
-  if (wordsToReview.length === 0) return { level: 'none', daysOldest: 0, count: 0 };
+  const phrasesToReview = getPhrasesToReview(progress);
+  const count = wordsToReview.length + phrasesToReview.length;
+  if (count === 0) return { level: 'none', daysOldest: 0, count: 0 };
 
-  const { wordStats = {} } = progress;
+  const { wordStats = {}, phraseStats = {} } = progress;
   const now = Date.now();
   const MS_PER_DAY = 86_400_000;
   const VALID_TIMESTAMP_MIN = 1700000000000;
 
   let oldestMs = 0;
-  for (const word of wordsToReview) {
-    const stats = wordStats[word.en];
-    if (stats?.lastSeen && stats.lastSeen > VALID_TIMESTAMP_MIN) {
-      const age = Math.max(0, now - stats.lastSeen);
+  const trackOldest = (lastSeen) => {
+    if (lastSeen && lastSeen > VALID_TIMESTAMP_MIN) {
+      const age = Math.max(0, now - lastSeen);
       if (age > oldestMs) oldestMs = age;
     }
-  }
+  };
+  for (const word of wordsToReview) trackOldest(wordStats[word.en]?.lastSeen);
+  for (const phrase of phrasesToReview) trackOldest(phraseStats[phrase.text]?.lastSeen);
 
   const daysOldest = Math.floor(oldestMs / MS_PER_DAY);
   const level = daysOldest >= 2 ? 'urgent' : 'pending';
-  return { level, daysOldest, count: wordsToReview.length };
+  return { level, daysOldest, count };
 };
 
 export const getWordPriority = (wordStats) => {

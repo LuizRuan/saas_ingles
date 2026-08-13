@@ -2,19 +2,31 @@ import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { words, shuffleArray } from '../data/words';
 import { useProgress } from '../hooks/useProgress';
-import { getWordsToReview } from '../utils/reviewSystem';
+import { getWordsToReview, getPhrasesToReview } from '../utils/reviewSystem';
 import useSound from '../hooks/useSound';
 import WordExplanation from '../components/Game/WordExplanation';
 
 const ReviewErrors = () => {
   const { progress, handleCorrectAnswer, handleWrongAnswer, incrementReviewed } = useProgress();
   const { playCorrect, playWrong } = useSound();
-  
+
   // Congela a lista de revisão para a sessão atual (evita recarregar/trocar a palavra no meio do feedback)
   const [reviewWords] = useState(() => getWordsToReview(progress, words));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [selected, setSelected] = useState(null);
+
+  // Erros de jogos de frase (Montar Frases, Tradução, Conversa) — a chave
+  // gravada é a frase inteira, não uma palavra do banco, então não dá pra
+  // montar um quiz de múltipla escolha igual ao das palavras. Aqui é
+  // autoavaliação: a pessoa lê e marca "já revisei" quando lembrar.
+  const [reviewPhrases, setReviewPhrases] = useState(() => getPhrasesToReview(progress));
+
+  const markPhraseReviewed = useCallback((text) => {
+    handleCorrectAnswer(text, 1);
+    incrementReviewed();
+    setReviewPhrases(prev => prev.filter(p => p.text !== text));
+  }, [handleCorrectAnswer, incrementReviewed]);
 
   const current = reviewWords[currentIndex];
   const options = useMemo(() => {
@@ -44,7 +56,7 @@ const ReviewErrors = () => {
     setSelected(null);
   }, []);
 
-  if (reviewWords.length === 0) {
+  if (reviewWords.length === 0 && reviewPhrases.length === 0) {
     return (
       <div className="page">
         <div className="container game-container text-center animate-fade-in-up">
@@ -59,7 +71,56 @@ const ReviewErrors = () => {
     );
   }
 
-  if (currentIndex >= reviewWords.length) {
+  // Palavras (se houver) vêm primeiro, num quiz de múltipla escolha de
+  // verdade. Frases ficam pra depois, numa tela de autoavaliação — não dá
+  // pra montar opções erradas plausíveis pra uma frase inteira igual dá
+  // pra palavra.
+  if (currentIndex < reviewWords.length) {
+    // tela de quiz de palavra, definida mais abaixo
+  } else if (reviewPhrases.length > 0) {
+    return (
+      <div className="page">
+        <div className="container game-container">
+          <div className="game-header animate-fade-in">
+            <div className="game-title">
+              <Link to="/" className="btn btn-ghost btn-sm">←</Link>
+              <span className="icon">🔄</span>
+              <h2>Revisar Erros</h2>
+            </div>
+            <div className="game-score">
+              <div className="game-score-item"><span>💬</span> <span className="value">{reviewPhrases.length} frase{reviewPhrases.length === 1 ? '' : 's'}</span></div>
+            </div>
+          </div>
+
+          <p className="text-secondary" style={{ marginBottom: 'var(--space-lg)' }}>
+            Essas vieram de jogos de frase (Montar Frases, Tradução, Conversa) — releia, e marque como revisada quando lembrar.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+            {reviewPhrases.map((phrase) => (
+              <div key={phrase.text} className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)' }}>
+                <p style={{ fontSize: 'var(--fs-lg)', fontWeight: 600 }}>"{phrase.text}"</p>
+                <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginTop: '4px' }}>
+                  Errada {phrase.wrong}x
+                </p>
+                <button
+                  className="btn btn-primary btn-sm"
+                  style={{ marginTop: 'var(--space-sm)' }}
+                  onClick={() => markPhraseReviewed(phrase.text)}
+                >
+                  ✅ Já revisei
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: 'var(--space-xl)' }}>
+            <Link to="/" className="btn btn-ghost">← Ir para o Início</Link>
+          </div>
+        </div>
+      </div>
+    );
+  } else {
     return (
       <div className="page">
         <div className="container game-container text-center animate-bounce-in">

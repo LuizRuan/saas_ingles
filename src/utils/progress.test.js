@@ -3,7 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import { calculatePoints, checkStreakBonus, POINTS } from './scoring';
 import { getCurrentLevel, getNextLevel, getLevelProgress, getUserTitle } from './levelSystem';
-import { recordWordResult, getWordsToReview, mixReviewWords, LEARNED_THRESHOLD } from './reviewSystem';
+import { recordWordResult, getWordsToReview, getPhrasesToReview, getReviewUrgency, mixReviewWords, LEARNED_THRESHOLD } from './reviewSystem';
 import { normalizeKey, resolveWordKey, mergeStats } from './wordKey';
 import { generateDailyChallenge, isDailyChallengeCompleted } from './dailyChallenge';
 import { levels } from '../data/categories';
@@ -194,6 +194,33 @@ describe('revisão', () => {
     p = recordWordResult(p, 'Hello', true);
     const withErrorsAfter = Object.values(p.wordStats).filter(s => s.wrong > 0 && s.lastResult !== 'correct');
     expect(withErrorsAfter).toHaveLength(0);
+  });
+
+  it('regressão: erro em jogo de frase (Montar Frases/Tradução/Conversa) aparece na revisão', () => {
+    // Antes, getWordsToReview só olhava wordStats — quem errava só em frases
+    // inteiras (que caem em phraseStats, não em wordStats) nunca via nada
+    // pra revisar, mesmo errando bastante.
+    let p = recordWordResult(progressoVazio(), 'I am happy.', false);
+    expect(getWordsToReview(p, words)).toHaveLength(0); // não é vocabulário
+    const frases = getPhrasesToReview(p);
+    expect(frases).toHaveLength(1);
+    expect(frases[0].text).toBe('I am happy.');
+    expect(frases[0].wrong).toBe(1);
+  });
+
+  it('frase some da revisão ao ser marcada como revisada (mesma regra das palavras)', () => {
+    let p = recordWordResult(progressoVazio(), 'I am happy.', false);
+    expect(getPhrasesToReview(p)).toHaveLength(1);
+    p = recordWordResult(p, 'I am happy.', true);
+    expect(getPhrasesToReview(p)).toHaveLength(0);
+  });
+
+  it('getReviewUrgency soma palavras e frases na contagem total', () => {
+    let p = recordWordResult(progressoVazio(), 'Hello', false);
+    p = recordWordResult(p, 'I am happy.', false);
+    const urgencia = getReviewUrgency(p, words);
+    expect(urgencia.level).not.toBe('none');
+    expect(urgencia.count).toBe(2); // 1 palavra + 1 frase
   });
 });
 

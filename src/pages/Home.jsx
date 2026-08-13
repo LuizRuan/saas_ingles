@@ -170,7 +170,9 @@ const Home = () => {
                     {reviewUrgency.level === 'urgent' ? 'Revisão Urgente!' : 'Revisar Meus Erros'}
                   </strong>
                   <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>
-                    {reviewUrgency.count} {reviewUrgency.count === 1 ? 'palavra precisa' : 'palavras precisam'} de revisão
+                    {/* "item(ns)" porque a contagem agora inclui tanto palavras
+                        quanto frases erradas em jogos como Montar Frases/Tradução. */}
+                    {reviewUrgency.count} {reviewUrgency.count === 1 ? 'item precisa' : 'itens precisam'} de revisão
                     {reviewUrgency.daysOldest >= 1 && (
                       <span style={{ marginLeft: 4, color: reviewUrgency.level === 'urgent' ? 'var(--accent-red)' : 'var(--accent-orange)', fontWeight: 600 }}>
                         · há {reviewUrgency.daysOldest} {reviewUrgency.daysOldest === 1 ? 'dia' : 'dias'}
