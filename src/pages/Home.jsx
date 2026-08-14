@@ -45,8 +45,9 @@ const Home = () => {
         <section className="hero animate-fade-in-up">
           <div className="hero-content">
             <h1 className="hero-title">
-              <span className="hero-english">English</span><span className="hero-play">Play</span>
+              <span className="hero-word">Word</span><span className="hero-ly">ly</span>
             </h1>
+            <p className="hero-tagline">Mundo das Palavras</p>
             <p className="hero-subtitle">Aprenda inglês jogando todos os dias</p>
             <p className="hero-desc">
               Jogos divertidos, desafios diários e prática constante para transformar seu inglês de forma leve e eficaz.
@@ -61,7 +62,7 @@ const Home = () => {
             </div>
           </div>
           <div className="hero-illustration animate-float">
-            {/* Sem o wordmark: o <h1> ao lado já diz "EnglishPlay", e o texto
+            {/* Sem o wordmark: o <h1> ao lado já diz "Wordly", e o texto
                 azul-marinho da arte sumia no tema escuro. */}
             <img
               src="/hero.webp"

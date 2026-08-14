@@ -18,5 +18,5 @@ attachRealtime(httpServer);
 await connectDb();
 
 httpServer.listen(env.port, () => {
-  console.log(`[server] EnglishPlay API ouvindo na porta ${env.port} (${env.isProduction ? 'production' : 'development'})`);
+  console.log(`[server] Wordly API ouvindo na porta ${env.port} (${env.isProduction ? 'production' : 'development'})`);
 });

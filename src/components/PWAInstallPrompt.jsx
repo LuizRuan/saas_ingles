@@ -55,7 +55,7 @@ const PWAInstallPrompt = () => {
       <div className="pwa-prompt-content">
         <span className="pwa-prompt-icon">📲</span>
         <div className="pwa-prompt-text">
-          <strong>Instalar o EnglishPlay</strong>
+          <strong>Instalar o Wordly</strong>
           <p>Abra em tela cheia e acesse rápido no seu celular ou computador!</p>
         </div>
       </div>

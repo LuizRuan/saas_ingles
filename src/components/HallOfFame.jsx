@@ -14,7 +14,7 @@ const HallOfFame = () => {
         <span className="hall-icon">🏛️</span>
         <div>
           <h3>Hall da Fama dos Campeões</h3>
-          <p className="text-secondary">Galeria histórica dos Top 1 de cada mês no EnglishPlay</p>
+          <p className="text-secondary">Galeria histórica dos Top 1 de cada mês no Wordly</p>
         </div>
       </div>
 

@@ -15,8 +15,15 @@
   margin-bottom: var(--space-md);
 }
 
-.hero-english { color: var(--text-primary); }
-.hero-play { color: var(--accent-primary); font-style: italic; }
+.hero-word { color: var(--text-primary); }
+.hero-ly { color: var(--accent-primary); font-style: italic; }
+
+.hero-tagline {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: var(--space-md);
+}
 
 .hero-subtitle {
   font-size: var(--fs-lg);

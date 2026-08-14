@@ -103,7 +103,7 @@ const ImageQuiz = () => {
 
   const startGame = useCallback((diff) => {
     setDifficulty(diff);
-    setRounds(buildRounds(diff, imageWords));
+    setRounds(buildRounds(diff, defaultImageWords));
     setRoundIndex(0);
     setSelected(null);
     setFeedback(null);

@@ -708,7 +708,7 @@ const WhoKnowsMore = () => {
               <span className="badge badge-purple">⚔️ MODO DUELO</span>
               <h1>Quem Sabe Mais?</h1>
               <p className="text-secondary">
-                Dispute contra outra pessoa ao vivo, ou personalize seu duelo contra o Bot com <strong>todos os 8 jogos</strong> do EnglishPlay!
+                Dispute contra outra pessoa ao vivo, ou personalize seu duelo contra o Bot com <strong>todos os 8 jogos</strong> do Wordly!
               </p>
             </div>
 
@@ -1322,7 +1322,7 @@ const WhoKnowsMore = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)', marginBottom: 'var(--space-md)' }}>
                     <a
                       className="btn btn-primary btn-md"
-                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Vem jogar um duelo de inglês comigo no EnglishPlay! 🎮🇺🇸\nEntra por este link: ${window.location.origin}/who-knows-more?room=${createdRoomCode}`)}`}
+                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Vem jogar um duelo de inglês comigo no Wordly! 🎮🇺🇸\nEntra por este link: ${window.location.origin}/who-knows-more?room=${createdRoomCode}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ background: '#25D366', borderColor: '#25D366', color: '#fff', textDecoration: 'none' }}

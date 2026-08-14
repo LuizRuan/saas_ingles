@@ -1,4 +1,4 @@
-# EnglishPlay
+# Wordly — Mundo das Palavras
 
 Plataforma gratuita para brasileiros aprenderem inglês jogando. O progresso do
 jogo continua 100% no navegador, guardado no `localStorage` — isso não mudou.

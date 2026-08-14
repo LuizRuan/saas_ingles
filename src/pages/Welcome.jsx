@@ -11,7 +11,7 @@ import './Welcome.css';
  * um pedaço do app em vez de uma tela própria.
  *
  * O "Jogar sem conta" existe por uma razão concreta, não por preguiça de gate:
- * todo o progresso do EnglishPlay vive no `localStorage` do aparelho e nunca
+ * todo o progresso do Wordly vive no `localStorage` do aparelho e nunca
  * dependeu de conta nenhuma. Exigir login para jogar não protegeria nada — só
  * trancaria a porta de um jogo que funciona offline. (E hoje, com o backend
  * ainda fora do ar, um bloqueio duro deixaria o site inteiro inacessível.)

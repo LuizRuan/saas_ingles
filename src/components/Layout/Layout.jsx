@@ -5,7 +5,6 @@ import { ROTAS_LIVRES } from '../../utils/entryChoice';
 import Celebration from '../Celebration/Celebration';
 import NicknamePrompt from '../Auth/NicknamePrompt';
 import AvatarDisplay from '../Avatar/AvatarDisplay';
-import BugReportModal from '../BugReport/BugReportModal';
 import './Layout.css';
 
 const Layout = ({ children }) => {
@@ -33,7 +32,7 @@ const Layout = ({ children }) => {
         <div className="navbar-inner">
           <NavLink to="/" className="navbar-logo">
             <span className="logo-icon">🎮</span>
-            <span>EnglishPlay</span>
+            <span>Wordly</span>
           </NavLink>
           
           <div className="navbar-links">
@@ -152,9 +151,6 @@ const Layout = ({ children }) => {
       {/* Por cima de qualquer tela, sem botão de pular — ver NicknamePrompt.jsx
           pro porquê de ser obrigatório. */}
       {precisaEscolherApelido && <NicknamePrompt onSaved={applyNickname} />}
-
-      {/* Botão Flutuante de Reportar Bug 🐛 */}
-      <BugReportModal />
     </div>
   );
 };

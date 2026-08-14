@@ -56,7 +56,7 @@ const Login = () => {
           <div className="auth-header">
             <span className="icon" aria-hidden="true">👋</span>
             <h1>Entrar</h1>
-            <p className="text-secondary">Acesse sua conta do EnglishPlay</p>
+            <p className="text-secondary">Acesse sua conta do Wordly</p>
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>

@@ -1,6 +1,6 @@
-# EnglishPlay — backend (esqueleto)
+# Wordly — backend (esqueleto)
 
-API de autenticação (registro/login) do EnglishPlay. **Ainda não está deployada e não tem MongoDB conectado neste momento** — este é um esqueleto pronto para quando isso acontecer.
+API de autenticação (registro/login) do Wordly. **Ainda não está deployada e não tem MongoDB conectado neste momento** — este é um esqueleto pronto para quando isso acontecer.
 
 Pacote **independente** do frontend: `node_modules` e `package.json` próprios, sem workspace na raiz. É um esqueleto sem código compartilhado e sem deploy conjunto; `workspaces` adicionaria complexidade sem benefício agora.
 

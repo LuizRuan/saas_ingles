@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "API de autenticação do EnglishPlay — esqueleto para deploy futuro no Render + MongoDB Atlas. Pacote independente do frontend (ver README.md).",
+  "description": "API de autenticação do Wordly — esqueleto para deploy futuro no Render + MongoDB Atlas. Pacote independente do frontend (ver README.md).",
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",

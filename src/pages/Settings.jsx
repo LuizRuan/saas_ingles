@@ -107,7 +107,7 @@ const Settings = () => {
         <div className="page-header animate-fade-in-up">
           <Link to="/" className="btn btn-ghost page-back">← Voltar</Link>
           <h1>⚙️ Configurações</h1>
-          <p className="text-secondary">Som, pronúncia, tema e animações do EnglishPlay</p>
+          <p className="text-secondary">Som, pronúncia, tema e animações do Wordly</p>
         </div>
 
         {/* Entrar/Cadastro — ponto de entrada mobile, já que o .mobile-nav não
@@ -468,7 +468,7 @@ const Settings = () => {
 
         {/* About */}
         <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', animationDelay: '0.25s' }}>
-          <h4 style={{ marginBottom: 'var(--space-sm)' }}>ℹ️ Sobre o EnglishPlay</h4>
+          <h4 style={{ marginBottom: 'var(--space-sm)' }}>ℹ️ Sobre o Wordly</h4>
           <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>
             Plataforma gratuita para aprender inglês por meio de jogos educativos.
             Dá para jogar sem conta: seu progresso é salvo neste navegador.

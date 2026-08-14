@@ -1,5 +1,5 @@
 /**
- * Lembra como a pessoa entrou no EnglishPlay, para a tela de boas-vindas
+ * Lembra como a pessoa entrou no Wordly, para a tela de boas-vindas
  * aparecer só na primeira visita.
  *
  * Isto NÃO é autenticação e não deve ser confundido com ela. É só a memória de

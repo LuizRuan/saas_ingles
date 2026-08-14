@@ -11,7 +11,7 @@ const NotFound = () => (
         <span style={{ fontSize: '3rem' }}>🧭</span>
         <h1 style={{ marginTop: 'var(--space-md)' }}>Página não encontrada</h1>
         <p className="text-secondary" style={{ marginTop: 'var(--space-sm)', marginBottom: 'var(--space-xl)' }}>
-          Esse endereço não existe no EnglishPlay. Talvez o link esteja quebrado ou a URL tenha um erro de digitação.
+          Esse endereço não existe no Wordly. Talvez o link esteja quebrado ou a URL tenha um erro de digitação.
         </p>
         <Link to="/" className="btn btn-primary">🏠 Voltar para o início</Link>
       </div>

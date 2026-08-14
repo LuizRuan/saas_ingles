@@ -1,5 +1,5 @@
 /* ========================================
-   EnglishPlay — Design System (Light Theme)
+   Wordly — Design System (Light Theme)
    Clean, modern, airy design with lavender accents
    ======================================== */
 
@@ -928,6 +928,18 @@ select {
 
 .example .en { font-weight: 600; color: var(--text-primary); font-size: var(--fs-sm); }
 .example .pt { color: var(--text-secondary); font-size: var(--fs-sm); }
+
+.example-en-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.example-speak-btn {
+  flex-shrink: 0;
+  padding: 2px 8px;
+}
 
 .word-examples.two-columns {
   display: grid;

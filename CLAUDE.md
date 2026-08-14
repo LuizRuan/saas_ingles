@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**EnglishPlay** — a free browser game platform that teaches English to Brazilian Portuguese speakers. Game state is still 100% client-side: *all* progress/settings live in `localStorage` via `useProgress`/`storage.js`, exactly as before.
+**Wordly** ("Mundo das Palavras") — a free browser game platform that teaches English to Brazilian Portuguese speakers. Renamed from EnglishPlay; the two names may still turn up interchangeably in older commits/discussions. Game state is still 100% client-side: *all* progress/settings live in `localStorage` via `useProgress`/`storage.js`, exactly as before.
 
 **Authentication now exists as a separate system.** [Register.jsx](src/pages/Register.jsx) and [Login.jsx](src/pages/Login.jsx) are real screens backed by [backend/](backend/) (Express + Mongoose), **deployed on Render with MongoDB Atlas connected** — see Deploy below. Don't conflate the two systems: auth is about *who is signed in*, progress/scoring is still untouched and still lives entirely in `localStorage`. Migrating progress to the server is explicit future work, not done — and when it happens, the server must re-validate everything, because nothing the client stores is trustworthy.
 

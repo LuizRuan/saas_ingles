@@ -64,7 +64,17 @@ const WordExplanation = ({ word, showTip = true, compact = false, exampleCount =
         <div className={`word-examples ${examples.length > 1 ? 'two-columns' : ''}`}>
           {examples.map((example, index) => (
             <div className="example" key={`${example.target}-${index}`}>
-              <div className="en">📝 "{example.target}"</div>
+              <div className="en example-en-row">
+                <span>📝 "{example.target}"</span>
+                {isAvailable && (
+                  <button
+                    className="btn btn-sm btn-secondary example-speak-btn"
+                    onClick={() => speakNormal(example.target)}
+                    aria-label={`Ouvir frase de exemplo: ${example.target}`}>
+                    🔊
+                  </button>
+                )}
+              </div>
               <div className="pt">"{example.source}"</div>
             </div>
           ))}
