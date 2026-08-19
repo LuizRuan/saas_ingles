@@ -4,6 +4,7 @@ import { useProgress } from '../hooks/useProgress';
 import { getCurrentLevel, getNextLevel, getLevelProgress } from '../utils/levelSystem';
 import { gamesCatalog, halo } from '../data/gamesCatalog';
 import { AVAILABLE_COURSES } from '../data/index';
+import { summarizeCourses } from '../utils/courseProgress';
 import './Home.css';
 
 const quickLinks = [
@@ -14,8 +15,10 @@ const quickLinks = [
   { name: 'Conquistas', desc: 'Desbloqueie troféus e acompanhe sua evolução.', iconImage: '/conquistas.png', color: '#f59e0b', path: '/achievements' },
 ];
 
+const CURSO_IDS = AVAILABLE_COURSES.map(c => c.id);
+
 const Home = () => {
-  const { progress } = useProgress();
+  const { progress, setActiveCourse, isSwitchingCourse } = useProgress();
   // O curso ativo decide a escada: 200 palavras são nível ~30 em inglês e
   // nível ~60 em espanhol, porque os bancos têm tamanhos diferentes.
   const curso = progress.activeCourse || 'en-pt';
@@ -25,6 +28,7 @@ const Home = () => {
   const currentLevel = getCurrentLevel(progress.wordsStudied, curso);
   const nextLevel = getNextLevel(progress.wordsStudied, curso);
   const levelProgress = getLevelProgress(progress.wordsStudied, curso);
+  const resumoCursos = summarizeCourses(progress, CURSO_IDS);
 
   // Calcula urgência de revisão direto do wordStats — evita importar o array
   // words.js (~139 kB) no bundle principal da Home.
@@ -48,8 +52,59 @@ const Home = () => {
   return (
     <div className="page">
       <div className="container">
+
+        {/* Course Picker — seletor de idioma acima do hero */}
+        <section className="course-picker animate-fade-in-up">
+          <span className="course-picker-label">🌍 Idioma</span>
+          <div className="course-pick-cards">
+            {AVAILABLE_COURSES.map((course) => {
+              const isActive = course.id === curso;
+              const isAvailable = course.available !== false;
+              const info = resumoCursos[course.id];
+              const nivel = isActive
+                ? currentLevel.level
+                : info?.started
+                  ? getCurrentLevel(info.wordsStudied, course.id).level
+                  : null;
+
+              return (
+                <button
+                  key={course.id}
+                  type="button"
+                  className={`course-pick-card${isActive ? ' active' : ''}${!isAvailable ? ' locked' : ''}`}
+                  onClick={() => isAvailable && !isActive && !isSwitchingCourse && setActiveCourse(course.id)}
+                  disabled={!isAvailable || isSwitchingCourse}
+                  aria-pressed={isActive}
+                  aria-label={!isAvailable ? `${course.name} — em breve` : `Estudar ${course.name}`}
+                  title={!isAvailable ? 'Em breve! 🔒' : isActive ? `${course.name} ativo` : `Trocar para ${course.name}`}
+                >
+                  {!isAvailable && <span className="course-pick-badge">🔒 Em breve</span>}
+                  {/* Badge com código do idioma — emojis de bandeira renderizam
+                      como texto "US"/"ES" no Windows, então usamos um badge estilizado */}
+                  <span className="course-pick-lang-code">
+                    {course.langCode.slice(0, 2).toUpperCase()}
+                  </span>
+                  <span className="course-pick-info">
+                    <span className="course-pick-name">{course.name}</span>
+                    <span className="course-pick-sub">
+                      {isActive && isSwitchingCourse
+                        ? '⏳ Trocando…'
+                        : isActive
+                          ? `✓ Ativo · Nível ${nivel}`
+                          : nivel !== null
+                            ? `Nível ${nivel} · Continuar`
+                            : 'Em breve'}
+                    </span>
+                  </span>
+                  {isActive && <span className="course-pick-check">✓</span>}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
         {/* Hero Section */}
-        <section className="hero animate-fade-in-up">
+        <section className="hero animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
           <div className="hero-content">
             <h1 className="hero-title">
               <span className="hero-word">Word</span><span className="hero-ly">ly</span>

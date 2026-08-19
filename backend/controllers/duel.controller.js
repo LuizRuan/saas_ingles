@@ -92,19 +92,34 @@ export const getLevelLeaderboard = async (req, res) => {
   // Só aqui, DEPOIS da whitelist, o id vira caminho de campo.
   const campo = `progress.courseStats.${courseId}.wordsStudied`;
 
+  // $or com fallback: contas antigas não têm `courseStats` no banco (o campo
+  // foi introduzido depois). Sem o fallback, só a conta que sincronizou após
+  // a feature aparecer no ranking — o filtro `[campo]: { $gt: 0 }` exclui
+  // quem ainda tem os dados só em `progress.wordsStudied` (campo plano).
   const users = await User.find({
     nickname: { $ne: null },
-    [campo]: { $gt: 0 },
+    $or: [
+      { [campo]: { $gt: 0 } },
+      // Fallback: campo courseStats ausente → usa o wordsStudied plano.
+      // Para contas antigas que só estudaram inglês isso é preciso; quem já
+      // trocou de curso pode mostrar o score do curso ativo (comportamento de
+      // transição aceitável — some quando o cliente sincronizar courseStats).
+      { [campo]: { $exists: false }, 'progress.wordsStudied': { $gt: 0 } },
+    ],
   })
     .sort({ [campo]: -1 })
     .limit(limit)
-    .select(`nickname progress.selectedAvatar progress.selectedTitle ${campo} -_id`)
+    // wordsStudied plano incluído para o fallback funcionar nas entries.
+    .select(`nickname progress.selectedAvatar progress.selectedTitle progress.wordsStudied ${campo} -_id`)
     .lean();
 
   const entries = users.map(u => ({
     nickname: u.nickname,
     avatar: u.progress?.selectedAvatar || 'U',
-    wordsStudied: u.progress?.courseStats?.[courseId]?.wordsStudied || 0,
+    // Prefere o índice por curso; recai no campo plano para contas antigas.
+    wordsStudied: u.progress?.courseStats?.[courseId]?.wordsStudied
+                  ?? u.progress?.wordsStudied
+                  ?? 0,
     selectedTitle: u.progress?.selectedTitle || null,
   }));
 

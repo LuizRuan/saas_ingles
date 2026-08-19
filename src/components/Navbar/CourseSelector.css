@@ -6,12 +6,14 @@
 .course-selector-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: var(--bg-card, rgba(255, 255, 255, 0.8));
   border: 1px solid var(--border-color, rgba(124, 58, 237, 0.2));
   border-radius: var(--radius-full, 9999px);
-  padding: 5px 12px;
-  font-size: var(--fs-sm, 0.875rem);
+  /* Compacto: ele divide a primeira coluna da navbar com a marca, então
+     precisa ler como um seletor discreto e não como um segundo botão. */
+  padding: 4px 9px;
+  font-size: var(--fs-xs, 0.75rem);
   font-weight: 600;
   color: var(--text-main, #1e1b4b);
   cursor: pointer;
@@ -24,23 +26,30 @@
 }
 
 .course-flag {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   line-height: 1;
 }
 
-.course-name {
-  white-space: nowrap;
-}
-
+/* Texto e seta sempre ocultos na navbar: a Home agora tem o seletor
+   de idioma visual completo. O dropdown ainda funciona, mas o gatilho
+   fica só com a bandeira — compacto e sem disputar espaço com os links. */
+.course-name,
 .course-arrow {
-  font-size: 0.75rem;
-  opacity: 0.6;
+  display: none;
 }
 
+.course-selector-btn {
+  padding: 5px 8px;
+  gap: 0;
+}
+
+/* Alinhado à ESQUERDA porque o gatilho passou a viver no começo da navbar,
+   ao lado da marca. Com `right: 0` o menu abria para fora do botão, na
+   direção contrária de onde ele está. */
 .course-dropdown {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  left: 0;
   z-index: 1000;
   min-width: 160px;
   padding: 8px;
@@ -144,21 +153,6 @@
   border-radius: 4px;
 }
 
-/* Em telas mais estreitas onde a navbar já esconde os rótulos dos links
-   (breakpoint 1040px), o CourseSelector também encolhe para só exibir a
-   bandeira — assim não empurra nem sobrepõe o link "Conquistas". */
-@media (max-width: 1040px) {
-  .course-name,
-  .course-arrow {
-    display: none;
-  }
-
-  .course-selector-btn {
-    padding: 5px 8px;
-    gap: 0;
-  }
-}
-
 /* Em telas muito próximas do breakpoint mobile (< 880px), reduz ainda mais
    o padding do botão para não vazar a navbar. */
 @media (max-width: 880px) {
@@ -166,4 +160,3 @@
     padding: 4px 6px;
   }
 }
-

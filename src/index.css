@@ -679,7 +679,9 @@ select {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: var(--space-xl);
+  /* Reduzido de --space-xl: com o seletor de idioma ao lado da marca, o
+     respiro anterior empurrava o menu do meio contra a coluna da direita. */
+  gap: var(--space-md);
 }
 
 .navbar-logo {
@@ -711,7 +713,7 @@ select {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 16px;
+  padding: 6px 11px;
   border-radius: var(--radius-full);
   font-size: var(--fs-sm);
   font-weight: 500;
@@ -743,7 +745,7 @@ select {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--space-lg);
+  gap: 14px;
 }
 
 .navbar-stat {
@@ -787,17 +789,28 @@ select {
 /* A navbar desktop aparece a partir de 769px, mas os 7 itens + logo + estatísticas
    só cabem por volta de 1230px. Sem estes dois degraus os links transbordam o
    .navbar-inner (todo .navbar-link é white-space: nowrap, então nada encolhe). */
-@media (max-width: 1230px) {
-  .navbar-inner { gap: var(--space-lg); }
-  .navbar-link { padding: 6px 10px; }
-  .navbar-stats { gap: var(--space-md); }
+@media (max-width: 1560px) {
+  .navbar-inner { gap: var(--space-sm); }
+  .navbar-link { padding: 6px 8px; }
+  .navbar-stats { gap: 10px; }
+  .navbar-brand { gap: 8px; }
+}
+
+/* Degrau intermediário: espreme mais em vez de já cortar os rótulos. Existe
+   porque 1366x768 é uma das larguras mais comuns em notebook — perder o texto
+   dos links ali seria caro, e ainda dá para caber apertando o padding. */
+@media (max-width: 1440px) {
+  .navbar-inner { padding: 0 var(--space-md); gap: 6px; }
+  .navbar-link { padding: 6px 6px; gap: 4px; }
+  .navbar-links { gap: 1px; }
+  .navbar-stats { gap: 8px; }
 }
 
 /* Abaixo de ~1040px nem os rótulos cabem: sobra só o ícone. O texto continua no
    DOM (leitores de tela leem normalmente) e o title vira dica no hover. */
-@media (max-width: 1040px) {
+@media (max-width: 1290px) {
   .navbar-links { gap: 2px; }
-  .navbar-links .navbar-link { font-size: 0; gap: 0; padding: 8px 10px; }
+  .navbar-links .navbar-link { font-size: 0; gap: 0; padding: 8px 9px; }
   .navbar-links .navbar-link > span { font-size: 1.15rem; }
   /* O link da Loja mora em .navbar-stats, não em .navbar-links, então a regra
      acima não o alcança — sem isto "Loja" continuava por extenso até 769px e
@@ -1245,11 +1258,14 @@ select {
    seletor de curso fica ao lado da marca porque o idioma é o contexto de
    tudo abaixo — colocá-lo entre os links de navegação o faria competir com
    sete itens e apertar a linha inteira. */
+/* SEM `min-width: 0` de propósito. Com ele, a coluna `1fr` do grid podia
+   encolher abaixo do próprio conteúdo e o seletor de idioma transbordava por
+   cima do primeiro link do menu ("Início"). Sem ele, `1fr` respeita o
+   min-content e o grid empurra em vez de sobrepor. */
 .navbar-brand {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  min-width: 0;
+  gap: 10px;
 }
 
 .navbar-brand-sep {
@@ -1262,7 +1278,7 @@ select {
 /* A partir daqui a navbar já esconde os rótulos dos links; o separador some
    junto para o seletor (que encolhe só para a bandeira) encostar na marca
    sem parecer um item solto. */
-@media (max-width: 1040px) {
+@media (max-width: 1290px) {
   .navbar-brand-sep { display: none; }
   .navbar-brand { gap: var(--space-xs); }
 }
