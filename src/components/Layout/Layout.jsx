@@ -42,6 +42,8 @@ const Layout = ({ children }) => {
               <span className="logo-icon">🎮</span>
               <span>Wordly</span>
             </NavLink>
+            <span className="navbar-brand-sep" aria-hidden="true" />
+            <CourseSelector />
           </div>
 
           <div className="navbar-links">

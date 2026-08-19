@@ -25,22 +25,30 @@
   transform: translateY(-1px);
 }
 
+/* Emoji de bandeira renderiza como texto "US"/"ES" no Windows —
+   escondemos e mostramos o nome do idioma ("Inglês") no lugar. */
 .course-flag {
-  font-size: 0.95rem;
-  line-height: 1;
-}
-
-/* Texto e seta sempre ocultos na navbar: a Home agora tem o seletor
-   de idioma visual completo. O dropdown ainda funciona, mas o gatilho
-   fica só com a bandeira — compacto e sem disputar espaço com os links. */
-.course-name,
-.course-arrow {
   display: none;
 }
 
+.course-name {
+  white-space: nowrap;
+}
+
+.course-arrow {
+  font-size: 0.65rem;
+  opacity: 0.6;
+}
+
 .course-selector-btn {
-  padding: 5px 8px;
-  gap: 0;
+  gap: 5px;
+}
+
+/* Abaixo de 1290px a navbar já espreme os links — o seletor encolhe
+   para só o nome sem seta, mantendo o botão compacto. */
+@media (max-width: 1290px) {
+  .course-arrow { display: none; }
+  .course-selector-btn { padding: 5px 8px; gap: 4px; }
 }
 
 /* Alinhado à ESQUERDA porque o gatilho passou a viver no começo da navbar,
