@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../hooks/useProgress';
 import { getCurrentLevel, getNextLevel, getLevelProgress } from '../utils/levelSystem';
-import { levels, stages } from '../data/categories';
+import { stages } from '../data/categories';
+import { getLevels } from '../data/index';
 import MonthlyLeaderboardCard from '../components/MonthlyLeaderboardCard';
 import './Levels.css';
 
@@ -21,9 +22,13 @@ const ROTULO = {
 const Levels = () => {
   const { progress } = useProgress();
   const estudadas = progress.wordsStudied || 0;
-  const atual = getCurrentLevel(estudadas);
-  const proximo = getNextLevel(estudadas);
-  const percentual = getLevelProgress(estudadas);
+  // A escada mostrada é a do curso ativo — o espanhol tem thresholds bem
+  // menores porque o banco é menor (ver data/courses/es/levels.js).
+  const curso = progress.activeCourse || 'en-pt';
+  const levels = getLevels(curso);
+  const atual = getCurrentLevel(estudadas, curso);
+  const proximo = getNextLevel(estudadas, curso);
+  const percentual = getLevelProgress(estudadas, curso);
 
   const [selectedStage, setSelectedStage] = useState(() => atual?.stage || 1);
 

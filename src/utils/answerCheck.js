@@ -8,7 +8,7 @@
 //
 // O módulo é PURO: sem DOM, sem estado, sem localStorage. Roda no ambiente node
 // do Vitest como os outros utilitários.
-import { errorPatterns } from '../data/errorPatterns';
+import { getErrorPatterns } from '../data/index';
 
 // Contrações expandidas para "I'm" e "I am" contarem como a mesma resposta.
 // A lista é fechada de propósito: uma regra genérica de apóstrofo transformaria
@@ -160,7 +160,9 @@ const ehErroDeDigitacao = (entrada, esperado) => {
  *   sugestoes: string[],
  * }}
  */
-export const verificarResposta = (entradaBruta, no) => {
+// `courseId` escolhe a tabela de correções. O padrão é inglês para não
+// quebrar nenhuma chamada antiga.
+export const verificarResposta = (entradaBruta, no, courseId = 'en-pt') => {
   const entrada = normalizar(entradaBruta);
   const candidatos = candidatosDe(no);
   const sugestoes = (no?.replies || []).map(r => r.text);
@@ -201,7 +203,7 @@ export const verificarResposta = (entradaBruta, no) => {
   //    porque explicam a causa, e não só o sintoma.
   //    A normalização remove o "?", então a marca de pergunta é lida do bruto.
   const interrogativa = String(entradaBruta ?? '').includes('?');
-  for (const padrao of errorPatterns) {
+  for (const padrao of getErrorPatterns(courseId)) {
     if (padrao.exigeInterrogacao && !interrogativa) continue;
     if (padrao.teste.test(entrada)) {
       return {

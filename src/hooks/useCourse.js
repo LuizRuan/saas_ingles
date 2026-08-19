@@ -1,62 +1,48 @@
 /**
- * useCourse — encapsula o par de idiomas ativo do usuário.
+ * useCourse — normaliza um objeto `word` para o par de idiomas ativo.
  *
- * HOJE (inglês para brasileiros):
- *   target = a língua que se aprende → 'en'  (English)
- *   source = a língua que se já sabe → 'pt'  (Português do Brasil)
+ * Os componentes usam este hook em vez de ler `word.en` / `word.pt` direto,
+ * para não precisarem saber qual curso está ativo.
  *
- * AMANHÃ (ex: italiano para brasileiros):
- *   target = 'it'
- *   source = 'pt'
+ *   const { targetText, sourceText, targetLabel } = useCourse(word);
  *
- * Os componentes e jogos usam este hook em vez de ler `word.en` / `word.pt`
- * diretamente, tornando a troca de idioma uma mudança de uma linha aqui,
- * sem precisar editar nenhum jogo.
+ * Sem uma palavra, devolve só os metadados do curso:
  *
- * Forma de uso nos jogos:
- *   const { targetText, sourceText, targetLabel, sourceLabel } = useCourse(word);
- *
- * Forma de uso para obter os rótulos sem uma palavra:
  *   const { targetLabel, sourceLabel, coursePair } = useCourse();
+ *
+ * HISTÓRICO IMPORTANTE: este módulo tinha um `ACTIVE_COURSE` fixo em 'en-pt',
+ * com o comentário "alterar aqui é o único passo necessário para trocar o
+ * idioma". Isso deixou de ser verdade quando o curso passou a viver em
+ * `progress.activeCourse` (ver useCourseData.js): eram dois sistemas
+ * paralelos, e este mentia sobre qual idioma estava ativo — os rótulos diriam
+ * "Inglês" para quem estuda espanhol. Agora ele lê a mesma fonte que todo o
+ * resto do app.
+ *
+ * Nota: `word.en` guarda o texto no IDIOMA-ALVO em todos os cursos (em es-pt,
+ * `en: "Hola"`), e `word.pt` a tradução. Por isso `targetText`/`sourceText`
+ * funcionam sem precisar trocar de chave por curso — ver src/utils/wordKey.js.
  */
 
-// O par de curso ativo. Alterar aqui é o único passo necessário para trocar
-// o idioma ensinado quando dados de um novo idioma estiverem disponíveis.
-export const ACTIVE_COURSE = {
-  id: 'en-pt',          // identificador do curso (usado como chave no storage)
-  targetLang: 'en',     // idioma a aprender (chave em word.*)
-  sourceLang: 'pt',     // idioma nativo do aluno (chave em word.*)
-  targetLabel: 'Inglês',
-  sourceLabel: 'Português',
-  targetFlag: '🇺🇸',
-  sourceFlag: '🇧🇷',
-  // Chaves extras do objeto de palavra para este par
-  tipKey: 'tip',        // dica no idioma alvo
-  exampleTargetKey: 'example',   // exemplo no idioma alvo
-  exampleSourceKey: 'examplePt', // exemplo no idioma fonte
+import { useProgress } from './useProgress';
+import { AVAILABLE_COURSES } from '../data/index';
+
+const FLAG_FONTE = '🇧🇷';
+const LABEL_FONTE = 'Português';
+
+const metadados = (courseId) => {
+  const curso = AVAILABLE_COURSES.find(c => c.id === courseId) || AVAILABLE_COURSES[0];
+  return {
+    coursePair: curso.id,
+    targetLabel: curso.targetName,
+    targetFlag: curso.flag,
+    sourceLabel: LABEL_FONTE,
+    sourceFlag: FLAG_FONTE,
+  };
 };
 
-/**
- * Dado um objeto `word` (com campos como `en`, `pt`, `tip`, `example`, etc.),
- * retorna os valores normalizados para o curso ativo.
- *
- * @param {object} [word]  Objeto de palavra (opcional — quando omitido,
- *                         retorna apenas os metadados do curso).
- * @returns {{
- *   targetText: string,      // palavra no idioma a aprender
- *   sourceText: string,      // palavra no idioma do aluno
- *   tip: string,             // dica no idioma alvo
- *   exampleTarget: string,   // exemplo no idioma alvo
- *   exampleSource: string,   // exemplo no idioma fonte
- *   targetLabel: string,
- *   sourceLabel: string,
- *   targetFlag: string,
- *   sourceFlag: string,
- *   coursePair: string,      // ex: 'en-pt'
- * }}
- */
 const useCourse = (word) => {
-  const c = ACTIVE_COURSE;
+  const { progress } = useProgress();
+  const meta = metadados(progress?.activeCourse || 'en-pt');
 
   if (!word) {
     return {
@@ -65,25 +51,17 @@ const useCourse = (word) => {
       tip: '',
       exampleTarget: '',
       exampleSource: '',
-      targetLabel: c.targetLabel,
-      sourceLabel: c.sourceLabel,
-      targetFlag: c.targetFlag,
-      sourceFlag: c.sourceFlag,
-      coursePair: c.id,
+      ...meta,
     };
   }
 
   return {
-    targetText:    word[c.targetLang]        ?? '',
-    sourceText:    word[c.sourceLang]        ?? '',
-    tip:           word[c.tipKey]            ?? '',
-    exampleTarget: word[c.exampleTargetKey]  ?? '',
-    exampleSource: word[c.exampleSourceKey]  ?? '',
-    targetLabel:   c.targetLabel,
-    sourceLabel:   c.sourceLabel,
-    targetFlag:    c.targetFlag,
-    sourceFlag:    c.sourceFlag,
-    coursePair:    c.id,
+    targetText: word.en ?? '',
+    sourceText: word.pt ?? '',
+    tip: word.tip ?? '',
+    exampleTarget: word.example ?? '',
+    exampleSource: word.examplePt ?? '',
+    ...meta,
   };
 };
 

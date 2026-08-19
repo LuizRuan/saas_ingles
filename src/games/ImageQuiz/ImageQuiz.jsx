@@ -82,6 +82,10 @@ export const buildRounds = (difficulty, items = defaultImageWords) => {
 };
 
 const ImageQuiz = () => {
+  // As imagens vêm do curso ativo. Este hook já estava importado aqui mas
+  // nunca era chamado — o jogo montava as rodadas com `defaultImageWords`
+  // (inglês) mesmo em espanhol.
+  const { imageWords } = useCourseData();
   const [difficulty, setDifficulty] = useState(null);
   const [rounds, setRounds] = useState([]);
   const [roundIndex, setRoundIndex] = useState(0);
@@ -103,7 +107,7 @@ const ImageQuiz = () => {
 
   const startGame = useCallback((diff) => {
     setDifficulty(diff);
-    setRounds(buildRounds(diff, defaultImageWords));
+    setRounds(buildRounds(diff, imageWords));
     setRoundIndex(0);
     setSelected(null);
     setFeedback(null);
@@ -111,7 +115,7 @@ const ImageQuiz = () => {
     setCorrectCount(0);
     setGameComplete(false);
     setIsZoomed(false);
-  }, []);
+  }, [imageWords]);
 
   // Reseta o cronômetro sempre que uma rodada nova começa.
   useEffect(() => {

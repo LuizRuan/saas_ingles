@@ -6,26 +6,52 @@
 // ("I am happy.") entravam no mesmo balde do vocabulário, inflando
 // "palavras estudadas" e sumindo da Revisão.
 //
-// Aqui resolvemos qualquer texto para a entrada canônica de data/words.js.
-// O que não for vocabulário devolve null e vai para `phraseStats`.
+// Aqui resolvemos qualquer texto para a entrada canônica do banco de palavras
+// DO CURSO ATIVO. O que não for vocabulário devolve null e vai para
+// `phraseStats`.
+//
+// Por que o curso importa: antes este módulo importava só o banco de inglês.
+// Quem estudasse espanhol respondia "Hola", resolveWordKey não achava no banco
+// inglês, devolvia null, e a resposta caía em phraseStats — ou seja,
+// `wordsStudied` nunca subia, o nível nunca subia e nenhuma conquista disparava.
+// O curso inteiro parecia funcionar e não registrava nada.
+//
+// Nota de nomenclatura: `word.en` guarda o texto no IDIOMA-ALVO em todos os
+// cursos (em es-pt, `en: "Hola"`). O nome do campo ficou de quando só existia
+// inglês; trocá-lo exigiria reescrever os 1000 registros e todos os jogos.
 
-import { words } from '../data/words';
+import { getWords } from '../data/index';
+
+export const DEFAULT_COURSE = 'en-pt';
 
 export const normalizeKey = (raw) =>
   String(raw ?? '')
     .trim()
     .toLowerCase()
-    .replace(/[.!?,;:]+$/, '')  // pontuação de borda: "Good morning!" -> "good morning"
+    .replace(/[.!?,;:¡¿]+$/, '')  // pontuação de borda: "Good morning!" -> "good morning"
+    .replace(/^[¡¿]+/, '')        // espanhol abre com ¡/¿: "¿Cómo estás?" -> "cómo estás"
     .replace(/\s+/g, ' ');
 
-// normalizada -> grafia canônica (a de data/words.js)
-const canonicalByNormalized = new Map(words.map(w => [normalizeKey(w.en), w.en]));
+// Um mapa (normalizada -> grafia canônica) por curso, construído sob demanda e
+// memoizado. Os bancos são constantes de módulo, então o mapa nunca invalida.
+const mapsByCourse = new Map();
 
-/** Devolve a grafia canônica da palavra, ou null se não for vocabulário. */
-export const resolveWordKey = (raw) =>
-  canonicalByNormalized.get(normalizeKey(raw)) ?? null;
+const getCanonicalMap = (courseId) => {
+  const id = courseId || DEFAULT_COURSE;
+  let map = mapsByCourse.get(id);
+  if (!map) {
+    map = new Map(getWords(id).map(w => [normalizeKey(w.en), w.en]));
+    mapsByCourse.set(id, map);
+  }
+  return map;
+};
 
-export const isVocabulary = (raw) => resolveWordKey(raw) !== null;
+/** Devolve a grafia canônica da palavra no curso dado, ou null se não for vocabulário. */
+export const resolveWordKey = (raw, courseId = DEFAULT_COURSE) =>
+  getCanonicalMap(courseId).get(normalizeKey(raw)) ?? null;
+
+export const isVocabulary = (raw, courseId = DEFAULT_COURSE) =>
+  resolveWordKey(raw, courseId) !== null;
 
 /** Junta dois registros de estatística da mesma palavra (usado na migração). */
 export const mergeStats = (a, b) => {

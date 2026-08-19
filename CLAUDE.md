@@ -4,13 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**Wordly** ("Mundo das Palavras") — a free browser game platform that teaches English to Brazilian Portuguese speakers. Renamed from EnglishPlay; the two names may still turn up interchangeably in older commits/discussions. Game state is still 100% client-side: *all* progress/settings live in `localStorage` via `useProgress`/`storage.js`, exactly as before.
+**Wordly** ("Mundo das Palavras") — a free browser game platform that teaches **languages** to Brazilian Portuguese speakers. Renamed from EnglishPlay; the two names may still turn up interchangeably in older commits/discussions. Game state is still 100% client-side: *all* progress/settings live in `localStorage` via `useProgress`/`storage.js`, exactly as before.
+
+**It is no longer English-only.** English (`en-pt`) and Spanish (`es-pt`) both ship — see "Multi-course" under Architecture. Anything you add that touches vocabulary, levels, or corrections must go through the course layer, never import the English bank directly.
 
 **Authentication now exists as a separate system.** [Register.jsx](src/pages/Register.jsx) and [Login.jsx](src/pages/Login.jsx) are real screens backed by [backend/](backend/) (Express + Mongoose), **deployed on Render with MongoDB Atlas connected** — see Deploy below. Don't conflate the two systems: auth is about *who is signed in*, progress/scoring is still untouched and still lives entirely in `localStorage`. Migrating progress to the server is explicit future work, not done — and when it happens, the server must re-validate everything, because nothing the client stores is trustworthy.
 
 Those screens are now the front door — `/` sends a first-time visitor to `/welcome`. See "The entry screen, and what it is not" under Architecture, especially the part about why it is not a security boundary.
 
-The UI is written in **Portuguese (pt-BR)**. English text only ever appears as learning content (the words/sentences being taught). Keep new UI strings in Portuguese.
+The UI is written in **Portuguese (pt-BR)**. Foreign-language text only ever appears as learning content (the words/sentences being taught). Keep new UI strings in Portuguese — and **language-neutral**: a string that hardcodes "inglês" is now a bug, because it renders for Spanish learners too. Get the active language's name from `AVAILABLE_COURSES[].targetName`.
 
 **Two deliberate exceptions to pt-BR-everywhere:**
 - The Conversation screen ([Conversation.jsx](src/pages/Conversation.jsx)) has its chrome in English — the user asked for an immersive practice screen. Grammar corrections there stay in Portuguese, because explaining a mistake in English to someone who cannot yet read English teaches nothing. Don't "fix" either half by making the screen consistent.
@@ -153,6 +155,42 @@ Settings are read ad-hoc (`loadSettings()` called inside `useSound`/`useSpeech`/
 - **`reviewSystem.js`** — `recordWordResult(progress, rawKey, isCorrect)` routes through `wordKey`: real vocabulary lands in `progress.wordStats` under the canonical spelling, everything else (sentences, fill-in-the-blank answers) in `progress.phraseStats`. Only `wordStats` feeds `wordsStudied`/`wordsLearned`, so phrases can't inflate the level. It updates streaks and a 100-entry `errorHistory`, and a word counts as learned after `LEARNED_THRESHOLD` (3) correct answers across at least 2 different days. **The function is pure** — it must never mutate `progress` or anything nested in it, or StrictMode's double-invoked updater duplicates every entry.
 - **`levelSystem.js`** — level is *derived*, never stored as truth: computed from `wordsStudied` against the `levels` array exported by [categories.js](src/data/categories.js). `wordsNeeded` counts distinct **vocabulary** words, so the top threshold must stay ≤ the size of the word bank — a test pins this.
 - **`dailyChallenge.js`** — deterministic. Seeds a small LCG from the calendar date so every user gets the same challenge on a given day and it is reproducible across reloads. **Everything the user sees — the target word *and* its four options — is decided here, never in the component's render.** A `shuffleArray` call inside a render body re-randomizes on every re-render, which visibly swaps the answer options out from under the user the instant they click. Use `seededShuffle`/`buildOptions`, not `Math.random`, and note that `sort(() => rng() - 0.5)` is not a valid shuffle — the module uses Fisher-Yates.
+
+### Multi-course (English and Spanish)
+
+Two courses ship: `en-pt` (English) and `es-pt` (Spanish), both listed in `AVAILABLE_COURSES` ([data/index.js](src/data/index.js)). Adding a third means adding its data folder plus one entry there — everything below is already generic.
+
+**Never import the English bank directly in a game or page.** Use `useCourseData()` ([useCourseData.js](src/hooks/useCourseData.js)), which resolves `words`/`sentences`/`fillBlanks`/`trueFalse`/`translationQuizzes`/`stories`/`conversations`/`imageWords`/`levels`/`errorPatterns` for `progress.activeCourse`. The one legitimate direct import left is `shuffleArray` from `data/words.js`, a generic helper with no content in it.
+
+**`word.en` holds the TARGET-language text in every course** — in `es-pt`, `en: "Hola"`, `pt: "Olá"`. The field name is a leftover from the English-only days; renaming it would mean rewriting both banks and every game. `useCourse(word)` normalizes this into `targetText`/`sourceText` so components never care.
+
+#### Progress is per course, economy is per account
+
+`progress` keeps the **active** course's learning state in its flat fields (`wordStats`, `wordsStudied`, `gamesCompleted`, …) and parks the inactive courses in `progress.courseProgress[id]`. Switching swaps them ([courseProgress.js](src/utils/courseProgress.js)). This is why no component had to change: `progress.wordsStudied` still means "words studied in the course I'm looking at".
+
+**Invariant: the active course NEVER appears in `courseProgress`.** Storing it in both places creates two truths that drift apart silently. `switchCourse` deletes the incoming course from the map, and the sanitizer re-enforces it on load.
+
+What is per course vs. per account is a product decision, listed in `COURSE_SCOPED_FIELDS`: **learning** is per course (vocabulary, level, streaks, games completed); **economy and identity** are per account and cross languages (stars, Shop items, theme, avatar, achievements, day streak). Someone who bought a theme studying English keeps it in Spanish, and the stars are one wallet. **A new learning field must be added to `COURSE_SCOPED_FIELDS`** or it leaks between languages.
+
+`isLocalMoreAdvanced` ([progressSync.js](src/utils/progressSync.js)) compares `totalWordsStudied` — the sum across *all* courses. Comparing only the flat field compares different languages when the two sides sit in different courses, and would wipe a full English history the first time someone logged in from a device parked on Spanish.
+
+#### The three things that made Spanish silently fake
+
+Worth knowing, because each one broke nothing visibly and would come back the same way:
+
+1. **`wordKey.js` resolved against the English bank only.** A Spanish learner answering "Hola" got `null` → the answer landed in `phraseStats` → `wordsStudied` never moved → level frozen at 1 forever, with no error anywhere. `resolveWordKey(raw, courseId)` now takes the course; `recordWordResult` passes `progress.activeCourse`.
+2. **Level thresholds were shared.** The English ladder tops out at `wordsNeeded: 990`; against a 346-word Spanish bank that caps the real ceiling around level 3. Each course owns its ladder ([courses/es/levels.js](src/data/courses/es/levels.js)), and `getCurrentLevel(words, courseId)` picks it.
+3. **The Spanish data used different field names** (`text`/`translation` instead of `en`/`pt`, `imageWords` with no `category`, conversations with `title` where the screen reads `topic`). Nothing failed at build time — the games just came up empty. [courses.test.js](src/data/courses.test.js) now runs one shared contract over **every** registered course, so a new language cannot repeat it.
+
+#### Corrections are per course, and some are inverted
+
+`errorPatterns` cannot be shared: "I have 20 years" is the classic error in English, while `tengo 20 años` is **correct** Spanish. Sharing the table would mark right answers wrong. [courses/es/errorPatterns.js](src/data/courses/es/errorPatterns.js) leans on false cognates (*embarazada, oficina, exquisito, rato, salsa, éxito*), which is where Portuguese speakers actually lose points in Spanish. `verificarResposta(entrada, no, courseId)` selects the table.
+
+#### Known limits of the Spanish launch
+
+- **The live human duel is English-only** and the lobby button is disabled with an explanation in Spanish courses. The server picks the question from `backend/data/words.json`, generated from the English bank, and matchmaking is a single queue — letting a Spanish learner in would serve English questions. Bot mode is fully client-side and works in both. Fixing this needs a per-course word file on the server *and* a per-course queue.
+- **The monthly/level ranking is English-scoped.** Entries come from the backend, which only knows the English `wordsStudied`.
+- **Both banks ship in the main chunk** (~+24 kB gzip for Spanish). `main.jsx → storage.js → wordKey.js → data/index.js` needs the active course's vocabulary before the first render, and `data/index.js` imports every course statically. Splitting it means making `getCourseData` async, which cascades everywhere — deliberately not done for two languages, worth revisiting at four.
 
 ### Content is data, not code
 

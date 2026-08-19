@@ -208,7 +208,7 @@ const DuelBotGame = ({
   const timerUrgent = timeLeft <= 5;
 
   const { progress } = useProgress();
-  const userLevelObj = getCurrentLevel(progress.wordsStudied || 0);
+  const userLevelObj = getCurrentLevel(progress.wordsStudied || 0, progress.activeCourse);
   const userTitle = getUserTitle(userLevelObj?.level || 1);
 
   const botLevelMap = { easy: 5, medium: 25, hard: 50 };

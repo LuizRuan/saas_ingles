@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { words } from '../data/words';
+import useCourseData from '../hooks/useCourseData';
 import { useProgress } from '../hooks/useProgress';
 import { generateDailyChallenge, isDailyChallengeCompleted } from '../utils/dailyChallenge';
 import WordExplanation from '../components/Game/WordExplanation';
@@ -19,14 +19,17 @@ import './DailyChallenge.css';
 
 const DailyChallenge = () => {
   const { progress, handleCorrectAnswer, handleWrongAnswer, completeDailyChallenge } = useProgress();
+  const { words } = useCourseData();
 
   const isCompleted = isDailyChallengeCompleted(progress);
   const [showCompletionScreen, setShowCompletionScreen] = useState(isCompleted);
 
-  const currentLevelObj = getCurrentLevel(progress.wordsStudied || 0);
+  const currentLevelObj = getCurrentLevel(progress.wordsStudied || 0, progress.activeCourse);
   const userLevel = currentLevelObj?.level || 1;
 
   const [challenge] = useState(() => {
+    // Vocabulário do curso ativo: o desafio de quem estuda espanhol tem que
+    // sortear palavras em espanhol.
     const levelWords = words.filter(w => (w.level || 1) <= userLevel);
     const pool = levelWords.length >= 4 ? levelWords : words;
     return generateDailyChallenge(pool);

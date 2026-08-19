@@ -5,7 +5,8 @@ import { useAuthProfile } from '../../hooks/useAuthProfile';
 import { useDuelSocket } from '../../hooks/useDuelSocket';
 import { getDuelTicketRequest, getDuelLeaderboardRequest, getMyDuelRankRequest, getLevelLeaderboardRequest } from '../../utils/authClient';
 import { usePresence } from '../../hooks/usePresence';
-import { shuffleArray, words } from '../../data/words';
+import { shuffleArray } from '../../data/words';
+import useCourseData from '../../hooks/useCourseData';
 import { msLeft, secondsLeft, barWidthPct } from '../../utils/duelClock';
 import { rewardFor, isRewarded } from '../../utils/duelReward';
 import { presenceLabel } from '../../utils/presenceLabel';
@@ -54,6 +55,15 @@ const generateGuestName = () => `Aluno${Math.floor(1000 + Math.random() * 9000)}
 const WhoKnowsMore = () => {
   // O app tem uma moeda só (estrelas = totalScore, a mesma da Loja).
   const { progress, addPoints, completeGame, setDisplayName } = useProgress();
+  // Modo BOT usa o banco do curso ativo. O modo HUMANO continua vindo do
+  // servidor (backend/data/words.json, só inglês) — ver o gate de idioma na
+  // tela de lobby.
+  const { words } = useCourseData();
+  // O duelo HUMANO é servido pelo backend, cujo banco (backend/data/words.json)
+  // é gerado só do inglês — e o matchmaking é uma fila única. Deixar alguém em
+  // espanhol entrar nessa fila serviria perguntas em inglês e ainda pareceria
+  // um bug do idioma. O modo Bot roda 100% no cliente e funciona nos dois.
+  const duelOnlineDisponivel = (progress.activeCourse || 'en-pt') === 'en-pt';
   const { playCorrect, playWrong, playAchievement } = useSound();
   const { speakNormal, speakSlow } = useSpeech();
 
@@ -714,7 +724,7 @@ const WhoKnowsMore = () => {
 
             <div className="mode-selection-grid">
               {/* HUMANO */}
-              <div className="mode-card mode-card--human glass-card" onClick={connected ? openHumanSearch : undefined}>
+              <div className="mode-card mode-card--human glass-card" onClick={(connected && duelOnlineDisponivel) ? openHumanSearch : undefined}>
                 <span className={`presence-pill mode-badge ${connected ? '' : 'offline'}`}>
                   <span className={`pulse-dot ${connected ? '' : 'idle'}`} /> {pillLabel}
                 </span>
@@ -725,12 +735,18 @@ const WhoKnowsMore = () => {
                   className="btn btn-primary"
                   style={{ marginTop: 'var(--space-md)', width: '100%' }}
                   onClick={openHumanSearch}
-                  disabled={!connected}
+                  disabled={!connected || !duelOnlineDisponivel}
                 >
-                  {searchButtonLabel}
+                  {duelOnlineDisponivel ? searchButtonLabel : '🔒 Só em Inglês'}
                 </button>
-                {!connected && (
+                {!connected && duelOnlineDisponivel && (
                   <p className="presence-note">O modo Bot funciona sem servidor.</p>
+                )}
+                {!duelOnlineDisponivel && (
+                  <p className="presence-note">
+                    O duelo ao vivo ainda só tem perguntas em inglês. O modo Bot
+                    abaixo funciona no seu idioma atual.
+                  </p>
                 )}
               </div>
 

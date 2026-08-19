@@ -1,5 +1,13 @@
 import { useState, useCallback } from 'react';
 import useSound from '../../hooks/useSound';
+import { useProgress } from '../../hooks/useProgress';
+import { AVAILABLE_COURSES } from '../../data/index';
+
+// Nome do idioma-alvo do curso ativo. Fixar "inglês" no texto fazia o
+// desafio diário mandar "traduza para o inglês" para quem está estudando
+// espanhol — a instrução contradizia a resposta esperada.
+const nomeDoIdioma = (courseId) =>
+  AVAILABLE_COURSES.find(c => c.id === courseId)?.targetName || 'Inglês';
 
 // Embaralha as letras da palavra com id único para cada letra
 const makeLetters = (wordEn) => {
@@ -16,6 +24,8 @@ const makeLetters = (wordEn) => {
 };
 
 const DailyWordBuilderStep = ({ challenge, stepState, onAnswer }) => {
+  const { progress } = useProgress();
+  const idioma = nomeDoIdioma(progress?.activeCourse || 'en-pt');
   const { answer } = challenge;
   const targetWord = (answer?.en || '').toUpperCase();
   const { playClick, playCorrect, playWrong } = useSound();
@@ -68,7 +78,7 @@ const DailyWordBuilderStep = ({ challenge, stepState, onAnswer }) => {
     <div className="daily-word-builder-step animate-fade-in-up text-center">
       <div className="glass-card" style={{ padding: 'var(--space-xl)', marginBottom: 'var(--space-lg)' }}>
         <span style={{ fontSize: '1.25rem', display: 'block', color: 'var(--text-secondary)' }}>
-          Traduza para o inglês:
+          Traduza para o {idioma.toLowerCase()}:
         </span>
         <h2 style={{ fontSize: '2.25rem', color: 'var(--accent-purple-light)', margin: 'var(--space-xs) 0' }}>
           {answer.pt}

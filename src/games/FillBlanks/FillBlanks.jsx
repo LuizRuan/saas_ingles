@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { fillBlanks } from '../../data/sentences';
 import { shuffleArray } from '../../data/words';
+import useCourseData from '../../hooks/useCourseData';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
@@ -9,13 +9,16 @@ import './FillBlanks.css';
 
 const ROUNDS = 10;
 
-const generateQuestions = () =>
+// Os dados vêm do CURSO ATIVO (useCourseData), nunca do banco de inglês
+// importado direto — senão trocar para espanhol mantinha o jogo em inglês.
+const generateQuestions = (fillBlanks) =>
   shuffleArray([...fillBlanks])
     .slice(0, ROUNDS)
     .map(q => ({ ...q, options: shuffleArray([...q.options]) }));
 
 const FillBlanks = () => {
-  const [questions, setQuestions] = useState(() => generateQuestions());
+  const { fillBlanks } = useCourseData();
+  const [questions, setQuestions] = useState(() => generateQuestions(fillBlanks));
   const [round, setRound] = useState(0);
   const [selected, setSelected] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -67,7 +70,7 @@ const FillBlanks = () => {
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
               <button className="btn btn-primary" onClick={() => {
-                setQuestions(generateQuestions());
+                setQuestions(generateQuestions(fillBlanks));
                 setRound(0);
                 setSelected(null);
                 setFeedback(null);

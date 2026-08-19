@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { trueFalse } from '../../data/sentences';
-import { words, shuffleArray } from '../../data/words';
+import { shuffleArray } from '../../data/words';
+import useCourseData from '../../hooks/useCourseData';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import WordExplanation from '../../components/Game/WordExplanation';
@@ -10,10 +10,13 @@ import './TrueFalse.css';
 const ROUNDS = 12;
 const TEMPO_INICIAL = 75; // segundos para as 12 rodadas do modo cronometrado
 
-const generateQuestions = () => shuffleArray([...trueFalse]).slice(0, ROUNDS);
+// Os dados vêm do CURSO ATIVO (useCourseData), nunca do banco de inglês
+// importado direto — senão trocar para espanhol mantinha o jogo em inglês.
+const generateQuestions = (trueFalse) => shuffleArray([...trueFalse]).slice(0, ROUNDS);
 
 const TrueFalse = () => {
-  const [questions, setQuestions] = useState(() => generateQuestions());
+  const { trueFalse, words } = useCourseData();
+  const [questions, setQuestions] = useState(() => generateQuestions(trueFalse));
   const [modo, setModo] = useState(null); // null = tela de escolha | 'calmo' | 'contrarelogio'
   const [round, setRound] = useState(0);
   const [feedback, setFeedback] = useState(null);

@@ -116,7 +116,7 @@ const DuelOnlineGame = ({
   // tem essa informação: o servidor de duelo nunca recebe wordsStudied de
   // ninguém (progresso é 100% client-side), então não há level real para
   // exibir do outro lado. Mostrar um título inventado seria enganoso.
-  const userLevelObj = getCurrentLevel(progress.wordsStudied || 0);
+  const userLevelObj = getCurrentLevel(progress.wordsStudied || 0, progress.activeCourse);
   const userTitle = getUserTitle(userLevelObj?.level || 1);
 
   // Timer baseado no roundDeadline do servidor

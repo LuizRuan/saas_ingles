@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { words, shuffleArray } from '../data/words';
+import { shuffleArray } from '../data/words';
+import useCourseData from '../hooks/useCourseData';
 import { useProgress } from '../hooks/useProgress';
 import { getWordsToReview, getPhrasesToReview } from '../utils/reviewSystem';
 import useSound from '../hooks/useSound';
@@ -8,6 +9,9 @@ import WordExplanation from '../components/Game/WordExplanation';
 
 const ReviewErrors = () => {
   const { progress, handleCorrectAnswer, handleWrongAnswer, incrementReviewed } = useProgress();
+  // As palavras a revisar têm que sair do banco do curso ativo — senão a
+  // revisão de quem estuda espanhol viria sempre vazia.
+  const { words } = useCourseData();
   const { playCorrect, playWrong } = useSound();
 
   // Congela a lista de revisão para a sessão atual (evita recarregar/trocar a palavra no meio do feedback)

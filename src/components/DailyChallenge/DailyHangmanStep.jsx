@@ -1,5 +1,13 @@
 import { useState, useCallback } from 'react';
 import useSound from '../../hooks/useSound';
+import { useProgress } from '../../hooks/useProgress';
+import { AVAILABLE_COURSES } from '../../data/index';
+
+// Nome do idioma-alvo do curso ativo. Fixar "inglês" no texto fazia o
+// desafio diário mandar "traduza para o inglês" para quem está estudando
+// espanhol — a instrução contradizia a resposta esperada.
+const nomeDoIdioma = (courseId) =>
+  AVAILABLE_COURSES.find(c => c.id === courseId)?.targetName || 'Inglês';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const MAX_WRONG = 6;
@@ -24,6 +32,8 @@ const HangmanDrawing = ({ wrongCount }) => (
 );
 
 const DailyHangmanStep = ({ challenge, stepState, onAnswer }) => {
+  const { progress } = useProgress();
+  const idioma = nomeDoIdioma(progress?.activeCourse || 'en-pt');
   const { answer } = challenge;
   const wordUpper = (answer?.en || '').toUpperCase();
   const { playClick, playCorrect, playWrong } = useSound();
@@ -58,7 +68,7 @@ const DailyHangmanStep = ({ challenge, stepState, onAnswer }) => {
     <div className="daily-hangman-step animate-fade-in-up text-center">
       <div className="hangman-hint glass-card animate-fade-in-up" style={{ padding: 'var(--space-md)', marginBottom: 'var(--space-md)', textAlign: 'left' }}>
         <span>💡 </span>
-        <span>Dica: {answer.tip || 'Adivinhe a palavra em inglês'}</span>
+        <span>Dica: {answer.tip || `Adivinhe a palavra em ${idioma.toLowerCase()}`}</span>
       </div>
 
       <div className="glass-card" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { sentences } from '../../data/sentences';
 import { shuffleArray } from '../../data/words';
+import useCourseData from '../../hooks/useCourseData';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
@@ -11,12 +11,15 @@ const ROUNDS = 8;
 
 const stripPunctuation = (str) => (str || '').replace(/[.,?!:;'"“”]/g, '').trim();
 
-const generateGameSentences = () => shuffleArray([...sentences]).slice(0, ROUNDS);
+// Os dados vêm do CURSO ATIVO (useCourseData), nunca do banco de inglês
+// importado direto — senão trocar para espanhol mantinha o jogo em inglês.
+const generateGameSentences = (sentences) => shuffleArray([...sentences]).slice(0, ROUNDS);
 
 const prepareWords = (s) => (s ? shuffleArray(s.words.map((w, i) => ({ ...w, en: stripPunctuation(w.en), id: i }))) : []);
 
 const SentenceBuilder = () => {
-  const [gameSentences, setGameSentences] = useState(() => generateGameSentences());
+  const { sentences } = useCourseData();
+  const [gameSentences, setGameSentences] = useState(() => generateGameSentences(sentences));
   const [round, setRound] = useState(0);
   const [selectedWords, setSelectedWords] = useState([]);
   const [availableWords, setAvailableWords] = useState(() => prepareWords(gameSentences[0]));

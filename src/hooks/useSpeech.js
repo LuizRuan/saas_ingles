@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { loadSettings, loadProgress } from '../utils/storage';
-
-const COURSE_VOICE_LANG = {
-  'en-pt': 'en-US',
-  'es-pt': 'es-ES',
-  'fr-pt': 'fr-FR',
-  'it-pt': 'it-IT'
-};
+import { getCourseLangCode } from '../data/index';
 
 const useSpeech = () => {
   const isAvailable = typeof window !== 'undefined' && 'speechSynthesis' in window;
@@ -29,8 +23,7 @@ const useSpeech = () => {
   const getTargetLang = useCallback((overrideLang) => {
     if (overrideLang) return overrideLang;
     const progress = loadProgress();
-    const course = progress.activeCourse || 'en-pt';
-    return COURSE_VOICE_LANG[course] || 'en-US';
+    return getCourseLangCode(progress.activeCourse || 'en-pt');
   }, []);
 
   const speak = useCallback((text, lang, rate = 1) => {

@@ -1,8 +1,15 @@
 import { useEffect } from 'react';
 import useSpeechRecognition from '../../hooks/useSpeechRecognition';
+import { useProgress } from '../../hooks/useProgress';
+import { getCourseLangCode } from '../../data/index';
 import './MicButton.css';
 
-const MicButton = ({ onTranscriptChange, onSpeechEnd, lang = 'en-US', size = 'md' }) => {
+// `lang` continua aceito como override explícito, mas o padrão passou a ser o
+// idioma do CURSO ATIVO — fixo em 'en-US' o reconhecimento tentaria entender
+// espanhol usando o modelo de inglês e erraria quase tudo.
+const MicButton = ({ onTranscriptChange, onSpeechEnd, lang, size = 'md' }) => {
+  const { progress } = useProgress();
+  const idioma = lang || getCourseLangCode(progress?.activeCourse || 'en-pt');
   const {
     isSupported,
     isListening,
@@ -30,7 +37,7 @@ const MicButton = ({ onTranscriptChange, onSpeechEnd, lang = 'en-US', size = 'md
     if (isListening) {
       stopListening();
     } else {
-      startListening(lang);
+      startListening(idioma);
     }
   };
 

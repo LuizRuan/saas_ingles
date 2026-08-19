@@ -86,7 +86,7 @@ const Conversation = () => {
     e.preventDefault();
     if (!noAtual || completa) return;
 
-    const r = verificarResposta(texto, noAtual);
+    const r = verificarResposta(texto, noAtual, activeCourse);
 
     if (r.status === 'certo') {
       playCorrect();

@@ -125,7 +125,11 @@ export const mixReviewWords = (gameWords, reviewWords, ratio = 0.3) => {
 // push direto em errorHistory/wordStats, que são compartilhados com o estado
 // anterior — sob StrictMode o updater roda duas vezes e duplicava o registro.
 export const recordWordResult = (progress, rawKey, isCorrect) => {
-  const canonical = resolveWordKey(rawKey);
+  // Resolve contra o banco do curso ATIVO. Sem isto, quem estuda espanhol
+  // responde "Hola", a palavra não é achada no banco inglês, e a resposta cai
+  // em phraseStats — o balde que não conta pra wordsStudied. Resultado: nível
+  // travado no 1 pra sempre, sem nenhum erro visível.
+  const canonical = resolveWordKey(rawKey, progress?.activeCourse);
   // Frases e lacunas não são vocabulário: vão para um balde separado, senão
   // inflam "palavras estudadas" e distorcem o nível.
   const bucketName = canonical ? 'wordStats' : 'phraseStats';

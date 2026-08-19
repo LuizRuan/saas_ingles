@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isLocalMoreAdvanced } from './progressSync';
+import { isLocalMoreAdvanced, totalWordsStudied } from './progressSync';
 
 describe('isLocalMoreAdvanced', () => {
   it('local vence quando a nuvem não tem nada salvo (null)', () => {
@@ -45,5 +45,32 @@ describe('isLocalMoreAdvanced', () => {
   it('lida com campos ausentes como zero, sem quebrar', () => {
     expect(isLocalMoreAdvanced({}, {})).toBe(false);
     expect(isLocalMoreAdvanced({ wordsStudied: 1 }, {})).toBe(true);
+  });
+});
+
+describe('comparação entre idiomas', () => {
+  it('soma as palavras de todos os cursos, não só o ativo', () => {
+    const p = {
+      activeCourse: 'es-pt',
+      wordsStudied: 20,
+      courseProgress: { 'en-pt': { wordsStudied: 400 } },
+    };
+    expect(totalWordsStudied(p)).toBe(420);
+  });
+
+  it('regressão: trocar pro espanhol não faz a nuvem apagar o inglês', () => {
+    // O celular está no espanhol (nível 1) mas carrega o inglês inteiro
+    // guardado. Comparar só o campo plano (20) contra a nuvem (400) daria
+    // "local está atrás" e sobrescreveria 400 palavras de inglês com nada.
+    const localNoEspanhol = {
+      activeCourse: 'es-pt',
+      wordsStudied: 20,
+      totalScore: 5000,
+      courseProgress: { 'en-pt': { wordsStudied: 400 } },
+    };
+    const nuvemSoIngles = { activeCourse: 'en-pt', wordsStudied: 400, totalScore: 5000 };
+
+    expect(totalWordsStudied(localNoEspanhol)).toBe(420);
+    expect(isLocalMoreAdvanced(localNoEspanhol, nuvemSoIngles)).toBe(true);
   });
 });

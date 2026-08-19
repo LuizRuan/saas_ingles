@@ -1,5 +1,13 @@
 import { useState, useCallback } from 'react';
 import useSound from '../../hooks/useSound';
+import { useProgress } from '../../hooks/useProgress';
+import { AVAILABLE_COURSES } from '../../data/index';
+
+// Nome do idioma-alvo do curso ativo. Fixar "inglês" no texto fazia o
+// desafio diário mandar "traduza para o inglês" para quem está estudando
+// espanhol — a instrução contradizia a resposta esperada.
+const nomeDoIdioma = (courseId) =>
+  AVAILABLE_COURSES.find(c => c.id === courseId)?.targetName || 'Inglês';
 
 // Normaliza string para comparação (remove pontuação final e espaço extra)
 const normalize = (str) => (str || '').toLowerCase().replace(/[.,?!]/g, '').trim();
@@ -7,6 +15,8 @@ const normalize = (str) => (str || '').toLowerCase().replace(/[.,?!]/g, '').trim
 const stripPunctuation = (str) => (str || '').replace(/[.,?!:;'"“”]/g, '').trim();
 
 const DailySentenceBuilderStep = ({ challenge, stepState, onAnswer }) => {
+  const { progress } = useProgress();
+  const idioma = nomeDoIdioma(progress?.activeCourse || 'en-pt');
   const { sentence, answer } = challenge;
   const { playClick, playCorrect, playWrong } = useSound();
 
@@ -55,7 +65,7 @@ const DailySentenceBuilderStep = ({ challenge, stepState, onAnswer }) => {
     <div className="daily-sentence-builder-step animate-fade-in-up text-center">
       <div className="glass-card" style={{ padding: 'var(--space-xl)', marginBottom: 'var(--space-lg)' }}>
         <span style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', display: 'block' }}>
-          Monte a frase em inglês:
+          Monte a frase em {idioma.toLowerCase()}:
         </span>
         <h2 style={{ fontSize: '2rem', color: 'var(--accent-purple-light)', margin: 'var(--space-xs) 0' }}>
           {sentence?.pt}

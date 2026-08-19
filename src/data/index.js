@@ -4,6 +4,11 @@ import * as enStories from './courses/en/stories.js';
 import * as enConversations from './courses/en/conversations.js';
 import * as enImageWords from './courses/en/imageWords.js';
 
+import { levels as enLevels } from './categories.js';
+import { errorPatterns as enErrorPatterns } from './errorPatterns.js';
+import { errorPatterns as esErrorPatterns } from './courses/es/errorPatterns.js';
+import { levels as esLevels } from './courses/es/levels.js';
+
 import * as esWords from './courses/es/words.js';
 import * as esSentences from './courses/es/sentences.js';
 import * as esStories from './courses/es/stories.js';
@@ -12,7 +17,7 @@ import * as esImageWords from './courses/es/imageWords.js';
 
 export const AVAILABLE_COURSES = [
   { id: 'en-pt', name: 'Inglês', flag: '🇺🇸', langCode: 'en-US', targetName: 'Inglês', available: true },
-  { id: 'es-pt', name: 'Espanhol', flag: '🇪🇸', langCode: 'es-ES', targetName: 'Espanhol', available: false }
+  { id: 'es-pt', name: 'Espanhol', flag: '🇪🇸', langCode: 'es-ES', targetName: 'Espanhol', available: true }
 ];
 
 const courseDataMap = {
@@ -25,7 +30,9 @@ const courseDataMap = {
     stories: enStories.stories,
     storyLevels: enStories.STORY_LEVELS,
     conversations: enConversations.conversations,
-    imageWords: enImageWords.imageWords
+    imageWords: enImageWords.imageWords,
+    levels: enLevels,
+    errorPatterns: enErrorPatterns
   },
   'es-pt': {
     words: esWords.words,
@@ -36,7 +43,9 @@ const courseDataMap = {
     stories: esStories.stories,
     storyLevels: esStories.STORY_LEVELS,
     conversations: esConversations.conversations,
-    imageWords: esImageWords.imageWords
+    imageWords: esImageWords.imageWords,
+    levels: esLevels,
+    errorPatterns: esErrorPatterns
   }
 };
 
@@ -52,3 +61,18 @@ export const getTranslationQuizzes = (courseId = 'en-pt') => getCourseData(cours
 export const getStories = (courseId = 'en-pt') => getCourseData(courseId).stories;
 export const getConversations = (courseId = 'en-pt') => getCourseData(courseId).conversations;
 export const getImageWords = (courseId = 'en-pt') => getCourseData(courseId).imageWords;
+// Escada de níveis por curso: os bancos têm tamanhos muito diferentes, então
+// os thresholds de `wordsNeeded` não podem ser compartilhados (ver
+// courses/es/levels.js).
+export const getLevels = (courseId = 'en-pt') => getCourseData(courseId).levels;
+// Correções por curso: vários padrões do inglês estão INVERTIDOS em espanhol
+// ("tengo 20 años" é o certo lá, "I have 20 years" é o erro aqui), então
+// compartilhar a lista corrigiria acertos como se fossem erros.
+export const getErrorPatterns = (courseId = 'en-pt') => getCourseData(courseId).errorPatterns;
+
+// Código BCP-47 do idioma-alvo, usado pela síntese de voz (useSpeech) e pelo
+// reconhecimento de fala (MicButton). Fonte única: o `langCode` que já existe
+// em AVAILABLE_COURSES — antes useSpeech.js mantinha um mapa próprio, que
+// passaria a divergir desta lista no dia em que um curso novo entrasse.
+export const getCourseLangCode = (courseId = 'en-pt') =>
+  AVAILABLE_COURSES.find(c => c.id === courseId)?.langCode || 'en-US';

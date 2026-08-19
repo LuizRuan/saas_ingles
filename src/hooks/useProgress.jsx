@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { loadProgress, saveProgress, resetProgress as clearStorage, updateDayStreak, sanitizeProgress } from '../utils/storage';
 import { isLocalMoreAdvanced } from '../utils/progressSync';
+import { switchCourse } from '../utils/courseProgress';
 import { calculatePoints, checkStreakBonus, POINTS } from '../utils/scoring';
 import { recordWordResult } from '../utils/reviewSystem';
 import { getCurrentLevel } from '../utils/levelSystem';
@@ -155,7 +156,7 @@ export const ProgressProvider = ({ children }) => {
         totalScore: prev.totalScore + points * activeMultiplier(prev),
       };
       // Update level
-      const level = getCurrentLevel(updated.wordsStudied);
+      const level = getCurrentLevel(updated.wordsStudied, updated.activeCourse);
       updated.currentLevel = level.level;
       return checkAchievements(updated);
     });
@@ -176,7 +177,7 @@ export const ProgressProvider = ({ children }) => {
         updated.totalScore += streakBonus * multiplier;
       }
 
-      const level = getCurrentLevel(updated.wordsStudied);
+      const level = getCurrentLevel(updated.wordsStudied, updated.activeCourse);
       updated.currentLevel = level.level;
       updated = checkAchievements(updated);
 
@@ -422,9 +423,44 @@ export const ProgressProvider = ({ children }) => {
     setProgress(prev => ({ ...prev, selectedSoundPack: soundPack }));
   }, []);
 
-  const setActiveCourse = useCallback((courseId) => {
-    setProgress(prev => ({ ...prev, activeCourse: courseId }));
-  }, []);
+  // Troca de idioma. Guarda o progresso do curso que sai e restaura o do que
+  // entra (ver courseProgress.js) — quem está no nível 40 em inglês encontra o
+  // nível 40 ao voltar, e o espanhol começa do 1 na primeira vez.
+  //
+  // O `isSwitchingCourse` existe porque a troca precisa terminar de gravar no
+  // servidor ANTES de a tela repintar com os números do outro idioma. Sem essa
+  // espera, a pessoa via o nível cair pra 1 e — se fechasse o app naquele
+  // instante — o servidor ainda teria o estado antigo, misturando os dois.
+  const [isSwitchingCourse, setIsSwitchingCourse] = useState(false);
+
+  const setActiveCourse = useCallback(async (courseId) => {
+    const atual = progressRef.current;
+    if ((atual.activeCourse || 'en-pt') === courseId) return;
+
+    setIsSwitchingCourse(true);
+    try {
+      // 1) Persiste o curso que está saindo, para nada do que foi jogado nos
+      //    últimos segundos se perder no meio da troca (o save normal é
+      //    debounced em 1,5s e poderia não ter rodado ainda).
+      if (entryChoice === 'account' && lastSyncedUserIdRef.current) {
+        if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+        await updateProgressRequest(atual).catch(() => {});
+      }
+
+      // 2) Faz a troca e re-saneia: sanitizeProgress roda migrateStats de novo,
+      //    agora resolvendo o vocabulário contra o banco do curso que entrou.
+      const trocado = sanitizeProgress(switchCourse(atual, courseId));
+      setProgress(trocado);
+      saveProgress(trocado);
+
+      // 3) Sobe o estado novo já com os dois históricos dentro.
+      if (entryChoice === 'account' && lastSyncedUserIdRef.current) {
+        await updateProgressRequest(trocado).catch(() => {});
+      }
+    } finally {
+      setIsSwitchingCourse(false);
+    }
+  }, [entryChoice]);
 
   const value = {
     progress,
@@ -447,6 +483,7 @@ export const ProgressProvider = ({ children }) => {
     setSelectedTitle,
     setSelectedSoundPack,
     setActiveCourse,
+    isSwitchingCourse,
     setDisplayName,
     consumeHint,
     consumeExtraTime,

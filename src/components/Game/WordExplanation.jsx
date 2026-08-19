@@ -18,9 +18,14 @@ const WordExplanation = ({ word, showTip = true, compact = false, exampleCount =
     return () => clearTimeout(timer);
   }, [word?.en, isAvailable, speakNormal]);
 
+  // useCourse ANTES de qualquer return: chamá-lo depois do `if (!word)`
+  // violava as regras dos hooks (ordem de chamada variando entre renders) —
+  // o oxlint acusava isso como erro. Ele já lida com `word` ausente sozinho,
+  // devolvendo strings vazias.
+  const { targetText, sourceText, tip, exampleTarget, exampleSource } = useCourse(word);
+
   if (!word) return null;
 
-  const { targetText, sourceText, tip, exampleTarget, exampleSource } = useCourse(word);
   const examples = exampleTarget
     ? [
         { target: exampleTarget, source: exampleSource },

@@ -8,6 +8,7 @@ import { normalizeKey, resolveWordKey, mergeStats } from './wordKey';
 import { generateDailyChallenge, isDailyChallengeCompleted } from './dailyChallenge';
 import { levels } from '../data/categories';
 import { words } from '../data/words';
+import { getWords } from '../data/index';
 
 const progressoVazio = () => ({
   wordStats: {}, phraseStats: {}, errorHistory: [],
@@ -55,7 +56,9 @@ describe('níveis', () => {
     expect(getUserTitle(50).title).toBe('Sábio');
     expect(getUserTitle(60).title).toBe('Mestre das Frases');
     expect(getUserTitle(70).title).toBe('Fluente Épico');
-    expect(getUserTitle(80).title).toBe('Lenda do Inglês');
+    // Neutro de idioma de propósito: o mesmo título serve para quem estuda
+    // inglês e para quem estuda espanhol (ver levelSystem.js).
+    expect(getUserTitle(80).title).toBe('Lenda do Idioma');
     expect(getUserTitle(90).title).toBe('Imortal do Idioma');
     expect(getUserTitle(100).title).toBe('Supremo Mestre');
   });
@@ -249,5 +252,64 @@ describe('desafio diário', () => {
   it('reconhece o desafio já concluído hoje', () => {
     expect(isDailyChallengeCompleted({ lastDailyChallengeDate: new Date().toDateString() })).toBe(true);
     expect(isDailyChallengeCompleted({ lastDailyChallengeDate: 'Mon Jan 01 2024' })).toBe(false);
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// Multi-idioma. Este bloco existe por causa de um bug que teria feito o curso
+// de espanhol PARECER funcionar sem registrar nada: resolveWordKey resolvia
+// sempre contra o banco de inglês, então "Hola" não era reconhecida como
+// vocabulário, caía em phraseStats, e wordsStudied nunca subia — nível travado
+// no 1 para sempre, sem nenhum erro visível na tela.
+// ───────────────────────────────────────────────────────────────────────────
+describe('progresso multi-idioma', () => {
+  const espanhol = () => ({ ...progressoVazio(), activeCourse: 'es-pt' });
+
+  it('regressão: palavra em espanhol conta como vocabulário, não como frase', () => {
+    const p = recordWordResult(espanhol(), 'Hola', true);
+
+    expect(p.wordStats['Hola']).toBeDefined();
+    expect(p.phraseStats['Hola']).toBeUndefined();
+    expect(p.wordsStudied).toBe(1);
+  });
+
+  it('regressão: acertar em espanhol faz o nível subir de verdade', () => {
+    let p = espanhol();
+    for (const palavra of ['Hola', 'Gracias', 'Perro', 'Gato', 'Casa', 'Agua']) {
+      p = recordWordResult(p, palavra, true);
+    }
+
+    expect(p.wordsStudied).toBe(6);
+    // A escada do espanhol é calibrada para o próprio banco (346 palavras):
+    // 6 palavras já saem do nível 1. Na escada do inglês, 6 seriam nível 1
+    // ainda — é por isso que a escada é por curso.
+    expect(getCurrentLevel(p.wordsStudied, 'es-pt').level).toBeGreaterThan(1);
+  });
+
+  it('cada banco só reconhece o próprio vocabulário', () => {
+    expect(resolveWordKey('Hola', 'es-pt')).toBe('Hola');
+    expect(resolveWordKey('Hola', 'en-pt')).toBeNull();
+    expect(resolveWordKey('Hello', 'en-pt')).toBe('Hello');
+    expect(resolveWordKey('Hello', 'es-pt')).toBeNull();
+  });
+
+  it('a mesma contagem significa níveis diferentes em cada curso', () => {
+    // 200 palavras é meio caminho no espanhol e ainda começo no inglês.
+    const nivelEs = getCurrentLevel(200, 'es-pt').level;
+    const nivelEn = getCurrentLevel(200, 'en-pt').level;
+    expect(nivelEs).toBeGreaterThan(nivelEn);
+  });
+
+  it('a revisão em espanhol enxerga os erros em espanhol', () => {
+    const p = recordWordResult(espanhol(), 'Perro', false);
+    const paraRevisar = getWordsToReview(p, getWords('es-pt'));
+    expect(paraRevisar.map(w => w.en)).toContain('Perro');
+  });
+
+  it('normalização lida com a pontuação invertida do espanhol', () => {
+    // "¿Cómo estás?" precisa resolver igual a "cómo estás" — sem isso, toda
+    // resposta digitada com ¿ ¡ viraria uma entrada nova em phraseStats.
+    expect(normalizeKey('¿Dónde?')).toBe('dónde');
+    expect(normalizeKey('¡Hola!')).toBe('hola');
   });
 });

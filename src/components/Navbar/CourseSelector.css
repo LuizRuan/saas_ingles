@@ -86,9 +86,43 @@
   font-weight: 700;
 }
 
-.course-check {
+/* "Nível 12" / "Novo" ao lado de cada idioma: diz o que a pessoa vai
+   encontrar ANTES de trocar, já que cada curso guarda o próprio progresso. */
+.course-progress-tag {
   margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  background: var(--bg-hover, #f1f5f9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.course-option.active .course-progress-tag {
+  background: transparent;
+  color: inherit;
+}
+
+/* Segue o .course-progress-tag quando os dois aparecem, em vez de disputar
+   o mesmo `margin-left: auto`. */
+.course-check {
+  margin-left: 6px;
   color: var(--accent-green, #10b981);
+}
+
+.course-dropdown-footer {
+  font-size: 0.7rem;
+  color: var(--text-secondary, #64748b);
+  padding: 8px 8px 2px;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.course-selector-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .course-option.disabled {

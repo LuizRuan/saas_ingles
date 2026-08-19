@@ -13,10 +13,8 @@ import { getCurrentLevel, getUserTitle } from '../utils/levelSystem';
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { progress, resetAllProgress, setTheme, setSelectedEffect } = useProgress();
+  const { progress, setTheme, setSelectedEffect } = useProgress();
   const [settings, setSettings] = useState(() => loadSettings());
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [resetDone, setResetDone] = useState(false);
 
   // Estado REAL da conta, verificado no servidor (ver useAuthProfile) — a
   // mesma checagem que a navbar usa, então as duas telas concordam sobre
@@ -94,13 +92,6 @@ const Settings = () => {
     navigate('/welcome', { replace: true });
   }, [entryChoice, navigate, refetchAuthProfile]);
 
-  const handleReset = useCallback(() => {
-    resetAllProgress();
-    setShowConfirm(false);
-    setResetDone(true);
-    setTimeout(() => setResetDone(false), 3000);
-  }, [resetAllProgress]);
-
   return (
     <div className="page">
       <div className="container" style={{ maxWidth: 600 }}>
@@ -155,9 +146,14 @@ const Settings = () => {
 
               return (
                 <>
-                  <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
-                    Conectado como <strong>{profile.email}</strong>
-                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-sm)', marginBottom: 'var(--space-md)' }}>
+                    <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', margin: 0 }}>
+                      Conectado como <strong>{profile.email}</strong>
+                    </p>
+                    <button className="btn btn-secondary btn-sm" onClick={handleExit}>
+                      🚪 Sair
+                    </button>
+                  </div>
 
                   {!isEditingNickname && hasNickname ? (
                     <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
@@ -170,7 +166,7 @@ const Settings = () => {
                               {profile.nickname}
                             </span>
                             <span className="badge badge-purple" style={{ fontSize: 'var(--fs-xs)' }}>
-                              {getUserTitle(getCurrentLevel(progress.wordsStudied || 0).level).tag}
+                              {getUserTitle(getCurrentLevel(progress.wordsStudied || 0, progress.activeCourse).level).tag}
                             </span>
                           </div>
                         </div>
@@ -401,7 +397,7 @@ const Settings = () => {
                 desatualizado (ex.: depois de uma migração que reduz
                 wordsStudied) e mostrar um número que não bate com mais nada
                 no app. Mesma regra da Home.jsx e do ranking de níveis. */}
-            <div><span className="text-secondary">Nível:</span> <strong>{getCurrentLevel(progress.wordsStudied || 0).level}</strong></div>
+            <div><span className="text-secondary">Nível:</span> <strong>{getCurrentLevel(progress.wordsStudied || 0, progress.activeCourse).level}</strong></div>
             <div><span className="text-secondary">Palavras estudadas:</span> <strong>{progress.wordsStudied}</strong></div>
             <div><span className="text-secondary">Palavras aprendidas:</span> <strong>{progress.wordsLearned}</strong></div>
             <div><span className="text-secondary">Total de acertos:</span> <strong>{progress.totalCorrect}</strong></div>
@@ -422,59 +418,31 @@ const Settings = () => {
           <CourseSelector variant="settings" />
         </div>
 
-        {/* Conta / saída.
-            Sem esta saída a tela de boas-vindas viraria um caminho de mão única:
-            depois de escolher uma vez, não haveria mais como voltar a ela. Note
-            que sair NÃO apaga o progresso — ele fica no aparelho, e é por isso
-            que este bloco é separado do "Apagar meu progresso" logo abaixo. */}
-        <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.18s' }}>
-          <h4 style={{ marginBottom: 'var(--space-sm)' }}>👤 Conta</h4>
-          <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
-            Você está jogando {entryChoice === 'account' ? 'com uma conta' : 'sem conta'}.
-            Sair leva de volta à tela inicial — <strong>seu progresso não é apagado</strong>.
-          </p>
-          <button className="btn btn-secondary" onClick={handleExit}>
-            🚪 Sair
-          </button>
-        </div>
-
-        {/* Reset */}
-        <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.2s',
-          borderColor: 'var(--border-red)' }}>
-          <h4 style={{ color: 'var(--accent-red-light)', marginBottom: 'var(--space-sm)' }}>⚠️ Apagar meu progresso</h4>
-          <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
-            Isso vai apagar toda sua pontuação, palavras aprendidas, conquistas e progresso. Esta ação não pode ser desfeita.
-          </p>
-          {!showConfirm ? (
-            <button className="btn btn-danger" onClick={() => setShowConfirm(true)}>
-              🗑️ Apagar tudo
-            </button>
-          ) : (
-            <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
-              <button className="btn btn-danger" onClick={handleReset}>
-                ⚠️ Confirmar — Apagar tudo
-              </button>
-              <button className="btn btn-secondary" onClick={() => setShowConfirm(false)}>
-                Cancelar
-              </button>
-            </div>
-          )}
-          {resetDone && (
-            <p style={{ color: 'var(--accent-green)', marginTop: 'var(--space-sm)', fontSize: 'var(--fs-sm)' }}>
-              ✅ Progresso apagado com sucesso!
+        {/* Saída — só pra quem joga sem conta. Quem tem conta já ganhou um
+            botão "Sair" dentro do card Perfil acima; sem este `entryChoice !==
+            'account'`, o convidado ficaria sem NENHUM jeito de voltar pra
+            Welcome pelo Settings (essa é a única saída que ele tem). */}
+        {entryChoice !== 'account' && (
+          <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', animationDelay: '0.18s' }}>
+            <h4 style={{ marginBottom: 'var(--space-sm)' }}>👤 Conta</h4>
+            <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-md)' }}>
+              Você está jogando sem conta. Sair leva de volta à tela inicial — <strong>seu progresso não é apagado</strong>.
             </p>
-          )}
-        </div>
+            <button className="btn btn-secondary" onClick={handleExit}>
+              🚪 Sair
+            </button>
+          </div>
+        )}
 
         {/* About */}
         <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', animationDelay: '0.25s' }}>
           <h4 style={{ marginBottom: 'var(--space-sm)' }}>ℹ️ Sobre o Wordly</h4>
           <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>
-            Plataforma gratuita para aprender inglês por meio de jogos educativos.
+            Plataforma gratuita para aprender idiomas por meio de jogos educativos.
             Dá para jogar sem conta: seu progresso é salvo neste navegador.
           </p>
           <p className="text-muted" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-sm)' }}>
-            Versão 3.0 • Feito com ❤️ para brasileiros aprendendo inglês
+            Versão 3.0 • Feito com ❤️ para brasileiros aprendendo idiomas
           </p>
         </div>
       </div>

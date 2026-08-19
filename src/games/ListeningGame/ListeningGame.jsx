@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { words, shuffleArray } from '../../data/words';
+import { shuffleArray } from '../../data/words';
+import useCourseData from '../../hooks/useCourseData';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
@@ -10,13 +11,16 @@ import './ListeningGame.css';
 
 const ROUNDS = 10;
 
-const generateGameWords = () => {
+// Os dados vêm do CURSO ATIVO (useCourseData), nunca do banco de inglês
+// importado direto — senão trocar para espanhol mantinha o jogo em inglês.
+const generateGameWords = (words) => {
   const filtered = words.filter(w => !w.en.includes(' ') && w.en.length >= 3);
   return shuffleArray(filtered).slice(0, ROUNDS);
 };
 
 const ListeningGame = () => {
-  const [gameWords, setGameWords] = useState(() => generateGameWords());
+  const { words } = useCourseData();
+  const [gameWords, setGameWords] = useState(() => generateGameWords(words));
   const [round, setRound] = useState(0);
   const [options, setOptions] = useState(() => generateOptions(gameWords, 0));
   const [selected, setSelected] = useState(null);
@@ -96,7 +100,7 @@ const ListeningGame = () => {
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
               <button className="btn btn-primary" onClick={() => {
-                const newWords = generateGameWords();
+                const newWords = generateGameWords(words);
                 setGameWords(newWords);
                 setRound(0);
                 setOptions(generateOptions(newWords, 0));

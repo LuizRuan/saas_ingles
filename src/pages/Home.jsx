@@ -3,21 +3,28 @@ import { useMemo } from 'react';
 import { useProgress } from '../hooks/useProgress';
 import { getCurrentLevel, getNextLevel, getLevelProgress } from '../utils/levelSystem';
 import { gamesCatalog, halo } from '../data/gamesCatalog';
+import { AVAILABLE_COURSES } from '../data/index';
 import './Home.css';
 
 const quickLinks = [
   { name: 'Desafio Diário', desc: 'Complete o desafio do dia e mantenha sua sequência!', icon: '⚡', color: '#6366f1', path: '/daily' },
   { name: 'Conversa', desc: 'Pratique diálogos e melhore sua comunicação.', icon: '💬', color: '#ec4899', path: '/conversation' },
   { name: 'Palavras', desc: 'Aprenda novas palavras de forma divertida.', icon: '📖', color: '#10b981', path: '/my-words' },
-  { name: 'Histórias', desc: 'Leia histórias simples em inglês, clique nas palavras e veja exemplos.', iconImage: '/historias.png', color: '#0ea5e9', path: '/stories' },
+  { name: 'Histórias', desc: 'Leia histórias curtas no seu idioma de estudo, clique nas palavras e veja exemplos.', iconImage: '/historias.png', color: '#0ea5e9', path: '/stories' },
   { name: 'Conquistas', desc: 'Desbloqueie troféus e acompanhe sua evolução.', iconImage: '/conquistas.png', color: '#f59e0b', path: '/achievements' },
 ];
 
 const Home = () => {
   const { progress } = useProgress();
-  const currentLevel = getCurrentLevel(progress.wordsStudied);
-  const nextLevel = getNextLevel(progress.wordsStudied);
-  const levelProgress = getLevelProgress(progress.wordsStudied);
+  // O curso ativo decide a escada: 200 palavras são nível ~30 em inglês e
+  // nível ~60 em espanhol, porque os bancos têm tamanhos diferentes.
+  const curso = progress.activeCourse || 'en-pt';
+  // O idioma aparece no texto da Home; fixar "inglês" contradizia o curso
+  // ativo de quem trocou para espanhol.
+  const idioma = (AVAILABLE_COURSES.find(c => c.id === curso)?.targetName || 'Inglês').toLowerCase();
+  const currentLevel = getCurrentLevel(progress.wordsStudied, curso);
+  const nextLevel = getNextLevel(progress.wordsStudied, curso);
+  const levelProgress = getLevelProgress(progress.wordsStudied, curso);
 
   // Calcula urgência de revisão direto do wordStats — evita importar o array
   // words.js (~139 kB) no bundle principal da Home.
@@ -48,9 +55,9 @@ const Home = () => {
               <span className="hero-word">Word</span><span className="hero-ly">ly</span>
             </h1>
             <p className="hero-tagline">Mundo das Palavras</p>
-            <p className="hero-subtitle">Aprenda inglês jogando todos os dias</p>
+            <p className="hero-subtitle">Aprenda {idioma} jogando todos os dias</p>
             <p className="hero-desc">
-              Jogos divertidos, desafios diários e prática constante para transformar seu inglês de forma leve e eficaz.
+              Jogos divertidos, desafios diários e prática constante para transformar seu {idioma} de forma leve e eficaz.
             </p>
             <div style={{ display: 'flex', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
               <Link to="/games" className="btn btn-primary btn-lg">

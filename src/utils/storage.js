@@ -1,6 +1,15 @@
 // Abstração do localStorage para persistência do progresso
 
 import { resolveWordKey, mergeStats } from './wordKey';
+import { emptyCourseSnapshot, DEFAULT_COURSE } from './courseProgress';
+import { AVAILABLE_COURSES } from '../data/index';
+
+// Cursos que o saneamento aceita em `activeCourse`. Sai de AVAILABLE_COURSES
+// para não existirem duas listas de idiomas que precisam ser lembradas juntas:
+// antes esta era uma lista literal `['en-pt']`, e liberar o espanhol no seletor
+// sem editá-la fazia a escolha voltar pro inglês no reload seguinte — o seletor
+// parecia simplesmente não salvar.
+const CURSOS_VALIDOS = AVAILABLE_COURSES.filter(c => c.available !== false).map(c => c.id);
 
 const STORAGE_KEY = 'englishplay_progress';
 const SETTINGS_KEY = 'englishplay_settings';
@@ -76,6 +85,9 @@ export const defaultProgress = {
   // Formato: '<idioma-alvo>-<idioma-fonte>', ex: 'en-pt' = Inglês para Brasileiros.
   // Os stats de vocabulário (wordStats, phraseStats) pertencem a este curso.
   activeCourse: 'en-pt',
+  // Histórico dos cursos INATIVOS. O curso ativo mora nos campos planos acima
+  // e nunca aqui — ver a invariante em courseProgress.js.
+  courseProgress: {},
 };
 
 const defaultSettings = {
@@ -144,6 +156,57 @@ const saneiaBalde = (v) => {
   for (const [chave, valor] of Object.entries(objeto(v)).slice(0, MAX_ENTRADAS)) {
     if (typeof chave !== 'string' || !chave || chave.length > MAX_CHAVE) continue;
     saneado[chave] = saneiaEstatistica(valor);
+  }
+  return saneado;
+};
+
+// Saneia UM curso estacionado. Os cursos inativos são entrada não confiável
+// igual ao resto do blob, e por serem N eles têm um teto próprio de tamanho —
+// senão alguém poderia inflar o localStorage inventando 500 cursos.
+const MAX_CURSOS_GUARDADOS = 12;
+
+const saneiaCursoGuardado = (bruto) => {
+  const c = objeto(bruto);
+  const jogos = objeto(c.gamesCompleted);
+  const vazio = emptyCourseSnapshot();
+
+  return {
+    ...vazio,
+    currentLevel: inteiro(c.currentLevel, 1, { min: 1, max: 100 }),
+    wordsLearned: inteiro(c.wordsLearned, 0),
+    wordsStudied: inteiro(c.wordsStudied, 0),
+    wordsReviewed: inteiro(c.wordsReviewed, 0),
+    totalCorrect: inteiro(c.totalCorrect, 0),
+    totalWrong: inteiro(c.totalWrong, 0),
+    bestStreak: inteiro(c.bestStreak, 0),
+    currentStreak: inteiro(c.currentStreak, 0),
+    sentencesCompleted: inteiro(c.sentencesCompleted, 0),
+    conversationsCompleted: inteiro(c.conversationsCompleted, 0),
+    dailyChallengesCompleted: inteiro(c.dailyChallengesCompleted, 0),
+    categoriesExplored: inteiro(c.categoriesExplored, 0),
+    gamesCompleted: Object.fromEntries(
+      Object.keys(defaultProgress.gamesCompleted).map(k => [k, inteiro(jogos[k], 0)])
+    ),
+    wordStats: saneiaBalde(c.wordStats),
+    phraseStats: saneiaBalde(c.phraseStats),
+    errorHistory: lista(c.errorHistory).slice(-100).map(e => ({
+      word: texto(objeto(e).word, ''),
+      timestamp: inteiro(objeto(e).timestamp, 0),
+    })),
+    exploredCategories: lista(c.exploredCategories).filter(x => typeof x === 'string').slice(0, 200),
+    lastGame: texto(c.lastGame),
+    lastDailyChallengeDate: texto(c.lastDailyChallengeDate),
+    dailyChallengeProgress: c.dailyChallengeProgress ?? null,
+  };
+};
+
+const saneiaCursosGuardados = (bruto, cursoAtivo) => {
+  const saneado = {};
+  for (const [id, dados] of Object.entries(objeto(bruto)).slice(0, MAX_CURSOS_GUARDADOS)) {
+    // Só cursos que existem de verdade, e nunca o ativo — mantém a invariante
+    // de courseProgress.js mesmo se o blob salvo estiver corrompido.
+    if (!CURSOS_VALIDOS.includes(id) || id === cursoAtivo) continue;
+    saneado[id] = saneiaCursoGuardado(dados);
   }
   return saneado;
 };
@@ -218,9 +281,15 @@ const saneiaProgresso = (bruto) => {
     pointsMultiplier: numero(p.pointsMultiplier, 1, { min: 1, max: 10 }),
     multiplierGames: inteiro(p.multiplierGames, 0, { min: 0, max: 100 }),
     selectedEffect: ['confetti', 'fireworks', 'stars', 'hearts', 'coins', 'rainbow', 'bubbles'].includes(p.selectedEffect) ? p.selectedEffect : null,
-    // activeCourse: aceita apenas pares válidos; 'en-pt' é o único hoje.
-    // Novos cursos serão adicionados nesta lista quando os dados estiverem prontos.
-    activeCourse: ['en-pt'].includes(p.activeCourse) ? p.activeCourse : 'en-pt',
+    // activeCourse: aceita apenas cursos marcados como disponíveis em
+    // AVAILABLE_COURSES (ver CURSOS_VALIDOS no topo). Um curso removido/
+    // bloqueado depois volta pro padrão em vez de deixar a pessoa presa
+    // num curso sem dados.
+    activeCourse: CURSOS_VALIDOS.includes(p.activeCourse) ? p.activeCourse : DEFAULT_COURSE,
+    courseProgress: saneiaCursosGuardados(
+      p.courseProgress,
+      CURSOS_VALIDOS.includes(p.activeCourse) ? p.activeCourse : DEFAULT_COURSE
+    ),
   };
 };
 
@@ -228,11 +297,15 @@ const saneiaProgresso = (bruto) => {
 // wordStats canônico + phraseStats, fundindo grafias duplicadas do mesmo item
 // ("Good morning" e "Good morning!"). Idempotente: rodar de novo não muda nada.
 const migrateStats = (progress) => {
+  // O curso importa: "Hola" é vocabulário em es-pt e lixo em en-pt. Resolver
+  // sempre contra o inglês mandava todo o vocabulário espanhol pra phraseStats,
+  // que é o balde que NÃO conta para wordsStudied/nível.
+  const courseId = progress.activeCourse || DEFAULT_COURSE;
   const wordStats = {};
   const phraseStats = { ...(progress.phraseStats || {}) };
 
   for (const [rawKey, stats] of Object.entries(progress.wordStats || {})) {
-    const canonical = resolveWordKey(rawKey);
+    const canonical = resolveWordKey(rawKey, courseId);
     if (canonical) {
       wordStats[canonical] = mergeStats(wordStats[canonical], stats);
     } else {
