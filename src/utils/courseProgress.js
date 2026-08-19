@@ -118,6 +118,46 @@ export const switchCourse = (progress, nextCourseId) => {
 };
 
 /**
+ * Índice denormalizado `{ [courseId]: { wordsStudied } }` cobrindo TODOS os
+ * cursos, inclusive o ativo.
+ *
+ * Existe por uma razão de servidor: o ranking é por idioma, e o Mongo precisa
+ * ordenar por um campo REAL para usar índice. A contagem do curso ativo mora
+ * nos campos planos e a dos inativos em `courseProgress` — ou seja, "quantas
+ * palavras esta pessoa sabe em espanhol" fica em lugares diferentes conforme o
+ * curso que ela deixou aberto, o que é impossível de indexar.
+ *
+ * Isto duplica um número que já existe, o que normalmente seria a "segunda
+ * verdade" que courseProgress.js inteiro existe para evitar. A diferença é que
+ * este mapa é DERIVADO, nunca editado à mão, e recalculado dentro de
+ * sanitizeProgress a cada load/save — não há janela em que ele possa divergir.
+ * Ninguém no cliente deve LER daqui: use os campos planos.
+ */
+/**
+ * Devolve o progresso com o índice `courseStats` recalculado.
+ *
+ * Precisa ser aplicado em TODA ESCRITA, não só no saneamento: o app grava e
+ * sincroniza a cada resposta certa (ver o efeito de save em useProgress.jsx) e
+ * esse caminho não passa por sanitizeProgress. Sem isto o servidor receberia o
+ * índice congelado no último load, e o ranking mostraria a contagem de horas
+ * atrás — um bug pior que o original, porque pareceria funcionar.
+ */
+export const withCourseStats = (progress) =>
+  progress ? { ...progress, courseStats: buildCourseStats(progress) } : progress;
+
+export const buildCourseStats = (progress) => {
+  const activeId = progress?.activeCourse || DEFAULT_COURSE;
+  const stats = {};
+
+  for (const [id, dados] of Object.entries(progress?.courseProgress || {})) {
+    stats[id] = { wordsStudied: dados?.wordsStudied || 0 };
+  }
+  stats[activeId] = { wordsStudied: progress?.wordsStudied || 0 };
+
+  return stats;
+};
+
+/**
  * Quanto progresso existe em cada curso — usado pelo seletor para mostrar
  * "Inglês · nível 12" ao lado de "Espanhol · novo" ANTES de a pessoa trocar,
  * para que a troca nunca pareça uma aposta às cegas.

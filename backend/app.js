@@ -38,6 +38,17 @@ app.use(cookieParser());
 // acertos/palavra, perto do teto de 500 timestamps por palavra em
 // storage.js). 1mb mantém margem confortável nesse extremo sem abrir mão de
 // um teto contra abuso.
+//
+// REMEDIDO com o multi-idioma (ago/2026): o payload agora carrega o histórico
+// de TODOS os cursos (courseProgress + courseStats), não só o ativo. No mesmo
+// extremo de 30 acertos por palavra:
+//     só inglês ............ 507 kB   (a calibração original)
+//     inglês + espanhol .... 673 kB
+//     margem restante ...... 351 kB   (era ~517 kB)
+// Regra prática: cada idioma novo custa ~165 kB nesse extremo. Um terceiro
+// chegaria a ~840 kB e um quarto estouraria. Antes de adicionar o próximo
+// idioma, subir este limite não é a resposta — o certo é podar os timestamps
+// antigos por palavra, que é o que cresce sem limite útil.
 app.use(express.json({ limit: '1mb' }));
 
 app.use('/api/presence', presenceRouter);

@@ -21,6 +21,10 @@ const Conversation = () => {
   const [texto, setTexto] = useState('');
 
   const activeCourse = progress?.activeCourse || 'en-pt';
+  // A frase segue em inglês de propósito (a tela é imersiva, ver CLAUDE.md),
+  // mas precisa nomear o idioma CERTO: dizer "in English" para quem abriu um
+  // diálogo em espanhol é uma afirmação factualmente errada.
+  const nomeEmIngles = { 'en-pt': 'English', 'es-pt': 'Spanish' }[activeCourse] || 'English';
   const currentConversations = useMemo(() => getConversations(activeCourse), [activeCourse]);
   const [resultado, setResultado] = useState(null);
   const [traduzirTudo, setTraduzirTudo] = useState(false);
@@ -120,7 +124,7 @@ const Conversation = () => {
             <Link to="/" className="btn btn-ghost" style={{ marginBottom: 'var(--space-lg)' }}>← Voltar</Link>
             <h1>💬 Conversation Practice</h1>
             <p className="text-secondary" style={{ marginTop: 'var(--space-sm)' }}>
-              Practice everyday dialogues in English. Pick a topic:
+              Practice everyday dialogues in {nomeEmIngles}. Pick a topic:
             </p>
           </div>
           <div className="convo-topics">

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { getWords } from '../data/index';
-import { categories } from '../data/categories';
+import { categories as todasCategorias } from '../data/categories';
 import { useProgress } from '../hooks/useProgress';
 import { getWordStatus } from '../utils/reviewSystem';
 import WordExplanation from '../components/Game/WordExplanation';
@@ -15,6 +15,13 @@ const MyWords = () => {
 
   const activeCourse = progress.activeCourse || 'en-pt';
   const currentWords = useMemo(() => getWords(activeCourse), [activeCourse]);
+  // Só as categorias que o curso ativo realmente cobre. A lista global tem 42
+  // entradas e o banco de espanhol usa 18 — oferecer as outras 24 fazia a
+  // pessoa escolher "Astronomia" e receber uma lista vazia, sem explicação.
+  const categories = useMemo(() => {
+    const usadas = new Set(currentWords.map(w => w.category));
+    return todasCategorias.filter(c => usadas.has(c.id));
+  }, [currentWords]);
 
   const wordsWithStats = useMemo(() => {
     return currentWords.map(word => ({

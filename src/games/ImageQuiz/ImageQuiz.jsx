@@ -16,7 +16,6 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { imageWords as defaultImageWords } from '../../data/imageWords';
 import { shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
 import useCourseData from '../../hooks/useCourseData';
@@ -25,13 +24,24 @@ import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
 import './ImageQuiz.css';
 
+// `levelSpan` é uma faixa RELATIVA (0 a 1) dentro dos níveis que o banco de
+// imagens do curso realmente tem — não níveis absolutos.
+//
+// Absoluto não funciona com mais de um idioma: as imagens do inglês cobrem os
+// níveis 3 a 50, as do espanhol 2 a 8. Um `[20, 50]` fixo significa "as mais
+// difíceis" no inglês e "todas elas" no espanhol, onde nada chega a 20.
 const DIFFICULTIES = [
-  { id: 'easy',   label: 'Fácil',   icon: '🌱', rounds: 8,  levelRange: [1, 20],  sizeRange: [260, 220], timeRange: [14, 10] },
-  { id: 'medium', label: 'Médio',   icon: '⚡', rounds: 10, levelRange: [10, 35], sizeRange: [240, 190], timeRange: [11, 7] },
-  { id: 'hard',   label: 'Difícil', icon: '🔥', rounds: 12, levelRange: [20, 50], sizeRange: [220, 170], timeRange: [8, 5] },
+  { id: 'easy',   label: 'Fácil',   icon: '🌱', rounds: 8,  levelSpan: [0, 0.45],    sizeRange: [260, 220], timeRange: [14, 10] },
+  { id: 'medium', label: 'Médio',   icon: '⚡', rounds: 10, levelSpan: [0.2, 0.75],  sizeRange: [240, 190], timeRange: [11, 7] },
+  { id: 'hard',   label: 'Difícil', icon: '🔥', rounds: 12, levelSpan: [0.45, 1],    sizeRange: [220, 170], timeRange: [8, 5] },
 ];
 
 const lerp = (a, b, t) => Math.round(a + (b - a) * t);
+
+// Nível da palavra por trás da imagem. As entradas de imageWords guardam o
+// objeto completo em `.word` (ver data/imageWords.js), então o nível NÃO está
+// no topo da entrada.
+const nivelDe = (item) => item?.word?.level || 1;
 
 /**
  * Monta as rodadas de uma partida inteira de uma vez, no início — nunca
@@ -40,22 +50,54 @@ const lerp = (a, b, t) => Math.round(a + (b - a) * t);
  * Exportada para o teste de unidade poder conferir as garantias sem montar
  * o componente inteiro.
  */
-export const buildRounds = (difficulty, items = defaultImageWords) => {
-  const { rounds, levelRange, sizeRange, timeRange } = difficulty;
+// `items` é OBRIGATÓRIO de propósito. Antes tinha o banco de inglês como
+// valor padrão, e um chamador que esquecesse de passar as imagens do curso
+// recebia inglês silenciosamente — que é exatamente o bug que já aconteceu
+// aqui (o componente importava useCourseData e nunca o chamava).
+export const buildRounds = (difficulty, items) => {
+  const { rounds, levelSpan, sizeRange, timeRange } = difficulty;
   const used = new Set();
   const result = [];
 
+  // Converte a faixa relativa nos níveis que ESTE banco tem, começando do
+  // menor nível existente e nunca de 1: no banco de imagens do inglês a
+  // palavra mais fácil é nível 3, então qualquer corte em 1 esvaziaria o
+  // sorteio e cairia direto no fallback — o que mascarava este eixo inteiro.
+  const niveis = items.map(nivelDe);
+  const nivelMin = Math.min(...niveis);
+  const nivelMax = Math.max(...niveis);
+  const nivelEm = (fracao) => Math.round(nivelMin + (nivelMax - nivelMin) * fracao);
+
   for (let i = 0; i < rounds; i++) {
     const t = rounds > 1 ? i / (rounds - 1) : 0;
-    const levelCap = lerp(levelRange[0], levelRange[1], t);
+    const levelFloor = nivelEm(levelSpan[0] + (levelSpan[1] - levelSpan[0]) * t);
     const imageSize = lerp(sizeRange[0], sizeRange[1], t);
     const timeSec = lerp(timeRange[0], timeRange[1], t);
 
-    // Alvo: respeita o teto de nível da rodada. Se essa faixa já estiver
-    // esgotada (partida longa, poucas palavras naquele nível), cai pra
-    // "qualquer uma ainda não usada" em vez de travar a rodada.
-    let pool = items.filter((w) => (w.level || 1) <= levelCap && !used.has(w.word || w.en));
-    if (pool.length === 0) pool = items.filter((w) => !used.has(w.word || w.en));
+    // Alvo: nível MÍNIMO subindo a cada rodada, que é o que o cabeçalho deste
+    // arquivo sempre descreveu. Se a faixa esgotar (partida longa, poucas
+    // palavras naquele nível), cai pra "qualquer uma ainda não usada" em vez
+    // de travar a rodada.
+    //
+    // Duas coisas estavam erradas aqui e se escondiam uma na outra:
+    //  1. o nível era lido de `w.level`, que não existe nas entradas de
+    //     imageWords (mora em `w.word.level`) — o filtro dava sempre
+    //     verdadeiro e não fazia nada;
+    //  2. o corte era um TETO (`<=`), e teto que sobe não deixa a partida mais
+    //     difícil: o pool só cresce, e como as palavras fáceis são a maioria,
+    //     o sorteio aleatório continuava caindo nelas até o fim.
+    const disponiveis = items.filter((w) => !used.has(w.word || w.en));
+    let pool = disponiveis.filter((w) => nivelDe(w) >= levelFloor);
+
+    // Fallback GRADUAL. Quando o banco não tem mais nada naquele piso — o
+    // espanhol só tem 6 imagens de nível 7+, e "Difícil" pede 12 rodadas —,
+    // pega as mais avançadas que ainda restam em vez de abrir para o banco
+    // inteiro. Abrir tudo derrubava a dificuldade de volta ao começo, porque
+    // as palavras fáceis são a maioria e o sorteio é aleatório.
+    if (pool.length === 0 && disponiveis.length > 0) {
+      const maiorNivel = Math.max(...disponiveis.map(nivelDe));
+      pool = disponiveis.filter((w) => nivelDe(w) === maiorNivel);
+    }
     if (pool.length === 0) pool = items;
 
     const target = shuffleArray(pool)[0];

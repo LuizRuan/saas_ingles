@@ -1,7 +1,7 @@
 // Abstração do localStorage para persistência do progresso
 
 import { resolveWordKey, mergeStats } from './wordKey';
-import { emptyCourseSnapshot, DEFAULT_COURSE } from './courseProgress';
+import { emptyCourseSnapshot, buildCourseStats, withCourseStats, DEFAULT_COURSE } from './courseProgress';
 import { AVAILABLE_COURSES } from '../data/index';
 
 // Cursos que o saneamento aceita em `activeCourse`. Sai de AVAILABLE_COURSES
@@ -88,6 +88,10 @@ export const defaultProgress = {
   // Histórico dos cursos INATIVOS. O curso ativo mora nos campos planos acima
   // e nunca aqui — ver a invariante em courseProgress.js.
   courseProgress: {},
+  // Índice derivado { [curso]: { wordsStudied } } cobrindo TODOS os cursos.
+  // Só existe para o servidor conseguir ordenar o ranking por idioma; é
+  // recalculado a cada saneamento e nunca deve ser lido pelo cliente.
+  courseStats: {},
 };
 
 const defaultSettings = {
@@ -348,7 +352,12 @@ export const sanitizeProgress = (data) => {
   try {
     if (!data) return getDefaultProgress();
     const sanitized = migrateStats(saneiaProgresso(data));
-    return revertMonthlyBugBonus(sanitized);
+    const revertido = revertMonthlyBugBonus(sanitized);
+    // Por último, e sempre: derivar aqui (em vez de deixar quem chama montar)
+    // é o que garante que o índice nunca fica velho — migrateStats acabou de
+    // recontar wordsStudied, então este é o único ponto em que os dois lados
+    // com certeza concordam.
+    return { ...revertido, courseStats: buildCourseStats(revertido) };
   } catch {
     return getDefaultProgress();
   }
@@ -365,12 +374,18 @@ export const loadProgress = () => {
   }
 };
 
+// Deriva `courseStats` na hora de gravar e DEVOLVE o objeto normalizado, pra
+// quem sincroniza com o servidor mandar exatamente o que foi salvo. O índice
+// não pode ser calculado só no saneamento: entre um load e outro a pessoa
+// responde dezenas de perguntas, e cada uma dessas gravações passa por aqui.
 export const saveProgress = (progress) => {
+  const normalizado = withCourseStats(progress);
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizado));
   } catch (e) {
     console.warn('Could not save progress:', e);
   }
+  return normalizado;
 };
 
 export const resetProgress = () => {

@@ -144,11 +144,32 @@ export const updateProgress = async (req, res) => {
     return res.status(400).json({ error: 'Objeto de progresso inválido.' });
   }
 
+  // Campos que NUNCA podem ser apagados por um payload que simplesmente não
+  // os conhece. `progress` é substituído por inteiro (é o desenho: o cliente é
+  // dono do próprio progresso), e isso é seguro enquanto todo cliente manda o
+  // objeto completo — mas deixa de ser na janela de um deploy, quando uma aba
+  // com o bundle antigo ainda aberta sincroniza um progresso SEM
+  // `courseProgress` e apaga da nuvem o idioma que a pessoa estacionou.
+  //
+  // Aqui a regra é só: ausente não é o mesmo que vazio. Se o campo não veio,
+  // preserva o que já estava salvo; se veio (inclusive vazio), o cliente manda.
+  const PRESERVAR_SE_AUSENTE = ['courseProgress', 'courseStats'];
+  const faltando = PRESERVAR_SE_AUSENTE.filter(campo => progress[campo] === undefined);
+
+  let progressoFinal = progress;
+  if (faltando.length > 0) {
+    const atual = await User.findById(req.user.id).select('progress').lean();
+    progressoFinal = { ...progress };
+    for (const campo of faltando) {
+      if (atual?.progress?.[campo] !== undefined) progressoFinal[campo] = atual.progress[campo];
+    }
+  }
+
   // findByIdAndUpdate já é atômico (não passa por save()), então .lean()
   // aqui só evita instanciar um documento Mongoose que ninguém vai usar.
   const user = await User.findByIdAndUpdate(
     req.user.id,
-    { progress },
+    { progress: progressoFinal },
     { new: true, select: '-passwordHash' }
   ).lean();
 

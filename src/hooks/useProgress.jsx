@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { loadProgress, saveProgress, resetProgress as clearStorage, updateDayStreak, sanitizeProgress } from '../utils/storage';
 import { isLocalMoreAdvanced } from '../utils/progressSync';
-import { switchCourse } from '../utils/courseProgress';
+import { switchCourse, withCourseStats } from '../utils/courseProgress';
 import { calculatePoints, checkStreakBonus, POINTS } from '../utils/scoring';
 import { recordWordResult } from '../utils/reviewSystem';
 import { getCurrentLevel } from '../utils/levelSystem';
@@ -67,7 +67,7 @@ export const ProgressProvider = ({ children }) => {
           // Local está à frente (ou a nuvem ainda não tem nada) — usa o
           // local e sobe pro servidor, pra nuvem não ficar pra trás.
           setProgress(currentLocal);
-          updateProgressRequest(currentLocal).catch(() => {});
+          updateProgressRequest(withCourseStats(currentLocal)).catch(() => {});
         } else {
           // Nuvem está à frente (ou empatada) — restaura o progresso dela.
           setProgress(cloudProg);
@@ -86,7 +86,10 @@ export const ProgressProvider = ({ children }) => {
     if (entryChoice === 'account' && lastSyncedUserIdRef.current) {
       if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
       syncTimerRef.current = setTimeout(() => {
-        updateProgressRequest(progressRef.current).catch(() => {});
+        // withCourseStats aqui também: o que sobe pro servidor alimenta o
+        // ranking por idioma, e mandar o índice defasado faria a tabela
+        // mostrar a contagem do último carregamento da página.
+        updateProgressRequest(withCourseStats(progressRef.current)).catch(() => {});
       }, 1500);
     }
     return () => {
@@ -444,7 +447,7 @@ export const ProgressProvider = ({ children }) => {
       //    debounced em 1,5s e poderia não ter rodado ainda).
       if (entryChoice === 'account' && lastSyncedUserIdRef.current) {
         if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
-        await updateProgressRequest(atual).catch(() => {});
+        await updateProgressRequest(withCourseStats(atual)).catch(() => {});
       }
 
       // 2) Faz a troca e re-saneia: sanitizeProgress roda migrateStats de novo,

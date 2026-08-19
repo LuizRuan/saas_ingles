@@ -5,6 +5,7 @@ import { ROTAS_LIVRES } from '../../utils/entryChoice';
 import Celebration from '../Celebration/Celebration';
 import NicknamePrompt from '../Auth/NicknamePrompt';
 import AvatarDisplay from '../Avatar/AvatarDisplay';
+import CourseSelector from '../Navbar/CourseSelector';
 import './Layout.css';
 
 const Layout = ({ children }) => {
@@ -30,11 +31,21 @@ const Layout = ({ children }) => {
       {/* Desktop Navbar */}
       <nav className="navbar hide-mobile">
         <div className="navbar-inner">
-          <NavLink to="/" className="navbar-logo">
-            <span className="logo-icon">🎮</span>
-            <span>Wordly</span>
-          </NavLink>
-          
+          {/* Marca + idioma na MESMA coluna do grid (a primeira, `1fr`), em vez
+              de disputar espaço com os 7 links do meio. A leitura vira
+              "Wordly · Espanhol": o idioma é o contexto de tudo que está
+              abaixo, então ele pertence junto da identidade, não à lista de
+              navegação. Antes o seletor só existia dentro de Configurações e
+              praticamente ninguém descobria que havia um segundo curso. */}
+          <div className="navbar-brand">
+            <NavLink to="/" className="navbar-logo">
+              <span className="logo-icon">🎮</span>
+              <span>Wordly</span>
+            </NavLink>
+            <span className="navbar-brand-sep" aria-hidden="true" />
+            <CourseSelector />
+          </div>
+
           <div className="navbar-links">
             <NavLink to="/" className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`} end>
               <img src="/inicio.png" alt="" width="1024" height="1024" style={{ height: '20px', width: 'auto', display: 'inline-block', verticalAlign: 'middle' }} /> Início

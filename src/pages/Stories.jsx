@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { getStories } from '../data/index';
-import { STORY_LEVELS } from '../data/stories';
+import useCourseData from '../hooks/useCourseData';
 import { useProgress } from '../hooks/useProgress';
 import StoryText from '../components/Story/StoryText';
 import StoryWordModal from '../components/Story/StoryWordModal';
@@ -19,6 +19,10 @@ const Stories = () => {
 
   const activeCourse = progress?.activeCourse || 'en-pt';
   const currentStories = useMemo(() => getStories(activeCourse), [activeCourse]);
+  // Rótulos de nível DO CURSO. Antes vinham importados direto do arquivo de
+  // inglês e só funcionavam por coincidência (o espanhol usa as mesmas
+  // chaves); um curso com ids diferentes mostraria o badge em branco.
+  const { storyLevels: STORY_LEVELS } = useCourseData();
 
   const visibleStories = levelFilter === 'todos'
     ? currentStories

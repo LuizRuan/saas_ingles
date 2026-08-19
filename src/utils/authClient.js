@@ -62,11 +62,15 @@ export const updateProgressRequest = (progress) =>
 // a cada "Procurar Oponente" (ver WhoKnowsMore.jsx), nunca guardado.
 export const getDuelTicketRequest = () => callAuth('/api/auth/duel-ticket', { method: 'POST' });
 
-export const getDuelLeaderboardRequest = (limit = 5) =>
-  callAuth(`/api/duel/leaderboard?limit=${limit}`, { method: 'GET' });
+// Os três rankings são POR IDIOMA: cada curso tem a própria tabela, então o
+// curso ativo vai junto em toda leitura. O servidor valida o id contra uma
+// whitelist (backend/utils/courses.js) e cai no inglês se vier qualquer coisa.
+export const getDuelLeaderboardRequest = (limit = 5, course = 'en-pt') =>
+  callAuth(`/api/duel/leaderboard?limit=${limit}&course=${encodeURIComponent(course)}`, { method: 'GET' });
 
-export const getMyDuelRankRequest = () => callAuth('/api/duel/leaderboard/me', { method: 'GET' });
+export const getMyDuelRankRequest = (course = 'en-pt') =>
+  callAuth(`/api/duel/leaderboard/me?course=${encodeURIComponent(course)}`, { method: 'GET' });
 
-export const getLevelLeaderboardRequest = (limit = 5) =>
-  callAuth(`/api/duel/leaderboard/level?limit=${limit}`, { method: 'GET' });
+export const getLevelLeaderboardRequest = (limit = 5, course = 'en-pt') =>
+  callAuth(`/api/duel/leaderboard/level?limit=${limit}&course=${encodeURIComponent(course)}`, { method: 'GET' });
 

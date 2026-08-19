@@ -4,11 +4,13 @@ import {
   snapshotCourse,
   summarizeCourses,
   emptyCourseSnapshot,
+  buildCourseStats,
+  withCourseStats,
   COURSE_SCOPED_FIELDS,
 } from './courseProgress';
 import { recordWordResult } from './reviewSystem';
 import { getCurrentLevel } from './levelSystem';
-import { sanitizeProgress } from './storage';
+import { sanitizeProgress, saveProgress } from './storage';
 import { getWords } from '../data/index';
 
 // Um progresso de alguém adiantado em inglês.
@@ -192,5 +194,68 @@ describe('jornada real de troca de idioma', () => {
     expect(p.wordsStudied).toBe(40);
     expect(p.courseProgress['en-pt'].wordsStudied).toBe(330);
     expect(p.courseProgress['es-pt']).toBeUndefined();
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// courseStats é o índice que o ranking POR IDIOMA usa no servidor. O Mongo
+// ordena por `progress.courseStats.<curso>.wordsStudied`, então este mapa
+// precisa cobrir todos os cursos sempre — inclusive o ativo, cuja contagem
+// mora nos campos planos.
+// ───────────────────────────────────────────────────────────────────────────
+describe('índice por curso para o ranking', () => {
+  it('cobre o curso ativo e os guardados na mesma estrutura', () => {
+    let p = switchCourse(ingles40(), 'es-pt');
+    p = { ...p, wordsStudied: 25 };
+
+    expect(buildCourseStats(p)).toEqual({
+      'en-pt': { wordsStudied: 400 },
+      'es-pt': { wordsStudied: 25 },
+    });
+  });
+
+  it('sobrevive ao saneamento e continua batendo com os campos planos', () => {
+    // O risco real é o índice ficar velho: migrateStats reconta wordsStudied
+    // dentro do saneamento, então se courseStats fosse derivado antes disso
+    // ele guardaria o número anterior e o ranking mostraria um valor defasado.
+    let p = sanitizeProgress({ activeCourse: 'en-pt' });
+    p = estudar(p, 'en-pt', 20);
+    p = sanitizeProgress(switchCourse(p, 'es-pt'));
+    p = estudar(p, 'es-pt', 7);
+    p = sanitizeProgress(p);
+
+    expect(p.courseStats['es-pt'].wordsStudied).toBe(p.wordsStudied);
+    expect(p.courseStats['es-pt'].wordsStudied).toBe(7);
+    expect(p.courseStats['en-pt'].wordsStudied).toBe(20);
+  });
+
+  it('o ranking de um idioma não enxerga a contagem do outro', () => {
+    // A regressão que isto prende: com o campo plano, quem estava estudando
+    // espanhol aparecia no ranking de inglês com o número do espanhol.
+    let p = sanitizeProgress({ activeCourse: 'en-pt' });
+    p = estudar(p, 'en-pt', 30);
+    p = sanitizeProgress(switchCourse(p, 'es-pt'));
+
+    expect(p.wordsStudied).toBe(0);               // campo plano: espanhol, zerado
+    expect(p.courseStats['en-pt'].wordsStudied).toBe(30);  // inglês preservado
+    expect(p.courseStats['es-pt'].wordsStudied).toBe(0);
+  });
+});
+
+describe('índice fresco a cada gravação', () => {
+  it('regressão: jogar sem recarregar a página mantém o índice em dia', () => {
+    // O furo: courseStats era derivado só no saneamento, mas o app grava e
+    // sincroniza a cada resposta certa — sem passar por lá. O servidor
+    // receberia a contagem congelada no último load, e o ranking mostraria
+    // um número de horas atrás parecendo estar funcionando.
+    let p = sanitizeProgress({ activeCourse: 'en-pt' });
+    p = estudar(p, 'en-pt', 40);          // 40 respostas sem recarregar
+
+    // Sem normalizar, o índice está velho — é este o estado que ia pro servidor.
+    expect(p.courseStats['en-pt'].wordsStudied).toBe(0);
+
+    // saveProgress (o ponto único de escrita) devolve o objeto já em dia.
+    expect(withCourseStats(p).courseStats['en-pt'].wordsStudied).toBe(40);
+    expect(saveProgress(p).courseStats['en-pt'].wordsStudied).toBe(40);
   });
 });

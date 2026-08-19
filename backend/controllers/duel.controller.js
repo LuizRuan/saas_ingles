@@ -1,6 +1,7 @@
 import { DuelTrophy } from '../models/DuelTrophy.js';
 import { User } from '../models/User.js';
 import { currentMonthKey } from '../utils/duelMonth.js';
+import { resolveCourseId, DEFAULT_COURSE } from '../utils/courses.js';
 
 const clampLimit = (raw) => {
   const n = Number.parseInt(raw, 10);
@@ -8,12 +9,22 @@ const clampLimit = (raw) => {
   return Math.min(n, 50);
 };
 
+// Filtro de curso para os troféus. Documentos criados antes do campo existir
+// não têm `courseId`; como o duelo humano sempre foi inglês, "ausente" conta
+// como en-pt. Isso evita uma migração no Atlas só para preencher um valor que
+// já é implícito.
+const filtroDeCurso = (courseId) =>
+  courseId === DEFAULT_COURSE
+    ? { courseId: { $in: [DEFAULT_COURSE, null] } }
+    : { courseId };
+
 export const getLeaderboard = async (req, res) => {
   const month = currentMonthKey();
   const limit = clampLimit(req.query.limit);
+  const courseId = resolveCourseId(req.query.course);
   // .lean(): endpoint público e só-leitura — devolve objeto JS puro, sem
   // instanciar um documento Mongoose completo pra cada linha do ranking.
-  const trophies = await DuelTrophy.find({ month })
+  const trophies = await DuelTrophy.find({ month, ...filtroDeCurso(courseId) })
     .sort({ trophies: -1, updatedAt: 1 })
     .limit(limit)
     .select('userId nickname trophies -_id')
@@ -45,41 +56,57 @@ export const getLeaderboard = async (req, res) => {
     };
   });
 
-  res.status(200).json({ month, entries });
+  res.status(200).json({ month, course: courseId, entries });
 };
 
 export const getMyRank = async (req, res) => {
   const month = currentMonthKey();
-  const mine = await DuelTrophy.findOne({ userId: req.user.id, month }).select('trophies').lean();
-  if (!mine) return res.status(200).json({ month, trophies: 0, rank: null });
+  const courseId = resolveCourseId(req.query.course);
+  const curso = filtroDeCurso(courseId);
 
-  const ahead = await DuelTrophy.countDocuments({ month, trophies: { $gt: mine.trophies } });
-  res.status(200).json({ month, trophies: mine.trophies, rank: ahead + 1 });
+  const mine = await DuelTrophy.findOne({ userId: req.user.id, month, ...curso })
+    .select('trophies').lean();
+  if (!mine) return res.status(200).json({ month, course: courseId, trophies: 0, rank: null });
+
+  // A posição também é dentro do idioma: contar quem está à frente sem filtrar
+  // por curso daria uma colocação medida contra outra tabela.
+  const ahead = await DuelTrophy.countDocuments({ month, ...curso, trophies: { $gt: mine.trophies } });
+  res.status(200).json({ month, course: courseId, trophies: mine.trophies, rank: ahead + 1 });
 };
 
 // Ranking por nível — não tem mês/reset como o de troféus (nível só cresce).
-// wordsStudied vem do progress.js sincronizado em useProgress.jsx; o nível em
-// si (a tabela de thresholds em categories.js) é assunto do frontend, então
-// aqui só ordenamos pelo número bruto e devolvemos, sem duplicar a tabela.
+// O nível em si (a tabela de thresholds) é assunto do frontend; aqui só
+// ordenamos pelo número bruto de palavras e devolvemos, sem duplicar a tabela.
 // Exige nickname (mesma regra do ranking de troféus, mostrada no tooltip):
 // sem isso, apelidos genéricos de convidado inundariam o ranking.
+//
+// É POR IDIOMA. Ordenar por `progress.wordsStudied` (o campo plano) comparava
+// pessoas em cursos diferentes na mesma tabela: como esse campo passou a ser a
+// contagem do curso ATIVO, quem estivesse estudando espanhol aparecia com o
+// nível de espanhol no ranking de inglês — ou sumia dele. Agora lemos
+// `progress.courseStats.<curso>.wordsStudied`, que cobre todos os cursos da
+// pessoa independentemente de qual ela deixou aberto (ver courseProgress.js).
 export const getLevelLeaderboard = async (req, res) => {
   const limit = clampLimit(req.query.limit);
+  const courseId = resolveCourseId(req.query.course);
+  // Só aqui, DEPOIS da whitelist, o id vira caminho de campo.
+  const campo = `progress.courseStats.${courseId}.wordsStudied`;
+
   const users = await User.find({
     nickname: { $ne: null },
-    'progress.wordsStudied': { $gt: 0 },
+    [campo]: { $gt: 0 },
   })
-    .sort({ 'progress.wordsStudied': -1 })
+    .sort({ [campo]: -1 })
     .limit(limit)
-    .select('nickname progress.selectedAvatar progress.selectedTitle progress.wordsStudied -_id')
+    .select(`nickname progress.selectedAvatar progress.selectedTitle ${campo} -_id`)
     .lean();
 
   const entries = users.map(u => ({
     nickname: u.nickname,
     avatar: u.progress?.selectedAvatar || 'U',
-    wordsStudied: u.progress?.wordsStudied || 0,
+    wordsStudied: u.progress?.courseStats?.[courseId]?.wordsStudied || 0,
     selectedTitle: u.progress?.selectedTitle || null,
   }));
 
-  res.status(200).json({ entries });
+  res.status(200).json({ course: courseId, entries });
 };

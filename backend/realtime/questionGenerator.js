@@ -45,15 +45,31 @@ const fourOptions = (correct, wrongPool, pickField) => {
 // espaços em branco sem revelar nenhuma letra.
 export const maskWord = (word) => word.replace(/[A-Za-z]/g, '#');
 
+// Nem toda entrada do banco serve para todo tipo de jogo.
+const ELEGIVEL_POR_TIPO = {
+  // Embaralhar letras só faz sentido numa palavra ÚNICA. Com "Good morning" o
+  // split('') incluía o ESPAÇO como se fosse mais uma letra, e o embaralhado
+  // saía "G o o d   m o r n i n g" — um bloco em branco no meio das peças,
+  // que ainda por cima entrega onde termina a primeira palavra. 63 das 400
+  // entradas do banco do duelo (15,8%) têm espaço, então isso caía em cerca de
+  // uma a cada seis rodadas de wordBuilder. O jogo equivalente no cliente
+  // (src/games/WordBuilder) sempre filtrou assim.
+  wordBuilder: (w) => !w.en.includes(' ') && w.en.length >= 3,
+};
+
 /**
  * Monta uma pergunta completa (com correctAnswer) para um tipo de jogo.
  * `usedIndices` evita repetir a mesma palavra dentro da mesma partida.
  */
 export const buildQuestion = (gameType, usedIndices = new Set()) => {
-  const available = words
+  const elegivel = ELEGIVEL_POR_TIPO[gameType] || (() => true);
+  const todasElegiveis = words
     .map((w, i) => ({ w, i }))
-    .filter(({ i }) => !usedIndices.has(i));
-  const pool = available.length ? available : words.map((w, i) => ({ w, i }));
+    .filter(({ w }) => elegivel(w));
+  const available = todasElegiveis.filter(({ i }) => !usedIndices.has(i));
+  // O fallback repete uma palavra já usada, mas NUNCA quebra a elegibilidade:
+  // voltar pro banco inteiro aqui traria de volta as palavras com espaço.
+  const pool = available.length ? available : todasElegiveis;
   const { w: word, i: index } = pool[randomInt(pool.length)];
   const otherWords = words.filter((_, i) => i !== index);
 

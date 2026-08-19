@@ -7,6 +7,7 @@ import { getDuelTicketRequest, getDuelLeaderboardRequest, getMyDuelRankRequest, 
 import { usePresence } from '../../hooks/usePresence';
 import { shuffleArray } from '../../data/words';
 import useCourseData from '../../hooks/useCourseData';
+import { AVAILABLE_COURSES } from '../../data/index';
 import { msLeft, secondsLeft, barWidthPct } from '../../utils/duelClock';
 import { rewardFor, isRewarded } from '../../utils/duelReward';
 import { presenceLabel } from '../../utils/presenceLabel';
@@ -63,7 +64,13 @@ const WhoKnowsMore = () => {
   // é gerado só do inglês — e o matchmaking é uma fila única. Deixar alguém em
   // espanhol entrar nessa fila serviria perguntas em inglês e ainda pareceria
   // um bug do idioma. O modo Bot roda 100% no cliente e funciona nos dois.
-  const duelOnlineDisponivel = (progress.activeCourse || 'en-pt') === 'en-pt';
+  const cursoAtivo = progress.activeCourse || 'en-pt';
+  const duelOnlineDisponivel = cursoAtivo === 'en-pt';
+  const nomeDoIdioma = AVAILABLE_COURSES.find(c => c.id === cursoAtivo)?.targetName || 'Inglês';
+  // Os rankings são por idioma. Num curso sem duelo ao vivo a tabela de
+  // troféus fica vazia POR DESENHO, não por falta de gente — dizer só
+  // "ninguém no ranking" ali seria enganoso.
+  const vazioPorFaltaDeDuelo = !duelOnlineDisponivel;
   const { playCorrect, playWrong, playAchievement } = useSound();
   const { speakNormal, speakSlow } = useSpeech();
 
@@ -182,17 +189,22 @@ const WhoKnowsMore = () => {
   const isHuman = mode === 'human';
 
   // Top 5 do card — busca ao entrar na tela e sempre que voltar ao lobby.
+  // `cursoAtivo` nas dependências: cada idioma tem a própria tabela, então
+  // trocar de curso precisa refazer a busca — senão a tela continuaria
+  // mostrando o ranking do idioma anterior.
   const fetchLeaderboard = useCallback(() => {
-    getDuelLeaderboardRequest(5)
+    setLeaderboardStatus('loading');
+    getDuelLeaderboardRequest(5, cursoAtivo)
       .then(({ entries }) => { setLeaderboard(entries); setLeaderboardStatus('loaded'); })
       .catch(() => setLeaderboardStatus('error'));
-  }, []);
+  }, [cursoAtivo]);
 
   const fetchLevelLeaderboard = useCallback(() => {
-    getLevelLeaderboardRequest(5)
+    setLevelLeaderboardStatus('loading');
+    getLevelLeaderboardRequest(5, cursoAtivo)
       .then(({ entries }) => { setLevelLeaderboard(entries); setLevelLeaderboardStatus('loaded'); })
       .catch(() => setLevelLeaderboardStatus('error'));
-  }, []);
+  }, [cursoAtivo]);
 
   useEffect(() => {
     if (gameState === 'lobby') {
@@ -204,18 +216,18 @@ const WhoKnowsMore = () => {
   const openFullRanking = () => {
     setShowFullRankingModal(true);
     setFullLeaderboardStatus('loading');
-    getDuelLeaderboardRequest(50)
+    getDuelLeaderboardRequest(50, cursoAtivo)
       .then(({ entries }) => { setFullLeaderboard(entries); setFullLeaderboardStatus('loaded'); })
       .catch(() => setFullLeaderboardStatus('error'));
     if (estaLogado) {
-      getMyDuelRankRequest().then(setMyRank).catch(() => setMyRank(null));
+      getMyDuelRankRequest(cursoAtivo).then(setMyRank).catch(() => setMyRank(null));
     }
   };
 
   const openFullLevelRanking = () => {
     setShowFullLevelModal(true);
     setFullLevelLeaderboardStatus('loading');
-    getLevelLeaderboardRequest(50)
+    getLevelLeaderboardRequest(50, cursoAtivo)
       .then(({ entries }) => { setFullLevelLeaderboard(entries); setFullLevelLeaderboardStatus('loaded'); })
       .catch(() => setFullLevelLeaderboardStatus('error'));
   };
@@ -825,13 +837,15 @@ const WhoKnowsMore = () => {
                     )}
                     {leaderboardStatus === 'loaded' && leaderboard.length === 0 && (
                       <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
-                        Ninguém no ranking ainda este mês — vença um duelo pra ser o primeiro!
+                        {vazioPorFaltaDeDuelo
+                          ? `O duelo ao vivo ainda só existe em Inglês, então o ranking de troféus em ${nomeDoIdioma} começa quando ele chegar.`
+                          : 'Ninguém no ranking ainda este mês — vença um duelo pra ser o primeiro!'}
                       </p>
                     )}
                     {leaderboardStatus === 'loaded' && leaderboard.length > 0 && (
                       <div className="ranked-list">
                         {leaderboard.map((entry, i) => {
-                          const levelObj = getCurrentLevel(entry.wordsStudied || 0);
+                          const levelObj = getCurrentLevel(entry.wordsStudied || 0, cursoAtivo);
                           const title = getUserTitle(levelObj?.level || 1);
                           return (
                           <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
@@ -912,13 +926,13 @@ const WhoKnowsMore = () => {
                     )}
                     {levelLeaderboardStatus === 'loaded' && levelLeaderboard.length === 0 && (
                       <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
-                        Ninguém no ranking ainda — crie uma conta e estude pra ser o primeiro!
+                        Ninguém no ranking de {nomeDoIdioma} ainda — crie uma conta e estude pra ser o primeiro!
                       </p>
                     )}
                     {levelLeaderboardStatus === 'loaded' && levelLeaderboard.length > 0 && (
                       <div className="ranked-list">
                         {levelLeaderboard.map((entry, i) => {
-                          const levelObj = getCurrentLevel(entry.wordsStudied || 0);
+                          const levelObj = getCurrentLevel(entry.wordsStudied || 0, cursoAtivo);
                           const title = getUserTitle(levelObj?.level || 1);
                           return (
                             <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
@@ -1636,13 +1650,15 @@ const WhoKnowsMore = () => {
               )}
               {fullLeaderboardStatus === 'loaded' && fullLeaderboard.length === 0 && (
                 <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
-                  Ninguém no ranking ainda este mês.
+                  {vazioPorFaltaDeDuelo
+                    ? `O duelo ao vivo ainda só existe em Inglês — o ranking de troféus em ${nomeDoIdioma} começa quando ele chegar.`
+                    : 'Ninguém no ranking ainda este mês.'}
                 </p>
               )}
               {fullLeaderboardStatus === 'loaded' && fullLeaderboard.length > 0 && (
                 <div className="ranked-list" style={{ maxHeight: '50vh', overflowY: 'auto', overflowX: 'hidden' }}>
                   {fullLeaderboard.map((entry, i) => {
-                    const levelObj = getCurrentLevel(entry.wordsStudied || 0);
+                    const levelObj = getCurrentLevel(entry.wordsStudied || 0, cursoAtivo);
                     const title = getUserTitle(levelObj?.level || 1);
                     return (
                     <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>
@@ -1708,13 +1724,13 @@ const WhoKnowsMore = () => {
               )}
               {fullLevelLeaderboardStatus === 'loaded' && fullLevelLeaderboard.length === 0 && (
                 <p className="text-secondary" style={{ textAlign: 'center', padding: 'var(--space-lg) 0' }}>
-                  Ninguém no ranking ainda.
+                  Ninguém no ranking de {nomeDoIdioma} ainda.
                 </p>
               )}
               {fullLevelLeaderboardStatus === 'loaded' && fullLevelLeaderboard.length > 0 && (
                 <div className="ranked-list" style={{ maxHeight: '50vh', overflowY: 'auto', overflowX: 'hidden' }}>
                   {fullLevelLeaderboard.map((entry, i) => {
-                    const levelObj = getCurrentLevel(entry.wordsStudied || 0);
+                    const levelObj = getCurrentLevel(entry.wordsStudied || 0, cursoAtivo);
                     const title = getUserTitle(levelObj?.level || 1);
                     return (
                     <div key={`${entry.nickname}-${i}`} className={`ranked-item rank-pos-${i + 1}`}>

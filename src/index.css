@@ -1239,3 +1239,30 @@ select {
     animation: none !important;
   }
 }
+
+/* === NAVBAR: MARCA + IDIOMA ===
+   Os dois ocupam juntos a primeira coluna do grid de .navbar-inner. O
+   seletor de curso fica ao lado da marca porque o idioma é o contexto de
+   tudo abaixo — colocá-lo entre os links de navegação o faria competir com
+   sete itens e apertar a linha inteira. */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.navbar-brand-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--border-color);
+  flex-shrink: 0;
+}
+
+/* A partir daqui a navbar já esconde os rótulos dos links; o separador some
+   junto para o seletor (que encolhe só para a bandeira) encostar na marca
+   sem parecer um item solto. */
+@media (max-width: 1040px) {
+  .navbar-brand-sep { display: none; }
+  .navbar-brand { gap: var(--space-xs); }
+}

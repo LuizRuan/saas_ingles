@@ -18,9 +18,16 @@ describe('buildQuestion — todos os tipos com múltipla escolha', () => {
     expect(q.options.sort()).toEqual(['Falso', 'Verdadeiro']);
   });
 
-  it('wordBuilder embaralha as letras (raramente igual ao original)', () => {
-    const q = buildQuestion('wordBuilder');
-    expect(q.prompt.scrambledText.replace(/ /g, '').length).toBe(q.correctAnswer.length);
+  it('wordBuilder embaralha as letras, sempre de uma palavra única', () => {
+    // Rodado várias vezes de propósito: a palavra é sorteada, e o bug que isto
+    // prende só aparecia quando calhava de sair uma entrada com espaço
+    // ("Good morning"), o que dava ~1 em 6. Com uma amostra só, o teste
+    // falhava em dias aleatórios e parecia instável em vez de errado.
+    for (let i = 0; i < 40; i++) {
+      const q = buildQuestion('wordBuilder');
+      expect(q.correctAnswer).not.toMatch(/ /);
+      expect(q.prompt.scrambledText.replace(/ /g, '').length).toBe(q.correctAnswer.length);
+    }
   });
 
   it('respeita usedIndices para não repetir palavra na mesma partida', () => {

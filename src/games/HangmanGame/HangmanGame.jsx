@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { shuffleArray } from '../../data/words';
 import { categories } from '../../data/categories';
@@ -12,9 +12,13 @@ import './HangmanGame.css';
 const MAX_WRONG = 6;
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-const hangmanCategories = categories.filter(c =>
-  ['animais', 'comidas', 'cores', 'familia', 'casa', 'escola', 'corpo', 'roupas', 'bebidas', 'cumprimentos', 'numeros'].includes(c.id)
-);
+// Categorias que fazem sentido no jogo (as abstratas — verbos, sentimentos,
+// perguntas — não dão uma palavra boa pra adivinhar letra a letra).
+const CATEGORIAS_DO_JOGO = ['animais', 'comidas', 'cores', 'familia', 'casa', 'escola', 'corpo', 'roupas', 'bebidas', 'cumprimentos', 'numeros'];
+
+// Uma palavra é jogável se dá pra adivinhar: 3+ letras e sem espaço.
+const jogaveisDe = (words, catId) =>
+  words.filter(w => w.category === catId && w.en.length >= 3 && !w.en.includes(' '));
 
 const tipPtMap = {
   "Dog": "Tem sido nosso companheiro leal há 15.000 anos. Um único farejo diz mais a ele sobre você do que qualquer documento de identidade.",
@@ -75,6 +79,13 @@ const getTranslatedHint = (word) => {
 
 const HangmanGame = () => {
   const { words } = useCourseData();
+  // Filtra pelo que o curso ATIVO realmente cobre. A lista fixa acima vale
+  // para o inglês; um curso sem 'roupas', por exemplo, ofereceria um botão que
+  // levaria a `shuffleArray([])[0]` — palavra `undefined` e tela quebrada.
+  const hangmanCategories = useMemo(
+    () => categories.filter(c => CATEGORIAS_DO_JOGO.includes(c.id) && jogaveisDe(words, c.id).length > 0),
+    [words],
+  );
   const [category, setCategory] = useState(null);
   const [currentWord, setCurrentWord] = useState(null);
   const [guessedLetters, setGuessedLetters] = useState([]);
@@ -88,14 +99,14 @@ const HangmanGame = () => {
   const startGame = useCallback((cat) => {
     setCategory(cat);
     addExploredCategory(cat.id);
-    const categoryWords = words.filter(w => w.category === cat.id && w.en.length >= 3 && !w.en.includes(' '));
+    const categoryWords = jogaveisDe(words, cat.id);
     const word = shuffleArray(categoryWords)[0];
     setCurrentWord(word);
     setGuessedLetters([]);
     setWrongCount(0);
     setTipTranslated(false);
     setGameState('playing');
-  }, [addExploredCategory]);
+  }, [addExploredCategory, words]);
 
   const handleLetterGuess = useCallback((letter) => {
     if (guessedLetters.includes(letter) || gameState !== 'playing') return;

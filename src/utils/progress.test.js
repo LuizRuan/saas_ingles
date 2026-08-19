@@ -227,17 +227,32 @@ describe('revisão', () => {
   });
 });
 
+// Texto exibido de uma alternativa, seja ela objeto de palavra ou string.
+const rotuloDaOpcao = (o) => (typeof o === 'string' ? o : o.en);
+
 describe('desafio diário', () => {
   it('é determinístico no mesmo dia, inclusive nas alternativas', () => {
-    const sig = (r) => r.challenges.map(c => `${c.type}:${c.answer.en}[${c.options.map(o => o.en)}]`).join('|');
+    const sig = (r) => r.challenges.map(c => `${c.type}:${c.answer.en}[${c.options.map(rotuloDaOpcao)}]`).join('|');
     expect(sig(generateDailyChallenge(words))).toBe(sig(generateDailyChallenge(words)));
   });
 
+  // As opções vêm em DUAS formas conforme o passo, e isso é de propósito:
+  // os passos de vocabulário carregam objetos de palavra (o componente mostra
+  // a tradução e o WordExplanation), enquanto `fillBlanks` carrega as strings
+  // da lacuna — não existe objeto de palavra para "nombre".
+  //
+  // Regressão do TESTE, não do produto: a asserção antiga exigia `.en` de todo
+  // passo. Nos ~12% dos dias em que o sorteio traz um fillBlanks, ela lia
+  // quatro `undefined`, reportava "1 opção distinta" e falhava — sem nada
+  // quebrado na tela. Um teste que falha em dias aleatórios treina a gente a
+  // ignorar a suíte inteira.
   it('regressão: todo passo tem 4 alternativas distintas com 1 correta', () => {
     generateDailyChallenge(words).challenges.forEach(c => {
       expect(c.options).toHaveLength(4);
-      expect(new Set(c.options.map(o => o.en)).size).toBe(4);
-      expect(c.options.filter(o => o.en === c.answer.en)).toHaveLength(1);
+
+      const rotulos = c.options.map(rotuloDaOpcao);
+      expect(new Set(rotulos).size, `passo ${c.type}`).toBe(4);
+      expect(rotulos.filter(r => r === c.answer.en), `passo ${c.type}`).toHaveLength(1);
     });
   });
 
