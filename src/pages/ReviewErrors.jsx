@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { shuffleArray } from '../data/words';
 import useCourseData from '../hooks/useCourseData';
+import { AVAILABLE_COURSES } from '../data/index';
 import { useProgress } from '../hooks/useProgress';
 import { getWordsToReview, getPhrasesToReview } from '../utils/reviewSystem';
 import useSound from '../hooks/useSound';
@@ -13,8 +14,11 @@ const normalize = (s) =>
 
 const ReviewErrors = () => {
   const { progress, handleCorrectAnswer, handleWrongAnswer, incrementReviewed } = useProgress();
-  const { words } = useCourseData();
+  const { words, sentences: courseSentences, fillBlanks: courseFillBlanks,
+          translationQuizzes: courseTranslationQuizzes } = useCourseData();
   const { playCorrect, playWrong } = useSound();
+
+  const courseName = AVAILABLE_COURSES.find(c => c.id === progress.activeCourse)?.targetName || 'Inglês';
 
   // === PALAVRAS (quiz de múltipla escolha — não muda) ===
   const [reviewWords] = useState(() => getWordsToReview(progress, words));
@@ -59,66 +63,132 @@ const ReviewErrors = () => {
     setSelected(null);
   }, []);
 
-  // --- Handlers de FRASE (múltipla escolha — preencher a lacuna) ---
+  // --- Handlers de FRASE (quiz de tradução — corrigido) ---
+  // O modelo anterior tentava esconder uma palavra da frase e pedir pra
+  // preencher, mas phraseStats guarda chaves que podem ser palavras soltas
+  // ("tired") ou frases curtas — esconder a única palavra dá "____" sem
+  // contexto nenhum, e os distratores misturavam português com inglês.
+  //
+  // Agora funciona como quiz de tradução: mostra o texto em português e pede
+  // pra escolher a opção correta em inglês (ou vice-versa, conforme o dado).
 
-  // Extrai palavras únicas de todas as frases da fila (usadas como distratores).
-  const allPhraseWords = useMemo(() => {
-    const pool = new Set();
-    for (const p of phraseQueue) {
-      for (const w of p.text.split(/\s+/)) {
-        const clean = w.replace(/[^a-zA-ZÀ-ÿ]/g, '');
-        if (clean.length > 2) pool.add(clean.toLowerCase());
+
+
+  // Monta um mapa rápido de tradução a partir de todas as fontes de conteúdo
+  // disponíveis: banco de palavras, frases, fillBlanks, translationQuizzes.
+  const translationMap = useMemo(() => {
+    const map = new Map(); // chave normalizada (en) → { en, pt }
+
+    // Banco de palavras (word.en → word.pt)
+    for (const w of words) {
+      map.set(normalize(w.en), { en: w.en, pt: w.pt });
+    }
+
+    // Frases (sentences) — { en, pt } ou { text, translation }
+    for (const s of (courseSentences || [])) {
+      const en = s.en || s.text;
+      const pt = s.pt || s.translation;
+      if (en && pt) map.set(normalize(en), { en, pt });
+    }
+
+    // Fill blanks — { sentence, fullSentence, answer, translation, ... }
+    // phraseStats pode guardar tanto a frase com lacuna quanto a completa.
+    for (const fb of (courseFillBlanks || [])) {
+      if (fb.fullSentence && fb.translation) {
+        map.set(normalize(fb.fullSentence), { en: fb.fullSentence, pt: fb.translation });
+      }
+      if (fb.sentence && fb.translation) {
+        map.set(normalize(fb.sentence), { en: fb.sentence, pt: fb.translation });
       }
     }
-    return [...pool];
-  }, [phraseQueue]);
 
-  // Para cada frase, escolhe uma palavra para esconder e gera 4 opções.
+    // Translation quizzes — { direction, question, correct }
+    // direction='en-pt': question é em inglês, correct é em português
+    // direction='pt-en': question é em português, correct é em inglês
+    for (const tq of (courseTranslationQuizzes || [])) {
+      if (tq.question && tq.correct) {
+        if (tq.direction === 'pt-en') {
+          map.set(normalize(tq.correct), { en: tq.correct, pt: tq.question });
+        } else {
+          map.set(normalize(tq.question), { en: tq.question, pt: tq.correct });
+        }
+      }
+    }
+
+    return map;
+  }, [words, courseSentences, courseFillBlanks, courseTranslationQuizzes]);
+
+  // Para cada frase, gera um quiz de tradução com 4 opções no mesmo idioma.
   const phraseQuiz = useMemo(() => {
     if (!currentPhrase) return null;
 
-    const wordsInPhrase = currentPhrase.text.split(/\s+/);
-    // Filtra palavras com pelo menos 3 caracteres (pula artigos curtos)
-    const candidates = wordsInPhrase
-      .map((w, i) => ({ word: w, index: i, clean: w.replace(/[^a-zA-ZÀ-ÿ]/g, '') }))
-      .filter(c => c.clean.length > 2);
+    const key = normalize(currentPhrase.text);
+    const pair = translationMap.get(key);
 
-    if (candidates.length === 0) {
-      // Frase muito curta: usa a frase inteira como "palavra"
-      return { blanked: '____', answer: currentPhrase.text, options: [currentPhrase.text] };
+    if (pair) {
+      // Encontrou tradução: mostra o PT e pede pra escolher o EN correto
+      const answer = pair.en;
+
+      // Distratores: outras traduções EN do mesmo tipo
+      const allOptions = [...translationMap.values()]
+        .map(v => v.en)
+        .filter(en => normalize(en) !== normalize(answer));
+      const distractors = shuffleArray(allOptions).slice(0, 3);
+
+      return {
+        prompt: pair.pt,
+        promptLabel: `Qual é a tradução em ${courseName.toLowerCase()} de:`,
+        answer,
+        options: shuffleArray([answer, ...distractors]),
+      };
     }
 
-    // Escolhe uma palavra aleatória para esconder
-    const target = candidates[Math.floor(Math.random() * candidates.length)];
-    const blankedWords = [...wordsInPhrase];
-    blankedWords[target.index] = '____';
-    const blanked = blankedWords.join(' ');
-
-    // Gera 3 distratores: palavras do mesmo tamanho ± 3 chars de outras frases
-    const answerClean = target.clean.toLowerCase();
-    const distractors = allPhraseWords
-      .filter(w => w !== answerClean && Math.abs(w.length - answerClean.length) <= 3)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3);
-
-    // Se não tem distratores suficientes, pega qualquer palavra do pool
-    while (distractors.length < 3 && allPhraseWords.length > distractors.length + 1) {
-      const extra = allPhraseWords.find(w => w !== answerClean && !distractors.includes(w));
-      if (extra) distractors.push(extra);
-      else break;
+    // Sem tradução encontrada: mostra o texto original e pede pra escolher
+    // a tradução correta entre opções em português (fallback razoável).
+    // Tenta achar se o texto é um PT e a tradução está invertida.
+    let invertedPair = null;
+    for (const [, v] of translationMap) {
+      if (normalize(v.pt) === key) { invertedPair = v; break; }
     }
 
-    // Fallback: se ainda faltam, gera palavras genéricas
-    const fallbackWords = ['sempre', 'nunca', 'muito', 'pouco', 'aqui', 'agora', 'depois', 'antes'];
-    while (distractors.length < 3) {
-      const fw = fallbackWords[distractors.length];
-      if (fw && fw !== answerClean) distractors.push(fw);
-      else break;
+    if (invertedPair) {
+      const answer = invertedPair.pt;
+      const allOptions = [...translationMap.values()]
+        .map(v => v.pt)
+        .filter(pt => normalize(pt) !== normalize(answer));
+      const distractors = shuffleArray(allOptions).slice(0, 3);
+
+      return {
+        prompt: invertedPair.en,
+        promptLabel: 'Qual é a tradução em português de:',
+        answer,
+        options: shuffleArray([answer, ...distractors]),
+      };
     }
 
-    const options = shuffleArray([target.word, ...distractors.map(d => d)]);
-    return { blanked, answer: target.word, options };
-  }, [currentPhrase, allPhraseWords]);
+    // Último fallback: mostra o texto e pede pra reconhecer entre opções
+    // geradas do próprio phraseQueue (todas no mesmo idioma).
+    const answer = currentPhrase.text;
+    const otherPhrases = phraseQueue
+      .filter(p => normalize(p.text) !== normalize(answer))
+      .map(p => p.text);
+    const distractors = shuffleArray(otherPhrases).slice(0, 3);
+
+    // Complementa com palavras do banco se faltar distratores
+    const fallbackEn = shuffleArray(words.map(w => w.en)).filter(
+      en => normalize(en) !== normalize(answer) && !distractors.some(d => normalize(d) === normalize(en))
+    );
+    while (distractors.length < 3 && fallbackEn.length > 0) {
+      distractors.push(fallbackEn.shift());
+    }
+
+    return {
+      prompt: answer,
+      promptLabel: 'Qual destas é a tradução correta?',
+      answer,
+      options: shuffleArray([answer, ...distractors]),
+    };
+  }, [currentPhrase, translationMap, phraseQueue, words]);
 
   const [phraseSelected, setPhraseSelected] = useState(null);
 
@@ -227,7 +297,7 @@ const ReviewErrors = () => {
     );
   }
 
-  // === TELA: Quiz de FRASES (múltipla escolha — preencher a lacuna) ===
+  // === TELA: Quiz de FRASES (tradução — corrigido) ===
   if (phraseQueue.length > 0 && currentPhrase && phraseQuiz) {
     return (
       <div className="page">
@@ -249,10 +319,10 @@ const ReviewErrors = () => {
 
           <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-xl)', textAlign: 'center', marginBottom: 'var(--space-lg)' }}>
             <p className="text-secondary" style={{ marginBottom: 'var(--space-sm)' }}>
-              Complete a frase:
+              {phraseQuiz.promptLabel}
             </p>
             <p style={{ fontSize: 'var(--fs-2xl)', fontWeight: 700, color: 'var(--accent-purple-light)' }}>
-              {phraseQuiz.blanked}
+              {phraseQuiz.prompt}
             </p>
             <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-sm)' }}>
               Errada {currentPhrase.wrong}x
@@ -295,9 +365,9 @@ const ReviewErrors = () => {
 
               {phraseFeedback === 'wrong' && (
                 <div className="glass-card" style={{ padding: 'var(--space-md)', marginBottom: 'var(--space-md)', textAlign: 'center' }}>
-                  <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginBottom: '4px' }}>A frase completa é:</p>
+                  <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginBottom: '4px' }}>A resposta correta é:</p>
                   <p style={{ fontSize: 'var(--fs-lg)', fontWeight: 700, color: 'var(--accent-green)' }}>
-                    {currentPhrase.text}
+                    {phraseQuiz.answer}
                   </p>
                   <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-sm)' }}>
                     Essa frase vai voltar para você tentar de novo.
