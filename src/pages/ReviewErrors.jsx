@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { shuffleArray } from '../data/words';
 import useCourseData from '../hooks/useCourseData';
@@ -24,9 +24,7 @@ const ReviewErrors = () => {
 
   // === FRASES (quiz de digitação — novo) ===
   const [phraseQueue, setPhraseQueue] = useState(() => getPhrasesToReview(progress));
-  const [phraseInput, setPhraseInput] = useState('');
   const [phraseFeedback, setPhraseFeedback] = useState(null); // null | 'correct' | 'wrong'
-  const inputRef = useRef(null);
 
   const currentPhrase = phraseQueue[0] || null;
   const totalPhrases = useMemo(() => getPhrasesToReview(progress).length, []);
@@ -61,13 +59,75 @@ const ReviewErrors = () => {
     setSelected(null);
   }, []);
 
-  // --- Handlers de FRASE (novo) ---
-  const checkPhrase = useCallback(() => {
-    if (!currentPhrase || phraseFeedback) return;
-    const userAnswer = normalize(phraseInput);
-    const correctAnswer = normalize(currentPhrase.text);
+  // --- Handlers de FRASE (múltipla escolha — preencher a lacuna) ---
 
-    if (userAnswer === correctAnswer) {
+  // Extrai palavras únicas de todas as frases da fila (usadas como distratores).
+  const allPhraseWords = useMemo(() => {
+    const pool = new Set();
+    for (const p of phraseQueue) {
+      for (const w of p.text.split(/\s+/)) {
+        const clean = w.replace(/[^a-zA-ZÀ-ÿ]/g, '');
+        if (clean.length > 2) pool.add(clean.toLowerCase());
+      }
+    }
+    return [...pool];
+  }, [phraseQueue]);
+
+  // Para cada frase, escolhe uma palavra para esconder e gera 4 opções.
+  const phraseQuiz = useMemo(() => {
+    if (!currentPhrase) return null;
+
+    const wordsInPhrase = currentPhrase.text.split(/\s+/);
+    // Filtra palavras com pelo menos 3 caracteres (pula artigos curtos)
+    const candidates = wordsInPhrase
+      .map((w, i) => ({ word: w, index: i, clean: w.replace(/[^a-zA-ZÀ-ÿ]/g, '') }))
+      .filter(c => c.clean.length > 2);
+
+    if (candidates.length === 0) {
+      // Frase muito curta: usa a frase inteira como "palavra"
+      return { blanked: '____', answer: currentPhrase.text, options: [currentPhrase.text] };
+    }
+
+    // Escolhe uma palavra aleatória para esconder
+    const target = candidates[Math.floor(Math.random() * candidates.length)];
+    const blankedWords = [...wordsInPhrase];
+    blankedWords[target.index] = '____';
+    const blanked = blankedWords.join(' ');
+
+    // Gera 3 distratores: palavras do mesmo tamanho ± 3 chars de outras frases
+    const answerClean = target.clean.toLowerCase();
+    const distractors = allPhraseWords
+      .filter(w => w !== answerClean && Math.abs(w.length - answerClean.length) <= 3)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3);
+
+    // Se não tem distratores suficientes, pega qualquer palavra do pool
+    while (distractors.length < 3 && allPhraseWords.length > distractors.length + 1) {
+      const extra = allPhraseWords.find(w => w !== answerClean && !distractors.includes(w));
+      if (extra) distractors.push(extra);
+      else break;
+    }
+
+    // Fallback: se ainda faltam, gera palavras genéricas
+    const fallbackWords = ['sempre', 'nunca', 'muito', 'pouco', 'aqui', 'agora', 'depois', 'antes'];
+    while (distractors.length < 3) {
+      const fw = fallbackWords[distractors.length];
+      if (fw && fw !== answerClean) distractors.push(fw);
+      else break;
+    }
+
+    const options = shuffleArray([target.word, ...distractors.map(d => d)]);
+    return { blanked, answer: target.word, options };
+  }, [currentPhrase, allPhraseWords]);
+
+  const [phraseSelected, setPhraseSelected] = useState(null);
+
+  const handlePhraseAnswer = useCallback((option) => {
+    if (phraseFeedback) return;
+    setPhraseSelected(option);
+
+    const correct = normalize(option) === normalize(phraseQuiz.answer);
+    if (correct) {
       setPhraseFeedback('correct');
       handleCorrectAnswer(currentPhrase.text, 1);
       incrementReviewed();
@@ -77,31 +137,17 @@ const ReviewErrors = () => {
       handleWrongAnswer(currentPhrase.text);
       playWrong();
     }
-  }, [currentPhrase, phraseInput, phraseFeedback, handleCorrectAnswer, handleWrongAnswer, incrementReviewed, playCorrect, playWrong]);
+  }, [phraseFeedback, phraseQuiz, currentPhrase, handleCorrectAnswer, handleWrongAnswer, incrementReviewed, playCorrect, playWrong]);
 
   const nextPhrase = useCallback(() => {
     if (phraseFeedback === 'correct') {
-      // Acertou → remove da fila
       setPhraseQueue(prev => prev.slice(1));
     } else {
-      // Errou → move pro fim da fila para tentar de novo
       setPhraseQueue(prev => [...prev.slice(1), prev[0]]);
     }
-    setPhraseInput('');
     setPhraseFeedback(null);
-    // Foca no input da próxima frase
-    setTimeout(() => inputRef.current?.focus(), 50);
+    setPhraseSelected(null);
   }, [phraseFeedback]);
-
-  const handlePhraseKeyDown = useCallback((e) => {
-    if (e.key === 'Enter') {
-      if (phraseFeedback) {
-        nextPhrase();
-      } else {
-        checkPhrase();
-      }
-    }
-  }, [phraseFeedback, nextPhrase, checkPhrase]);
 
   // === TELA: Nenhuma revisão pendente ===
   if (reviewWords.length === 0 && phraseQueue.length === 0 && currentIndex === 0) {
@@ -181,8 +227,8 @@ const ReviewErrors = () => {
     );
   }
 
-  // === TELA: Quiz de FRASES (digitação — novo) ===
-  if (phraseQueue.length > 0 && currentPhrase) {
+  // === TELA: Quiz de FRASES (múltipla escolha — preencher a lacuna) ===
+  if (phraseQueue.length > 0 && currentPhrase && phraseQuiz) {
     return (
       <div className="page">
         <div className="container game-container">
@@ -203,76 +249,53 @@ const ReviewErrors = () => {
 
           <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-xl)', textAlign: 'center', marginBottom: 'var(--space-lg)' }}>
             <p className="text-secondary" style={{ marginBottom: 'var(--space-sm)' }}>
-              Digite a frase correta:
+              Complete a frase:
             </p>
             <p style={{ fontSize: 'var(--fs-2xl)', fontWeight: 700, color: 'var(--accent-purple-light)' }}>
-              "{currentPhrase.text}"
+              {phraseQuiz.blanked}
             </p>
             <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-sm)' }}>
               Errada {currentPhrase.wrong}x
             </p>
           </div>
 
-          <div style={{ marginBottom: 'var(--space-md)' }}>
-            <input
-              ref={inputRef}
-              type="text"
-              className="input"
-              placeholder="Digite a frase aqui..."
-              value={phraseInput}
-              onChange={(e) => setPhraseInput(e.target.value)}
-              onKeyDown={handlePhraseKeyDown}
-              disabled={!!phraseFeedback}
-              autoFocus
-              autoComplete="off"
-              autoCorrect="off"
-              spellCheck="false"
-              style={{
-                width: '100%',
-                padding: 'var(--space-md) var(--space-lg)',
-                fontSize: 'var(--fs-lg)',
-                borderRadius: 'var(--radius-lg)',
-                border: `2px solid ${
-                  phraseFeedback === 'correct' ? 'var(--accent-green)'
-                    : phraseFeedback === 'wrong' ? 'var(--accent-red)'
-                    : 'var(--border-color)'
-                }`,
-                background: phraseFeedback === 'correct'
-                  ? 'rgba(16,185,129,0.08)'
-                  : phraseFeedback === 'wrong'
-                    ? 'rgba(239,68,68,0.08)'
-                    : 'var(--bg-input, var(--bg-card))',
-                transition: 'all 0.2s ease',
-                boxSizing: 'border-box',
-              }}
-            />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+            {phraseQuiz.options.map((opt, i) => {
+              let style = {};
+              if (phraseFeedback && normalize(opt) === normalize(phraseQuiz.answer)) {
+                style = { background: 'rgba(16,185,129,0.15)', borderColor: 'var(--accent-green)' };
+              } else if (phraseFeedback && opt === phraseSelected) {
+                style = { background: 'rgba(239,68,68,0.1)', borderColor: 'var(--accent-red)' };
+              }
+
+              return (
+                <button
+                  key={i}
+                  className="btn btn-secondary"
+                  style={{ padding: 'var(--space-md)', justifyContent: 'flex-start', ...style }}
+                  onClick={() => handlePhraseAnswer(opt)}
+                  disabled={!!phraseFeedback}
+                >
+                  {opt}
+                </button>
+              );
+            })}
           </div>
 
-          {!phraseFeedback && (
-            <button
-              className="btn btn-primary"
-              onClick={checkPhrase}
-              disabled={!phraseInput.trim()}
-              style={{ width: '100%' }}
-            >
-              Verificar ✓
-            </button>
-          )}
-
           {phraseFeedback && (
-            <div className="animate-fade-in-up" style={{ marginTop: 'var(--space-md)' }}>
+            <div className="animate-fade-in-up" style={{ marginTop: 'var(--space-lg)' }}>
               <p style={{
                 textAlign: 'center', fontWeight: 600, marginBottom: 'var(--space-md)',
                 color: phraseFeedback === 'correct' ? 'var(--accent-green)' : 'var(--accent-orange)'
               }}>
                 {phraseFeedback === 'correct'
-                  ? '✅ Correto! Você lembrou!'
-                  : '❌ Não foi dessa vez...'}
+                  ? '✅ Correto!'
+                  : '❌ Errar faz parte do aprendizado!'}
               </p>
 
               {phraseFeedback === 'wrong' && (
                 <div className="glass-card" style={{ padding: 'var(--space-md)', marginBottom: 'var(--space-md)', textAlign: 'center' }}>
-                  <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginBottom: '4px' }}>A resposta correta era:</p>
+                  <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginBottom: '4px' }}>A frase completa é:</p>
                   <p style={{ fontSize: 'var(--fs-lg)', fontWeight: 700, color: 'var(--accent-green)' }}>
                     {currentPhrase.text}
                   </p>
