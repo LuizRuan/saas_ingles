@@ -2,25 +2,30 @@ import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { shuffleArray } from '../../data/words';
 import useCourseData from '../../hooks/useCourseData';
+import useUserLevel from '../../hooks/useUserLevel';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
 import { generateSimilarDistractors } from '../../utils/distractorGenerator';
+import { pickByLevel } from '../../utils/levelSelection';
 import './ListeningGame.css';
 
 const ROUNDS = 10;
 
 // Os dados vêm do CURSO ATIVO (useCourseData), nunca do banco de inglês
 // importado direto — senão trocar para espanhol mantinha o jogo em inglês.
-const generateGameWords = (words) => {
+// Enviesado pelo nível do jogador em vez de sortear uniformemente do banco
+// inteiro — ver levelSelection.js sobre o porquê.
+const generateGameWords = (words, userLevel, maxLevel) => {
   const filtered = words.filter(w => !w.en.includes(' ') && w.en.length >= 3);
-  return shuffleArray(filtered).slice(0, ROUNDS);
+  return pickByLevel(filtered, userLevel, maxLevel, ROUNDS);
 };
 
 const ListeningGame = () => {
   const { words } = useCourseData();
-  const [gameWords, setGameWords] = useState(() => generateGameWords(words));
+  const { userLevel, maxLevel } = useUserLevel();
+  const [gameWords, setGameWords] = useState(() => generateGameWords(words, userLevel, maxLevel));
   const [round, setRound] = useState(0);
   const [options, setOptions] = useState(() => generateOptions(gameWords, 0));
   const [selected, setSelected] = useState(null);
@@ -100,7 +105,7 @@ const ListeningGame = () => {
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
               <button className="btn btn-primary" onClick={() => {
-                const newWords = generateGameWords(words);
+                const newWords = generateGameWords(words, userLevel, maxLevel);
                 setGameWords(newWords);
                 setRound(0);
                 setOptions(generateOptions(newWords, 0));

@@ -9,9 +9,11 @@
 // Rodar sempre que src/data/words.js mudar:
 //   node backend/scripts/sync-words.mjs
 //
-// Campos copiados: apenas os que backend/realtime/questionGenerator.js precisa
-// para montar qualquer um dos 8 tipos de pergunta (en/pt/pronunciation/example/
-// examplePt/tip) — category e level ficam de fora, não são usados aqui.
+// Campos copiados: os que backend/realtime/questionGenerator.js precisa para
+// montar qualquer um dos 8 tipos de pergunta (en/pt/pronunciation/example/
+// examplePt/tip), mais `level` — usado por levelSelection.js pra enviesar o
+// sorteio pelo nível de quem está jogando. `category` continua fora, não é
+// usado aqui.
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -22,8 +24,8 @@ const outPath = join(__dirname, '..', 'data', 'words.json');
 
 const { words } = await import(`file://${frontendWordsPath}`);
 
-const trimmed = words.map(({ en, pt, pronunciation, example, examplePt, tip }) => ({
-  en, pt, pronunciation, example, examplePt, tip,
+const trimmed = words.map(({ en, pt, pronunciation, example, examplePt, tip, level }) => ({
+  en, pt, pronunciation, example, examplePt, tip, level,
 }));
 
 writeFileSync(outPath, JSON.stringify(trimmed, null, 2) + '\n');

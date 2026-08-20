@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 import { useProgress } from '../hooks/useProgress';
 import { getCurrentLevel, getNextLevel, getLevelProgress } from '../utils/levelSystem';
+import { getReviewUrgencyLite } from '../utils/reviewSystem';
 import { gamesCatalog, halo } from '../data/gamesCatalog';
 import { AVAILABLE_COURSES } from '../data/index';
 
@@ -30,24 +31,14 @@ const Home = () => {
   const levelProgress = getLevelProgress(progress.wordsStudied, curso);
 
 
-  // Calcula urgência de revisão direto do wordStats — evita importar o array
-  // words.js (~139 kB) no bundle principal da Home.
-  const reviewUrgency = useMemo(() => {
-    const statsValues = Object.values(progress.wordStats || {});
-    const withErrors = statsValues.filter(
-      s => s.wrong > 0 && s.lastResult !== 'correct'
-    );
-    if (withErrors.length === 0) return { level: 'none', count: 0, daysOldest: 0 };
-
-    const now = Date.now();
-    const MS_PER_DAY = 86_400_000;
-    const VALID_TIMESTAMP_MIN = 1700000000000;
-    const oldestMs = withErrors.reduce(
-      (max, s) => (s.lastSeen && s.lastSeen > VALID_TIMESTAMP_MIN) ? Math.max(max, now - s.lastSeen) : max, 0
-    );
-    const daysOldest = Math.floor(oldestMs / MS_PER_DAY);
-    return { level: daysOldest >= 2 ? 'urgent' : 'pending', count: withErrors.length, daysOldest };
-  }, [progress.wordStats]);
+  // getReviewUrgencyLite: mesma contagem que a página de Revisão usa, só que
+  // sem precisar importar o banco de palavras (~139 kB) no bundle principal
+  // da Home — ver o comentário na função em reviewSystem.js sobre a
+  // regressão que motivou extrair isto de uma cópia inline solta aqui.
+  const reviewUrgency = useMemo(
+    () => getReviewUrgencyLite({ wordStats: progress.wordStats, phraseStats: progress.phraseStats }),
+    [progress.wordStats, progress.phraseStats]
+  );
 
   return (
     <div className="page">

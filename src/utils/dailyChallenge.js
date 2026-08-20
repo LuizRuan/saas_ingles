@@ -1,4 +1,4 @@
-import { sentences as sentencesData, fillBlanks as fillBlanksData } from '../data/sentences.js';
+import { pickByLevel } from './levelSelection.js';
 
 /**
  * Retorna a data no fuso horário de Brasília (America/Sao_Paulo / UTC-3).
@@ -121,18 +121,38 @@ const ALL_GAME_MODES = [
   },
 ];
 
+// Tamanho do subconjunto enviesado por nível de onde as etapas sorteiam.
+// Maior que o que qualquer etapa isolada consome (o pior caso hoje, o modo
+// Memória, usa só 3 palavras distintas), pra sobrar variedade de verdade —
+// e pickByLevel já devolve o pool inteiro quando ele é menor que isto, então
+// um dataset pequeno (o de frases/lacunas em espanhol, por exemplo) nunca
+// trava por causa deste número.
+const SUBCONJUNTO_ALVO = 60;
+
 /**
- * Gera as 5 etapas do Desafio Diário com modos aleatórios semeados pela data.
- * Regra: gameTypes[i] !== gameTypes[i-1] (sem jogos repetidos em etapas seguidas).
+ * Gera as etapas do Desafio Diário com modo aleatório semeado pela data.
+ *
+ * `courseData` é o formato de useCourseData(): precisa de `words`,
+ * `sentences` e `fillBlanks` do CURSO ATIVO. Antes este módulo importava
+ * `sentences`/`fillBlanks` direto de data/sentences.js — sempre inglês,
+ * mesmo que `words` já viesse do curso certo — então os passos "Montar
+ * Frase" e "Completar Lacunas" do desafio saíam em inglês para quem estuda
+ * espanhol. Ver CLAUDE.md sobre isolamento de curso.
+ *
+ * `userLevel`/`maxLevel` enviesam a seleção pelo nível do jogador em vez de
+ * sortear uniformemente de todo o banco (ver levelSelection.js) — sem isso,
+ * um iniciante podia receber vocabulário avançado no meio de "Hello".
  */
-export const generateDailyChallenge = (words) => {
+export const generateDailyChallenge = (courseData, userLevel = 1, maxLevel = 100) => {
+  const { words, sentences = [], fillBlanks = [] } = courseData || {};
   if (!words || words.length === 0) return { date: getTodayDateString(), challenges: [] };
   const seed = getDaySeed();
   const rng = seededRandom(seed);
 
-  const shuffledWords = seededShuffle(rng, words.filter(w => w.en && w.pt && !w.en.includes(' ') && w.en.length >= 3));
-  const shuffledSentences = seededShuffle(rng, sentencesData || []);
-  const shuffledFillBlanks = seededShuffle(rng, fillBlanksData || []);
+  const elegiveis = words.filter(w => w.en && w.pt && !w.en.includes(' ') && w.en.length >= 3);
+  const shuffledWords = pickByLevel(elegiveis, userLevel, maxLevel, SUBCONJUNTO_ALVO, rng);
+  const shuffledSentences = pickByLevel(sentences, userLevel, maxLevel, SUBCONJUNTO_ALVO, rng);
+  const shuffledFillBlanks = pickByLevel(fillBlanks, userLevel, maxLevel, SUBCONJUNTO_ALVO, rng);
 
   // Seleciona 1 único modo de jogo e 1 única rodada para o desafio de hoje (semeado pela data)
   const chosenMode = ALL_GAME_MODES[Math.floor(rng() * ALL_GAME_MODES.length)];

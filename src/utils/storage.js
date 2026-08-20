@@ -116,7 +116,16 @@ const defaultSettings = {
 
 const MAX_CHAVE = 200;      // tamanho de uma palavra/frase
 const MAX_ENTRADAS = 5000;  // teto de itens por balde de estatística
-const MAX_NUMERO = 1e12;
+// REGRESSÃO: 1e12 ms desde a época é setembro de 2001 — qualquer timestamp
+// real de hoje (Date.now() já passa de 1,78e12) era CLAMPADO pra baixo disso
+// e depois reprovava o teste de VALID_TIMESTAMP_MIN (nov/2023) logo abaixo,
+// virando `null` silenciosamente. Isso quebrava a data "há X dias" da revisão
+// E a regra de "aprendida em 2 dias distintos" (`timestamps[]` também passa
+// por este teto — todo timestamp clampado colapsa pro MESMO valor, então a
+// checagem de dias diferentes nunca via mais de 1 dia distinto depois de
+// qualquer reload). 1e15 ms cobre datas até o ano 33658 — grande o bastante
+// pra nunca mais estourar, ainda funcionando como teto contra lixo/abuso.
+const MAX_NUMERO = 1e15;
 
 const numero = (v, padrao = 0, { min = 0, max = MAX_NUMERO } = {}) => {
   const n = typeof v === 'number' ? v : Number(v);

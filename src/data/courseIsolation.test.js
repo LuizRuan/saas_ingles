@@ -53,9 +53,15 @@ const listarArquivos = (dir) => {
   return saida;
 };
 
+// `utils` e `hooks` entram na varredura desde que dailyChallenge.js (em
+// utils/) escapou: importava sentences/fillBlanks direto de data/sentences.js
+// mesmo recebendo `words` já resolvido pelo curso certo via parâmetro — o
+// vazamento não estava numa TELA, estava numa função pura por trás dela.
 const arquivosDeTela = listarArquivos(join(RAIZ, 'pages'))
   .concat(listarArquivos(join(RAIZ, 'games')))
-  .concat(listarArquivos(join(RAIZ, 'components')));
+  .concat(listarArquivos(join(RAIZ, 'components')))
+  .concat(listarArquivos(join(RAIZ, 'utils')))
+  .concat(listarArquivos(join(RAIZ, 'hooks')));
 
 describe('isolamento de curso nas telas', () => {
   it('nenhuma tela importa conteúdo do banco de inglês direto', () => {

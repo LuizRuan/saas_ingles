@@ -5,9 +5,9 @@ export const achievementsList = [
   { id: "five_streak", title: "Sequência de 5", description: "5 acertos seguidos", icon: "🔥", condition: (p) => p.bestStreak >= 5 },
   { id: "first_sentence", title: "Primeira Frase", description: "Completou sua primeira frase", icon: "📝", condition: (p) => p.sentencesCompleted >= 1 },
   { id: "first_conversation", title: "Primeira Conversa", description: "Completou uma conversa", icon: "💬", condition: (p) => p.conversationsCompleted >= 1 },
-  { id: "ten_words", title: "10 Palavras!", description: "Estudou 10 palavras diferentes", icon: "📗", condition: (p) => p.wordsStudied >= 10 },
-  { id: "fifty_words", title: "Explorador de Palavras", description: "Estudou 50 palavras", icon: "📖", condition: (p) => p.wordsStudied >= 50 },
-  { id: "hundred_words", title: "Colecionador", description: "Estudou 100 palavras", icon: "📚", condition: (p) => p.wordsStudied >= 100 },
+  { id: "ten_words", title: "20 Palavras!", description: "Estudou 20 palavras diferentes", icon: "📗", condition: (p) => p.wordsStudied >= 20 },
+  { id: "fifty_words", title: "Explorador de Palavras", description: "Estudou 100 palavras", icon: "📖", condition: (p) => p.wordsStudied >= 100 },
+  { id: "hundred_words", title: "Colecionador", description: "Estudou 200 palavras", icon: "📚", condition: (p) => p.wordsStudied >= 200 },
   { id: "three_days", title: "3 Dias Seguidos!", description: "Estudou 3 dias consecutivos", icon: "📅", condition: (p) => p.dayStreak >= 3 },
   { id: "seven_days", title: "Uma Semana!", description: "Estudou 7 dias consecutivos", icon: "🗓️", condition: (p) => p.dayStreak >= 7 },
   { id: "memory_master", title: "Mestre da Memória", description: "Completou 5 jogos da memória", icon: "🧠", condition: (p) => (p.gamesCompleted?.memory || 0) >= 5 },
@@ -23,11 +23,11 @@ export const achievementsList = [
   { id: "shopaholic", title: "Comprador!", description: "Fez sua primeira compra na loja", icon: "🛒", condition: (p) => (p.shopPurchases || 0) >= 1 },
 
   // Vocabulário
-  { id: "words_150", title: "Vocabulário Rico", description: "Estudou 150 palavras", icon: "📘", condition: (p) => p.wordsStudied >= 150 },
-  { id: "words_200", title: "Quase Poliglota", description: "Estudou 200 palavras", icon: "🪐", condition: (p) => p.wordsStudied >= 200 },
-  { id: "learned_10", title: "Primeiras Conquistas", description: "Dominou 10 palavras (3 acertos em dias diferentes)", icon: "🎓", condition: (p) => (p.wordsLearned || 0) >= 10 },
-  { id: "learned_50", title: "Vocabulário Sólido", description: "Dominou 50 palavras", icon: "🏗️", condition: (p) => (p.wordsLearned || 0) >= 50 },
-  { id: "learned_100", title: "Mestre do Vocabulário", description: "Dominou 100 palavras", icon: "🏛️", condition: (p) => (p.wordsLearned || 0) >= 100 },
+  { id: "words_150", title: "Vocabulário Rico", description: "Estudou 300 palavras", icon: "📘", condition: (p) => p.wordsStudied >= 300 },
+  { id: "words_200", title: "Quase Poliglota", description: "Estudou 400 palavras", icon: "🪐", condition: (p) => p.wordsStudied >= 400 },
+  { id: "learned_10", title: "Primeiras Conquistas", description: "Dominou 20 palavras (3 acertos em dias diferentes)", icon: "🎓", condition: (p) => (p.wordsLearned || 0) >= 20 },
+  { id: "learned_50", title: "Vocabulário Sólido", description: "Dominou 100 palavras", icon: "🏗️", condition: (p) => (p.wordsLearned || 0) >= 100 },
+  { id: "learned_100", title: "Mestre do Vocabulário", description: "Dominou 200 palavras", icon: "🏛️", condition: (p) => (p.wordsLearned || 0) >= 200 },
 
   // Acertos
   { id: "correct_250", title: "Máquina de Acertos", description: "Acertou 250 respostas", icon: "💥", condition: (p) => p.totalCorrect >= 250 },
@@ -65,18 +65,18 @@ export const achievementsList = [
   { id: "duel_master", title: "Mestre dos Duelos", description: "Completou 5 partidas de Quem Sabe Mais?", icon: "⚔️", condition: (p) => (p.gamesCompleted?.whoKnowsMore || 0) >= 5 },
   { id: "imagequiz_master", title: "Olho Clínico", description: "Completou 5 jogos do Jogo da Imagem", icon: "🖼️", condition: (p) => (p.gamesCompleted?.imageQuiz || 0) >= 5 },
 
-  // ===== Vocabulário — novos marcos com 1000 palavras =====
-  { id: "words_300", title: "Vocabulário em Expansão", description: "Estudou 300 palavras", icon: "📙", condition: (p) => p.wordsStudied >= 300 },
-  { id: "words_500", title: "Meio Milhar de Palavras", description: "Estudou 500 palavras", icon: "📦", condition: (p) => p.wordsStudied >= 500 },
-  { id: "words_600", title: "Enciclopédia Viva", description: "Estudou 600 palavras", icon: "📔", condition: (p) => p.wordsStudied >= 600 },
-  { id: "words_750", title: "Vocabulário Vastíssimo", description: "Estudou 750 palavras", icon: "🗃️", condition: (p) => p.wordsStudied >= 750 },
-  { id: "words_850", title: "Quase Onisciente", description: "Estudou 850 palavras", icon: "🧿", condition: (p) => p.wordsStudied >= 850 },
-  { id: "words_950", title: "Última Fronteira do Vocabulário", description: "Estudou 950 palavras", icon: "🚩", condition: (p) => p.wordsStudied >= 950 },
-  { id: "words_1000", title: "Dicionário Ambulante", description: "Estudou todas as 1000 palavras do banco!", icon: "📕", condition: (p) => p.wordsStudied >= 1000 },
-  { id: "learned_200", title: "Vocabulário Dominado", description: "Dominou 200 palavras", icon: "🏗️", condition: (p) => (p.wordsLearned || 0) >= 200 },
-  { id: "learned_500", title: "Meio Milhar Dominado", description: "Dominou 500 palavras", icon: "🏰", condition: (p) => (p.wordsLearned || 0) >= 500 },
-  { id: "learned_700", title: "Arsenal de Palavras", description: "Dominou 700 palavras", icon: "🛡️", condition: (p) => (p.wordsLearned || 0) >= 700 },
-  { id: "learned_1000", title: "Mestre de Mil Palavras", description: "Dominou as 1000 palavras do banco!", icon: "👑", condition: (p) => (p.wordsLearned || 0) >= 1000 },
+  // ===== Vocabulário — novos marcos com 2000 palavras =====
+  { id: "words_300", title: "Vocabulário em Expansão", description: "Estudou 600 palavras", icon: "📙", condition: (p) => p.wordsStudied >= 600 },
+  { id: "words_500", title: "Meio Milhar de Palavras", description: "Estudou 1000 palavras", icon: "📦", condition: (p) => p.wordsStudied >= 1000 },
+  { id: "words_600", title: "Enciclopédia Viva", description: "Estudou 1200 palavras", icon: "📔", condition: (p) => p.wordsStudied >= 1200 },
+  { id: "words_750", title: "Vocabulário Vastíssimo", description: "Estudou 1500 palavras", icon: "🗃️", condition: (p) => p.wordsStudied >= 1500 },
+  { id: "words_850", title: "Quase Onisciente", description: "Estudou 1700 palavras", icon: "🧿", condition: (p) => p.wordsStudied >= 1700 },
+  { id: "words_950", title: "Última Fronteira do Vocabulário", description: "Estudou 1900 palavras", icon: "🚩", condition: (p) => p.wordsStudied >= 1900 },
+  { id: "words_1000", title: "Dicionário Ambulante", description: "Estudou todas as 2000 palavras do banco!", icon: "📕", condition: (p) => p.wordsStudied >= 2000 },
+  { id: "learned_200", title: "Vocabulário Dominado", description: "Dominou 400 palavras", icon: "🏗️", condition: (p) => (p.wordsLearned || 0) >= 400 },
+  { id: "learned_500", title: "Meio Milhar Dominado", description: "Dominou 1000 palavras", icon: "🏰", condition: (p) => (p.wordsLearned || 0) >= 1000 },
+  { id: "learned_700", title: "Arsenal de Palavras", description: "Dominou 1400 palavras", icon: "🛡️", condition: (p) => (p.wordsLearned || 0) >= 1400 },
+  { id: "learned_1000", title: "Mestre de Duas Mil Palavras", description: "Dominou as 2000 palavras do banco!", icon: "👑", condition: (p) => (p.wordsLearned || 0) >= 2000 },
 
   // ===== Níveis — novos marcos com 100 níveis =====
   { id: "level_25", title: "Um Quarto do Caminho", description: "Alcançou o nível 25", icon: "🎯", condition: (p) => p.currentLevel >= 25 },

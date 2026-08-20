@@ -66,6 +66,44 @@ export const getPhrasesToReview = (progress) => {
  * - 'pending' → há itens para revisar, mas tudo recente
  * - 'none'    → nenhuma revisão pendente
  */
+// Mesma contagem de getReviewUrgency, mas sem precisar do banco de palavras
+// (`allWords`) — só dos dois baldes de estatística. Existe pra telas como a
+// Home, que evitam de propósito importar words.js (~139 kB) no bundle
+// principal e só precisam do NÚMERO de itens pendentes, não dos objetos de
+// palavra em si (isso a página de Revisão já resolve, com o banco completo).
+//
+// Regressão: a Home tinha sua PRÓPRIA cópia inline deste cálculo, que só
+// olhava wordStats — nunca phraseStats. Quem errava só em jogos de frase
+// (Montar Frases, Tradução, Conversa) nunca via o botão aparecer na Home,
+// mesmo com a página de Revisão já mostrando esses erros corretamente. Ter
+// uma função só, testada, é o que impede as duas contagens (Home e
+// ReviewErrors) de divergirem de novo no futuro.
+export const getReviewUrgencyLite = (progress) => {
+  const { wordStats = {}, phraseStats = {} } = progress || {};
+  const comErro = (stats) => stats && stats.wrong > 0 && stats.lastResult !== 'correct';
+
+  const itensComErro = [
+    ...Object.values(wordStats).filter(comErro),
+    ...Object.values(phraseStats).filter(comErro),
+  ];
+  const count = itensComErro.length;
+  if (count === 0) return { level: 'none', daysOldest: 0, count: 0 };
+
+  const now = Date.now();
+  const MS_PER_DAY = 86_400_000;
+  const VALID_TIMESTAMP_MIN = 1700000000000;
+  const oldestMs = itensComErro.reduce((max, s) => {
+    if (s.lastSeen && s.lastSeen > VALID_TIMESTAMP_MIN) {
+      return Math.max(max, now - s.lastSeen);
+    }
+    return max;
+  }, 0);
+
+  const daysOldest = Math.floor(oldestMs / MS_PER_DAY);
+  const level = daysOldest >= 2 ? 'urgent' : 'pending';
+  return { level, daysOldest, count };
+};
+
 export const getReviewUrgency = (progress, allWords) => {
   const wordsToReview = getWordsToReview(progress, allWords);
   const phrasesToReview = getPhrasesToReview(progress);

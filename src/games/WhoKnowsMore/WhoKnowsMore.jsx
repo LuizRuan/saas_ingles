@@ -7,7 +7,9 @@ import { getDuelTicketRequest, getDuelLeaderboardRequest, getMyDuelRankRequest, 
 import { usePresence } from '../../hooks/usePresence';
 import { shuffleArray } from '../../data/words';
 import useCourseData from '../../hooks/useCourseData';
+import useUserLevel from '../../hooks/useUserLevel';
 import { AVAILABLE_COURSES } from '../../data/index';
+import { pickByLevel } from '../../utils/levelSelection';
 import { msLeft, secondsLeft, barWidthPct } from '../../utils/duelClock';
 import { rewardFor, isRewarded } from '../../utils/duelReward';
 import { presenceLabel } from '../../utils/presenceLabel';
@@ -60,6 +62,12 @@ const WhoKnowsMore = () => {
   // servidor (backend/data/words.json, só inglês) — ver o gate de idioma na
   // tela de lobby.
   const { words } = useCourseData();
+  // Nível do jogador — enviesa o sorteio de palavras no modo BOT (aqui, no
+  // cliente) e viaja no payload de queue:join/room:create/room:join pro
+  // servidor fazer o mesmo no modo humano (ver backend/realtime/index.js).
+  // Não é autoritativo em nenhum dos dois: é só ritmo, nunca decide a
+  // pergunta nem a resposta certa.
+  const { userLevel, maxLevel } = useUserLevel();
   // O duelo HUMANO é servido pelo backend, cujo banco (backend/data/words.json)
   // é gerado só do inglês — e o matchmaking é uma fila única. Deixar alguém em
   // espanhol entrar nessa fila serviria perguntas em inglês e ainda pareceria
@@ -113,7 +121,7 @@ const WhoKnowsMore = () => {
       const name = estaLogado
         ? profile.nickname.slice(0, 20)
         : (nicknameDraft.trim() || progress.displayName || generateGuestName()).slice(0, 20);
-      duel.joinPrivateRoom(roomCodeFromUrl, name).then((res) => {
+      duel.joinPrivateRoom(roomCodeFromUrl, name, userLevel).then((res) => {
         if (!res.ok) {
           setPrivateRoomMode('join');
           setJoinRoomInput(roomCodeFromUrl.toUpperCase());
@@ -294,7 +302,9 @@ const WhoKnowsMore = () => {
 
     // ── Modo Memória: cada rodada tem um grupo de 4 palavras ──────────────────
     if (selectedGameType === 'memory') {
-      const pool = shuffleArray([...words]);
+      // Enviesado pelo nível do jogador em vez de sortear uniformemente do
+      // banco inteiro — ver levelSelection.js sobre o porquê.
+      const pool = pickByLevel(words, userLevel, maxLevel, TOTAL_ROUNDS * 4);
       const memQuestions = Array.from({ length: TOTAL_ROUNDS }, (_, i) => ({
         type: 'memory',
         wordGroup: pool.slice(i * 4, (i + 1) * 4),
@@ -313,19 +323,21 @@ const WhoKnowsMore = () => {
       return;
     }
 
-    // Filtra o pool de palavras de acordo com os campos exigidos pelo tipo de jogo
+    // Filtra o pool de palavras de acordo com os campos exigidos pelo tipo de
+    // jogo, depois enviesa pelo nível do jogador em vez de sortear
+    // uniformemente do banco inteiro — ver levelSelection.js sobre o porquê.
     const wordPool = (() => {
       switch (selectedGameType) {
         case 'hangman':
-          return shuffleArray(words.filter(w => w.tip && w.tip.trim()));
+          return pickByLevel(words.filter(w => w.tip && w.tip.trim()), userLevel, maxLevel, TOTAL_ROUNDS);
         case 'sentenceBuilder':
-          return shuffleArray(words.filter(w => w.examplePt && w.examplePt.trim()));
+          return pickByLevel(words.filter(w => w.examplePt && w.examplePt.trim()), userLevel, maxLevel, TOTAL_ROUNDS);
         case 'fillBlanks':
-          return shuffleArray(words.filter(w => w.example && w.example.trim() && !w.en.includes(' ')));
+          return pickByLevel(words.filter(w => w.example && w.example.trim() && !w.en.includes(' ')), userLevel, maxLevel, TOTAL_ROUNDS);
         case 'wordBuilder':
-          return shuffleArray(words.filter(w => !w.en.includes(' ') && w.en.length >= 3));
+          return pickByLevel(words.filter(w => !w.en.includes(' ') && w.en.length >= 3), userLevel, maxLevel, TOTAL_ROUNDS);
         default:
-          return shuffleArray([...words]);
+          return pickByLevel(words, userLevel, maxLevel, TOTAL_ROUNDS);
       }
     })();
 
@@ -547,7 +559,7 @@ const WhoKnowsMore = () => {
         // como convidado em vez de travar o botão "Procurar Oponente".
       }
     }
-    duel.joinQueue(name, humanGameTypePreference, authTicket);
+    duel.joinQueue(name, humanGameTypePreference, authTicket, userLevel);
   };
 
   const cancelHumanSearch = () => {
@@ -1265,7 +1277,7 @@ const WhoKnowsMore = () => {
                       const name = estaLogado
                         ? profile.nickname.slice(0, 20)
                         : (nicknameDraft.trim() || progress.displayName || generateGuestName()).slice(0, 20);
-                      const res = await duel.createPrivateRoom('random', name);
+                      const res = await duel.createPrivateRoom('random', name, userLevel);
                       if (res.ok) {
                         setCreatedRoomCode(res.roomCode);
                         setPrivateRoomMode('waiting');
@@ -1409,7 +1421,7 @@ const WhoKnowsMore = () => {
                       const name = estaLogado
                         ? profile.nickname.slice(0, 20)
                         : (nicknameDraft.trim() || progress.displayName || generateGuestName()).slice(0, 20);
-                      const res = await duel.joinPrivateRoom(joinRoomInput, name);
+                      const res = await duel.joinPrivateRoom(joinRoomInput, name, userLevel);
                       if (res.ok) {
                         setCreatedRoomCode(joinRoomInput.toUpperCase());
                         setPrivateRoomMode('waiting');

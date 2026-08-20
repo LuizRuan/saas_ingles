@@ -15,25 +15,26 @@ import DailyFillBlanksStep from '../components/DailyChallenge/DailyFillBlanksSte
 import DailyTranslationStep from '../components/DailyChallenge/DailyTranslationStep';
 
 import { getCurrentLevel } from '../utils/levelSystem';
+import { getLevels } from '../data/index';
 import './DailyChallenge.css';
 
 const DailyChallenge = () => {
   const { progress, handleCorrectAnswer, handleWrongAnswer, completeDailyChallenge } = useProgress();
-  const { words } = useCourseData();
+  const courseData = useCourseData();
 
   const isCompleted = isDailyChallengeCompleted(progress);
   const [showCompletionScreen, setShowCompletionScreen] = useState(isCompleted);
 
   const currentLevelObj = getCurrentLevel(progress.wordsStudied || 0, progress.activeCourse);
   const userLevel = currentLevelObj?.level || 1;
+  const maxLevel = getLevels(progress.activeCourse).length;
 
-  const [challenge] = useState(() => {
-    // Vocabulário do curso ativo: o desafio de quem estuda espanhol tem que
-    // sortear palavras em espanhol.
-    const levelWords = words.filter(w => (w.level || 1) <= userLevel);
-    const pool = levelWords.length >= 4 ? levelWords : words;
-    return generateDailyChallenge(pool);
-  });
+  const [challenge] = useState(() =>
+    // Curso ativo E nível do jogador: generateDailyChallenge já resolve os
+    // dois — nunca mais um corte rígido que abria o banco inteiro cedo demais
+    // (ver levelSelection.js sobre por que isso acontecia no espanhol).
+    generateDailyChallenge(courseData, userLevel, maxLevel)
+  );
   const [step, setStep] = useState(0);
   const [stepState, setStepState] = useState('playing'); // playing, feedback
   const [feedback, setFeedback] = useState(null); // correct, wrong

@@ -1,12 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { shuffleArray } from '../../data/words';
 import { categories } from '../../data/categories';
 import { useProgress } from '../../hooks/useProgress';
 import useCourseData from '../../hooks/useCourseData';
+import useUserLevel from '../../hooks/useUserLevel';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
+import { pickOneByLevel } from '../../utils/levelSelection';
 import './HangmanGame.css';
 
 const MAX_WRONG = 6;
@@ -79,9 +80,10 @@ const getTranslatedHint = (word) => {
 
 const HangmanGame = () => {
   const { words } = useCourseData();
+  const { userLevel, maxLevel } = useUserLevel();
   // Filtra pelo que o curso ATIVO realmente cobre. A lista fixa acima vale
   // para o inglês; um curso sem 'roupas', por exemplo, ofereceria um botão que
-  // levaria a `shuffleArray([])[0]` — palavra `undefined` e tela quebrada.
+  // levaria a `pickOneByLevel([], ...)` — palavra `undefined` e tela quebrada.
   const hangmanCategories = useMemo(
     () => categories.filter(c => CATEGORIAS_DO_JOGO.includes(c.id) && jogaveisDe(words, c.id).length > 0),
     [words],
@@ -100,13 +102,15 @@ const HangmanGame = () => {
     setCategory(cat);
     addExploredCategory(cat.id);
     const categoryWords = jogaveisDe(words, cat.id);
-    const word = shuffleArray(categoryWords)[0];
+    // Enviesado pelo nível do jogador em vez de sortear uniformemente da
+    // categoria inteira — ver levelSelection.js sobre o porquê.
+    const word = pickOneByLevel(categoryWords, userLevel, maxLevel);
     setCurrentWord(word);
     setGuessedLetters([]);
     setWrongCount(0);
     setTipTranslated(false);
     setGameState('playing');
-  }, [addExploredCategory, words]);
+  }, [addExploredCategory, words, userLevel, maxLevel]);
 
   const handleLetterGuess = useCallback((letter) => {
     if (guessedLetters.includes(letter) || gameState !== 'playing') return;

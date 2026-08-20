@@ -3,12 +3,16 @@
 import { describe, it, expect } from 'vitest';
 import { calculatePoints, checkStreakBonus, POINTS } from './scoring';
 import { getCurrentLevel, getNextLevel, getLevelProgress, getUserTitle } from './levelSystem';
-import { recordWordResult, getWordsToReview, getPhrasesToReview, getReviewUrgency, mixReviewWords, LEARNED_THRESHOLD } from './reviewSystem';
+import { recordWordResult, getWordsToReview, getPhrasesToReview, getReviewUrgency, getReviewUrgencyLite, mixReviewWords, LEARNED_THRESHOLD } from './reviewSystem';
 import { normalizeKey, resolveWordKey, mergeStats } from './wordKey';
 import { generateDailyChallenge, isDailyChallengeCompleted } from './dailyChallenge';
+import { sentences, fillBlanks } from '../data/sentences';
+
+const cursoDeTeste = (n = words) => ({ words: n, sentences, fillBlanks });
 import { levels } from '../data/categories';
 import { words } from '../data/words';
-import { getWords } from '../data/index';
+import { getWords, getCourseData } from '../data/index';
+import { sanitizeProgress, defaultProgress } from './storage';
 
 const progressoVazio = () => ({
   wordStats: {}, phraseStats: {}, errorHistory: [],
@@ -225,6 +229,74 @@ describe('revisão', () => {
     expect(urgencia.level).not.toBe('none');
     expect(urgencia.count).toBe(2); // 1 palavra + 1 frase
   });
+
+  describe('getReviewUrgencyLite (usado pela Home — sem precisar do banco de palavras)', () => {
+    it('regressão: o botão de revisão da Home sumia pra quem só errava em jogos de frase', () => {
+      // A Home tinha sua PRÓPRIA cópia inline deste cálculo, que só olhava
+      // wordStats. Montar Frases/Tradução/Conversa gravam o erro com a frase
+      // inteira como chave — cai em phraseStats, não wordStats — então o
+      // botão nunca aparecia na Home pra quem errava só nesses jogos, mesmo
+      // com a página de Revisão já mostrando o erro corretamente.
+      let p = recordWordResult(progressoVazio(), 'I am happy.', false);
+      const urgencia = getReviewUrgencyLite(p);
+      expect(urgencia.level).not.toBe('none');
+      expect(urgencia.count).toBe(1);
+    });
+
+    it('soma palavras e frases, igual a getReviewUrgency', () => {
+      let p = recordWordResult(progressoVazio(), 'Hello', false);
+      p = recordWordResult(p, 'I am happy.', false);
+      const comBanco = getReviewUrgency(p, words);
+      const semBanco = getReviewUrgencyLite(p);
+      expect(semBanco.count).toBe(comBanco.count);
+      expect(semBanco.level).toBe(comBanco.level);
+    });
+
+    it('nenhum erro pendente → "none", sem quebrar com progresso vazio', () => {
+      expect(getReviewUrgencyLite(progressoVazio())).toEqual({ level: 'none', daysOldest: 0, count: 0 });
+      expect(getReviewUrgencyLite(defaultProgress)).toEqual({ level: 'none', daysOldest: 0, count: 0 });
+      expect(getReviewUrgencyLite(null)).toEqual({ level: 'none', daysOldest: 0, count: 0 });
+    });
+
+    it('some da contagem assim que a resposta mais recente vira acerto', () => {
+      let p = recordWordResult(progressoVazio(), 'I am happy.', false);
+      expect(getReviewUrgencyLite(p).count).toBe(1);
+      p = recordWordResult(p, 'I am happy.', true);
+      expect(getReviewUrgencyLite(p).count).toBe(0);
+      expect(getReviewUrgencyLite(p).level).toBe('none');
+    });
+  });
+
+  describe('regressão: MAX_NUMERO truncava timestamps reais (setembro/2001)', () => {
+    it('lastSeen de um erro de hoje sobrevive a um ciclo de saneamento (salvar/recarregar)', () => {
+      // 1e12 ms desde a época é setembro de 2001 — o antigo teto de
+      // saneamento CLAMPAVA qualquer timestamp de verdade pra baixo disso, e
+      // o resultado reprovava o teste de "timestamp válido" (nov/2023) logo
+      // em seguida, virando `null`. Isso zerava a data "há X dias" da
+      // revisão e — pior — fazia TODOS os timestamps de uma palavra
+      // colapsarem pro mesmo valor, quebrando a regra de "aprendida em 2
+      // dias distintos" pra sempre, silenciosamente, a cada reload.
+      let p = recordWordResult(progressoVazio(), 'Hello', false);
+      const antes = p.wordStats.Hello.lastSeen;
+      expect(antes).toBeGreaterThan(1700000000000);
+
+      const recarregado = sanitizeProgress(JSON.parse(JSON.stringify(p)));
+      expect(recarregado.wordStats.Hello.lastSeen).toBe(antes);
+    });
+
+    it('"aprendida em 2 dias distintos" continua detectável depois de recarregar', () => {
+      const HOJE = Date.now();
+      const ONTEM = HOJE - 30 * 60 * 60 * 1000; // 30h atrás: dia de calendário diferente
+
+      let p = progressoVazio();
+      p = { ...p, wordStats: { Hello: { correct: 3, wrong: 0, timestamps: [ONTEM, ONTEM, HOJE], lastSeen: HOJE } } };
+      const recarregado = sanitizeProgress(JSON.parse(JSON.stringify(p)));
+
+      const dias = new Set(recarregado.wordStats.Hello.timestamps.map(t => new Date(t).toDateString()));
+      expect(dias.size).toBeGreaterThanOrEqual(1); // pelo menos não colapsou tudo pro mesmo timestamp truncado
+      expect(recarregado.wordStats.Hello.timestamps).toEqual([ONTEM, ONTEM, HOJE]);
+    });
+  });
 });
 
 // Texto exibido de uma alternativa, seja ela objeto de palavra ou string.
@@ -233,7 +305,7 @@ const rotuloDaOpcao = (o) => (typeof o === 'string' ? o : o.en);
 describe('desafio diário', () => {
   it('é determinístico no mesmo dia, inclusive nas alternativas', () => {
     const sig = (r) => r.challenges.map(c => `${c.type}:${c.answer.en}[${c.options.map(rotuloDaOpcao)}]`).join('|');
-    expect(sig(generateDailyChallenge(words))).toBe(sig(generateDailyChallenge(words)));
+    expect(sig(generateDailyChallenge(cursoDeTeste(), 42, 100))).toBe(sig(generateDailyChallenge(cursoDeTeste(), 42, 100)));
   });
 
   // As opções vêm em DUAS formas conforme o passo, e isso é de propósito:
@@ -247,7 +319,7 @@ describe('desafio diário', () => {
   // quebrado na tela. Um teste que falha em dias aleatórios treina a gente a
   // ignorar a suíte inteira.
   it('regressão: todo passo tem 4 alternativas distintas com 1 correta', () => {
-    generateDailyChallenge(words).challenges.forEach(c => {
+    generateDailyChallenge(cursoDeTeste(), 42, 100).challenges.forEach(c => {
       expect(c.options).toHaveLength(4);
 
       const rotulos = c.options.map(rotuloDaOpcao);
@@ -258,10 +330,11 @@ describe('desafio diário', () => {
 
   it('regressão: não quebra com acervo pequeno', () => {
     [1, 2, 5, 8].forEach(n => {
-      const c = generateDailyChallenge(words.slice(0, n));
+      const c = generateDailyChallenge(cursoDeTeste(words.slice(0, n)), 42, 100);
       c.challenges.forEach(ch => expect(ch.answer).toBeTruthy());
     });
-    expect(generateDailyChallenge([]).challenges).toEqual([]);
+    expect(generateDailyChallenge(cursoDeTeste([]), 42, 100).challenges).toEqual([]);
+    expect(generateDailyChallenge(null, 42, 100).challenges).toEqual([]);
   });
 
   it('reconhece o desafio já concluído hoje', () => {
@@ -326,5 +399,44 @@ describe('progresso multi-idioma', () => {
     // resposta digitada com ¿ ¡ viraria uma entrada nova em phraseStats.
     expect(normalizeKey('¿Dónde?')).toBe('dónde');
     expect(normalizeKey('¡Hola!')).toBe('hola');
+  });
+
+  it('regressão: o Desafio Diário em espanhol não mostra frases/lacunas em inglês', () => {
+    // generateDailyChallenge importava sentences/fillBlanks direto de
+    // data/sentences.js (sempre inglês), independente do curso de `words` —
+    // então os passos "Montar Frase" e "Completar Lacunas" vazavam inglês
+    // pra quem estudava espanhol. Roda muitas sementes de dia pra garantir
+    // que os dois tipos de passo (que só saem em ~1/8 dos dias, já que há 8
+    // modos) sejam pegos ao menos uma vez na amostra.
+    const cursoEs = getCourseData('es-pt');
+    const cursoEn = getCourseData('en-pt');
+
+    let achouSentenceBuilder = false;
+    let achouFillBlanks = false;
+    for (let dia = 1; dia <= 60; dia++) {
+      const ch = (() => {
+        const RealDate = Date;
+        globalThis.Date = class extends RealDate {
+          constructor(...args) { return args.length ? new RealDate(...args) : new RealDate(2026, 0, dia); }
+          static now() { return new RealDate(2026, 0, dia).getTime(); }
+        };
+        const c = generateDailyChallenge(cursoEs, 50, 100).challenges[0];
+        globalThis.Date = RealDate;
+        return c;
+      })();
+
+      if (ch.type === 'sentenceBuilder') {
+        achouSentenceBuilder = true;
+        // Frase em espanhol de verdade: não deve bater com nenhuma sentença
+        // do banco de inglês.
+        expect(cursoEn.sentences.some(s => s.en === ch.sentence.en), `dia ${dia}: "${ch.sentence.en}" parece inglês`).toBe(false);
+      }
+      if (ch.type === 'fillBlanks') {
+        achouFillBlanks = true;
+        expect(cursoEn.fillBlanks.some(f => f.sentence === ch.fillObj.sentence), `dia ${dia}: "${ch.fillObj.sentence}" parece inglês`).toBe(false);
+      }
+    }
+    expect(achouSentenceBuilder, 'nenhum dia caiu em sentenceBuilder na amostra').toBe(true);
+    expect(achouFillBlanks, 'nenhum dia caiu em fillBlanks na amostra').toBe(true);
   });
 });

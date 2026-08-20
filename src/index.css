@@ -677,7 +677,25 @@ select {
   padding: 0 var(--space-xl);
   height: 60px;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  /* `minmax(max-content, 1fr)`, não `1fr` puro: as duas colunas laterais têm
+     conteúdo BEM diferente em tamanho — a marca+seletor é estreita, as
+     estatísticas (estrelas, dicas, Loja, sequência, Entrar/apelido, avatar)
+     são largas. Com `1fr` puro as duas dividem igualmente o espaço que
+     sobra da coluna do meio, e se as estatísticas precisarem de mais que
+     essa fração, a coluna encolhe ABAIXO do próprio conteúdo — como o
+     grupo usa `justify-content: flex-end`, o excesso vaza para a
+     ESQUERDA, por cima do último link do menu, em vez de aparecer como
+     scroll. `max-content` no mínimo impede a coluna de encolher além do
+     que ela realmente precisa. */
+  /* A coluna do meio também precisa do piso `max-content`, não só as
+     laterais: com `auto` puro, quando a soma das três colunas passava do
+     espaço disponível, era ELA que encolhia abaixo do próprio conteúdo (não
+     as laterais) — o oposto do que a correção acima pretendia. O sintoma:
+     "Conquistas" ainda vazava por cima das estatísticas mesmo depois do
+     `minmax` nas duas pontas. Com as três colunas protegidas, um estouro
+     vira transbordo real e mensurável (nunca mais sobreposição silenciosa) —
+     e são os breakpoints abaixo que evitam esse estouro acontecer. */
+  grid-template-columns: minmax(max-content, 1fr) max-content minmax(max-content, 1fr);
   align-items: center;
   /* Reduzido de --space-xl: com o seletor de idioma ao lado da marca, o
      respiro anterior empurrava o menu do meio contra a coluna da direita. */
@@ -706,14 +724,14 @@ select {
      — é isso que centraliza o menu na barra sem precisar de position:absolute. */
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
 }
 
 .navbar-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 11px;
+  padding: 7px 16px;
   border-radius: var(--radius-full);
   font-size: var(--fs-sm);
   font-weight: 500;
@@ -745,7 +763,7 @@ select {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 14px;
+  gap: 20px;
 }
 
 .navbar-stat {
@@ -789,18 +807,19 @@ select {
 /* A navbar desktop aparece a partir de 769px, mas os 7 itens + logo + estatísticas
    só cabem por volta de 1230px. Sem estes dois degraus os links transbordam o
    .navbar-inner (todo .navbar-link é white-space: nowrap, então nada encolhe). */
-@media (max-width: 1560px) {
+@media (max-width: 1650px) {
   .navbar-inner { gap: var(--space-sm); }
-  .navbar-link { padding: 6px 8px; }
-  .navbar-stats { gap: 10px; }
+  .navbar-links { gap: 6px; }
+  .navbar-link { padding: 6px 12px; }
+  .navbar-stats { gap: 14px; }
   .navbar-brand { gap: 8px; }
 }
 
 /* Degrau intermediário: espreme mais em vez de já cortar os rótulos. Existe
    porque 1366x768 é uma das larguras mais comuns em notebook — perder o texto
    dos links ali seria caro, e ainda dá para caber apertando o padding. */
-@media (max-width: 1440px) {
-  .navbar-inner { padding: 0 var(--space-md); gap: 6px; }
+@media (max-width: 1510px) {
+  .navbar-inner { padding: 0 12px; gap: 6px; }
   .navbar-link { padding: 6px 6px; gap: 4px; }
   .navbar-links { gap: 1px; }
   .navbar-stats { gap: 8px; }

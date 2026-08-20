@@ -2,11 +2,13 @@ import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { shuffleArray } from '../../data/words';
 import useCourseData from '../../hooks/useCourseData';
+import useUserLevel from '../../hooks/useUserLevel';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
 import useCourse from '../../hooks/useCourse';
+import { pickByLevel } from '../../utils/levelSelection';
 import './WordBuilder.css';
 
 const ROUNDS = 8;
@@ -24,16 +26,19 @@ const makeLetters = (word) => {
 // Assim a dica pode revelar uma posição qualquer, e não só a próxima da fila.
 const emptySlots = (word) => new Array(word.en.length).fill(null);
 
-const generateGameWords = (words) =>
-  shuffleArray(words.filter(w => !w.en.includes(' ') && w.en.length >= 3 && w.en.length <= 8)).slice(0, ROUNDS);
+// Enviesado pelo nível do jogador em vez de sortear uniformemente do banco
+// inteiro — ver levelSelection.js sobre o porquê.
+const generateGameWords = (words, userLevel, maxLevel) =>
+  pickByLevel(words.filter(w => !w.en.includes(' ') && w.en.length >= 3 && w.en.length <= 8), userLevel, maxLevel, ROUNDS);
 
 const WordBuilder = () => {
   const { words } = useCourseData();
+  const { userLevel, maxLevel } = useUserLevel();
   // Rótulos do par de idiomas ATIVO. Antes vinha de uma constante fixa em
   // 'en-pt', então a instrução dizia "Traduza para o Inglês" mesmo no
   // curso de espanhol.
   const { targetLabel, sourceFlag } = useCourse();
-  const [gameWords, setGameWords] = useState(() => generateGameWords(words));
+  const [gameWords, setGameWords] = useState(() => generateGameWords(words, userLevel, maxLevel));
   const [round, setRound] = useState(0);
   const [selectedLetters, setSelectedLetters] = useState(() => gameWords[0] ? emptySlots(gameWords[0]) : []);
   const [availableLetters, setAvailableLetters] = useState(() => gameWords[0] ? makeLetters(gameWords[0]) : []);
@@ -181,7 +186,7 @@ const WordBuilder = () => {
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
               <button className="btn btn-primary" onClick={() => {
-                const newWords = generateGameWords(words);
+                const newWords = generateGameWords(words, userLevel, maxLevel);
                 setGameWords(newWords);
                 setRound(0);
                 setScore(0);

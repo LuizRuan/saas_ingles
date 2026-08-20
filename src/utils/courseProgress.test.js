@@ -153,13 +153,16 @@ const estudar = (p, courseId, quantas) =>
 describe('jornada real de troca de idioma', () => {
   it('inglês avançado → espanhol do zero → volta com o inglês intacto', () => {
     // 1. Alguém que estudou muito inglês.
+    // 660 = 30 * 20: com o banco de 2000 palavras, cada nível agora pede 20
+    // palavras distintas (era 10 com o banco de 1000) — dobrado para manter
+    // o mesmo nível ~30 de referência deste teste.
     let p = sanitizeProgress({ activeCourse: 'en-pt' });
-    p = estudar(p, 'en-pt', 330);
+    p = estudar(p, 'en-pt', 660);
     p = { ...p, totalScore: 12000, shopItems: ['theme_ocean'] };
 
     const nivelIngles = nivelDe(p);
     expect(nivelIngles).toBeGreaterThanOrEqual(30);
-    expect(p.wordsStudied).toBe(330);
+    expect(p.wordsStudied).toBe(660);
 
     // 2. Primeira vez no espanhol: começa do zero, como pedido.
     p = sanitizeProgress(switchCourse(p, 'es-pt'));
@@ -179,7 +182,7 @@ describe('jornada real de troca de idioma', () => {
 
     // 4. Volta pro inglês: exatamente onde parou.
     p = sanitizeProgress(switchCourse(p, 'en-pt'));
-    expect(p.wordsStudied).toBe(330);
+    expect(p.wordsStudied).toBe(660);
     expect(nivelDe(p)).toBe(nivelIngles);
 
     // 5. Volta pro espanhol: também exatamente onde parou.
@@ -192,7 +195,7 @@ describe('jornada real de troca de idioma', () => {
     //    o inglês sumiria silenciosamente no primeiro reload).
     p = sanitizeProgress(JSON.parse(JSON.stringify(p)));
     expect(p.wordsStudied).toBe(40);
-    expect(p.courseProgress['en-pt'].wordsStudied).toBe(330);
+    expect(p.courseProgress['en-pt'].wordsStudied).toBe(660);
     expect(p.courseProgress['es-pt']).toBeUndefined();
   });
 });

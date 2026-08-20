@@ -10,6 +10,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { pickByLevel, pickOneByLevel, DEFAULT_LEVEL, MAX_LEVEL } from './levelSelection.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const words = JSON.parse(readFileSync(join(__dirname, '..', 'data', 'words.json'), 'utf-8'));
@@ -60,8 +61,15 @@ const ELEGIVEL_POR_TIPO = {
 /**
  * Monta uma pergunta completa (com correctAnswer) para um tipo de jogo.
  * `usedIndices` evita repetir a mesma palavra dentro da mesma partida.
+ * `targetLevel` enviesa a escolha pelo nível de quem está jogando (1..100,
+ * ver levelSelection.js) em vez de sortear uniformemente do banco inteiro —
+ * o mesmo raciocínio do modo Bot no cliente, aplicado aqui pro modo humano.
+ * Não é autoritativo (o cliente pode mentir sobre o próprio nível), mas isso
+ * não quebra a paridade entre os dois jogadores: cada um recebe uma pergunta
+ * INDEPENDENTE (ver buildQuestionPerPlayer), então enviesar a própria não dá
+ * vantagem nenhuma sobre o adversário — só ajusta o próprio ritmo.
  */
-export const buildQuestion = (gameType, usedIndices = new Set()) => {
+export const buildQuestion = (gameType, usedIndices = new Set(), targetLevel = DEFAULT_LEVEL) => {
   const elegivel = ELEGIVEL_POR_TIPO[gameType] || (() => true);
   const todasElegiveis = words
     .map((w, i) => ({ w, i }))
@@ -70,7 +78,7 @@ export const buildQuestion = (gameType, usedIndices = new Set()) => {
   // O fallback repete uma palavra já usada, mas NUNCA quebra a elegibilidade:
   // voltar pro banco inteiro aqui traria de volta as palavras com espaço.
   const pool = available.length ? available : todasElegiveis;
-  const { w: word, i: index } = pool[randomInt(pool.length)];
+  const { w: word, i: index } = pickOneByLevel(pool, targetLevel, MAX_LEVEL);
   const otherWords = words.filter((_, i) => i !== index);
 
   switch (gameType) {
@@ -108,7 +116,7 @@ export const buildQuestion = (gameType, usedIndices = new Set()) => {
         .map((w, i) => ({ w, i }))
         .filter(({ w }) => w.examplePt && w.example);
       if (!sentPool.length) break; // fallback never reached with current data
-      const { w: sentWord, i: sentIdx } = sentPool[randomInt(sentPool.length)];
+      const { w: sentWord, i: sentIdx } = pickOneByLevel(sentPool, targetLevel, MAX_LEVEL);
       const sentOthers = words.filter((_, i) => i !== sentIdx && words[i]?.examplePt);
       return {
         type: 'sentenceBuilder', wordIndex: sentIdx,
@@ -127,7 +135,7 @@ export const buildQuestion = (gameType, usedIndices = new Set()) => {
         .map((w, i) => ({ w, i }))
         .filter(({ w }) => w.example && !w.en.includes(' '));
       if (!fbPool.length) break;
-      const { w: fbWord, i: fbIdx } = fbPool[randomInt(fbPool.length)];
+      const { w: fbWord, i: fbIdx } = pickOneByLevel(fbPool, targetLevel, MAX_LEVEL);
       const fbOthers = words.filter((_, i) => i !== fbIdx);
       const fbRegex = new RegExp(`\\b${fbWord.en}\\b`, 'gi');
       let fbBlanked = fbWord.example.replace(fbRegex, '_______');
@@ -191,29 +199,31 @@ export const serializeQuestionForClient = (question) => {
 /**
  * Gera uma questão diferente para cada jogador, do mesmo tipo.
  * Garante que jogador B não receba a mesma palavra que A.
+ * `levelA`/`levelB` enviesam a pergunta de cada um pelo PRÓPRIO nível — ver o
+ * comentário em buildQuestion sobre por que isso não afeta a paridade do duelo.
  */
-export const buildQuestionPerPlayer = (gameType, usedA, usedB) => {
-  const questionA = buildQuestion(gameType, usedA);
+export const buildQuestionPerPlayer = (gameType, usedA, usedB, levelA = DEFAULT_LEVEL, levelB = DEFAULT_LEVEL) => {
+  const questionA = buildQuestion(gameType, usedA, levelA);
   // Exclui a palavra sorteada para A do pool de B
   const usedBExtended = new Set([...usedB, questionA.wordIndex]);
-  const questionB = buildQuestion(gameType, usedBExtended);
+  const questionB = buildQuestion(gameType, usedBExtended, levelB);
   return { questionA, questionB };
 };
 
 /**
- * Memory online: sorteia 4 palavras distintas para cada jogador.
- * As palavras de A e B não se repetem entre si.
+ * Memory online: sorteia 4 palavras distintas para cada jogador, enviesadas
+ * pelo nível de cada um. As palavras de A e B não se repetem entre si.
  */
-export const buildMemoryGroupPerPlayer = (usedA, usedB) => {
+export const buildMemoryGroupPerPlayer = (usedA, usedB, levelA = DEFAULT_LEVEL, levelB = DEFAULT_LEVEL) => {
   const available = words.map((w, i) => ({ w, i }));
 
-  const poolA = shuffle(available.filter(({ i }) => !usedA.has(i)));
-  const groupA = poolA.slice(0, 4);
+  const poolA = available.filter(({ i }) => !usedA.has(i));
+  const groupA = pickByLevel(poolA, levelA, MAX_LEVEL, 4);
   const indicesA = new Set(groupA.map(g => g.i));
 
   // B não usa as palavras de A nem as já usadas por B
-  const poolB = shuffle(available.filter(({ i }) => !usedB.has(i) && !indicesA.has(i)));
-  const groupB = poolB.slice(0, 4);
+  const poolB = available.filter(({ i }) => !usedB.has(i) && !indicesA.has(i));
+  const groupB = pickByLevel(poolB, levelB, MAX_LEVEL, 4);
 
   const toWordGroup = (group) => group.map(g => ({
     en: g.w.en, pt: g.w.pt, pronunciation: g.w.pronunciation,

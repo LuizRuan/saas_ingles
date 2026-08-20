@@ -8,6 +8,7 @@ import {
   buildQuestionPerPlayer, buildMemoryGroupPerPlayer,
   serializeQuestionForClient, pickRandomGameType, GAME_TYPE_IDS,
 } from './questionGenerator.js';
+import { resolveLevel } from './levelSelection.js';
 import { closeRound, nextPhase, decideWinner, validateAnswer, validateLetterGuess, resolveLetterGuess } from './round.js';
 import { sanitizeNickname } from './nicknames.js';
 import { isRateLimited, sweepRateLimiter } from './rateLimiter.js';
@@ -77,10 +78,14 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
 
     let qA, qB;
     if (match.gameType === 'memory') {
-      // Memory: cada jogador recebe 4 palavras distintas
+      // Memory: cada jogador recebe 4 palavras distintas, enviesadas pelo
+      // PRÓPRIO nível de cada um (ver o comentário em buildQuestionPerPlayer
+      // sobre por que isso não quebra a paridade entre os dois).
       ({ questionA: qA, questionB: qB } = buildMemoryGroupPerPlayer(
         new Set(pdA.usedIndices),
         new Set(pdB.usedIndices),
+        pdA.level,
+        pdB.level,
       ));
       pdA.usedIndices.push(...qA.wordIndices);
       pdB.usedIndices.push(...qB.wordIndices);
@@ -90,6 +95,8 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
         match.gameType,
         new Set(pdA.usedIndices),
         new Set(pdB.usedIndices),
+        pdA.level,
+        pdB.level,
       ));
       pdA.usedIndices.push(qA.wordIndex);
       pdB.usedIndices.push(qB.wordIndex);
@@ -189,8 +196,8 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
 
     const [a, b] = pair;
     const players = [
-      { socketId: a.socketId, nickname: a.nickname, userId: a.userId, avatar: a.avatar },
-      { socketId: b.socketId, nickname: b.nickname, userId: b.userId, avatar: b.avatar },
+      { socketId: a.socketId, nickname: a.nickname, userId: a.userId, avatar: a.avatar, level: a.level },
+      { socketId: b.socketId, nickname: b.nickname, userId: b.userId, avatar: b.avatar, level: b.level },
     ];
     // Usa o tipo resolvido pelo tryMatch, ou sorteia se ambos eram 'random'
     const gameType = resolvedType ?? pickRandomGameType();
@@ -296,9 +303,14 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
       const rawPref = payload?.gameTypePreference;
       const gameTypePreference = GAME_TYPE_IDS.includes(rawPref) ? rawPref : 'random';
 
+      // Nível auto-reportado (1..100) — só ajusta o RITMO da própria pergunta
+      // de cada um (ver levelSelection.js); resolveLevel degrada qualquer
+      // coisa fora do esperado pro nível padrão, sem nunca lançar.
+      const level = resolveLevel(payload?.level);
+
       waitingQueue.push({
         socketId: socket.id, nickname, joinedAt: Date.now(), gameTypePreference,
-        userId: identity.userId, avatar: identity.avatar,
+        userId: identity.userId, avatar: identity.avatar, level,
       });
       ack?.({ ok: true });
       broadcastPresence();
@@ -517,6 +529,7 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
         nickname,
         userId: identity.userId,
         avatar: identity.avatar,
+        level: resolveLevel(payload?.level),
       };
 
       privateRooms.set(roomCode, {
@@ -561,6 +574,7 @@ export const attachRealtime = (httpServer, timingOverrides = {}) => {
         nickname,
         userId: identity.userId,
         avatar: identity.avatar,
+        level: resolveLevel(payload?.level),
       };
 
       if (room.joinerInfo && room.joinerInfo.socketId !== socket.id) {

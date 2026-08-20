@@ -1,10 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { shuffleArray } from '../../data/words';
 import useCourseData from '../../hooks/useCourseData';
+import useUserLevel from '../../hooks/useUserLevel';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import WordExplanation from '../../components/Game/WordExplanation';
+import { pickByLevel } from '../../utils/levelSelection';
 import './TrueFalse.css';
 
 const ROUNDS = 12;
@@ -12,11 +13,14 @@ const TEMPO_INICIAL = 75; // segundos para as 12 rodadas do modo cronometrado
 
 // Os dados vêm do CURSO ATIVO (useCourseData), nunca do banco de inglês
 // importado direto — senão trocar para espanhol mantinha o jogo em inglês.
-const generateQuestions = (trueFalse) => shuffleArray([...trueFalse]).slice(0, ROUNDS);
+// Enviesado pelo nível do jogador em vez de sortear uniformemente do banco
+// inteiro — ver levelSelection.js sobre o porquê.
+const generateQuestions = (trueFalse, userLevel, maxLevel) => pickByLevel(trueFalse, userLevel, maxLevel, ROUNDS);
 
 const TrueFalse = () => {
   const { trueFalse, words } = useCourseData();
-  const [questions, setQuestions] = useState(() => generateQuestions(trueFalse));
+  const { userLevel, maxLevel } = useUserLevel();
+  const [questions, setQuestions] = useState(() => generateQuestions(trueFalse, userLevel, maxLevel));
   const [modo, setModo] = useState(null); // null = tela de escolha | 'calmo' | 'contrarelogio'
   const [round, setRound] = useState(0);
   const [feedback, setFeedback] = useState(null);
@@ -140,7 +144,7 @@ const TrueFalse = () => {
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
               <button className="btn btn-primary" onClick={() => {
-                setQuestions(generateQuestions());
+                setQuestions(generateQuestions(trueFalse, userLevel, maxLevel));
                 setModo(null);
                 setRound(0);
                 setFeedback(null);

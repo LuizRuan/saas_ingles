@@ -229,7 +229,12 @@ export const useDuelSocket = () => {
     };
   }, [clearQueueTimer]);
 
-  const joinQueue = useCallback((nickname, gameTypePreference = 'random', authTicket) => {
+  // `level` (1..100) é só um HINT de ritmo pro servidor enviesar a
+  // dificuldade da PRÓPRIA pergunta desse jogador — nunca autoritativo (o
+  // servidor sempre decide a pergunta e a resposta certa, ver
+  // backend/realtime/levelSelection.js). Opcional de propósito: nada quebra
+  // se vier undefined, o servidor cai no nível padrão.
+  const joinQueue = useCallback((nickname, gameTypePreference = 'random', authTicket, level) => {
     setQueueError(null);
     // Recusa cedo em vez de mentir: antes o estado já ia para 'searching' antes
     // de emitir, e com o socket desconectado o socket.io enfileira o emit — o
@@ -239,7 +244,7 @@ export const useDuelSocket = () => {
       return;
     }
 
-    socketRef.current.emit('queue:join', { nickname, gameTypePreference, authTicket }, (ack) => {
+    socketRef.current.emit('queue:join', { nickname, gameTypePreference, authTicket, level }, (ack) => {
       if (!ack?.ok) {
         setMatchState('idle');
         setQueueError(ack?.error || 'Não foi possível entrar na fila.');
@@ -311,12 +316,13 @@ export const useDuelSocket = () => {
   }, []);
 
   /** Criar sala privada e receber código de 5 dígitos para convidar amigo. */
-  const createPrivateRoom = useCallback((gameTypePreference = 'random', nicknameOverride = null) => {
+  const createPrivateRoom = useCallback((gameTypePreference = 'random', nicknameOverride = null, level) => {
     return new Promise((resolve) => {
       setMatchState('room');
       socketRef.current?.emit('room:create', {
         nickname: nicknameOverride || 'Jogador',
         gameTypePreference,
+        level,
       }, (ack) => {
         if (ack?.ok) {
           setPrivateRoom(ack.room ?? null);
@@ -330,12 +336,13 @@ export const useDuelSocket = () => {
   }, []);
 
   /** Entrar em sala privada usando o código de 5 dígitos. */
-  const joinPrivateRoom = useCallback((roomCode, nicknameOverride = null) => {
+  const joinPrivateRoom = useCallback((roomCode, nicknameOverride = null, level) => {
     return new Promise((resolve) => {
       setMatchState('room');
       socketRef.current?.emit('room:join', {
         nickname: nicknameOverride || 'Jogador',
         roomCode,
+        level,
       }, (ack) => {
         if (ack?.ok) {
           setPrivateRoom(ack.room ?? null);

@@ -92,3 +92,83 @@ describe('pickRandomGameType', () => {
     }
   });
 });
+
+// ───────────────────────────────────────────────────────────────────────────
+// Viés por nível — a peça que faltava para o duelo humano: antes, TODA
+// pergunta sorteava uniformemente das 1000 palavras, então um iniciante podia
+// cair em vocabulário de nível 90+ na primeira rodada. Agora o pool ainda é o
+// mesmo, mas a escolha se enviesa pro nível informado por cada jogador (não
+// autoritativo — é só ritmo, ver o comentário em buildQuestion).
+// ───────────────────────────────────────────────────────────────────────────
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import { buildQuestionPerPlayer, buildMemoryGroupPerPlayer } from './questionGenerator.js';
+
+const __dirname2 = dirname(fileURLToPath(import.meta.url));
+const rawWords = JSON.parse(readFileSync(join(__dirname2, '..', 'data', 'words.json'), 'utf-8'));
+const levelDoIndice = (i) => rawWords[i]?.level || 1;
+
+describe('buildQuestion — viés por nível', () => {
+  it('nível baixo favorece wordIndex de word.level baixo', () => {
+    const AMOSTRAS = 150;
+    let soma = 0;
+    for (let i = 0; i < AMOSTRAS; i++) {
+      soma += levelDoIndice(buildQuestion('translation', new Set(), 1).wordIndex);
+    }
+    // Sem viés a média seria ~50 (banco vai de nível 1 a 100).
+    expect(soma / AMOSTRAS).toBeLessThan(25);
+  });
+
+  it('nível alto favorece wordIndex de word.level alto', () => {
+    const AMOSTRAS = 150;
+    let soma = 0;
+    for (let i = 0; i < AMOSTRAS; i++) {
+      soma += levelDoIndice(buildQuestion('translation', new Set(), 100).wordIndex);
+    }
+    expect(soma / AMOSTRAS).toBeGreaterThan(75);
+  });
+
+  it('sem targetLevel explícito, usa o padrão sem lançar exceção', () => {
+    expect(() => buildQuestion('translation')).not.toThrow();
+  });
+});
+
+describe('buildQuestionPerPlayer — nível é por jogador, não compartilhado', () => {
+  it('cada jogador recebe pergunta enviesada pelo PRÓPRIO nível', () => {
+    const AMOSTRAS = 100;
+    let somaA = 0, somaB = 0;
+    for (let i = 0; i < AMOSTRAS; i++) {
+      const { questionA, questionB } = buildQuestionPerPlayer('translation', new Set(), new Set(), 1, 100);
+      somaA += levelDoIndice(questionA.wordIndex);
+      somaB += levelDoIndice(questionB.wordIndex);
+    }
+    // A (nível 1) deve sair bem mais fácil que B (nível 100), mesmo sendo a
+    // MESMA chamada, o mesmo tipo de jogo, a mesma partida.
+    expect(somaA / AMOSTRAS).toBeLessThan(somaB / AMOSTRAS - 20);
+  });
+
+  it('nunca repete a mesma palavra entre os dois jogadores', () => {
+    for (let i = 0; i < 30; i++) {
+      const { questionA, questionB } = buildQuestionPerPlayer('translation', new Set(), new Set(), 50, 50);
+      expect(questionA.wordIndex).not.toBe(questionB.wordIndex);
+    }
+  });
+});
+
+describe('buildMemoryGroupPerPlayer — viés por nível', () => {
+  it('grupo de A (nível baixo) sai mais fácil que o de B (nível alto)', () => {
+    const { questionA, questionB } = buildMemoryGroupPerPlayer(new Set(), new Set(), 1, 100);
+    const mediaA = questionA.wordIndices.reduce((s, i) => s + levelDoIndice(i), 0) / 4;
+    const mediaB = questionB.wordIndices.reduce((s, i) => s + levelDoIndice(i), 0) / 4;
+    expect(mediaA).toBeLessThan(mediaB);
+  });
+
+  it('os 4+4 índices de A e B nunca se sobrepõem', () => {
+    const { questionA, questionB } = buildMemoryGroupPerPlayer(new Set(), new Set(), 50, 50);
+    const setA = new Set(questionA.wordIndices);
+    for (const i of questionB.wordIndices) expect(setA.has(i)).toBe(false);
+    expect(questionA.wordIndices).toHaveLength(4);
+    expect(questionB.wordIndices).toHaveLength(4);
+  });
+});

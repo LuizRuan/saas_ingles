@@ -1,23 +1,26 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { shuffleArray } from '../../data/words';
 import useCourseData from '../../hooks/useCourseData';
+import useUserLevel from '../../hooks/useUserLevel';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import { generateTranslationDistractors } from '../../utils/distractorGenerator';
+import { pickByLevel } from '../../utils/levelSelection';
 import './TranslationQuiz.css';
 
 const ROUNDS = 10;
 
-const generateQuizzes = (translationQuizzes) =>
-  shuffleArray([...translationQuizzes])
-    .slice(0, ROUNDS)
+// Enviesado pelo nível do jogador em vez de sortear uniformemente do banco
+// inteiro — ver levelSelection.js sobre o porquê.
+const generateQuizzes = (translationQuizzes, userLevel, maxLevel) =>
+  pickByLevel(translationQuizzes, userLevel, maxLevel, ROUNDS)
     .map(q => ({ ...q, options: generateTranslationDistractors(q, translationQuizzes) }));
 
 const TranslationQuiz = () => {
   const { translationQuizzes } = useCourseData();
-  const [quizzes, setQuizzes] = useState(() => generateQuizzes(translationQuizzes));
+  const { userLevel, maxLevel } = useUserLevel();
+  const [quizzes, setQuizzes] = useState(() => generateQuizzes(translationQuizzes, userLevel, maxLevel));
   const [round, setRound] = useState(0);
   const [selected, setSelected] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -83,7 +86,7 @@ const TranslationQuiz = () => {
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
               <button className="btn btn-primary" onClick={() => {
-                setQuizzes(generateQuizzes(translationQuizzes));
+                setQuizzes(generateQuizzes(translationQuizzes, userLevel, maxLevel));
                 setRound(0);
                 setSelected(null);
                 setFeedback(null);

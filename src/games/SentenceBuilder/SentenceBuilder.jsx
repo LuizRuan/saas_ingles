@@ -2,9 +2,11 @@ import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { shuffleArray } from '../../data/words';
 import useCourseData from '../../hooks/useCourseData';
+import useUserLevel from '../../hooks/useUserLevel';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
+import { pickByLevel } from '../../utils/levelSelection';
 import './SentenceBuilder.css';
 
 const ROUNDS = 8;
@@ -13,13 +15,16 @@ const stripPunctuation = (str) => (str || '').replace(/[.,?!:;'"“”]/g, '').t
 
 // Os dados vêm do CURSO ATIVO (useCourseData), nunca do banco de inglês
 // importado direto — senão trocar para espanhol mantinha o jogo em inglês.
-const generateGameSentences = (sentences) => shuffleArray([...sentences]).slice(0, ROUNDS);
+// Enviesado pelo nível do jogador em vez de sortear uniformemente do banco
+// inteiro — ver levelSelection.js sobre o porquê.
+const generateGameSentences = (sentences, userLevel, maxLevel) => pickByLevel(sentences, userLevel, maxLevel, ROUNDS);
 
 const prepareWords = (s) => (s ? shuffleArray(s.words.map((w, i) => ({ ...w, en: stripPunctuation(w.en), id: i }))) : []);
 
 const SentenceBuilder = () => {
   const { sentences } = useCourseData();
-  const [gameSentences, setGameSentences] = useState(() => generateGameSentences(sentences));
+  const { userLevel, maxLevel } = useUserLevel();
+  const [gameSentences, setGameSentences] = useState(() => generateGameSentences(sentences, userLevel, maxLevel));
   const [round, setRound] = useState(0);
   const [selectedWords, setSelectedWords] = useState([]);
   const [availableWords, setAvailableWords] = useState(() => prepareWords(gameSentences[0]));
@@ -96,7 +101,7 @@ const SentenceBuilder = () => {
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
               <button className="btn btn-primary" onClick={() => {
-                const newSentences = generateGameSentences();
+                const newSentences = generateGameSentences(sentences, userLevel, maxLevel);
                 setGameSentences(newSentences);
                 setRound(0);
                 setScore(0);

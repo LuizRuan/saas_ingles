@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { shuffleArray } from '../../data/words';
 import { useProgress } from '../../hooks/useProgress';
 import useCourseData from '../../hooks/useCourseData';
+import useUserLevel from '../../hooks/useUserLevel';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
+import { pickByLevel } from '../../utils/levelSelection';
 import './MemoryGame.css';
 
 const DIFFICULTIES = [
@@ -16,6 +18,7 @@ const DIFFICULTIES = [
 
 const MemoryGame = () => {
   const { words } = useCourseData();
+  const { userLevel, maxLevel } = useUserLevel();
   const [difficulty, setDifficulty] = useState(null);
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState([]);
@@ -30,8 +33,10 @@ const MemoryGame = () => {
 
   const startGame = useCallback((diff) => {
     setDifficulty(diff);
-    const gameWords = shuffleArray([...words]).slice(0, diff.pairs);
-    
+    // Enviesado pelo nível do jogador em vez de sortear uniformemente do
+    // banco inteiro — ver levelSelection.js sobre o porquê.
+    const gameWords = pickByLevel(words, userLevel, maxLevel, diff.pairs);
+
     const cardPairs = gameWords.flatMap((word, idx) => [
       { id: idx * 2, wordIndex: idx, type: 'en', text: word.en, word },
       { id: idx * 2 + 1, wordIndex: idx, type: 'pt', text: word.pt, word },
@@ -44,7 +49,7 @@ const MemoryGame = () => {
     setGameComplete(false);
     setCurrentMatch(null);
     setShowExplanation(false);
-  }, []);
+  }, [words, userLevel, maxLevel]);
 
   const handleCardClick = useCallback((cardId) => {
     if (flipped.length === 2) return;

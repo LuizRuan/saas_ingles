@@ -63,11 +63,11 @@ describe('conquistas', () => {
   });
 
   it('todas são alcançáveis', () => {
-    // Tetos calibrados para o banco de 1000 palavras / 100 níveis: cada valor
+    // Tetos calibrados para o banco de 2000 palavras / 100 níveis: cada valor
     // aqui precisa ficar IGUAL OU ACIMA do maior limiar usado por alguma
-    // conquista (ex.: words_1000 exige wordsStudied >= 1000).
+    // conquista (ex.: words_1000 exige wordsStudied >= 2000).
     const tudo = {
-      wordsStudied: 1000, wordsLearned: 1000, totalCorrect: 2999, bestStreak: 199, sentencesCompleted: 299,
+      wordsStudied: 2000, wordsLearned: 2000, totalCorrect: 2999, bestStreak: 199, sentencesCompleted: 299,
       conversationsCompleted: 99, dayStreak: 999, dailyChallengesCompleted: 199,
       currentLevel: 100, wordsReviewed: 1999, totalScore: 999999, categoriesExplored: 99,
       shopPurchases: 9,

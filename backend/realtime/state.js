@@ -2,6 +2,7 @@
 // Partidas duram ~1 minuto; não há necessidade de Mongo/Redis para isto, e
 // isso contorna por completo a falta de MONGODB_URI neste ambiente.
 import { randomUUID } from 'node:crypto';
+import { DEFAULT_LEVEL } from './levelSelection.js';
 
 // [{ socketId, nickname, joinedAt }] — mais antigo primeiro
 export const waitingQueue = [];
@@ -90,6 +91,11 @@ export const createMatch = (players, gameType) => {
       guessedLetters: null, // só usado no Forca — startRound cria um Set novo a cada rodada
       userId: p.userId ?? null,  // null = convidado, ou ticket ausente/inválido
       avatar: p.avatar ?? null,
+      // Nível auto-reportado (1..100), só para enviesar a DIFICULDADE da
+      // pergunta desse jogador — nunca autoritativo, ver resolveLevel em
+      // levelSelection.js. `resolveLevel` já roda antes disto (na entrada da
+      // fila/sala), então aqui é só repassar o que já veio saneado.
+      level: p.level ?? DEFAULT_LEVEL,
     }])),
 
     wildcardCooldownUntil: new Map(players.map(p => [p.socketId, 0])),
