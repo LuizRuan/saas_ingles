@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { shuffleArray } from '../../data/words';
+import { AVAILABLE_COURSES } from '../../data/index';
 import { useProgress } from '../../hooks/useProgress';
 import useCourseData from '../../hooks/useCourseData';
 import useUserLevel from '../../hooks/useUserLevel';
@@ -27,9 +28,14 @@ const MemoryGame = () => {
   const [gameComplete, setGameComplete] = useState(false);
   const [currentMatch, setCurrentMatch] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const { handleCorrectAnswer, completeGame } = useProgress();
+  const { progress, handleCorrectAnswer, completeGame } = useProgress();
   const { playFlip, playMatch, playCorrect } = useSound();
   const { speakNormal } = useSpeech();
+  // Bandeira/nome do idioma-alvo do curso ativo, não fixo em inglês — senão
+  // quem estuda espanhol via uma carta com 🇺🇸 e o texto "palavra em inglês".
+  const course = AVAILABLE_COURSES.find(c => c.id === (progress.activeCourse || 'en-pt'));
+  const targetFlag = course?.flag || '🇺🇸';
+  const targetName = (course?.targetName || 'Inglês').toLowerCase();
 
   const startGame = useCallback((diff) => {
     setDifficulty(diff);
@@ -122,7 +128,7 @@ const MemoryGame = () => {
               Jogo da Memória
             </h1>
             <p className="text-secondary" style={{ marginBottom: 'var(--space-2xl)' }}>
-              Encontre os pares: palavra em inglês + tradução em português
+              Encontre os pares: palavra em {targetName} + tradução em português
             </p>
             
             <div className="difficulty-grid">
@@ -229,7 +235,7 @@ const MemoryGame = () => {
                     <span className={`card-text ${card.type === 'en' ? 'en' : 'pt'}`}>
                       {card.text}
                     </span>
-                    <span className="card-lang">{card.type === 'en' ? '🇺🇸' : '🇧🇷'}</span>
+                    <span className="card-lang">{card.type === 'en' ? targetFlag : '🇧🇷'}</span>
                   </div>
                 </div>
               </button>

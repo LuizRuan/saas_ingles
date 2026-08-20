@@ -40,7 +40,7 @@ const ReviewErrors = () => {
     if (!current) return [];
     const wrong = shuffleArray(words.filter(w => w.en !== current.en)).slice(0, 3);
     return shuffleArray([current, ...wrong]);
-  }, [current]);
+  }, [current, words]);
 
   const handleAnswer = useCallback((option) => {
     if (feedback) return;
@@ -188,7 +188,7 @@ const ReviewErrors = () => {
       answer,
       options: shuffleArray([answer, ...distractors]),
     };
-  }, [currentPhrase, translationMap, phraseQueue, words]);
+  }, [currentPhrase, translationMap, phraseQueue, words, courseName]);
 
   const [phraseSelected, setPhraseSelected] = useState(null);
 

@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { loadProgress, saveProgress, resetProgress as clearStorage, updateDayStreak, sanitizeProgress } from '../utils/storage';
-import { isLocalMoreAdvanced } from '../utils/progressSync';
 import { switchCourse, withCourseStats } from '../utils/courseProgress';
 import { calculatePoints, checkStreakBonus, POINTS } from '../utils/scoring';
 import { recordWordResult } from '../utils/reviewSystem';
@@ -54,24 +53,20 @@ export const ProgressProvider = ({ children }) => {
       if (lastSyncedUserIdRef.current !== userId) {
         lastSyncedUserIdRef.current = userId;
 
-        // Regressão: antes, "tem progresso na nuvem" sempre vencia o local,
-        // sem comparar nada. Isso apagava progresso de verdade sempre que a
-        // pessoa logava num aparelho com uma sincronização mais antiga/menor
-        // já salva (ex.: um usuário avançado logando pela primeira vez num
-        // celular novo). Agora compara os dois lados e fica com o mais
-        // avançado — nuvem só "vence" quando é ela quem tem mais progresso.
-        const currentLocal = loadProgress();
-        const cloudProg = userAccount.progress ? sanitizeProgress(userAccount.progress) : null;
-
-        if (isLocalMoreAdvanced(currentLocal, cloudProg)) {
-          // Local está à frente (ou a nuvem ainda não tem nada) — usa o
-          // local e sobe pro servidor, pra nuvem não ficar pra trás.
-          setProgress(currentLocal);
-          updateProgressRequest(withCourseStats(currentLocal)).catch(() => {});
-        } else {
-          // Nuvem está à frente (ou empatada) — restaura o progresso dela.
-          setProgress(cloudProg);
-        }
+        // Ao criar conta ou logar, o progresso mostrado é sempre o da CONTA
+        // (sanitizeProgress(null) já devolve o progresso padrão vazio para
+        // uma conta nova) — o progresso de convidado deste navegador nunca é
+        // adotado nem enviado ao servidor aqui. Ele continua salvo em
+        // localStorage sem ser tocado, e volta a aparecer normalmente se a
+        // pessoa sair da conta (modo convidado).
+        //
+        // REGRESSÃO REMOVIDA DE PROPÓSITO: esta função já comparou os dois
+        // lados e ficou com "o mais avançado" (ver git blame / isLocalMoreAdvanced,
+        // removida). Isso fazia uma conta nova, ou uma conta existente que
+        // ainda não tinha progresso salvo, herdar automaticamente o que
+        // estivesse em localStorage neste navegador — inclusive progresso de
+        // OUTRA pessoa que jogou como convidado no mesmo aparelho antes.
+        setProgress(sanitizeProgress(userAccount.progress));
       }
     } else if (entryChoice !== 'account' && lastSyncedUserIdRef.current !== null) {
       lastSyncedUserIdRef.current = null;
@@ -346,6 +341,27 @@ export const ProgressProvider = ({ children }) => {
     });
   }, [checkAchievements]);
 
+  // Marca o prêmio mensal como resgatado. Só grava os 3 campos de
+  // rastreamento — moedas e título já foram concedidos por addPoints()/
+  // buyShopItem() antes desta chamada, no próprio MonthlyWinnerModal.
+  //
+  // REGRESSÃO: MonthlyWinnerModal.handleClaim() gravava esses 3 campos direto
+  // em localStorage.setItem(), sem passar por setProgress(). O useEffect de
+  // auto-persistência do provider (que roda a cada mudança de `progress`,
+  // inclusive as disparadas por addPoints/buyShopItem no mesmo clique)
+  // sobrescrevia o localStorage com o estado em memória logo em seguida — que
+  // não tinha os 3 campos — desfazendo o resgate no ato. Ver storage.js:
+  // defaultProgress e saneiaProgresso() também precisaram aprender esses 3
+  // campos, senão sanitizeProgress() os apagava em todo load.
+  const claimMonthlyReward = useCallback((winnerInfo) => {
+    setProgress(prev => ({
+      ...prev,
+      lastMonthlyRewardMonth: winnerInfo.month,
+      pendingMonthlyReward: null,
+      isMonthlyChampion: winnerInfo.rank === 1,
+    }));
+  }, []);
+
   // Troca entre os temas já adquiridos (o padrão está sempre liberado)
   const setTheme = useCallback((themeId) => {
     setProgress(prev => ({ ...prev, selectedTheme: themeId }));
@@ -480,6 +496,7 @@ export const ProgressProvider = ({ children }) => {
     completeDailyChallenge,
     incrementReviewed,
     buyShopItem,
+    claimMonthlyReward,
     setTheme,
     setSelectedEffect,
     setSelectedAvatar,

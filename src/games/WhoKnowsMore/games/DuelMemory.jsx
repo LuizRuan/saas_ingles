@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { shuffleArray } from '../../../data/words';
+import { AVAILABLE_COURSES } from '../../../data/index';
+import { useProgress } from '../../../hooks/useProgress';
 import useSound from '../../../hooks/useSound';
 import useSpeech from '../../../hooks/useSpeech';
 import AvatarDisplay from '../../../components/Avatar/AvatarDisplay';
@@ -49,6 +51,12 @@ const DuelMemory = ({
   const roundEndCalledRef     = useRef(false);
   const { playFlip, playMatch, playCorrect } = useSound();
   const { speakNormal } = useSpeech();
+  const { progress } = useProgress();
+  // Bandeira do idioma-alvo do curso ativo — este componente é usado no modo
+  // bot (não no duelo humano, que é English-only), então precisa refletir o
+  // curso ativo em vez de assumir sempre inglês.
+  const targetFlag = AVAILABLE_COURSES.find(c => c.id === (progress.activeCourse || 'en-pt'))?.flag || '🇺🇸';
+  const targetName = (AVAILABLE_COURSES.find(c => c.id === (progress.activeCourse || 'en-pt'))?.targetName || 'Inglês').toLowerCase();
 
   // ─── Bot timer ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -161,7 +169,7 @@ const DuelMemory = ({
 
       {/* Progresso */}
       <div style={{ textAlign: 'center', marginBottom: 'var(--space-sm)', fontSize: 'var(--fs-sm)', color: 'var(--text-secondary)' }}>
-        🃏 Encontre os {PAIRS} pares: inglês + português &nbsp;|&nbsp; {pairsFound}/{PAIRS} pares encontrados
+        🃏 Encontre os {PAIRS} pares: {targetName} + português &nbsp;|&nbsp; {pairsFound}/{PAIRS} pares encontrados
       </div>
 
       {/* Progress bar */}
@@ -185,7 +193,7 @@ const DuelMemory = ({
                 <div className="memory-card-front"><span>?</span></div>
                 <div className="memory-card-back">
                   <span className={`card-text ${card.type === 'en' ? 'en' : 'pt'}`}>{card.text}</span>
-                  <span className="card-lang">{card.type === 'en' ? '🇺🇸' : '🇧🇷'}</span>
+                  <span className="card-lang">{card.type === 'en' ? targetFlag : '🇧🇷'}</span>
                 </div>
               </div>
             </button>

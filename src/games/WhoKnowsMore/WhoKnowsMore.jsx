@@ -644,7 +644,7 @@ const WhoKnowsMore = () => {
       ...prev,
       { roundNum: duel.roundIndex + 1, playerDelta, botDelta: opponentDelta, fromHuman: true },
     ]);
-  }, [isHuman, duel.roundResult, duel.myId, playCorrect, playWrong]);
+  }, [isHuman, duel.roundResult, duel.roundIndex, duel.myId, playCorrect, playWrong]);
 
   // Fim de partida: premia UMA vez por partida (awardedMatchRef) e não paga
   // nada quando o oponente desistiu (ver src/utils/duelReward.js).

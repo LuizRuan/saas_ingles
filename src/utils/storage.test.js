@@ -173,6 +173,32 @@ describe('saneamento (localStorage é entrada não confiável)', () => {
     expect(p.wordStats.Hello).toMatchObject({ correct: 2, wrong: 1 });
   });
 
+  it('regressão: campos do Campeonato Mensal sobrevivem ao saneamento', () => {
+    // Bug real: os 3 campos não existiam em defaultProgress nem no retorno de
+    // saneiaProgresso(), então todo load/save (via sanitizeProgress) os
+    // apagava silenciosamente — mesmo que o resgate tivesse gravado certo.
+    gravarProgresso({
+      lastMonthlyRewardMonth: '2026-07',
+      pendingMonthlyReward: { month: '2026-08', rank: 2, claimed: false },
+      isMonthlyChampion: true,
+    });
+    const p = loadProgress();
+    expect(p.lastMonthlyRewardMonth).toBe('2026-07');
+    expect(p.pendingMonthlyReward).toEqual({ month: '2026-08', rank: 2, claimed: false });
+    expect(p.isMonthlyChampion).toBe(true);
+  });
+
+  it('rejeita pendingMonthlyReward forjado/malformado', () => {
+    gravarProgresso({ pendingMonthlyReward: { rank: 1 } }); // sem month
+    expect(loadProgress().pendingMonthlyReward).toBeNull();
+
+    gravarProgresso({ pendingMonthlyReward: { month: '2026-08', rank: 99 } }); // rank inválido
+    expect(loadProgress().pendingMonthlyReward).toBeNull();
+
+    gravarProgresso({ pendingMonthlyReward: 'nao-e-objeto' });
+    expect(loadProgress().pendingMonthlyReward).toBeNull();
+  });
+
   it('configurações só aceitam booleanos', () => {
     localStorage.setItem('englishplay_settings',
       JSON.stringify({ soundEnabled: 'sim', animationsEnabled: 1, autoPronounce: false, extra: 'lixo' }));

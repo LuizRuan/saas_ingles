@@ -5,7 +5,7 @@ import useSound from '../hooks/useSound';
 import './MonthlyWinnerModal.css';
 
 const MonthlyWinnerModal = () => {
-  const { progress, addPoints, buyShopItem } = useProgress();
+  const { progress, addPoints, buyShopItem, claimMonthlyReward } = useProgress();
   const { playAchievement } = useSound();
   const [winnerInfo, setWinnerInfo] = useState(null);
 
@@ -35,15 +35,9 @@ const MonthlyWinnerModal = () => {
       buyShopItem({ id: winnerInfo.reward.titleId, price: 0, category: 'titulo' });
     }
 
-    // Update localStorage progress
-    const stored = JSON.parse(localStorage.getItem('englishplay_progress') || '{}');
-    const updatedProgress = {
-      ...stored,
-      lastMonthlyRewardMonth: winnerInfo.month,
-      pendingMonthlyReward: null,
-      isMonthlyChampion: winnerInfo.rank === 1
-    };
-    localStorage.setItem('englishplay_progress', JSON.stringify(updatedProgress));
+    // Marca o resgate — sempre via o contexto, nunca localStorage direto (ver
+    // o comentário de regressão em claimMonthlyReward, em useProgress.jsx).
+    claimMonthlyReward(winnerInfo);
 
     setWinnerInfo(null);
   };
@@ -70,7 +64,7 @@ const MonthlyWinnerModal = () => {
         </div>
 
         <button className="btn btn-primary btn-lg monthly-claim-btn" onClick={handleClaim}>
-          Resgatar +5.000 Moedas 🪙
+          Resgatar +{winnerInfo.reward.coins} Moedas 🪙
         </button>
       </div>
     </div>

@@ -9,7 +9,17 @@ import { AVAILABLE_COURSES } from '../data/index';
 // antes esta era uma lista literal `['en-pt']`, e liberar o espanhol no seletor
 // sem editá-la fazia a escolha voltar pro inglês no reload seguinte — o seletor
 // parecia simplesmente não salvar.
-const CURSOS_VALIDOS = AVAILABLE_COURSES.filter(c => c.available !== false).map(c => c.id);
+//
+// REGRESSÃO: NÃO filtrar por `available` aqui. `available: false` em
+// AVAILABLE_COURSES é só uma flag visual (mostra "Em breve" no dropdown) —
+// quando es-pt ganhou essa flag, filtrar por ela fazia CURSOS_VALIDOS virar
+// ['en-pt'] sozinho, e saneiaProgresso() forçava `activeCourse` de volta pro
+// inglês toda vez. O efeito colateral era pior do que parecia: quem estava
+// em es-pt tinha o INGLÊS real apagado, porque saneiaCursosGuardados() então
+// recebia esse 'en-pt' forçado como "curso ativo" e descartava a entrada de
+// courseProgress com esse mesmo id — exatamente onde o progresso de inglês
+// tinha sido estacionado pelo switchCourse(). Ver courseProgress.test.js.
+const CURSOS_VALIDOS = AVAILABLE_COURSES.map(c => c.id);
 
 const STORAGE_KEY = 'englishplay_progress';
 const SETTINGS_KEY = 'englishplay_settings';
@@ -92,6 +102,14 @@ export const defaultProgress = {
   // Só existe para o servidor conseguir ordenar o ranking por idioma; é
   // recalculado a cada saneamento e nunca deve ser lido pelo cliente.
   courseStats: {},
+  // Campeonato Mensal de Níveis (ver src/utils/monthlyReward.js e
+  // MonthlyWinnerModal.jsx). `pendingMonthlyReward` é atribuído no fechamento
+  // do mês (formato { month, rank, claimed }) e zerado ao resgatar via
+  // claimMonthlyReward(); `lastMonthlyRewardMonth` guarda o mês do último
+  // resgate para não deixar resgatar duas vezes.
+  lastMonthlyRewardMonth: null,
+  pendingMonthlyReward: null,
+  isMonthlyChampion: false,
 };
 
 const defaultSettings = {
@@ -232,6 +250,18 @@ const getYesterdayStr = () => {
   return d.toDateString();
 };
 
+// pendingMonthlyReward controla uma recompensa em moedas/título — validado
+// com mais rigor que um campo qualquer, mesmo sem nada no código hoje
+// atribuindo um valor legítimo a ele ainda (ver monthlyReward.js): sem isto,
+// alguém poderia forjar `{ rank: 1, month: qualquer coisa }` via devtools.
+const saneiaPendingMonthlyReward = (bruto) => {
+  if (!bruto || typeof bruto !== 'object') return null;
+  const month = texto(bruto.month);
+  const rank = inteiro(bruto.rank, 0);
+  if (!month || rank < 1 || rank > 3) return null;
+  return { month, rank, claimed: booleano(bruto.claimed, false) };
+};
+
 const saneiaProgresso = (bruto) => {
   const p = objeto(bruto);
   const jogos = objeto(p.gamesCompleted);
@@ -303,6 +333,9 @@ const saneiaProgresso = (bruto) => {
       p.courseProgress,
       CURSOS_VALIDOS.includes(p.activeCourse) ? p.activeCourse : DEFAULT_COURSE
     ),
+    lastMonthlyRewardMonth: texto(p.lastMonthlyRewardMonth),
+    pendingMonthlyReward: saneiaPendingMonthlyReward(p.pendingMonthlyReward),
+    isMonthlyChampion: booleano(p.isMonthlyChampion, false),
   };
 };
 
@@ -335,38 +368,17 @@ const migrateStats = (progress) => {
   };
 };
 
-const revertMonthlyBugBonus = (progress) => {
-  if (!progress) return progress;
-  const copy = { ...progress };
-  if (copy.lastMonthlyRewardMonth === '2026-08' && !copy.pendingMonthlyReward) {
-    delete copy.lastMonthlyRewardMonth;
-    copy.isMonthlyChampion = false;
-    copy.shopItems = [];
-    copy.shopPurchases = 0;
-    copy.selectedTitle = null;
-    copy.selectedEffect = null;
-    copy.selectedTheme = 'default';
-    copy.selectedSoundPack = 'default';
-    copy.selectedAvatar = null;
-    if (typeof copy.totalScore === 'number' && copy.totalScore >= 5000) {
-      copy.totalScore = Math.max(0, copy.totalScore - 5000);
-    }
-  }
-  return copy;
-};
-
 export const getDefaultProgress = () => ({ ...defaultProgress });
 
 export const sanitizeProgress = (data) => {
   try {
     if (!data) return getDefaultProgress();
     const sanitized = migrateStats(saneiaProgresso(data));
-    const revertido = revertMonthlyBugBonus(sanitized);
     // Por último, e sempre: derivar aqui (em vez de deixar quem chama montar)
     // é o que garante que o índice nunca fica velho — migrateStats acabou de
     // recontar wordsStudied, então este é o único ponto em que os dois lados
     // com certeza concordam.
-    return { ...revertido, courseStats: buildCourseStats(revertido) };
+    return { ...sanitized, courseStats: buildCourseStats(sanitized) };
   } catch {
     return getDefaultProgress();
   }

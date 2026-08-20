@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+import { AVAILABLE_COURSES } from '../../data/index';
+import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 
 // Embaralha determinístico para as 6 cartas da memória
@@ -18,6 +20,10 @@ const shuffleCards = (pairWords) => {
 const DailyMemoryStep = ({ challenge, stepState, onAnswer }) => {
   const { words: pairWords, answer } = challenge;
   const { playFlip, playMatch, playCorrect } = useSound();
+  const { progress } = useProgress();
+  // Bandeira do idioma-alvo do curso ativo — senão a carta mostra 🇺🇸 mesmo
+  // para quem está estudando espanhol.
+  const targetFlag = AVAILABLE_COURSES.find(c => c.id === (progress.activeCourse || 'en-pt'))?.flag || '🇺🇸';
 
   const [cards] = useState(() => shuffleCards(pairWords));
   const [flipped, setFlipped] = useState([]);
@@ -101,7 +107,7 @@ const DailyMemoryStep = ({ challenge, stepState, onAnswer }) => {
               {isFlipped ? (
                 <div>
                   <div>{card.text}</div>
-                  <span style={{ fontSize: '10px', opacity: 0.6 }}>{card.type === 'en' ? '🇺🇸' : '🇧🇷'}</span>
+                  <span style={{ fontSize: '10px', opacity: 0.6 }}>{card.type === 'en' ? targetFlag : '🇧🇷'}</span>
                 </div>
               ) : (
                 <span style={{ fontSize: '1.5rem', opacity: 0.5 }}>❓</span>

@@ -198,6 +198,25 @@ describe('jornada real de troca de idioma', () => {
     expect(p.courseProgress['en-pt'].wordsStudied).toBe(660);
     expect(p.courseProgress['es-pt']).toBeUndefined();
   });
+
+  it('regressão: available:false num curso não pode apagar o OUTRO curso ativo', () => {
+    // es-pt está marcado available:false em data/index.js (mostra "Em breve" no
+    // seletor). Essa flag é só visual — CURSOS_VALIDOS não pode filtrar por ela,
+    // senão sanitizeProgress força activeCourse de volta pro padrão e, no mesmo
+    // passo, saneiaCursosGuardados descarta o courseProgress do curso que
+    // acabou de ser "ativo" (o inglês real, estacionado pelo switchCourse),
+    // achando que ele é o próprio ativo forçado e não precisa ficar parqueado.
+    let p = sanitizeProgress({ activeCourse: 'en-pt' });
+    p = estudar(p, 'en-pt', 100);
+
+    p = sanitizeProgress(switchCourse(p, 'es-pt'));
+    // Se CURSOS_VALIDOS não aceitar es-pt, isto já falharia aqui:
+    expect(p.activeCourse).toBe('es-pt');
+
+    // O inglês tem que sobreviver ao saneamento, estacionado em courseProgress.
+    expect(p.courseProgress['en-pt']).toBeDefined();
+    expect(p.courseProgress['en-pt'].wordsStudied).toBe(100);
+  });
 });
 
 // ───────────────────────────────────────────────────────────────────────────

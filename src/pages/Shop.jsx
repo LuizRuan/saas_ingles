@@ -78,6 +78,7 @@ const shopItems = [
 
 const categories = [
   { id: 'all',     name: 'Todos',             icon: '🏪' },
+  { id: 'tema',    name: 'Temas',             icon: '🎨' },
   { id: 'powerup', name: 'Power-ups',          icon: '⚡' },
   { id: 'avatar',  name: 'Avatares',           icon: '😊' },
   { id: 'titulo',  name: 'Títulos 🏷️',         icon: '🏷️' },
