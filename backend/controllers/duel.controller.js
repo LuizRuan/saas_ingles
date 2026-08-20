@@ -96,32 +96,35 @@ export const getLevelLeaderboard = async (req, res) => {
   // foi introduzido depois). Sem o fallback, só a conta que sincronizou após
   // a feature aparecer no ranking — o filtro `[campo]: { $gt: 0 }` exclui
   // quem ainda tem os dados só em `progress.wordsStudied` (campo plano).
+  //
+  // NÃO aplicamos .limit() aqui: o sort do Mongo ordena por `[campo]`, mas
+  // quem caiu no fallback tem null nesse campo — o Mongo os coloca no final,
+  // independentemente do wordsStudied real. Buscar um pool maior e ordenar no
+  // JS garante que o ranking final reflita o valor efetivo de cada conta.
   const users = await User.find({
     nickname: { $ne: null },
     $or: [
       { [campo]: { $gt: 0 } },
-      // Fallback: campo courseStats ausente → usa o wordsStudied plano.
-      // Para contas antigas que só estudaram inglês isso é preciso; quem já
-      // trocou de curso pode mostrar o score do curso ativo (comportamento de
-      // transição aceitável — some quando o cliente sincronizar courseStats).
       { [campo]: { $exists: false }, 'progress.wordsStudied': { $gt: 0 } },
     ],
   })
-    .sort({ [campo]: -1 })
-    .limit(limit)
     // wordsStudied plano incluído para o fallback funcionar nas entries.
     .select(`nickname progress.selectedAvatar progress.selectedTitle progress.wordsStudied ${campo} -_id`)
     .lean();
 
-  const entries = users.map(u => ({
-    nickname: u.nickname,
-    avatar: u.progress?.selectedAvatar || 'U',
-    // Prefere o índice por curso; recai no campo plano para contas antigas.
-    wordsStudied: u.progress?.courseStats?.[courseId]?.wordsStudied
-                  ?? u.progress?.wordsStudied
-                  ?? 0,
-    selectedTitle: u.progress?.selectedTitle || null,
-  }));
+  const entries = users
+    .map(u => ({
+      nickname: u.nickname,
+      avatar: u.progress?.selectedAvatar || 'U',
+      // Prefere o índice por curso; recai no campo plano para contas antigas.
+      wordsStudied: u.progress?.courseStats?.[courseId]?.wordsStudied
+                    ?? u.progress?.wordsStudied
+                    ?? 0,
+      selectedTitle: u.progress?.selectedTitle || null,
+    }))
+    // Ordenar no JS pelo valor efetivo (com fallback já aplicado).
+    .sort((a, b) => b.wordsStudied - a.wordsStudied)
+    .slice(0, limit);
 
   res.status(200).json({ course: courseId, entries });
 };
