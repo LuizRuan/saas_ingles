@@ -20,9 +20,12 @@ const ReviewErrors = () => {
 
   const courseName = AVAILABLE_COURSES.find(c => c.id === progress.activeCourse)?.targetName || 'Inglês';
 
-  // === PALAVRAS (quiz de múltipla escolha — não muda) ===
-  const [reviewWords] = useState(() => getWordsToReview(progress, words));
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // === PALAVRAS (quiz de múltipla escolha — fila com re-enfileiramento) ===
+  // BUG ANTERIOR: usava um array fixo + índice, e errar avançava sem repetir.
+  // O `lastResult` ficava 'wrong' e a Home continuava mostrando pendência.
+  // Agora usa fila: errar manda a palavra pro final, e ela volta até acertar.
+  const [wordQueue, setWordQueue] = useState(() => getWordsToReview(progress, words));
+  const totalWords = useMemo(() => getWordsToReview(progress, words).length, []);
   const [feedback, setFeedback] = useState(null);
   const [selected, setSelected] = useState(null);
 
@@ -34,8 +37,10 @@ const ReviewErrors = () => {
   const totalPhrases = useMemo(() => getPhrasesToReview(progress).length, []);
   const phrasesReviewed = totalPhrases - phraseQueue.length;
 
-  // --- Handlers de PALAVRA (inalterado) ---
-  const current = reviewWords[currentIndex];
+  // --- Handlers de PALAVRA ---
+  const current = wordQueue[0] || null;
+  const wordsReviewed = totalWords - wordQueue.length;
+
   const options = useMemo(() => {
     if (!current) return [];
     const wrong = shuffleArray(words.filter(w => w.en !== current.en)).slice(0, 3);
@@ -58,10 +63,16 @@ const ReviewErrors = () => {
   }, [feedback, current, handleCorrectAnswer, handleWrongAnswer, incrementReviewed, playCorrect, playWrong]);
 
   const nextWord = useCallback(() => {
-    setCurrentIndex(prev => prev + 1);
+    if (feedback === 'correct') {
+      // Acertou: remove da fila
+      setWordQueue(prev => prev.slice(1));
+    } else {
+      // Errou: manda pro final pra tentar de novo
+      setWordQueue(prev => [...prev.slice(1), prev[0]]);
+    }
     setFeedback(null);
     setSelected(null);
-  }, []);
+  }, [feedback]);
 
   // --- Handlers de FRASE (quiz de tradução — corrigido) ---
   // O modelo anterior tentava esconder uma palavra da frase e pedir pra
@@ -220,7 +231,7 @@ const ReviewErrors = () => {
   }, [phraseFeedback]);
 
   // === TELA: Nenhuma revisão pendente ===
-  if (reviewWords.length === 0 && phraseQueue.length === 0 && currentIndex === 0) {
+  if (totalWords === 0 && totalPhrases === 0) {
     return (
       <div className="page">
         <div className="container game-container text-center animate-fade-in-up">
@@ -235,8 +246,8 @@ const ReviewErrors = () => {
     );
   }
 
-  // === TELA: Quiz de PALAVRAS (múltipla escolha — inalterado) ===
-  if (currentIndex < reviewWords.length) {
+  // === TELA: Quiz de PALAVRAS (múltipla escolha — fila) ===
+  if (wordQueue.length > 0 && current) {
     return (
       <div className="page">
         <div className="container game-container">
@@ -247,12 +258,12 @@ const ReviewErrors = () => {
               <h2>Revisar Erros</h2>
             </div>
             <div className="game-score">
-              <div className="game-score-item"><span>📝</span> <span className="value">{currentIndex + 1}/{reviewWords.length}</span></div>
+              <div className="game-score-item"><span>📝</span> <span className="value">{wordsReviewed}/{totalWords}</span></div>
             </div>
           </div>
 
           <div className="progress-bar" style={{ marginBottom: 'var(--space-xl)' }}>
-            <div className="progress-bar-fill" style={{ width: `${(currentIndex / reviewWords.length) * 100}%` }}></div>
+            <div className="progress-bar-fill" style={{ width: `${(wordsReviewed / totalWords) * 100}%` }}></div>
           </div>
 
           <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-xl)', textAlign: 'center', marginBottom: 'var(--space-lg)' }}>
@@ -288,7 +299,7 @@ const ReviewErrors = () => {
               </p>
               <WordExplanation word={current} />
               <button className="btn btn-primary" onClick={nextWord} style={{ width: '100%', marginTop: 'var(--space-md)' }}>
-                Próxima →
+                {feedback === 'correct' ? 'Próxima →' : 'Tentar de novo →'}
               </button>
             </div>
           )}
@@ -393,8 +404,8 @@ const ReviewErrors = () => {
           <span style={{ fontSize: '4rem' }}>✅</span>
           <h2 style={{ margin: 'var(--space-md) 0' }}>Revisão Concluída!</h2>
           <p className="text-secondary">
-            Você revisou {reviewWords.length > 0 ? `${reviewWords.length} palavra${reviewWords.length === 1 ? '' : 's'}` : ''}
-            {reviewWords.length > 0 && totalPhrases > 0 ? ' e ' : ''}
+            Você revisou {totalWords > 0 ? `${totalWords} palavra${totalWords === 1 ? '' : 's'}` : ''}
+            {totalWords > 0 && totalPhrases > 0 ? ' e ' : ''}
             {totalPhrases > 0 ? `${totalPhrases} frase${totalPhrases === 1 ? '' : 's'}` : ''}.
             Continue praticando!
           </p>
