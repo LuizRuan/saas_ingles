@@ -359,6 +359,19 @@ const migrateStats = (progress) => {
     }
   }
 
+  // ── Caminho inverso: resgatar vocabulário preso em phraseStats ──────────
+  // BUG ANTERIOR: jogos como Jogo da Memória / Tradução gravavam a chave
+  // "Tired" em phraseStats (não resolviam a canônica). migrateStats só
+  // varria wordStats, então "Tired" em phraseStats nunca era movido de volta.
+  // Resultado: fantasma eterno com lastResult:'wrong', loop de revisão.
+  for (const rawKey of Object.keys(phraseStats)) {
+    const canonical = resolveWordKey(rawKey, courseId);
+    if (canonical) {
+      wordStats[canonical] = mergeStats(wordStats[canonical], phraseStats[rawKey]);
+      delete phraseStats[rawKey];
+    }
+  }
+
   return {
     ...progress,
     wordStats,

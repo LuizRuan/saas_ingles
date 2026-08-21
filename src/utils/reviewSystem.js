@@ -195,6 +195,35 @@ export const recordWordResult = (progress, rawKey, isCorrect) => {
 
   const updated = { ...progress, [bucketName]: bucket };
 
+  // ── Limpeza de entradas-fantasma no balde OPOSTO ──────────────────────
+  // BUG ANTERIOR: um jogo gravava a chave "Tired" em phraseStats (o jogo não
+  // resolveu a chave canônica); na revisão, recordWordResult resolvia "Tired"
+  // como vocabulário e punha lastResult:'correct' em wordStats — mas
+  // phraseStats["Tired"] nunca era tocado, ficava com lastResult:'wrong', e
+  // getReviewUrgencyLite continuava contando aquele fantasma, criando um loop
+  // infinito de revisão.
+  //
+  // Solução: ao gravar num balde, eliminar a mesma chave (raw ou canônica) do
+  // balde oposto. Se o fantasma tinha estatísticas úteis, elas já foram
+  // incorporadas por migrateStats no carregamento; aqui só resta a carcaça.
+  const oppositeBucketName = canonical ? 'phraseStats' : 'wordStats';
+  const oppositeBucket = updated[oppositeBucketName];
+  // Checa a rawKey (forma bruta) E a canônica — o fantasma pode estar sob
+  // qualquer uma das duas grafias.
+  const ghostKeys = [...new Set([String(rawKey), key])];
+  let cleaned = false;
+  if (oppositeBucket) {
+    for (const gk of ghostKeys) {
+      if (oppositeBucket[gk]) {
+        if (!cleaned) {
+          updated[oppositeBucketName] = { ...oppositeBucket };
+          cleaned = true;
+        }
+        delete updated[oppositeBucketName][gk];
+      }
+    }
+  }
+
   if (isCorrect) {
     updated.totalCorrect = (progress.totalCorrect || 0) + 1;
     updated.currentStreak = (progress.currentStreak || 0) + 1;
