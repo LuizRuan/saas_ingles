@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:sentences": "vitest run src/utils/sentenceCatalog.test.js src/utils/sentenceSkill.test.js src/utils/sentenceSelection.test.js src/utils/sentenceReview.test.js src/utils/sentenceAudit.test.js",
+    "test:sentences": "vitest run src/utils/sentenceCatalog.test.js src/utils/sentenceWords.test.js src/utils/sentenceSkill.test.js src/utils/sentenceSelection.test.js src/utils/sentenceReview.test.js src/utils/sentenceAudit.test.js",
     "test:watch": "vitest"
   },
   "dependencies": {

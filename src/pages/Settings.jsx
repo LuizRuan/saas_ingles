@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProgress } from '../hooks/useProgress';
 import { useAuthProfile } from '../hooks/useAuthProfile';
@@ -11,11 +11,13 @@ import AvatarDisplay from '../components/Avatar/AvatarDisplay';
 import CourseSelector from '../components/Navbar/CourseSelector';
 import { getCurrentLevel, getUserTitle } from '../utils/levelSystem';
 import { MUSIC_STATE_EVENT } from '../hooks/useBackgroundMusic';
+import './Settings.css';
 
 const Settings = () => {
   const navigate = useNavigate();
   const { progress, setTheme, setSelectedEffect } = useProgress();
   const [settings, setSettings] = useState(() => loadSettings());
+  const lastAudibleMusicVolume = useRef(Math.max(settings.musicVolume || 0, 0.3));
   const [musicIsPlaying, setMusicIsPlaying] = useState(
     () => document.documentElement.dataset.backgroundMusic === 'playing'
   );
@@ -84,6 +86,26 @@ const Settings = () => {
     // Efeito imediato: o CSS reage ao atributo em <html>
     if (key === 'animationsEnabled') applyAnimations(value);
   }, [settings]);
+
+  const setMusicVolumePercent = useCallback((percent) => {
+    const normalized = Math.max(0, Math.min(100, Number(percent) || 0));
+    if (normalized > 0) lastAudibleMusicVolume.current = normalized / 100;
+    updateSetting('musicVolume', normalized / 100);
+  }, [updateSetting]);
+
+  const adjustMusicVolume = useCallback((amount) => {
+    const current = Math.round((settings.musicVolume ?? 0.3) * 100);
+    setMusicVolumePercent(current + amount);
+  }, [settings.musicVolume, setMusicVolumePercent]);
+
+  const toggleMusicMute = useCallback(() => {
+    if ((settings.musicVolume ?? 0.3) > 0) {
+      lastAudibleMusicVolume.current = settings.musicVolume;
+      setMusicVolumePercent(0);
+    } else {
+      setMusicVolumePercent(Math.round(lastAudibleMusicVolume.current * 100));
+    }
+  }, [settings.musicVolume, setMusicVolumePercent]);
 
   const ownedThemes = THEMES.filter(
     theme => theme.id === DEFAULT_THEME || (progress.shopItems || []).includes(`theme_${theme.id}`)
@@ -284,41 +306,67 @@ const Settings = () => {
             </span>
           </div>
 
-          {/* Volume slider — só aparece quando música está ativa */}
+          {/* Controle de volume — só aparece quando música está ativa */}
           {settings.musicEnabled && (
-            <div style={{ marginTop: 'var(--space-md)', padding: 'var(--space-sm) 0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                <span style={{ fontSize: 'var(--fs-lg)', minWidth: '28px', textAlign: 'center' }}>
-                  {settings.musicVolume <= 0 ? '🔇' : settings.musicVolume < 0.3 ? '🔈' : settings.musicVolume < 0.7 ? '🔉' : '🔊'}
-                </span>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={Math.round((settings.musicVolume ?? 0.3) * 100)}
-                  onChange={(e) => updateSetting('musicVolume', Number(e.target.value) / 100)}
-                  style={{
-                    flex: 1,
-                    height: '6px',
-                    appearance: 'none',
-                    WebkitAppearance: 'none',
-                    background: `linear-gradient(to right, var(--accent-purple) 0%, var(--accent-purple) ${(settings.musicVolume ?? 0.3) * 100}%, var(--glass-border) ${(settings.musicVolume ?? 0.3) * 100}%, var(--glass-border) 100%)`,
-                    borderRadius: '4px',
-                    outline: 'none',
-                    cursor: 'pointer',
-                  }}
-                />
-                <span style={{
-                  fontSize: 'var(--fs-sm)',
-                  color: 'var(--text-secondary)',
-                  minWidth: '38px',
-                  textAlign: 'right',
-                  fontWeight: 600,
-                }}>
+            <div className="music-volume-panel">
+              <div className="music-volume-heading">
+                <div>
+                  <span className="music-volume-title">Volume da música</span>
+                  <span className="music-volume-hint">Ajuste para um nível confortável</span>
+                </div>
+                <output className="music-volume-value" aria-live="polite">
                   {Math.round((settings.musicVolume ?? 0.3) * 100)}%
-                </span>
+                </output>
               </div>
-              <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-xs)' }}>
+
+              <div className="music-volume-controls">
+                <button
+                  type="button"
+                  className="music-volume-icon-button"
+                  onClick={toggleMusicMute}
+                  aria-label={(settings.musicVolume ?? 0.3) > 0 ? 'Silenciar música' : 'Restaurar volume'}
+                  title={(settings.musicVolume ?? 0.3) > 0 ? 'Silenciar' : 'Restaurar volume'}
+                >
+                  {settings.musicVolume <= 0 ? '🔇' : settings.musicVolume < 0.35 ? '🔈' : settings.musicVolume < 0.7 ? '🔉' : '🔊'}
+                </button>
+
+                <button
+                  type="button"
+                  className="music-volume-step"
+                  onClick={() => adjustMusicVolume(-10)}
+                  disabled={(settings.musicVolume ?? 0.3) <= 0}
+                  aria-label="Diminuir volume em 10 por cento"
+                >−</button>
+
+                <div className="music-volume-slider-wrap">
+                  <input
+                    className="music-volume-slider"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={Math.round((settings.musicVolume ?? 0.3) * 100)}
+                    onChange={(event) => setMusicVolumePercent(event.target.value)}
+                    aria-label="Volume da música"
+                    aria-valuetext={`${Math.round((settings.musicVolume ?? 0.3) * 100)} por cento`}
+                    style={{ '--music-volume': `${Math.round((settings.musicVolume ?? 0.3) * 100)}%` }}
+                  />
+                  <div className="music-volume-scale" aria-hidden="true">
+                    <span>Baixo</span>
+                    <span>Alto</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="music-volume-step"
+                  onClick={() => adjustMusicVolume(10)}
+                  disabled={(settings.musicVolume ?? 0.3) >= 1}
+                  aria-label="Aumentar volume em 10 por cento"
+                >+</button>
+              </div>
+
+              <p className="music-volume-note">
                 🎧 A música toca enquanto você navega e pausa automaticamente ao trocar de aba.
               </p>
             </div>

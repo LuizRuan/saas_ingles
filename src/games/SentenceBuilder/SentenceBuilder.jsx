@@ -8,12 +8,11 @@ import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import { selectSentenceSet } from '../../utils/sentenceSelection';
 import { getSentenceDifficultyBand, getSentenceSkillRating } from '../../utils/sentenceSkill';
+import { splitSentenceIntoWords } from '../../utils/sentenceWords';
 import { GAME_REWARDS } from '../../utils/scoring';
 import './SentenceBuilder.css';
 
 const ROUNDS = 5;
-
-const stripPunctuation = (str) => (str || '').replace(/[.,?!:;'"“”]/g, '').trim();
 
 // Os dados vêm do CURSO ATIVO (useCourseData), nunca do banco de inglês
 // importado direto — senão trocar para espanhol mantinha o jogo em inglês.
@@ -30,7 +29,7 @@ const generateGameSentences = (sentences, targetDifficulty, progress) =>
     phraseStats: progress.phraseStats,
   });
 
-const prepareWords = (s) => (s ? shuffleArray(s.words.map((w, i) => ({ ...w, en: stripPunctuation(w.en), id: i }))) : []);
+const prepareWords = (sentence) => sentence ? shuffleArray(splitSentenceIntoWords(sentence)) : [];
 
 const SentenceBuilder = () => {
   const { sentences } = useCourseData();
@@ -86,9 +85,10 @@ const SentenceBuilder = () => {
     setAvailableWords(prev => prev.filter(w => w.id !== wordObj.id));
 
     // Check if sentence is complete
-    if (newSelected.length === currentSentence.words.length) {
-      const formed = newSelected.map(w => stripPunctuation(w.en)).join(' ');
-      const correct = currentSentence.words.map(w => stripPunctuation(w.en)).join(' ');
+    const correctWords = splitSentenceIntoWords(currentSentence);
+    if (newSelected.length === correctWords.length) {
+      const formed = newSelected.map(word => word.en).join(' ');
+      const correct = correctWords.map(word => word.en).join(' ');
       
       if (formed.toLowerCase() === correct.toLowerCase()) {
         setFeedback('correct');

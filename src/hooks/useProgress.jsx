@@ -12,6 +12,7 @@ import { updateProgressRequest } from '../utils/authClient';
 import { appendRecentSentenceIds } from '../utils/sentenceCatalog';
 import { updateSentenceSkill } from '../utils/sentenceSkill';
 import { updateSentenceReviewQueue } from '../utils/sentenceReview';
+import { splitSentenceIntoWords } from '../utils/sentenceWords';
 
 const ProgressContext = createContext(null);
 
@@ -288,7 +289,7 @@ export const ProgressProvider = ({ children }) => {
       const result = {
         sentenceId: sentence.id,
         difficulty: sentence.difficulty,
-        wordCount: sentence.words.length,
+        wordCount: splitSentenceIntoWords(sentence).length,
         correct,
         ...metrics,
       };
