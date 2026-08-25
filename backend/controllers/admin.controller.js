@@ -23,9 +23,13 @@ export const getAdminDashboard = async (req, res) => {
     }
     : {};
 
-  const totalUsersPromise = User.countDocuments({});
-  const usersWithProgressPromise = User.countDocuments({ progress: { $ne: null } });
-  const totalFilteredPromise = search ? User.countDocuments(filter) : totalUsersPromise;
+  // `.exec()` e importante aqui: uma Query do Mongoose nao pode ser executada
+  // duas vezes. Sem busca, totalFiltered reaproveita a MESMA Promise do total;
+  // antes reaproveitava o objeto Query e o Mongoose lancava "Query was already
+  // executed", transformando toda abertura do Dashboard em erro 500.
+  const totalUsersPromise = User.countDocuments({}).exec();
+  const usersWithProgressPromise = User.countDocuments({ progress: { $ne: null } }).exec();
+  const totalFilteredPromise = search ? User.countDocuments(filter).exec() : totalUsersPromise;
   const usersPromise = User.find(filter)
     .select([
       'email',
@@ -41,7 +45,8 @@ export const getAdminDashboard = async (req, res) => {
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit)
-    .lean();
+    .lean()
+    .exec();
 
   const [totalUsers, usersWithProgress, totalFiltered, users] = await Promise.all([
     totalUsersPromise,

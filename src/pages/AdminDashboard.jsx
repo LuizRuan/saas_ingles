@@ -94,7 +94,6 @@ const AdminDashboard = () => {
             <h1>📊 Dashboard</h1>
             <p>Acompanhe as contas, os níveis, as moedas e os jogos preferidos.</p>
           </div>
-          <Link to="/admin/feedback" className="btn btn-secondary">💬 Ver feedbacks</Link>
         </header>
 
         <section className="admin-summary-grid" aria-label="Resumo das contas">
