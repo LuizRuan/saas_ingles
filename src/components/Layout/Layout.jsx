@@ -91,6 +91,15 @@ const Layout = ({ children }) => {
               <span>🔥</span>
               <span>{progress.dayStreak || 0}</span>
             </div>
+            {estaLogado && profile.isAdmin && (
+              <NavLink
+                to="/admin/dashboard"
+                className={({ isActive }) => `navbar-link navbar-admin-link ${isActive ? 'active' : ''}`}
+                title="Dashboard administrativo"
+              >
+                <span>📊</span> Dashboard
+              </NavLink>
+            )}
             {!estaLogado && (
               <NavLink to="/login" className="btn btn-secondary btn-sm">Entrar</NavLink>
             )}
@@ -113,7 +122,7 @@ const Layout = ({ children }) => {
       </main>
 
       {/* Mobile Bottom Nav */}
-      <nav className="mobile-nav hide-desktop">
+      <nav className={`mobile-nav hide-desktop ${estaLogado && profile.isAdmin ? 'mobile-nav--admin' : ''}`}>
         <NavLink to="/" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`} end>
           <img src="/inicio.png" alt="" width="1024" height="1024" style={{ height: '22px', width: 'auto', objectFit: 'contain' }} />
           <span>Início</span>
@@ -138,6 +147,12 @@ const Layout = ({ children }) => {
           <span className="icon">⚙️</span>
           <span>Config</span>
         </NavLink>
+        {estaLogado && profile.isAdmin && (
+          <NavLink to="/admin/dashboard" className={({ isActive }) => `mobile-nav-item mobile-nav-admin ${isActive ? 'active' : ''}`}>
+            <span className="icon">📊</span>
+            <span>Dashboard</span>
+          </NavLink>
+        )}
       </nav>
 
       {/* Efeitos comprados na Loja (confetti / fogos). A key remonta o

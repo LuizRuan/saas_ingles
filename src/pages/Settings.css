@@ -88,8 +88,7 @@
 }
 
 .music-volume-icon-button:focus-visible,
-.music-volume-step:focus-visible,
-.music-volume-slider:focus-visible {
+.music-volume-step:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--accent-purple) 30%, transparent);
   outline-offset: 3px;
 }
@@ -103,41 +102,65 @@
   min-width: 0;
 }
 
-.music-volume-slider {
+.music-volume-slider-shell {
+  position: relative;
   width: 100%;
-  height: 0.55rem;
+  height: 1.5rem;
+}
+
+.music-volume-slider {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   margin: 0;
-  border-radius: var(--radius-full);
   appearance: none;
   -webkit-appearance: none;
-  background: linear-gradient(
-    90deg,
-    var(--accent-purple) 0%,
-    var(--accent-blue) var(--music-volume),
-    color-mix(in srgb, var(--border-color) 75%, transparent) var(--music-volume),
-    color-mix(in srgb, var(--border-color) 75%, transparent) 100%
-  );
+  opacity: 0;
   cursor: pointer;
 }
 
-.music-volume-slider::-webkit-slider-thumb {
+.music-volume-track {
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 0.55rem;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--border-color) 75%, transparent);
+  transform: translateY(-50%);
+}
+
+.music-volume-track-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--music-volume);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+}
+
+.music-volume-track-thumb {
+  position: absolute;
+  top: 50%;
+  left: var(--music-volume);
   width: 1.25rem;
   height: 1.25rem;
   border: 3px solid var(--bg-card);
   border-radius: 50%;
-  appearance: none;
-  -webkit-appearance: none;
   background: var(--accent-blue);
   box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-purple) 45%, transparent);
+  transform: translate(-50%, -50%);
+  transition: box-shadow var(--transition-fast);
 }
 
-.music-volume-slider::-moz-range-thumb {
-  width: 0.95rem;
-  height: 0.95rem;
-  border: 3px solid var(--bg-card);
-  border-radius: 50%;
-  background: var(--accent-blue);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-purple) 45%, transparent);
+.music-volume-slider:focus-visible + .music-volume-track {
+  outline: 3px solid color-mix(in srgb, var(--accent-purple) 30%, transparent);
+  outline-offset: 4px;
+}
+
+.music-volume-slider:focus-visible + .music-volume-track .music-volume-track-thumb {
+  box-shadow:
+    0 2px 8px color-mix(in srgb, var(--accent-purple) 45%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--accent-blue) 18%, transparent);
 }
 
 .music-volume-scale {

@@ -83,7 +83,7 @@ describe('GET /api/auth/me', () => {
       .get('/api/auth/me')
       .set('Cookie', `${SESSION_COOKIE_NAME}=${token}`);
     expect(res.status).toBe(200);
-    expect(res.body.user).toEqual({ id: 'user-id-fake', email: 'ana@gmail.com' });
+    expect(res.body.user).toEqual({ id: 'user-id-fake', email: 'ana@gmail.com', isAdmin: false });
   });
 
   it('rejeita um JWT assinado com segredo diferente', async () => {
@@ -137,6 +137,38 @@ describe('POST /api/auth/duel-ticket', () => {
       .post('/api/auth/duel-ticket')
       .set('Cookie', `${SESSION_COOKIE_NAME}=${token}`);
     expect(res.status).toBe(503);
+  });
+});
+
+describe('GET /api/admin/dashboard', () => {
+  const sessionCookie = (email) => {
+    const token = jwt.sign({ sub: 'user-id-fake', email }, env.jwtSecret, { expiresIn: '7d' });
+    return `${SESSION_COOKIE_NAME}=${token}`;
+  };
+
+  it('rejeita quem não está autenticado', async () => {
+    const res = await request(app).get('/api/admin/dashboard');
+    expect(res.status).toBe(401);
+  });
+
+  it('rejeita uma conta autenticada que não está em ADMIN_EMAILS', async () => {
+    const res = await request(app)
+      .get('/api/admin/dashboard')
+      .set('Cookie', sessionCookie('usuario-comum@example.com'));
+    expect(res.status).toBe(403);
+  });
+
+  it('aceita a permissão do admin e então exige o banco', async () => {
+    const adminEmail = 'admin-test@example.com';
+    env.adminEmails.push(adminEmail);
+    try {
+      const res = await request(app)
+        .get('/api/admin/dashboard')
+        .set('Cookie', sessionCookie(adminEmail));
+      expect(res.status).toBe(503);
+    } finally {
+      env.adminEmails.splice(env.adminEmails.indexOf(adminEmail), 1);
+    }
   });
 });
 

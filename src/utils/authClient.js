@@ -74,3 +74,9 @@ export const getMyDuelRankRequest = (course = 'en-pt') =>
 export const getLevelLeaderboardRequest = (limit = 5, course = 'en-pt') =>
   callAuth(`/api/duel/leaderboard/level?limit=${limit}&course=${encodeURIComponent(course)}`, { method: 'GET' });
 
+export const getAdminDashboardRequest = ({ page = 1, limit = 25, search = '' } = {}) => {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (search) params.set('search', search);
+  return callAuth(`/api/admin/dashboard?${params.toString()}`, { method: 'GET' });
+};
+

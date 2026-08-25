@@ -1,13 +1,11 @@
-import { env } from '../config/env.js';
+import { isAdminEmail } from '../utils/adminAccess.js';
 
 /**
  * Middleware para restringir rotas aos e-mails listados na variável `ADMIN_EMAILS`.
  * Deve rodar APÓS `requireAuth` (que injeta req.user).
  */
 export const requireAdmin = (req, res, next) => {
-  const userEmail = (req.user?.email || '').toLowerCase().trim();
-
-  if (env.adminEmails.length > 0 && env.adminEmails.includes(userEmail)) {
+  if (isAdminEmail(req.user?.email)) {
     return next();
   }
 

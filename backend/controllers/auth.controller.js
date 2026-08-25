@@ -2,6 +2,7 @@ import { User } from '../models/User.js';
 import { isValidEmailFormat, isValidPassword, isValidNickname, MIN_PASSWORD_LENGTH, MAX_NICKNAME_LENGTH } from '../utils/validators.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
 import { signSessionToken, sessionCookieOptions, clearSessionCookieOptions, SESSION_COOKIE_NAME, signDuelTicket } from '../utils/token.js';
+import { isAdminEmail } from '../utils/adminAccess.js';
 
 const NICKNAME_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias em ms
 
@@ -11,6 +12,7 @@ const toPublicUser = (user) => ({
   nickname: user.nickname ?? null,
   nicknameUpdatedAt: user.nicknameUpdatedAt ?? null,
   progress: user.progress ?? null,
+  isAdmin: isAdminEmail(user.email),
 });
 
 export const register = async (req, res) => {
@@ -71,7 +73,7 @@ export const logout = (req, res) => {
 };
 
 export const me = (req, res) => {
-  res.status(200).json({ user: req.user });
+  res.status(200).json({ user: { ...req.user, isAdmin: isAdminEmail(req.user.email) } });
 };
 
 export const getProfile = async (req, res) => {

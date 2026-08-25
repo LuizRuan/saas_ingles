@@ -7,6 +7,7 @@ import { authRouter } from './routes/auth.routes.js';
 import { presenceRouter } from './routes/presence.routes.js';
 import { duelRouter } from './routes/duel.routes.js';
 import { feedbackRouter } from './routes/feedback.routes.js';
+import { adminRouter } from './routes/admin.routes.js';
 
 // Monta e exporta o app SEM chamar listen() — testável (supertest) sem
 // precisar de uma porta real, e reutilizável por server.js.
@@ -56,6 +57,7 @@ app.use('/api', apiLimiter);
 app.use('/api/auth', authRouter);
 app.use('/api/duel', duelRouter);
 app.use('/api/feedback', feedbackRouter);
+app.use('/api/admin', adminRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 

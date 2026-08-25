@@ -21,6 +21,7 @@ Copie `.env.example` para `.env` para configurar de verdade:
 | `MONGODB_URI` | Connection string do MongoDB Atlas (ou `mongod` local) | Só para register/login funcionarem |
 | `JWT_SECRET` | Assinatura do cookie de sessão | Sim em produção |
 | `FRONTEND_ORIGIN` | Única origem aceita pelo CORS | Não (padrão `http://localhost:5173`) |
+| `ADMIN_EMAILS` | E-mail(s) das contas administradoras, separados por vírgula | Só para liberar o Dashboard administrativo |
 | `NODE_ENV` | `development` ou `production` | — |
 
 ## Rotas
@@ -33,6 +34,7 @@ Copie `.env.example` para `.env` para configurar de verdade:
 | `GET /api/auth/me` | Não | Responde a partir do próprio JWT do cookie |
 | `GET /api/auth/profile` | Sim | `{ email, nickname }` — diferente de `/me`, precisa do banco porque o apelido não vai no JWT |
 | `PATCH /api/auth/profile` | Sim | Troca o apelido (`{ nickname }`, `null`/`''` apaga) |
+| `GET /api/admin/dashboard` | Sim | Lista paginada de jogadores e estatísticas; exige login e e-mail presente em `ADMIN_EMAILS` |
 | `GET /api/health` | Não | Smoke check |
 
 ## Realtime (duelo humano de "Quem Sabe Mais?")
@@ -74,7 +76,7 @@ O socket continua existindo, mas só na tela do duelo, e é ele que informa quan
 MongoDB Atlas já está provisionado e conectando (verificado: registro→login→sessão→duplicado funcionando com banco real). O que resta depende da URL do Render existir:
 
 1. **Deploy no Render** — `rootDir: backend`, build `npm install`, start `npm start`, health check `/api/health`, plano Free. O `render.yaml` na raiz já descreve isso.
-2. **No painel do Render:** `MONGODB_URI` (a connection string do Atlas), `JWT_SECRET` (gerar, não reaproveitar o de dev), `FRONTEND_ORIGIN` (domínio da Vercel — aceita lista).
+2. **No painel do Render:** `MONGODB_URI` (a connection string do Atlas), `JWT_SECRET` (gerar, não reaproveitar o de dev), `FRONTEND_ORIGIN` (domínio da Vercel — aceita lista) e `ADMIN_EMAILS` (contas que podem abrir o Dashboard).
 3. **`vercel.json`: acrescentar um rewrite de `/api/(.*)` para o host do Render, ACIMA do catch-all de SPA.** Isto é o que faz Login/Cadastro e a presença funcionarem em produção. Hoje o catch-all engole `/api/*` e devolve `index.html` — verificado: `GET /api/health` em produção responde HTML com status 200.
 4. **CSP em `vercel.json`:** `connect-src 'self' https://<host>.onrender.com wss://<host>.onrender.com`. Hosts nomeados, nada de curinga.
 5. **Env da Vercel:** `VITE_REALTIME_URL=https://<host>.onrender.com`, em Production **e** Preview (ver `.env.example` na raiz).

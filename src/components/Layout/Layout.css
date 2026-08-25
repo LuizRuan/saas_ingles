@@ -8,3 +8,32 @@
 .main-content {
   flex: 1;
 }
+
+.navbar-admin-link {
+  color: var(--accent-primary);
+  background: var(--bg-purple-subtle);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 22%, transparent);
+  font-weight: 700;
+}
+
+.navbar-admin-link:hover,
+.navbar-admin-link.active {
+  color: white;
+  background: var(--gradient-primary);
+}
+
+.mobile-nav-admin { color: var(--accent-primary); }
+
+@media (max-width: 768px) {
+  .mobile-nav--admin .mobile-nav-item {
+    min-width: 0;
+    padding-inline: 5px;
+  }
+
+  .mobile-nav--admin .mobile-nav-item > span:last-child {
+    max-width: 54px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

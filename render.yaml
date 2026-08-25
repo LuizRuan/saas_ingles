@@ -31,3 +31,6 @@ services:
       # Domínio do frontend no Vercel — preencher no painel do Render
       - key: FRONTEND_ORIGIN
         sync: false
+      # Conta(s) que podem acessar o Dashboard, separadas por virgula
+      - key: ADMIN_EMAILS
+        sync: false

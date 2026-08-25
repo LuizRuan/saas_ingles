@@ -339,18 +339,26 @@ const Settings = () => {
                 >−</button>
 
                 <div className="music-volume-slider-wrap">
-                  <input
-                    className="music-volume-slider"
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={Math.round((settings.musicVolume ?? 0.3) * 100)}
-                    onChange={(event) => setMusicVolumePercent(event.target.value)}
-                    aria-label="Volume da música"
-                    aria-valuetext={`${Math.round((settings.musicVolume ?? 0.3) * 100)} por cento`}
+                  <div
+                    className="music-volume-slider-shell"
                     style={{ '--music-volume': `${Math.round((settings.musicVolume ?? 0.3) * 100)}%` }}
-                  />
+                  >
+                    <input
+                      className="music-volume-slider"
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={Math.round((settings.musicVolume ?? 0.3) * 100)}
+                      onChange={(event) => setMusicVolumePercent(event.target.value)}
+                      aria-label="Volume da música"
+                      aria-valuetext={`${Math.round((settings.musicVolume ?? 0.3) * 100)} por cento`}
+                    />
+                    <div className="music-volume-track" aria-hidden="true">
+                      <span className="music-volume-track-fill" />
+                      <span className="music-volume-track-thumb" />
+                    </div>
+                  </div>
                   <div className="music-volume-scale" aria-hidden="true">
                     <span>Baixo</span>
                     <span>Alto</span>
@@ -543,12 +551,14 @@ const Settings = () => {
         {/* About */}
         <div className="glass-card animate-fade-in-up" style={{ padding: 'var(--space-lg)', animationDelay: '0.25s' }}>
           <h4 style={{ marginBottom: 'var(--space-sm)' }}>ℹ️ Sobre o Wordly</h4>
-          <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>
-            Plataforma gratuita para aprender idiomas por meio de jogos educativos.
-            Dá para jogar sem conta: seu progresso é salvo neste navegador.
+          <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', lineHeight: 1.7 }}>
+            Aprenda novos idiomas enquanto se diverte com jogos educativos. Com a assinatura Wordly, você tem acesso a vários idiomas, acompanha sua evolução e participa do modo online.
+          </p>
+          <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)', lineHeight: 1.7, marginTop: 'var(--space-xs)' }}>
+            Suba no ranking, alcance os níveis mais altos e concorra a recompensas mensais!
           </p>
           <p className="text-muted" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-sm)' }}>
-            Versão 3.0 • Feito com ❤️ para brasileiros aprendendo idiomas
+            Versão 4.0
           </p>
         </div>
       </div>
