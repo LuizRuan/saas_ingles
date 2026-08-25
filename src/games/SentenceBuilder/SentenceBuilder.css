@@ -62,3 +62,32 @@
   font-size: var(--fs-sm);
   color: var(--accent-orange);
 }
+
+.sb-difficulty-badge,
+.sb-sentence-level {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border-purple);
+  border-radius: var(--radius-full);
+  background: var(--bg-purple-subtle);
+  color: var(--text-primary);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sb-difficulty-badge.basic { border-color: var(--accent-blue); }
+.sb-difficulty-badge.intermediate { border-color: var(--accent-orange); }
+.sb-difficulty-badge.upper-intermediate,
+.sb-difficulty-badge.advanced { border-color: var(--accent-red); }
+
+.sb-skill-change {
+  margin-top: var(--space-md);
+  color: var(--text-secondary);
+}
+.sb-skill-change.positive { color: var(--accent-green); }
+.sb-skill-change.negative { color: var(--accent-orange); }
+
+@media (max-width: 640px) {
+  .sb-prompt { align-items: flex-start; }
+  .sb-sentence-level { font-size: 0.68rem; }
+}

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { shuffleArray } from '../../data/words';
 import useCourseData from '../../hooks/useCourseData';
@@ -6,7 +6,8 @@ import useUserLevel from '../../hooks/useUserLevel';
 import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
-import { pickByLevel } from '../../utils/levelSelection';
+import { selectSentenceSet } from '../../utils/sentenceSelection';
+import { getSentenceDifficultyBand, getSentenceSkillRating } from '../../utils/sentenceSkill';
 import { GAME_REWARDS } from '../../utils/scoring';
 import './SentenceBuilder.css';
 
@@ -18,25 +19,48 @@ const stripPunctuation = (str) => (str || '').replace(/[.,?!:;'"“”]/g, '').t
 // importado direto — senão trocar para espanhol mantinha o jogo em inglês.
 // Enviesado pelo nível do jogador em vez de sortear uniformemente do banco
 // inteiro — ver levelSelection.js sobre o porquê.
-const generateGameSentences = (sentences, userLevel, maxLevel) => pickByLevel(sentences, userLevel, maxLevel, ROUNDS);
+const generateGameSentences = (sentences, targetDifficulty, progress) =>
+  selectSentenceSet({
+    sentences,
+    targetDifficulty,
+    count: ROUNDS,
+    recentSentenceIds: progress.recentSentenceIds,
+    reviewQueue: progress.sentenceReviewQueue,
+    completedGames: progress.gamesCompleted?.sentenceBuilder || 0,
+    phraseStats: progress.phraseStats,
+  });
 
 const prepareWords = (s) => (s ? shuffleArray(s.words.map((w, i) => ({ ...w, en: stripPunctuation(w.en), id: i }))) : []);
 
 const SentenceBuilder = () => {
   const { sentences } = useCourseData();
-  const { userLevel, maxLevel } = useUserLevel();
-  const [gameSentences, setGameSentences] = useState(() => generateGameSentences(sentences, userLevel, maxLevel));
+  const { userLevel } = useUserLevel();
+  const {
+    progress, handleCorrectAnswer, handleWrongAnswer, completeSentence, completeGame,
+    rememberSentenceIds, recordSentenceBuilderResult,
+  } = useProgress();
+  const targetDifficulty = getSentenceSkillRating(progress.sentenceBuilderSkill, userLevel);
+  const difficultyBand = getSentenceDifficultyBand(targetDifficulty);
+  const [gameSentences, setGameSentences] = useState(() =>
+    generateGameSentences(sentences, targetDifficulty, progress)
+  );
   const [round, setRound] = useState(0);
   const [selectedWords, setSelectedWords] = useState([]);
   const [availableWords, setAvailableWords] = useState(() => prepareWords(gameSentences[0]));
   const [feedback, setFeedback] = useState(null);
   const [score, setScore] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
-  const { handleCorrectAnswer, handleWrongAnswer, completeSentence, completeGame } = useProgress();
+  const roundStartedAtRef = useRef(Date.now());
+  const removedWordsRef = useRef(0);
+  const startingSkillRef = useRef(targetDifficulty);
   const { playCorrect, playWrong, playClick } = useSound();
   const { speakNormal, speakSlow } = useSpeech();
 
   const currentSentence = gameSentences[round];
+
+  useEffect(() => {
+    rememberSentenceIds(gameSentences.map(sentence => sentence.id));
+  }, [gameSentences, rememberSentenceIds]);
 
   const setupRound = useCallback((roundIdx) => {
     const s = gameSentences[roundIdx];
@@ -49,6 +73,8 @@ const SentenceBuilder = () => {
     setSelectedWords([]);
     setAvailableWords(prepareWords(s));
     setFeedback(null);
+    roundStartedAtRef.current = Date.now();
+    removedWordsRef.current = 0;
   }, [gameSentences, completeGame]);
 
   const handleWordClick = useCallback((wordObj) => {
@@ -70,17 +96,26 @@ const SentenceBuilder = () => {
         setScore(prev => prev + GAME_REWARDS.sentenceBuilder.perSentence);
         handleCorrectAnswer(currentSentence.en, 1, false, GAME_REWARDS.sentenceBuilder.perSentence);
         completeSentence();
+        recordSentenceBuilderResult(currentSentence, true, {
+          durationMs: Date.now() - roundStartedAtRef.current,
+          removedWords: removedWordsRef.current,
+        });
       } else {
         setFeedback('wrong');
         playWrong();
         handleWrongAnswer(currentSentence.en);
+        recordSentenceBuilderResult(currentSentence, false, {
+          durationMs: Date.now() - roundStartedAtRef.current,
+          removedWords: removedWordsRef.current,
+        });
       }
     }
-  }, [feedback, selectedWords, currentSentence, playClick, speakNormal, playCorrect, playWrong, handleCorrectAnswer, handleWrongAnswer, completeSentence]);
+  }, [feedback, selectedWords, currentSentence, playClick, speakNormal, playCorrect, playWrong, handleCorrectAnswer, handleWrongAnswer, completeSentence, recordSentenceBuilderResult]);
 
   const handleRemoveWord = useCallback((wordObj, index) => {
     if (feedback) return;
     speakNormal(wordObj.en);
+    removedWordsRef.current += 1;
     setSelectedWords(prev => prev.filter((_, i) => i !== index));
     setAvailableWords(prev => [...prev, wordObj]);
   }, [feedback, speakNormal]);
@@ -92,6 +127,7 @@ const SentenceBuilder = () => {
   }, [round, setupRound]);
 
   if (gameComplete) {
+    const skillChange = targetDifficulty - startingSkillRef.current;
     return (
       <div className="page">
         <div className="container game-container text-center animate-bounce-in">
@@ -104,10 +140,26 @@ const SentenceBuilder = () => {
                 <span className="result-stat-value">{score}</span>
                 <span className="result-stat-label">Pontos</span>
               </div>
+              <div className="result-stat">
+                <span className="result-stat-value">{targetDifficulty}</span>
+                <span className="result-stat-label">Habilidade · {difficultyBand.label}</span>
+              </div>
             </div>
+            <p className={`sb-skill-change ${skillChange > 0 ? 'positive' : skillChange < 0 ? 'negative' : ''}`}>
+              {skillChange > 0
+                ? `📈 Sua habilidade avançou ${skillChange} ponto${skillChange === 1 ? '' : 's'} nesta partida.`
+                : skillChange < 0
+                  ? '🎯 A próxima partida será ajustada para reforçar sua base.'
+                  : '✓ A próxima partida continuará nesta faixa de dificuldade.'}
+            </p>
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
               <button className="btn btn-primary" onClick={() => {
-                const newSentences = generateGameSentences(sentences, userLevel, maxLevel);
+                const nextSkill = getSentenceSkillRating(progress.sentenceBuilderSkill, userLevel);
+                const newSentences = generateGameSentences(
+                  sentences,
+                  nextSkill,
+                  progress,
+                );
                 setGameSentences(newSentences);
                 setRound(0);
                 setScore(0);
@@ -116,6 +168,9 @@ const SentenceBuilder = () => {
                 setSelectedWords([]);
                 setAvailableWords(prepareWords(s));
                 setFeedback(null);
+                roundStartedAtRef.current = Date.now();
+                removedWordsRef.current = 0;
+                startingSkillRef.current = nextSkill;
               }}>🔄 Jogar novamente</button>
               <Link to="/games" className="btn btn-ghost">← Outros jogos</Link>
             </div>
@@ -137,6 +192,9 @@ const SentenceBuilder = () => {
             <h2>Montar Frases</h2>
           </div>
           <div className="game-score">
+            <div className={`sb-difficulty-badge ${difficultyBand.id}`} title="Dificuldade adaptada ao seu desempenho neste jogo">
+              {difficultyBand.label} {targetDifficulty}
+            </div>
             <div className="game-score-item">
               <span>📝</span> <span className="value">{round + 1}/{ROUNDS}</span>
             </div>
@@ -159,6 +217,9 @@ const SentenceBuilder = () => {
               <div style={{ fontSize: 'var(--fs-lg)', fontWeight: 600 }}>"{currentSentence.pt}"</div>
             </div>
           </div>
+          <span className="sb-sentence-level" title="Dificuldade desta frase">
+            Nível {currentSentence.difficulty}
+          </span>
         </div>
 
         {/* Answer area */}

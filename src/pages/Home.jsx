@@ -67,7 +67,7 @@ const Home = () => {
             {/* Sem o wordmark: o <h1> ao lado já diz "Wordly", e o texto
                 azul-marinho da arte sumia no tema escuro. */}
             <img
-              src="/hero.webp"
+              src="/novoiconprincipal.png"
               alt="Controle de videogame cercado por balões de fala em inglês"
               width="745"
               height="598"

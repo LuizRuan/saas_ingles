@@ -3,6 +3,7 @@
 import { resolveWordKey, mergeStats } from './wordKey';
 import { emptyCourseSnapshot, buildCourseStats, withCourseStats, DEFAULT_COURSE } from './courseProgress';
 import { AVAILABLE_COURSES } from '../data/index';
+import { DEFAULT_SENTENCE_SKILL } from './sentenceSkill';
 
 // Cursos que o saneamento aceita em `activeCourse`. Sai de AVAILABLE_COURSES
 // para não existirem duas listas de idiomas que precisam ser lembradas juntas:
@@ -61,6 +62,10 @@ export const defaultProgress = {
   wordStats: {},
   // Frases e lacunas — mesmo formato, mas fora da contagem de "palavras estudadas"
   phraseStats: {},
+  // IDs das últimas frases vistas no Montar Frases, separado por curso.
+  recentSentenceIds: [],
+  sentenceBuilderSkill: { ...DEFAULT_SENTENCE_SKILL },
+  sentenceReviewQueue: [],
   // Track error history for review
   errorHistory: [],
   // Categories the user has explored
@@ -201,6 +206,38 @@ const saneiaBalde = (v) => {
 // senão alguém poderia inflar o localStorage inventando 500 cursos.
 const MAX_CURSOS_GUARDADOS = 12;
 
+const saneiaSentenceBuilderSkill = (bruto) => {
+  const skill = objeto(bruto);
+  return {
+    rating: inteiro(skill.rating, 1, { min: 1, max: 100 }),
+    attempts: inteiro(skill.attempts, 0, { min: 0, max: 1000000 }),
+    correct: inteiro(skill.correct, 0, { min: 0, max: 1000000 }),
+    wrong: inteiro(skill.wrong, 0, { min: 0, max: 1000000 }),
+    streak: inteiro(skill.streak, 0, { min: 0, max: 100000 }),
+    recentResults: lista(skill.recentResults).slice(-20).map(item => {
+      const result = objeto(item);
+      return {
+        sentenceId: texto(result.sentenceId),
+        correct: booleano(result.correct, false),
+        difficulty: inteiro(result.difficulty, 1, { min: 1, max: 100 }),
+        durationMs: inteiro(result.durationMs, 0, { min: 0, max: 3600000 }),
+        removedWords: inteiro(result.removedWords, 0, { min: 0, max: 1000 }),
+      };
+    }),
+  };
+};
+
+const saneiaSentenceReviewQueue = (bruto) => lista(bruto).slice(-30).map(item => {
+  const review = objeto(item);
+  return {
+    sentenceId: texto(review.sentenceId),
+    category: texto(review.category, 'geral'),
+    difficulty: inteiro(review.difficulty, 1, { min: 1, max: 100 }),
+    dueGame: inteiro(review.dueGame, 0, { min: 0, max: 1000000 }),
+    wrongCount: inteiro(review.wrongCount, 1, { min: 1, max: 100000 }),
+  };
+}).filter(item => item.sentenceId);
+
 const saneiaCursoGuardado = (bruto) => {
   const c = objeto(bruto);
   const jogos = objeto(c.gamesCompleted);
@@ -225,6 +262,9 @@ const saneiaCursoGuardado = (bruto) => {
     ),
     wordStats: saneiaBalde(c.wordStats),
     phraseStats: saneiaBalde(c.phraseStats),
+    recentSentenceIds: lista(c.recentSentenceIds).filter(x => typeof x === 'string').slice(-60),
+    sentenceBuilderSkill: saneiaSentenceBuilderSkill(c.sentenceBuilderSkill),
+    sentenceReviewQueue: saneiaSentenceReviewQueue(c.sentenceReviewQueue),
     errorHistory: lista(c.errorHistory).slice(-100).map(e => ({
       word: texto(objeto(e).word, ''),
       timestamp: inteiro(objeto(e).timestamp, 0),
@@ -304,6 +344,9 @@ const saneiaProgresso = (bruto) => {
     ),
     wordStats: saneiaBalde(p.wordStats),
     phraseStats: saneiaBalde(p.phraseStats),
+    recentSentenceIds: lista(p.recentSentenceIds).filter(x => typeof x === 'string').slice(-60),
+    sentenceBuilderSkill: saneiaSentenceBuilderSkill(p.sentenceBuilderSkill),
+    sentenceReviewQueue: saneiaSentenceReviewQueue(p.sentenceReviewQueue),
     errorHistory: lista(p.errorHistory).slice(-100).map(e => ({
       word: texto(objeto(e).word, ''),
       timestamp: inteiro(objeto(e).timestamp, 0),

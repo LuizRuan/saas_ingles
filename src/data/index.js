@@ -3,6 +3,7 @@ import * as enSentences from './courses/en/sentences.js';
 import * as enStories from './courses/en/stories.js';
 import * as enConversations from './courses/en/conversations.js';
 import * as enImageWords from './courses/en/imageWords.js';
+import { generateEnglishSentenceVariants } from './courses/en/sentenceVariants.js';
 
 import { levels as enLevels } from './categories.js';
 import { errorPatterns as enErrorPatterns } from './errorPatterns.js';
@@ -14,6 +15,7 @@ import * as esSentences from './courses/es/sentences.js';
 import * as esStories from './courses/es/stories.js';
 import * as esConversations from './courses/es/conversations.js';
 import * as esImageWords from './courses/es/imageWords.js';
+import { buildSentenceCatalog } from '../utils/sentenceCatalog.js';
 
 export const AVAILABLE_COURSES = [
   { id: 'en-pt', name: 'Inglês', flag: '🇺🇸', langCode: 'en-US', targetName: 'Inglês', available: true },
@@ -23,7 +25,10 @@ export const AVAILABLE_COURSES = [
 const courseDataMap = {
   'en-pt': {
     words: enWords.words,
-    sentences: enSentences.sentences,
+    sentences: buildSentenceCatalog([
+      ...enSentences.sentences,
+      ...generateEnglishSentenceVariants(),
+    ], 'en-pt'),
     fillBlanks: enSentences.fillBlanks,
     trueFalse: enSentences.trueFalse,
     translationQuizzes: enSentences.translationQuizzes,
@@ -36,7 +41,7 @@ const courseDataMap = {
   },
   'es-pt': {
     words: esWords.words,
-    sentences: esSentences.sentences,
+    sentences: buildSentenceCatalog(esSentences.sentences, 'es-pt'),
     fillBlanks: esSentences.fillBlanks,
     trueFalse: esSentences.trueFalse,
     translationQuizzes: esSentences.translationQuizzes,

@@ -35,7 +35,7 @@ const Welcome = () => {
       <div className="welcome-card">
         <img
           className="welcome-art"
-          src="/hero.webp"
+          src="/novoiconprincipal.png"
           alt=""
           aria-hidden="true"
           width="745"

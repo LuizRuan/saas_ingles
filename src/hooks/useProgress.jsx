@@ -9,6 +9,9 @@ import { achievementsList } from '../data/achievements';
 import { getTodayDateString } from '../utils/dailyChallenge';
 import { useAuthProfile } from './useAuthProfile';
 import { updateProgressRequest } from '../utils/authClient';
+import { appendRecentSentenceIds } from '../utils/sentenceCatalog';
+import { updateSentenceSkill } from '../utils/sentenceSkill';
+import { updateSentenceReviewQueue } from '../utils/sentenceReview';
 
 const ProgressContext = createContext(null);
 
@@ -273,6 +276,35 @@ export const ProgressProvider = ({ children }) => {
     });
   }, [checkAchievements]);
 
+  const rememberSentenceIds = useCallback((sentenceIds) => {
+    setProgress(prev => ({
+      ...prev,
+      recentSentenceIds: appendRecentSentenceIds(prev.recentSentenceIds, sentenceIds),
+    }));
+  }, []);
+
+  const recordSentenceBuilderResult = useCallback((sentence, correct, metrics = {}) => {
+    setProgress(prev => {
+      const result = {
+        sentenceId: sentence.id,
+        difficulty: sentence.difficulty,
+        wordCount: sentence.words.length,
+        correct,
+        ...metrics,
+      };
+      return {
+        ...prev,
+        sentenceBuilderSkill: updateSentenceSkill(prev.sentenceBuilderSkill, result),
+        sentenceReviewQueue: updateSentenceReviewQueue(
+          prev.sentenceReviewQueue,
+          sentence,
+          correct,
+          prev.gamesCompleted?.sentenceBuilder || 0,
+        ),
+      };
+    });
+  }, []);
+
   const completeConversation = useCallback(() => {
     setProgress(prev => {
       let updated = { ...prev, conversationsCompleted: (prev.conversationsCompleted || 0) + 1 };
@@ -519,6 +551,8 @@ export const ProgressProvider = ({ children }) => {
     addExploredCategory,
     completeGame,
     completeSentence,
+    rememberSentenceIds,
+    recordSentenceBuilderResult,
     completeConversation,
     completeDailyChallenge,
     incrementReviewed,
