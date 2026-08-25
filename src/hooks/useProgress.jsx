@@ -47,6 +47,53 @@ export const ProgressProvider = ({ children }) => {
   const lastSyncedUserIdRef = useRef(null);
   const syncTimerRef = useRef(null);
 
+  // Efeitos comprados na Loja. Disparados SEMPRE fora do updater do setProgress:
+  // o updater é reexecutado pelo StrictMode e precisa continuar puro.
+  const celebrationTimer = useRef(null);
+  const idCelebracao = useRef(0);
+  const dispararCelebracao = useCallback((tipoFallback) => {
+    const p = progressRef.current;
+    const comprados = p.shopItems || [];
+
+    // O usuário escolhe qual efeito usar nas Configurações; se não escolheu,
+    // usa o tipo passado pelo jogo (comportamento original).
+    const tipo = p.selectedEffect || tipoFallback;
+
+    // Só dispara se o efeito escolhido foi comprado
+    if (!comprados.includes(tipo)) return;
+
+    if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
+    setCelebration({ tipo, id: idCelebracao.current++ });
+    celebrationTimer.current = setTimeout(
+      () => setCelebration(null),
+      CELEBRATION_DURATION_MS[tipo] ?? 2000,
+    );
+  }, []);
+
+  useEffect(() => () => clearTimeout(celebrationTimer.current), []);
+
+  // Check for new achievements
+  const checkAchievements = useCallback((updatedProgress) => {
+    const current = updatedProgress.achievements || [];
+    const newlyUnlocked = [];
+    
+    for (const achievement of achievementsList) {
+      if (!current.includes(achievement.id) && achievement.condition(updatedProgress)) {
+        newlyUnlocked.push(achievement);
+      }
+    }
+    
+    if (newlyUnlocked.length > 0) {
+      const newAchievementIds = newlyUnlocked.map(a => a.id);
+      // Show the first new achievement as toast
+      setNewAchievement(newlyUnlocked[0]);
+      setTimeout(() => setNewAchievement(null), 4000);
+      return { ...updatedProgress, achievements: [...current, ...newAchievementIds] };
+    }
+    
+    return updatedProgress;
+  }, []);
+
   // ─── Sincronização do Progresso com a Nuvem (MongoDB) ───────────────────────
   useEffect(() => {
     if (entryChoice === 'account' && userAccount) {
@@ -121,53 +168,6 @@ export const ProgressProvider = ({ children }) => {
   useEffect(() => {
     applyTheme(progress.selectedTheme);
   }, [progress.selectedTheme]);
-
-  // Efeitos comprados na Loja. Disparados SEMPRE fora do updater do setProgress:
-  // o updater é reexecutado pelo StrictMode e precisa continuar puro.
-  const celebrationTimer = useRef(null);
-  const idCelebracao = useRef(0);
-  const dispararCelebracao = useCallback((tipoFallback) => {
-    const p = progressRef.current;
-    const comprados = p.shopItems || [];
-
-    // O usuário escolhe qual efeito usar nas Configurações; se não escolheu,
-    // usa o tipo passado pelo jogo (comportamento original).
-    const tipo = p.selectedEffect || tipoFallback;
-
-    // Só dispara se o efeito escolhido foi comprado
-    if (!comprados.includes(tipo)) return;
-
-    if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
-    setCelebration({ tipo, id: idCelebracao.current++ });
-    celebrationTimer.current = setTimeout(
-      () => setCelebration(null),
-      CELEBRATION_DURATION_MS[tipo] ?? 2000,
-    );
-  }, []);
-
-  useEffect(() => () => clearTimeout(celebrationTimer.current), []);
-
-  // Check for new achievements
-  const checkAchievements = useCallback((updatedProgress) => {
-    const current = updatedProgress.achievements || [];
-    const newlyUnlocked = [];
-    
-    for (const achievement of achievementsList) {
-      if (!current.includes(achievement.id) && achievement.condition(updatedProgress)) {
-        newlyUnlocked.push(achievement);
-      }
-    }
-    
-    if (newlyUnlocked.length > 0) {
-      const newAchievementIds = newlyUnlocked.map(a => a.id);
-      // Show the first new achievement as toast
-      setNewAchievement(newlyUnlocked[0]);
-      setTimeout(() => setNewAchievement(null), 4000);
-      return { ...updatedProgress, achievements: [...current, ...newAchievementIds] };
-    }
-    
-    return updatedProgress;
-  }, []);
 
   const addPoints = useCallback((points) => {
     setScorePopup(points * activeMultiplier(progressRef.current));
