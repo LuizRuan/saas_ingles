@@ -10,11 +10,21 @@ import { isValidNickname, MAX_NICKNAME_LENGTH } from '../utils/authValidation';
 import AvatarDisplay from '../components/Avatar/AvatarDisplay';
 import CourseSelector from '../components/Navbar/CourseSelector';
 import { getCurrentLevel, getUserTitle } from '../utils/levelSystem';
+import { MUSIC_STATE_EVENT } from '../hooks/useBackgroundMusic';
 
 const Settings = () => {
   const navigate = useNavigate();
   const { progress, setTheme, setSelectedEffect } = useProgress();
   const [settings, setSettings] = useState(() => loadSettings());
+  const [musicIsPlaying, setMusicIsPlaying] = useState(
+    () => document.documentElement.dataset.backgroundMusic === 'playing'
+  );
+
+  useEffect(() => {
+    const updateMusicState = (event) => setMusicIsPlaying(Boolean(event.detail?.isPlaying));
+    window.addEventListener(MUSIC_STATE_EVENT, updateMusicState);
+    return () => window.removeEventListener(MUSIC_STATE_EVENT, updateMusicState);
+  }, []);
 
   // Estado REAL da conta, verificado no servidor (ver useAuthProfile) — a
   // mesma checagem que a navbar usa, então as duas telas concordam sobre
@@ -257,7 +267,7 @@ const Settings = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <h4>🎵 Música</h4>
-              <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>Música de fundo e pacotes de som comprados</p>
+              <p className="text-secondary" style={{ fontSize: 'var(--fs-sm)' }}>Música ambiente de fundo</p>
             </div>
             <button
               className={`btn ${settings.musicEnabled ? 'btn-success' : 'btn-secondary'} btn-sm`}
@@ -265,6 +275,54 @@ const Settings = () => {
               {settings.musicEnabled ? 'Ligado' : 'Desligado'}
             </button>
           </div>
+
+          <div className="text-secondary" style={{ display: 'flex', gap: 'var(--space-xs)', alignItems: 'center', marginTop: 'var(--space-sm)', fontSize: 'var(--fs-sm)' }}>
+            <span aria-hidden="true">{musicIsPlaying ? '🎵' : '⏸️'}</span>
+            <span>
+              {musicIsPlaying ? 'Tocando agora' : settings.musicEnabled ? 'Pausada — interaja para iniciar' : 'Pausada'}
+              {settings.musicEnabled && ' · Ambiente Lo-fi procedural'}
+            </span>
+          </div>
+
+          {/* Volume slider — só aparece quando música está ativa */}
+          {settings.musicEnabled && (
+            <div style={{ marginTop: 'var(--space-md)', padding: 'var(--space-sm) 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                <span style={{ fontSize: 'var(--fs-lg)', minWidth: '28px', textAlign: 'center' }}>
+                  {settings.musicVolume <= 0 ? '🔇' : settings.musicVolume < 0.3 ? '🔈' : settings.musicVolume < 0.7 ? '🔉' : '🔊'}
+                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={Math.round((settings.musicVolume ?? 0.3) * 100)}
+                  onChange={(e) => updateSetting('musicVolume', Number(e.target.value) / 100)}
+                  style={{
+                    flex: 1,
+                    height: '6px',
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
+                    background: `linear-gradient(to right, var(--accent-purple) 0%, var(--accent-purple) ${(settings.musicVolume ?? 0.3) * 100}%, var(--glass-border) ${(settings.musicVolume ?? 0.3) * 100}%, var(--glass-border) 100%)`,
+                    borderRadius: '4px',
+                    outline: 'none',
+                    cursor: 'pointer',
+                  }}
+                />
+                <span style={{
+                  fontSize: 'var(--fs-sm)',
+                  color: 'var(--text-secondary)',
+                  minWidth: '38px',
+                  textAlign: 'right',
+                  fontWeight: 600,
+                }}>
+                  {Math.round((settings.musicVolume ?? 0.3) * 100)}%
+                </span>
+              </div>
+              <p className="text-secondary" style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--space-xs)' }}>
+                🎧 A música toca enquanto você navega e pausa automaticamente ao trocar de aba.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Animations */}

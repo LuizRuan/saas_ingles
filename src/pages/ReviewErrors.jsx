@@ -7,6 +7,7 @@ import { useProgress } from '../hooks/useProgress';
 import { getWordsToReview, getPhrasesToReview } from '../utils/reviewSystem';
 import useSound from '../hooks/useSound';
 import WordExplanation from '../components/Game/WordExplanation';
+import { GAME_REWARDS } from '../utils/scoring';
 
 // Normaliza para comparação: lowercase, sem pontuação nas pontas, trim.
 const normalize = (s) =>
@@ -52,7 +53,7 @@ const ReviewErrors = () => {
     setSelected(option);
     if (option.en === current.en) {
       setFeedback('correct');
-      handleCorrectAnswer(current.en, 1);
+      handleCorrectAnswer(current.en, 1, false, GAME_REWARDS.review.perItem);
       incrementReviewed();
       playCorrect();
     } else {
@@ -210,11 +211,11 @@ const ReviewErrors = () => {
     const correct = normalize(option) === normalize(phraseQuiz.answer);
     if (correct) {
       setPhraseFeedback('correct');
-      handleCorrectAnswer(currentPhrase.text, 1);
+      handleCorrectAnswer(currentPhrase.text, 1, false, GAME_REWARDS.review.perItem);
       incrementReviewed();
       playCorrect();
     } else {
-      setPhraseFeedback('wrong');
+      setFeedback('wrong');
       handleWrongAnswer(currentPhrase.text);
       playWrong();
     }

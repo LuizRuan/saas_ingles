@@ -115,9 +115,14 @@ export const defaultProgress = {
 const defaultSettings = {
   soundEnabled: true,
   musicEnabled: true,
+  musicVolume: 0.3,
   animationsEnabled: true,
   autoPronounce: true,
 };
+
+// Eventos `storage` só chegam a outras abas. Este evento mantém componentes
+// montados nesta mesma aba sincronizados logo após uma alteração de preferência.
+export const SETTINGS_CHANGE_EVENT = 'wordly:settings-change';
 
 // ---------------------------------------------------------------------------
 // Saneamento: o localStorage é ENTRADA NÃO CONFIÁVEL.
@@ -439,10 +444,11 @@ export const loadSettings = () => {
     // Desestruturar as duas antigas impede que voltem a ser gravadas.
     const { autoPronouce, theme: _theme, ...stored } = objeto(JSON.parse(data));
 
-    // Só booleanos entram: nada mais é aceito deste blob (entrada não confiável)
+    // Só booleanos e musicVolume entram: nada mais é aceito deste blob (entrada não confiável)
     const settings = {
       soundEnabled: booleano(stored.soundEnabled, defaultSettings.soundEnabled),
       musicEnabled: booleano(stored.musicEnabled, defaultSettings.musicEnabled),
+      musicVolume: numero(stored.musicVolume, defaultSettings.musicVolume, { min: 0, max: 1 }),
       animationsEnabled: booleano(stored.animationsEnabled, defaultSettings.animationsEnabled),
       autoPronounce: booleano(stored.autoPronounce, defaultSettings.autoPronounce),
     };
@@ -462,6 +468,9 @@ export const loadSettings = () => {
 export const saveSettings = (settings) => {
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(SETTINGS_CHANGE_EVENT, { detail: settings }));
+    }
   } catch (e) {
     console.warn('Could not save settings:', e);
   }

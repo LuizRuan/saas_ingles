@@ -16,6 +16,7 @@ import DailyTranslationStep from '../components/DailyChallenge/DailyTranslationS
 
 import { getCurrentLevel } from '../utils/levelSystem';
 import { getLevels } from '../data/index';
+import { GAME_REWARDS } from '../utils/scoring';
 import './DailyChallenge.css';
 
 const DailyChallenge = () => {
@@ -46,7 +47,7 @@ const DailyChallenge = () => {
 
     if (isCorrect) {
       setFeedback('correct');
-      if (answerObj?.en) handleCorrectAnswer(answerObj.en, 1);
+      if (answerObj?.en) handleCorrectAnswer(answerObj.en, 1, false, GAME_REWARDS.dailyChallenge.perStep);
     } else {
       setFeedback('wrong');
       if (answerObj?.en) handleWrongAnswer(answerObj.en);

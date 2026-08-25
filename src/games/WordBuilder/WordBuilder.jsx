@@ -9,6 +9,7 @@ import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
 import useCourse from '../../hooks/useCourse';
 import { pickByLevel } from '../../utils/levelSelection';
+import { GAME_REWARDS } from '../../utils/scoring';
 import './WordBuilder.css';
 
 const ROUNDS = 8;
@@ -57,7 +58,12 @@ const WordBuilder = () => {
 
   const setupRound = useCallback((roundIdx) => {
     const w = gameWords[roundIdx];
-    if (!w) { setGameComplete(true); completeGame('wordBuilder'); return; }
+    if (!w) {
+      setScore(prev => prev + GAME_REWARDS.wordBuilder.completion);
+      setGameComplete(true);
+      completeGame('wordBuilder', GAME_REWARDS.wordBuilder.completion);
+      return;
+    }
     setSelectedLetters(emptySlots(w));
     setAvailableLetters(makeLetters(w));
     setLockedSlots([]);
@@ -81,8 +87,9 @@ const WordBuilder = () => {
       setFeedback('correct');
       setShowExplanation(true);
       playCorrect();
-      setScore(prev => prev + (usedHint ? 3 : 10));
-      handleCorrectAnswer(currentWord.en, usedHint ? 3 : 1, usedHint);
+      const wordPoints = usedHint ? GAME_REWARDS.wordBuilder.withHint : GAME_REWARDS.wordBuilder.perWord;
+      setScore(prev => prev + wordPoints);
+      handleCorrectAnswer(currentWord.en, usedHint ? 3 : 1, usedHint, wordPoints);
     } else {
       setFeedback('wrong');
       setShowExplanation(true);

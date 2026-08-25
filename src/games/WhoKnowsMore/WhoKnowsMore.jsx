@@ -185,6 +185,10 @@ const WhoKnowsMore = () => {
   // Premiação idempotente: sem isto, uma reconexão com a tela de resultado
   // aberta reexecutava o efeito e pagava estrelas de novo.
   const awardedMatchRef = useRef(null);
+  // Rastreia se a partida atual veio de uma Sala Privada. Quando true,
+  // "Voltar ao Lobby" reabre o modal de criação de sala em vez de ir
+  // para o lobby geral (que o usuário percebia como "saiu da sala").
+  const cameFromPrivateRoomRef = useRef(false);
 
   // Refs para evitar closure stale no handleDuelGameRoundEnd
   const playerScoreRef    = useRef(0);
@@ -579,23 +583,37 @@ const WhoKnowsMore = () => {
   };
 
   const returnToLobby = useCallback(() => {
+    const wasPrivateRoom = cameFromPrivateRoomRef.current;
+    cameFromPrivateRoomRef.current = false;
     if (isHuman) duel.resetMatch();
-    setMode('bot');
     setConfirmExit(false);
     setGameState('lobby');
+
+    if (wasPrivateRoom) {
+      // Veio de sala privada: volta pro lobby e reabre o modal pra criar
+      // uma nova sala, em vez de largar o usuário no lobby geral.
+      setMode('human');
+      setShowPrivateRoomModal(true);
+      setPrivateRoomMode('create');
+      setPrivateRoomError(null);
+    } else {
+      setMode('bot');
+    }
   }, [isHuman, duel]);
 
   // Espelha o estado da partida do servidor no estado de tela
   useEffect(() => {
     if (!isHuman) return;
     if (duel.matchState === 'playing' || duel.matchState === 'matched') {
+      // Se o modal de sala privada estava aberto, a partida veio de lá.
+      if (showPrivateRoomModal) cameFromPrivateRoomRef.current = true;
       setShowSearchModal(false);
       setShowPrivateRoomModal(false);
       setGameState('playing');
     } else if (duel.matchState === 'ended' || duel.matchState === 'lost') {
       setGameState('gameover');
     }
-  }, [isHuman, duel.matchState]);
+  }, [isHuman, duel.matchState, showPrivateRoomModal]);
 
   useEffect(() => {
     if (!duel.privateRoom?.roomCode) return;

@@ -53,26 +53,51 @@ export const ProgressProvider = ({ children }) => {
       if (lastSyncedUserIdRef.current !== userId) {
         lastSyncedUserIdRef.current = userId;
 
-        // Ao criar conta ou logar, o progresso mostrado é sempre o da CONTA
-        // (sanitizeProgress(null) já devolve o progresso padrão vazio para
-        // uma conta nova) — o progresso de convidado deste navegador nunca é
-        // adotado nem enviado ao servidor aqui. Ele continua salvo em
-        // localStorage sem ser tocado, e volta a aparecer normalmente se a
-        // pessoa sair da conta (modo convidado).
-        //
-        // REGRESSÃO REMOVIDA DE PROPÓSITO: esta função já comparou os dois
-        // lados e ficou com "o mais avançado" (ver git blame / isLocalMoreAdvanced,
-        // removida). Isso fazia uma conta nova, ou uma conta existente que
-        // ainda não tinha progresso salvo, herdar automaticamente o que
-        // estivesse em localStorage neste navegador — inclusive progresso de
-        // OUTRA pessoa que jogou como convidado no mesmo aparelho antes.
-        setProgress(sanitizeProgress(userAccount.progress));
+        // Ao criar conta ou logar, o progresso mostrado é sempre o da CONTA.
+        // O streak é atualizado imediatamente na entrada do site e salvo no banco.
+        const initial = sanitizeProgress(userAccount.progress);
+        const withStreak = updateDayStreak(initial);
+        const withAchievements = checkAchievements(withStreak);
+        setProgress(withAchievements);
+
+        // Se o dia avançou ou o streak mudou, persiste no banco imediatamente
+        if (withAchievements.lastStudyDate !== initial.lastStudyDate || withAchievements.dayStreak !== initial.dayStreak) {
+          updateProgressRequest(withCourseStats(withAchievements)).catch(() => {});
+        }
       }
     } else if (entryChoice !== 'account' && lastSyncedUserIdRef.current !== null) {
       lastSyncedUserIdRef.current = null;
-      setProgress(loadProgress());
+      const initial = loadProgress();
+      const withStreak = updateDayStreak(initial);
+      const withAchievements = checkAchievements(withStreak);
+      setProgress(withAchievements);
     }
-  }, [entryChoice, userAccount, userId]);
+  }, [entryChoice, userAccount, userId, checkAchievements]);
+
+  // ─── Verificação Diária Automática por Acesso (Login / Virada de Meia-Noite) ───
+  useEffect(() => {
+    const handleDailyCheck = () => {
+      setProgress(prev => {
+        const today = new Date().toDateString();
+        if (prev.lastStudyDate === today) return prev;
+        const updated = updateDayStreak(prev);
+        const finalProgress = checkAchievements(updated);
+        if (entryChoice === 'account' && lastSyncedUserIdRef.current) {
+          updateProgressRequest(withCourseStats(finalProgress)).catch(() => {});
+        }
+        return finalProgress;
+      });
+    };
+
+    handleDailyCheck();
+
+    document.addEventListener('visibilitychange', handleDailyCheck);
+    window.addEventListener('focus', handleDailyCheck);
+    return () => {
+      document.removeEventListener('visibilitychange', handleDailyCheck);
+      window.removeEventListener('focus', handleDailyCheck);
+    };
+  }, [entryChoice, checkAchievements]);
 
   // Save to localStorage e envia alterações ao servidor em background (debounce)
   useEffect(() => {
@@ -160,8 +185,8 @@ export const ProgressProvider = ({ children }) => {
     });
   }, [checkAchievements]);
 
-  const handleCorrectAnswer = useCallback((word, attempt = 1, usedHint = false) => {
-    const points = calculatePoints(attempt, usedHint);
+  const handleCorrectAnswer = useCallback((word, attempt = 1, usedHint = false, pointsOverride = null) => {
+    const points = calculatePoints(attempt, usedHint, pointsOverride);
 
     setProgress(prev => {
       const multiplier = activeMultiplier(prev);
@@ -209,8 +234,10 @@ export const ProgressProvider = ({ children }) => {
     });
   }, [checkAchievements]);
 
-  const completeGame = useCallback((gameType) => {
+  const completeGame = useCallback((gameType, bonusOverride = null) => {
     const currentMultiplier = activeMultiplier(progressRef.current);
+    const completionBonus = (typeof bonusOverride === 'number') ? bonusOverride : POINTS.PHASE_COMPLETION;
+
     setProgress(prev => {
       const multiplier = activeMultiplier(prev);
       const gamesCompleted = { ...prev.gamesCompleted };
@@ -222,7 +249,7 @@ export const ProgressProvider = ({ children }) => {
       let updated = {
         ...prev,
         gamesCompleted,
-        totalScore: prev.totalScore + POINTS.PHASE_COMPLETION * multiplier,
+        totalScore: prev.totalScore + completionBonus * multiplier,
         lastGame: gameType,
         multiplierGames: remainingMultiplierGames,
         pointsMultiplier: remainingMultiplierGames > 0 ? prev.pointsMultiplier : 1,
@@ -233,7 +260,7 @@ export const ProgressProvider = ({ children }) => {
       return updated;
     });
 
-    setScorePopup(POINTS.PHASE_COMPLETION * currentMultiplier);
+    setScorePopup(completionBonus * currentMultiplier);
     setTimeout(() => setScorePopup(null), 1200);
     dispararCelebracao('fireworks');
   }, [checkAchievements, dispararCelebracao]);

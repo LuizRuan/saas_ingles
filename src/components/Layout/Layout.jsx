@@ -6,10 +6,14 @@ import Celebration from '../Celebration/Celebration';
 import NicknamePrompt from '../Auth/NicknamePrompt';
 import AvatarDisplay from '../Avatar/AvatarDisplay';
 import CourseSelector from '../Navbar/CourseSelector';
+import useBackgroundMusic from '../../hooks/useBackgroundMusic';
 import './Layout.css';
 
 const Layout = ({ children }) => {
   const { progress, newAchievement, scorePopup, celebration } = useProgress();
+  // Música de fundo global — o hook cuida de tudo: primeiro gesto, visibilidade,
+  // volume e settings. Basta montá-lo aqui para tocar em todas as páginas.
+  useBackgroundMusic();
   const { pathname } = useLocation();
   // Mesma checagem de sessão real que a tela de Perfil usa (ver useAuthProfile)
   // — sem isto, "Entrar" continuava aparecendo na navbar mesmo depois de um

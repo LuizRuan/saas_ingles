@@ -7,9 +7,10 @@ import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import { pickByLevel } from '../../utils/levelSelection';
+import { GAME_REWARDS } from '../../utils/scoring';
 import './SentenceBuilder.css';
 
-const ROUNDS = 8;
+const ROUNDS = 5;
 
 const stripPunctuation = (str) => (str || '').replace(/[.,?!:;'"“”]/g, '').trim();
 
@@ -39,7 +40,12 @@ const SentenceBuilder = () => {
 
   const setupRound = useCallback((roundIdx) => {
     const s = gameSentences[roundIdx];
-    if (!s) { setGameComplete(true); completeGame('sentenceBuilder'); return; }
+    if (!s) {
+      setScore(prev => prev + GAME_REWARDS.sentenceBuilder.completion);
+      setGameComplete(true);
+      completeGame('sentenceBuilder', GAME_REWARDS.sentenceBuilder.completion);
+      return;
+    }
     setSelectedWords([]);
     setAvailableWords(prepareWords(s));
     setFeedback(null);
@@ -61,8 +67,8 @@ const SentenceBuilder = () => {
       if (formed.toLowerCase() === correct.toLowerCase()) {
         setFeedback('correct');
         playCorrect();
-        setScore(prev => prev + 10);
-        handleCorrectAnswer(currentSentence.en, 1);
+        setScore(prev => prev + GAME_REWARDS.sentenceBuilder.perSentence);
+        handleCorrectAnswer(currentSentence.en, 1, false, GAME_REWARDS.sentenceBuilder.perSentence);
         completeSentence();
       } else {
         setFeedback('wrong');

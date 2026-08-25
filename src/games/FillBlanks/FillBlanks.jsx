@@ -7,6 +7,7 @@ import { useProgress } from '../../hooks/useProgress';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import { pickByLevel } from '../../utils/levelSelection';
+import { GAME_REWARDS } from '../../utils/scoring';
 import './FillBlanks.css';
 
 const ROUNDS = 10;
@@ -40,8 +41,8 @@ const FillBlanks = () => {
     speakNormal(option);
     if (option === current.answer) {
       setFeedback('correct');
-      setScore(prev => prev + 10);
-      handleCorrectAnswer(current.answer, 1);
+      setScore(prev => prev + GAME_REWARDS.fillBlanks.perQuestion);
+      handleCorrectAnswer(current.answer, 1, false, GAME_REWARDS.fillBlanks.perQuestion);
       playCorrect();
     } else {
       setFeedback('wrong');
@@ -52,8 +53,9 @@ const FillBlanks = () => {
 
   const nextRound = useCallback(() => {
     if (round + 1 >= questions.length) {
+      setScore(prev => prev + GAME_REWARDS.fillBlanks.completion);
       setGameComplete(true);
-      completeGame('fillBlanks');
+      completeGame('fillBlanks', GAME_REWARDS.fillBlanks.completion);
     } else {
       setRound(prev => prev + 1);
       setSelected(null);
