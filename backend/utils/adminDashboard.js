@@ -55,7 +55,6 @@ export const toAdminUserSummary = (user) => {
 
   return {
     id: String(user?._id ?? user?.id ?? ''),
-    email: typeof user?.email === 'string' ? user.email : '',
     nickname: typeof user?.nickname === 'string' && user.nickname.trim()
       ? user.nickname.trim()
       : null,

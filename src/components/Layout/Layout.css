@@ -9,15 +9,20 @@
   flex: 1;
 }
 
-.navbar-admin-link {
+.navbar-stats .navbar-admin-link {
+  width: 42px;
+  height: 42px;
+  justify-content: center;
+  padding: 0;
+  border-radius: var(--radius-full);
   color: var(--accent-primary);
   background: var(--bg-purple-subtle);
   border: 1px solid color-mix(in srgb, var(--accent-primary) 22%, transparent);
   font-weight: 700;
 }
 
-.navbar-admin-link:hover,
-.navbar-admin-link.active {
+.navbar-stats .navbar-admin-link:hover,
+.navbar-stats .navbar-admin-link.active {
   color: white;
   background: var(--gradient-primary);
 }

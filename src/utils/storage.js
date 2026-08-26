@@ -4,6 +4,9 @@ import { resolveWordKey, mergeStats } from './wordKey';
 import { emptyCourseSnapshot, buildCourseStats, withCourseStats, DEFAULT_COURSE } from './courseProgress';
 import { AVAILABLE_COURSES } from '../data/index';
 import { DEFAULT_SENTENCE_SKILL } from './sentenceSkill';
+import { DEFAULT_MEMORY_SKILL } from './memorySkill';
+import { DEFAULT_HANGMAN_SKILL } from './hangmanSkill';
+import { DEFAULT_WORD_BUILDER_SKILL } from './wordBuilderSkill';
 
 // Cursos que o saneamento aceita em `activeCourse`. Sai de AVAILABLE_COURSES
 // para não existirem duas listas de idiomas que precisam ser lembradas juntas:
@@ -66,6 +69,18 @@ export const defaultProgress = {
   recentSentenceIds: [],
   sentenceBuilderSkill: { ...DEFAULT_SENTENCE_SKILL },
   sentenceReviewQueue: [],
+  memoryGameSkill: { ...DEFAULT_MEMORY_SKILL },
+  recentMemoryWordKeys: [],
+  memoryStats: {},
+  memoryReviewQueue: [],
+  hangmanSkill: { ...DEFAULT_HANGMAN_SKILL },
+  recentHangmanWordKeys: [],
+  hangmanStats: {},
+  hangmanReviewQueue: [],
+  wordBuilderSkill: { ...DEFAULT_WORD_BUILDER_SKILL },
+  recentWordBuilderKeys: [],
+  wordBuilderStats: {},
+  wordBuilderReviewQueue: [],
   // Track error history for review
   errorHistory: [],
   // Categories the user has explored
@@ -238,6 +253,216 @@ const saneiaSentenceReviewQueue = (bruto) => lista(bruto).slice(-30).map(item =>
   };
 }).filter(item => item.sentenceId);
 
+const saneiaMemorySkill = (bruto) => {
+  const skill = objeto(bruto);
+  const bestByMode = {};
+  for (const mode of ['easy', 'medium', 'hard']) {
+    const best = objeto(objeto(skill.bestByMode)[mode]);
+    if (Object.keys(best).length > 0) {
+      bestByMode[mode] = {
+        efficiency: inteiro(best.efficiency, 0, { min: 0, max: 100 }),
+        attempts: inteiro(best.attempts, 1, { min: 1, max: 100000 }),
+        difficulty: inteiro(best.difficulty, 1, { min: 1, max: 100 }),
+      };
+    }
+  }
+  return {
+    rating: inteiro(skill.rating, 1, { min: 1, max: 100 }),
+    attempts: inteiro(skill.attempts, 0, { min: 0, max: 1000000 }),
+    perfectGames: inteiro(skill.perfectGames, 0, { min: 0, max: 1000000 }),
+    streak: inteiro(skill.streak, 0, { min: 0, max: 100000 }),
+    bestByMode,
+    recentResults: lista(skill.recentResults).slice(-20).map(item => {
+      const result = objeto(item);
+      return {
+        mode: texto(result.mode, 'medium'),
+        difficulty: inteiro(result.difficulty, 1, { min: 1, max: 100 }),
+        pairs: inteiro(result.pairs, 1, { min: 1, max: 20 }),
+        attempts: inteiro(result.attempts, 1, { min: 1, max: 100000 }),
+        efficiency: inteiro(result.efficiency, 0, { min: 0, max: 100 }),
+        durationMs: inteiro(result.durationMs, 0, { min: 0, max: 3600000 }),
+        delta: inteiro(result.delta, 0, { min: -100, max: 100 }),
+      };
+    }),
+  };
+};
+
+const saneiaHangmanSkill = (bruto) => {
+  const skill = objeto(bruto);
+  const bestByMode = {};
+  for (const mode of ['easy', 'medium', 'hard']) {
+    const best = objeto(objeto(skill.bestByMode)[mode]);
+    if (Object.keys(best).length > 0) {
+      bestByMode[mode] = {
+        performance: inteiro(best.performance, 0, { min: 0, max: 100 }),
+        wrongCount: inteiro(best.wrongCount, 0, { min: 0, max: 20 }),
+        durationMs: inteiro(best.durationMs, 0, { min: 0, max: 3600000 }),
+        difficulty: inteiro(best.difficulty, 1, { min: 1, max: 100 }),
+      };
+    }
+  }
+  return {
+    rating: inteiro(skill.rating, 1, { min: 1, max: 100 }),
+    attempts: inteiro(skill.attempts, 0, { min: 0, max: 1000000 }),
+    wins: inteiro(skill.wins, 0, { min: 0, max: 1000000 }),
+    losses: inteiro(skill.losses, 0, { min: 0, max: 1000000 }),
+    perfectGames: inteiro(skill.perfectGames, 0, { min: 0, max: 1000000 }),
+    streak: inteiro(skill.streak, 0, { min: 0, max: 100000 }),
+    bestByMode,
+    recentResults: lista(skill.recentResults).slice(-20).map(item => {
+      const result = objeto(item);
+      return {
+        mode: texto(result.mode, 'medium'),
+        won: booleano(result.won, false),
+        difficulty: inteiro(result.difficulty, 1, { min: 1, max: 100 }),
+        wrongCount: inteiro(result.wrongCount, 0, { min: 0, max: 20 }),
+        maxWrong: inteiro(result.maxWrong, 6, { min: 1, max: 20 }),
+        hintsUsed: inteiro(result.hintsUsed, 0, { min: 0, max: 20 }),
+        translationUsed: booleano(result.translationUsed, false),
+        performance: inteiro(result.performance, 0, { min: 0, max: 100 }),
+        durationMs: inteiro(result.durationMs, 0, { min: 0, max: 3600000 }),
+        delta: inteiro(result.delta, 0, { min: -100, max: 100 }),
+      };
+    }),
+  };
+};
+
+const saneiaWordBuilderSkill = (bruto) => {
+  const skill = objeto(bruto);
+  const bestByMode = {};
+  for (const mode of ['easy', 'medium', 'hard']) {
+    const best = objeto(objeto(skill.bestByMode)[mode]);
+    if (Object.keys(best).length > 0) {
+      bestByMode[mode] = {
+        performance: inteiro(best.performance, 0, { min: 0, max: 100 }),
+        correctCount: inteiro(best.correctCount, 0, { min: 0, max: 20 }),
+        totalRounds: inteiro(best.totalRounds, 1, { min: 1, max: 20 }),
+        durationMs: inteiro(best.durationMs, 0, { min: 0, max: 3600000 }),
+        difficulty: inteiro(best.difficulty, 1, { min: 1, max: 100 }),
+      };
+    }
+  }
+  return {
+    rating: inteiro(skill.rating, 1, { min: 1, max: 100 }),
+    attempts: inteiro(skill.attempts, 0, { min: 0, max: 1000000 }),
+    correct: inteiro(skill.correct, 0, { min: 0, max: 1000000 }),
+    wrong: inteiro(skill.wrong, 0, { min: 0, max: 1000000 }),
+    perfectGames: inteiro(skill.perfectGames, 0, { min: 0, max: 1000000 }),
+    streak: inteiro(skill.streak, 0, { min: 0, max: 100000 }),
+    bestByMode,
+    recentResults: lista(skill.recentResults).slice(-20).map(item => {
+      const result = objeto(item);
+      return {
+        mode: texto(result.mode, 'medium'),
+        difficulty: inteiro(result.difficulty, 1, { min: 1, max: 100 }),
+        correctCount: inteiro(result.correctCount, 0, { min: 0, max: 20 }),
+        totalRounds: inteiro(result.totalRounds, 1, { min: 1, max: 20 }),
+        averageAttempts: numero(result.averageAttempts, 1, { min: 1, max: 20 }),
+        hintsUsed: inteiro(result.hintsUsed, 0, { min: 0, max: 100 }),
+        performance: inteiro(result.performance, 0, { min: 0, max: 100 }),
+        durationMs: inteiro(result.durationMs, 0, { min: 0, max: 3600000 }),
+        delta: inteiro(result.delta, 0, { min: -100, max: 100 }),
+      };
+    }),
+  };
+};
+
+const saneiaMemoryStats = (bruto) => {
+  const saneado = {};
+  for (const [key, raw] of Object.entries(objeto(bruto)).slice(0, MAX_ENTRADAS)) {
+    if (typeof key !== 'string' || !key || key.length > MAX_CHAVE) continue;
+    const stats = objeto(raw);
+    saneado[key] = {
+      matches: inteiro(stats.matches, 0),
+      associationMisses: inteiro(stats.associationMisses, 0),
+      reveals: inteiro(stats.reveals, 0),
+      bestRecall: inteiro(stats.bestRecall, 0, { min: 0, max: 100 }),
+      lastQuality: inteiro(stats.lastQuality, 0, { min: 0, max: 100 }),
+      lastSeen: inteiro(stats.lastSeen, 0),
+    };
+  }
+  return saneado;
+};
+
+const saneiaHangmanStats = (bruto) => {
+  const saneado = {};
+  for (const [key, raw] of Object.entries(objeto(bruto)).slice(0, MAX_ENTRADAS)) {
+    if (typeof key !== 'string' || !key || key.length > MAX_CHAVE) continue;
+    const stats = objeto(raw);
+    saneado[key] = {
+      games: inteiro(stats.games, 0),
+      wins: inteiro(stats.wins, 0),
+      losses: inteiro(stats.losses, 0),
+      wrongLetters: inteiro(stats.wrongLetters, 0),
+      hintsUsed: inteiro(stats.hintsUsed, 0),
+      translationsUsed: inteiro(stats.translationsUsed, 0),
+      bestRemainingAttempts: inteiro(stats.bestRemainingAttempts, 0, { min: 0, max: 20 }),
+      bestPerformance: inteiro(stats.bestPerformance, 0, { min: 0, max: 100 }),
+      lastPerformance: inteiro(stats.lastPerformance, 0, { min: 0, max: 100 }),
+      lastResult: stats.lastResult === 'won' ? 'won' : 'lost',
+      lastSeen: inteiro(stats.lastSeen, 0),
+    };
+  }
+  return saneado;
+};
+
+const saneiaWordBuilderStats = (bruto) => {
+  const saneado = {};
+  for (const [key, raw] of Object.entries(objeto(bruto)).slice(0, MAX_ENTRADAS)) {
+    if (typeof key !== 'string' || !key || key.length > MAX_CHAVE) continue;
+    const stats = objeto(raw);
+    saneado[key] = {
+      rounds: inteiro(stats.rounds, 0),
+      correct: inteiro(stats.correct, 0),
+      wrong: inteiro(stats.wrong, 0),
+      attempts: inteiro(stats.attempts, 0),
+      moves: inteiro(stats.moves, 0),
+      hintsUsed: inteiro(stats.hintsUsed, 0),
+      bestMoves: inteiro(stats.bestMoves, 0),
+      bestTime: inteiro(stats.bestTime, 0, { min: 0, max: 3600000 }),
+      bestPerformance: inteiro(stats.bestPerformance, 0, { min: 0, max: 100 }),
+      lastPerformance: inteiro(stats.lastPerformance, 0, { min: 0, max: 100 }),
+      lastResult: stats.lastResult === 'won' ? 'won' : 'lost',
+      lastSeen: inteiro(stats.lastSeen, 0),
+    };
+  }
+  return saneado;
+};
+
+const saneiaMemoryReviewQueue = (bruto) => lista(bruto).slice(-60).map(item => {
+  const review = objeto(item);
+  return {
+    wordKey: texto(review.wordKey, ''),
+    stage: inteiro(review.stage, 0, { min: 0, max: 3 }),
+    dueGame: inteiro(review.dueGame, 0, { min: 0, max: 1000000 }),
+    wrongCount: inteiro(review.wrongCount, 1, { min: 1, max: 100000 }),
+    lastQuality: inteiro(review.lastQuality, 0, { min: 0, max: 100 }),
+  };
+}).filter(item => item.wordKey);
+
+const saneiaHangmanReviewQueue = (bruto) => lista(bruto).slice(-60).map(item => {
+  const review = objeto(item);
+  return {
+    wordKey: texto(review.wordKey, ''),
+    category: texto(review.category, 'geral'),
+    stage: inteiro(review.stage, 0, { min: 0, max: 3 }),
+    dueGame: inteiro(review.dueGame, 0, { min: 0, max: 1000000 }),
+    wrongCount: inteiro(review.wrongCount, 1, { min: 1, max: 100000 }),
+    lastPerformance: inteiro(review.lastPerformance, 0, { min: 0, max: 100 }),
+  };
+}).filter(item => item.wordKey);
+
+const saneiaWordBuilderReviewQueue = (bruto) => lista(bruto).slice(-60).map(item => {
+  const review = objeto(item);
+  return {
+    wordKey: texto(review.wordKey, ''),
+    stage: inteiro(review.stage, 0, { min: 0, max: 3 }),
+    dueGame: inteiro(review.dueGame, 0, { min: 0, max: 1000000 }),
+    wrongCount: inteiro(review.wrongCount, 1, { min: 1, max: 100000 }),
+    lastPerformance: inteiro(review.lastPerformance, 0, { min: 0, max: 100 }),
+  };
+}).filter(item => item.wordKey);
+
 const saneiaCursoGuardado = (bruto) => {
   const c = objeto(bruto);
   const jogos = objeto(c.gamesCompleted);
@@ -265,6 +490,18 @@ const saneiaCursoGuardado = (bruto) => {
     recentSentenceIds: lista(c.recentSentenceIds).filter(x => typeof x === 'string').slice(-60),
     sentenceBuilderSkill: saneiaSentenceBuilderSkill(c.sentenceBuilderSkill),
     sentenceReviewQueue: saneiaSentenceReviewQueue(c.sentenceReviewQueue),
+    memoryGameSkill: saneiaMemorySkill(c.memoryGameSkill),
+    recentMemoryWordKeys: lista(c.recentMemoryWordKeys).filter(x => typeof x === 'string').slice(-40),
+    memoryStats: saneiaMemoryStats(c.memoryStats),
+    memoryReviewQueue: saneiaMemoryReviewQueue(c.memoryReviewQueue),
+    hangmanSkill: saneiaHangmanSkill(c.hangmanSkill),
+    recentHangmanWordKeys: lista(c.recentHangmanWordKeys).filter(x => typeof x === 'string').slice(-40),
+    hangmanStats: saneiaHangmanStats(c.hangmanStats),
+    hangmanReviewQueue: saneiaHangmanReviewQueue(c.hangmanReviewQueue),
+    wordBuilderSkill: saneiaWordBuilderSkill(c.wordBuilderSkill),
+    recentWordBuilderKeys: lista(c.recentWordBuilderKeys).filter(x => typeof x === 'string').slice(-40),
+    wordBuilderStats: saneiaWordBuilderStats(c.wordBuilderStats),
+    wordBuilderReviewQueue: saneiaWordBuilderReviewQueue(c.wordBuilderReviewQueue),
     errorHistory: lista(c.errorHistory).slice(-100).map(e => ({
       word: texto(objeto(e).word, ''),
       timestamp: inteiro(objeto(e).timestamp, 0),
@@ -347,6 +584,18 @@ const saneiaProgresso = (bruto) => {
     recentSentenceIds: lista(p.recentSentenceIds).filter(x => typeof x === 'string').slice(-60),
     sentenceBuilderSkill: saneiaSentenceBuilderSkill(p.sentenceBuilderSkill),
     sentenceReviewQueue: saneiaSentenceReviewQueue(p.sentenceReviewQueue),
+    memoryGameSkill: saneiaMemorySkill(p.memoryGameSkill),
+    recentMemoryWordKeys: lista(p.recentMemoryWordKeys).filter(x => typeof x === 'string').slice(-40),
+    memoryStats: saneiaMemoryStats(p.memoryStats),
+    memoryReviewQueue: saneiaMemoryReviewQueue(p.memoryReviewQueue),
+    hangmanSkill: saneiaHangmanSkill(p.hangmanSkill),
+    recentHangmanWordKeys: lista(p.recentHangmanWordKeys).filter(x => typeof x === 'string').slice(-40),
+    hangmanStats: saneiaHangmanStats(p.hangmanStats),
+    hangmanReviewQueue: saneiaHangmanReviewQueue(p.hangmanReviewQueue),
+    wordBuilderSkill: saneiaWordBuilderSkill(p.wordBuilderSkill),
+    recentWordBuilderKeys: lista(p.recentWordBuilderKeys).filter(x => typeof x === 'string').slice(-40),
+    wordBuilderStats: saneiaWordBuilderStats(p.wordBuilderStats),
+    wordBuilderReviewQueue: saneiaWordBuilderReviewQueue(p.wordBuilderReviewQueue),
     errorHistory: lista(p.errorHistory).slice(-100).map(e => ({
       word: texto(objeto(e).word, ''),
       timestamp: inteiro(objeto(e).timestamp, 0),

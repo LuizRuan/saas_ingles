@@ -96,8 +96,9 @@ const Layout = ({ children }) => {
                 to="/admin/dashboard"
                 className={({ isActive }) => `navbar-link navbar-admin-link ${isActive ? 'active' : ''}`}
                 title="Dashboard administrativo"
+                aria-label="Abrir Dashboard administrativo"
               >
-                <span>📊</span> Dashboard
+                <span>📊</span>
               </NavLink>
             )}
             {!estaLogado && (
@@ -148,9 +149,13 @@ const Layout = ({ children }) => {
           <span>Config</span>
         </NavLink>
         {estaLogado && profile.isAdmin && (
-          <NavLink to="/admin/dashboard" className={({ isActive }) => `mobile-nav-item mobile-nav-admin ${isActive ? 'active' : ''}`}>
+          <NavLink
+            to="/admin/dashboard"
+            className={({ isActive }) => `mobile-nav-item mobile-nav-admin ${isActive ? 'active' : ''}`}
+            aria-label="Abrir Dashboard administrativo"
+            title="Dashboard administrativo"
+          >
             <span className="icon">📊</span>
-            <span>Dashboard</span>
           </NavLink>
         )}
       </nav>

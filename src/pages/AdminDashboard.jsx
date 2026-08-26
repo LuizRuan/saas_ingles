@@ -131,8 +131,8 @@ const AdminDashboard = () => {
                 type="search"
                 value={searchDraft}
                 onChange={event => setSearchDraft(event.target.value)}
-                placeholder="Buscar por apelido ou e-mail"
-                aria-label="Buscar jogador por apelido ou e-mail"
+                placeholder="Buscar por apelido"
+                aria-label="Buscar jogador por apelido"
                 maxLength={100}
               />
               <button type="submit" className="btn btn-primary btn-sm">Buscar</button>
@@ -160,7 +160,7 @@ const AdminDashboard = () => {
             <div className="admin-table-state">
               <span className="admin-empty-icon" aria-hidden="true">🔍</span>
               <h3>Nenhuma conta encontrada</h3>
-              <p>Tente buscar outro apelido ou e-mail.</p>
+              <p>Tente buscar outro apelido.</p>
             </div>
           )}
 
@@ -184,11 +184,10 @@ const AdminDashboard = () => {
                         <td data-label="Conta">
                           <div className="admin-user-cell">
                             <span className="admin-user-avatar" aria-hidden="true">
-                              {(user.nickname || user.email || '?').charAt(0).toUpperCase()}
+                              {(user.nickname || '?').charAt(0).toUpperCase()}
                             </span>
                             <div>
                               <strong>{user.nickname || 'Sem apelido'}</strong>
-                              <span>{user.email}</span>
                             </div>
                           </div>
                         </td>

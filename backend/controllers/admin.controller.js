@@ -16,10 +16,7 @@ export const getAdminDashboard = async (req, res) => {
   const search = typeof req.query.search === 'string' ? req.query.search.trim().slice(0, 100) : '';
   const filter = search
     ? {
-      $or: [
-        { email: { $regex: escapeRegex(search), $options: 'i' } },
-        { nickname: { $regex: escapeRegex(search), $options: 'i' } },
-      ],
+      nickname: { $regex: escapeRegex(search), $options: 'i' },
     }
     : {};
 
@@ -32,7 +29,6 @@ export const getAdminDashboard = async (req, res) => {
   const totalFilteredPromise = search ? User.countDocuments(filter).exec() : totalUsersPromise;
   const usersPromise = User.find(filter)
     .select([
-      'email',
       'nickname',
       'createdAt',
       'progress.totalScore',

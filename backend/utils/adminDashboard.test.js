@@ -34,7 +34,6 @@ describe('toAdminUserSummary', () => {
   it('expõe apenas os dados necessários para o Dashboard', () => {
     const result = toAdminUserSummary({
       _id: 'user-1',
-      email: 'ana@example.com',
       nickname: 'Ana',
       passwordHash: 'nunca-pode-vazar',
       createdAt: '2026-08-25T12:00:00.000Z',
@@ -50,7 +49,6 @@ describe('toAdminUserSummary', () => {
 
     expect(result).toEqual({
       id: 'user-1',
-      email: 'ana@example.com',
       nickname: 'Ana',
       createdAt: '2026-08-25T12:00:00.000Z',
       activeCourse: 'en-pt',
@@ -62,6 +60,7 @@ describe('toAdminUserSummary', () => {
         { id: 'translation', name: 'Tradução', plays: 5 },
       ],
     });
+    expect(result).not.toHaveProperty('email');
     expect(result).not.toHaveProperty('passwordHash');
     expect(result).not.toHaveProperty('wordStats');
     expect(result).not.toHaveProperty('progress');

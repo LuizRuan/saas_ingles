@@ -40,6 +40,65 @@ describe('progresso', () => {
     expect(p.extraTimeAvailable).toBe(0);
     // Apelido do duelo humano de "Quem Sabe Mais?" — default null, não string vazia
     expect(p.displayName).toBeNull();
+    expect(p.hangmanSkill).toMatchObject({ rating: 1, attempts: 0, wins: 0, losses: 0 });
+    expect(p.wordBuilderSkill).toMatchObject({ rating: 1, attempts: 0, correct: 0, wrong: 0 });
+  });
+
+  it('saneia e preserva a habilidade própria da Forca', () => {
+    gravarProgresso({
+      hangmanSkill: {
+        rating: 150,
+        attempts: 3,
+        wins: 2,
+        losses: 1,
+        bestByMode: { easy: { performance: 110, wrongCount: -2, difficulty: 120 } },
+        recentResults: Array.from({ length: 30 }, () => ({ won: true, difficulty: 50 })),
+      },
+    });
+    const skill = loadProgress().hangmanSkill;
+    expect(skill.rating).toBe(100);
+    expect(skill.bestByMode.easy).toMatchObject({ performance: 100, wrongCount: 0, difficulty: 100 });
+    expect(skill.recentResults).toHaveLength(20);
+  });
+
+  it('saneia as estatísticas por palavra da Forca', () => {
+    gravarProgresso({
+      hangmanStats: {
+        elephant: {
+          games: 3,
+          wins: 2,
+          losses: 1,
+          wrongLetters: -5,
+          bestPerformance: 200,
+          lastResult: 'won',
+        },
+      },
+    });
+    expect(loadProgress().hangmanStats.elephant).toMatchObject({
+      games: 3,
+      wins: 2,
+      losses: 1,
+      wrongLetters: 0,
+      bestPerformance: 100,
+      lastResult: 'won',
+    });
+  });
+
+  it('saneia e preserva a habilidade própria do Montar Palavras', () => {
+    gravarProgresso({
+      wordBuilderSkill: {
+        rating: 120,
+        attempts: 3,
+        correct: 20,
+        wrong: 4,
+        bestByMode: { hard: { performance: 110, correctCount: 30, totalRounds: 8, difficulty: 150 } },
+        recentResults: Array.from({ length: 30 }, () => ({ performance: 80 })),
+      },
+    });
+    const skill = loadProgress().wordBuilderSkill;
+    expect(skill.rating).toBe(100);
+    expect(skill.bestByMode.hard).toMatchObject({ performance: 100, correctCount: 20, difficulty: 100 });
+    expect(skill.recentResults).toHaveLength(20);
   });
 
   it('corta o apelido de duelo em 20 caracteres (é mostrado a um estranho)', () => {

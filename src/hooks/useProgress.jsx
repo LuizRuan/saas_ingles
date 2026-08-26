@@ -13,6 +13,18 @@ import { appendRecentSentenceIds } from '../utils/sentenceCatalog';
 import { updateSentenceSkill } from '../utils/sentenceSkill';
 import { updateSentenceReviewQueue } from '../utils/sentenceReview';
 import { splitSentenceIntoWords } from '../utils/sentenceWords';
+import { appendRecentMemoryWords } from '../utils/memoryRecent';
+import { appendRecentHangmanWords } from '../utils/hangmanRecent';
+import { updateMemoryStats } from '../utils/memoryPerformance';
+import { updateMemoryReviewQueue } from '../utils/memoryReview';
+import { updateMemorySkill } from '../utils/memorySkill';
+import { updateHangmanStats } from '../utils/hangmanPerformance';
+import { updateHangmanSkill } from '../utils/hangmanSkill';
+import { updateHangmanReviewQueue } from '../utils/hangmanReview';
+import { appendRecentWordBuilderWords } from '../utils/wordBuilderRecent';
+import { updateWordBuilderStats } from '../utils/wordBuilderPerformance';
+import { updateWordBuilderSkill } from '../utils/wordBuilderSkill';
+import { updateWordBuilderReviewQueue } from '../utils/wordBuilderReview';
 
 const ProgressContext = createContext(null);
 
@@ -306,6 +318,149 @@ export const ProgressProvider = ({ children }) => {
     });
   }, []);
 
+  const rememberMemoryWords = useCallback((words) => {
+    setProgress(prev => ({
+      ...prev,
+      recentMemoryWordKeys: appendRecentMemoryWords(prev.recentMemoryWordKeys, words),
+    }));
+  }, []);
+
+  const rememberHangmanWords = useCallback((words) => {
+    setProgress(prev => ({
+      ...prev,
+      recentHangmanWordKeys: appendRecentHangmanWords(prev.recentHangmanWordKeys, words),
+    }));
+  }, []);
+
+  const rememberWordBuilderWords = useCallback((words) => {
+    setProgress(prev => ({
+      ...prev,
+      recentWordBuilderKeys: appendRecentWordBuilderWords(prev.recentWordBuilderKeys, words),
+    }));
+  }, []);
+
+  const completeWordBuilderGame = useCallback((wordResults, result) => {
+    const currentMultiplier = activeMultiplier(progressRef.current);
+    const points = Math.max(0, Number(result.points) || 0);
+    setProgress(prev => {
+      let updated = {
+        ...prev,
+        wordBuilderStats: updateWordBuilderStats(prev.wordBuilderStats, wordResults),
+        wordBuilderSkill: updateWordBuilderSkill(prev.wordBuilderSkill, result),
+        wordBuilderReviewQueue: updateWordBuilderReviewQueue(
+          prev.wordBuilderReviewQueue,
+          wordResults,
+          prev.gamesCompleted?.wordBuilder || 0,
+        ),
+      };
+      for (const wordResult of wordResults) {
+        if (!wordResult.won || wordResult.needsReview) {
+          updated = recordWordResult(updated, wordResult.word.en, false);
+        }
+        if (wordResult.won) updated = recordWordResult(updated, wordResult.word.en, true);
+      }
+      const gamesCompleted = { ...updated.gamesCompleted };
+      gamesCompleted.wordBuilder = (gamesCompleted.wordBuilder || 0) + 1;
+      const remainingMultiplierGames = Math.max(0, (updated.multiplierGames || 0) - 1);
+      updated = {
+        ...updated,
+        gamesCompleted,
+        totalScore: updated.totalScore + (points * activeMultiplier(updated)),
+        lastGame: 'wordBuilder',
+        multiplierGames: remainingMultiplierGames,
+        pointsMultiplier: remainingMultiplierGames > 0 ? updated.pointsMultiplier : 1,
+      };
+      updated.currentLevel = getCurrentLevel(updated.wordsStudied, updated.activeCourse).level;
+      updated = updateDayStreak(updated);
+      return checkAchievements(updated);
+    });
+    if (points > 0) {
+      setScorePopup(points * currentMultiplier);
+      setTimeout(() => setScorePopup(null), 1200);
+    }
+    if (result.correctCount > 0) dispararCelebracao('fireworks');
+  }, [checkAchievements, dispararCelebracao]);
+
+  const completeHangmanGame = useCallback((wordResult, result) => {
+    const currentMultiplier = activeMultiplier(progressRef.current);
+    const points = Math.max(0, Number(result.points) || 0);
+    setProgress(prev => {
+      let updated = {
+        ...prev,
+        hangmanStats: updateHangmanStats(prev.hangmanStats, wordResult),
+        hangmanSkill: updateHangmanSkill(prev.hangmanSkill, result),
+        hangmanReviewQueue: updateHangmanReviewQueue(
+          prev.hangmanReviewQueue,
+          wordResult,
+          prev.gamesCompleted?.hangman || 0,
+        ),
+      };
+      if (!wordResult.won || wordResult.needsReview) {
+        updated = recordWordResult(updated, wordResult.word.en, false);
+      }
+      if (wordResult.won) updated = recordWordResult(updated, wordResult.word.en, true);
+
+      const gamesCompleted = { ...updated.gamesCompleted };
+      gamesCompleted.hangman = (gamesCompleted.hangman || 0) + 1;
+      const remainingMultiplierGames = Math.max(0, (updated.multiplierGames || 0) - 1);
+      updated = {
+        ...updated,
+        gamesCompleted,
+        totalScore: updated.totalScore + (points * activeMultiplier(updated)),
+        lastGame: 'hangman',
+        multiplierGames: remainingMultiplierGames,
+        pointsMultiplier: remainingMultiplierGames > 0 ? updated.pointsMultiplier : 1,
+      };
+      updated.currentLevel = getCurrentLevel(updated.wordsStudied, updated.activeCourse).level;
+      updated = updateDayStreak(updated);
+      return checkAchievements(updated);
+    });
+    if (points > 0) {
+      setScorePopup(points * currentMultiplier);
+      setTimeout(() => setScorePopup(null), 1200);
+    }
+    if (result.won) dispararCelebracao('fireworks');
+  }, [checkAchievements, dispararCelebracao]);
+
+  const completeMemoryGame = useCallback((wordResults, result) => {
+    const currentMultiplier = activeMultiplier(progressRef.current);
+    setProgress(prev => {
+      let updated = {
+        ...prev,
+        memoryStats: updateMemoryStats(prev.memoryStats, wordResults),
+        memoryReviewQueue: updateMemoryReviewQueue(
+          prev.memoryReviewQueue,
+          wordResults,
+          prev.gamesCompleted?.memory || 0,
+        ),
+        memoryGameSkill: updateMemorySkill(prev.memoryGameSkill, result),
+      };
+      for (const result of wordResults) {
+        // Uma associação difícil registra o erro de memória e, em seguida, o
+        // acerto final. Assim a palavra foi estudada sem fingir desempenho perfeito.
+        if (result.needsReview) updated = recordWordResult(updated, result.word.en, false);
+        updated = recordWordResult(updated, result.word.en, true);
+      }
+      const gamesCompleted = { ...updated.gamesCompleted };
+      gamesCompleted.memory = (gamesCompleted.memory || 0) + 1;
+      const remainingMultiplierGames = Math.max(0, (updated.multiplierGames || 0) - 1);
+      updated = {
+        ...updated,
+        gamesCompleted,
+        totalScore: updated.totalScore + (result.points * activeMultiplier(updated)),
+        lastGame: 'memory',
+        multiplierGames: remainingMultiplierGames,
+        pointsMultiplier: remainingMultiplierGames > 0 ? updated.pointsMultiplier : 1,
+      };
+      updated.currentLevel = getCurrentLevel(updated.wordsStudied, updated.activeCourse).level;
+      updated = updateDayStreak(updated);
+      return checkAchievements(updated);
+    });
+    setScorePopup(result.points * currentMultiplier);
+    setTimeout(() => setScorePopup(null), 1200);
+    dispararCelebracao('fireworks');
+  }, [checkAchievements, dispararCelebracao]);
+
   const completeConversation = useCallback(() => {
     setProgress(prev => {
       let updated = { ...prev, conversationsCompleted: (prev.conversationsCompleted || 0) + 1 };
@@ -554,6 +709,12 @@ export const ProgressProvider = ({ children }) => {
     completeSentence,
     rememberSentenceIds,
     recordSentenceBuilderResult,
+    rememberMemoryWords,
+    rememberHangmanWords,
+    rememberWordBuilderWords,
+    completeWordBuilderGame,
+    completeHangmanGame,
+    completeMemoryGame,
     completeConversation,
     completeDailyChallenge,
     incrementReviewed,

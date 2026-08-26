@@ -1,33 +1,42 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { categories } from '../../data/categories';
+import { AVAILABLE_COURSES } from '../../data/index';
 import { useProgress } from '../../hooks/useProgress';
 import useCourseData from '../../hooks/useCourseData';
 import useUserLevel from '../../hooks/useUserLevel';
 import useSound from '../../hooks/useSound';
 import useSpeech from '../../hooks/useSpeech';
 import WordExplanation from '../../components/Game/WordExplanation';
-import { pickOneByLevel } from '../../utils/levelSelection';
-import { GAME_REWARDS } from '../../utils/scoring';
+import { HANGMAN_CATEGORY_IDS, isHangmanPlayable } from '../../utils/hangmanAudit';
+import {
+  doesHangmanGuessMatch,
+  getHangmanAlphabet,
+  getHangmanWordTokens,
+  getUnrevealedHangmanLetters,
+  isHangmanWordSolved,
+} from '../../utils/hangmanCharacters';
+import { getAllHangmanModes, getHangmanMode } from '../../utils/hangmanModes';
+import { selectHangmanWord } from '../../utils/hangmanSelection';
+import { buildHangmanWordResult } from '../../utils/hangmanPerformance';
+import { createHangmanGameResult } from '../../utils/hangmanScoring';
+import {
+  getHangmanSkillRating,
+  isBetterHangmanResult,
+  updateHangmanSkill,
+} from '../../utils/hangmanSkill';
 import './HangmanGame.css';
-
-const MAX_WRONG = 6;
-const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-
-// Categorias que fazem sentido no jogo (as abstratas — verbos, sentimentos,
-// perguntas — não dão uma palavra boa pra adivinhar letra a letra).
-const CATEGORIAS_DO_JOGO = ['animais', 'comidas', 'cores', 'familia', 'casa', 'escola', 'corpo', 'roupas', 'bebidas', 'cumprimentos', 'numeros'];
 
 // Uma palavra é jogável se dá pra adivinhar: 3+ letras e sem espaço.
 const jogaveisDe = (words, catId) =>
-  words.filter(w => w.category === catId && w.en.length >= 3 && !w.en.includes(' '));
+  words.filter(word => word.category === catId && isHangmanPlayable(word));
 
 const tipPtMap = {
   // === ANIMAIS ===
   "Dog": "Tem sido nosso companheiro leal há 15.000 anos. Um único farejo diz mais a ele sobre você do que qualquer documento de identidade.",
   "Cat": "Os antigos egípcios o adoravam como divino. Ele consegue se desvirar no ar e sempre cai em pé da mesma forma.",
   "Bird": "A maioria das criaturas da sua classe domina os céus, embora duas famosas — o pinguim e a avestruz — nunca saiam do chão.",
-  "Fish": "Passa a vida inteira respirando algo em que outras criaturas se afogariam. Seu plural em inglês é idêntico ao singular.",
+  "animais:Fish": "Passa a vida inteira respirando algo em que outras criaturas se afogariam. Seu plural em inglês é idêntico ao singular.",
   "Horse": "Antes dos motores existirem, seu nome se tornou a unidade usada para medir a potência deles.",
   "Cow": "Seu estômago tem quatro compartimentos e ele mastiga por até oito horas por dia. Civilizações inteiras construíram sua riqueza ao redor dele.",
   "Pig": "Ao contrário de sua reputação, é um dos animais de fazenda mais limpos. Rolar na lama é apenas como ele regula sua temperatura.",
@@ -78,7 +87,7 @@ const tipPtMap = {
   "Rice": "Alimento básico consumido por mais de metade da população mundial diariamente.",
   "Egg": "Posto por galinhas e outros animais. Versátil na culinária.",
   "Meat": "Carne de animais consumida como alimento.",
-  "Fish": "Alimento rico em proteínas e ômega 3, capturado em rios e oceanos.",
+  "comidas:Fish": "Alimento rico em proteínas e ômega 3, capturado em rios e oceanos.",
   "Soup": "Prato líquido quente feito cozinhando carne, vegetais ou grãos em água.",
   "Salt": "O mineral mais usado na culinária do mundo para realçar sabores e preservar alimentos.",
   "Sugar": "Substância doce extraída da cana ou beterraba, usada em sobremesas.",
@@ -87,7 +96,7 @@ const tipPtMap = {
   "Cake": "Sobremesa assada e doce, muito popular em festas de aniversário.",
   "Salad": "Prato frio feito de vegetais crus misturados, comum como entrada saudável.",
   "Banana": "Fruta amarela e curva rica em potássio, que vem em sua própria 'embalagem' natural.",
-  "Orange": "Fruta cítrica que dá nome à própria cor e é rica em vitamina C.",
+  "comidas:Orange": "Fruta cítrica que dá nome à própria cor e é rica em vitamina C.",
   "Potato": "Tubérculo cultivado no solo, base para batatas fritas e purês.",
   "Tomato": "Botanicamente é uma fruta, mas tratado como vegetal na culinária.",
   "Onion": "Vegetal em camadas que faz cozinheiros chorarem ao ser cortado.",
@@ -107,7 +116,7 @@ const tipPtMap = {
   "Yellow": "A cor brilhante do sol, dos girassóis e das bananas maduras.",
   "Black": "A ausência total de luz. O oposto do branco.",
   "White": "A cor da neve fresca, das nuvens e do leite.",
-  "Orange": "A cor intermediária entre o vermelho e o amarelo, como o pôr do sol.",
+  "cores:Orange": "A cor intermediária entre o vermelho e o amarelo, como o pôr do sol.",
   "Pink": "Mistura suave de vermelho com branco, cor comum em flores.",
   "Purple": "Historicamente a cor da realeza, feita misturando azul e vermelho.",
   "Brown": "A cor da terra, dos troncos das árvores e do chocolate.",
@@ -308,43 +317,126 @@ const tipPtMap = {
 const getTranslatedHint = (word) => {
   if (!word) return '';
   if (word.tipPt) return word.tipPt;
+  if (tipPtMap[`${word.category}:${word.en}`]) return tipPtMap[`${word.category}:${word.en}`];
   if (tipPtMap[word.en]) return tipPtMap[word.en];
   return word.pt ? `Significado: "${word.pt}"` : (word.tip || '');
 };
 
 const HangmanGame = () => {
   const { words } = useCourseData();
-  const { userLevel, maxLevel } = useUserLevel();
+  const { userLevel } = useUserLevel();
   // Filtra pelo que o curso ATIVO realmente cobre. A lista fixa acima vale
   // para o inglês; um curso sem 'roupas', por exemplo, ofereceria um botão que
   // levaria a `pickOneByLevel([], ...)` — palavra `undefined` e tela quebrada.
   const hangmanCategories = useMemo(
-    () => categories.filter(c => CATEGORIAS_DO_JOGO.includes(c.id) && jogaveisDe(words, c.id).length > 0),
+    () => categories.filter(c => HANGMAN_CATEGORY_IDS.includes(c.id) && jogaveisDe(words, c.id).length > 0),
     [words],
   );
   const [category, setCategory] = useState(null);
   const [currentWord, setCurrentWord] = useState(null);
   const [guessedLetters, setGuessedLetters] = useState([]);
   const [wrongCount, setWrongCount] = useState(0);
+  const [difficulty, setDifficulty] = useState(null);
+  const [finalResult, setFinalResult] = useState(null);
   const [gameState, setGameState] = useState('select'); // select, playing, won, lost
-  const { progress, consumeHint, consumeTipTranslation, handleCorrectAnswer, handleWrongAnswer, completeGame, addExploredCategory } = useProgress();
+  const { progress, consumeHint, consumeTipTranslation, addExploredCategory, rememberHangmanWords, completeHangmanGame } = useProgress();
   const { playCorrect, playWrong, playClick } = useSound();
   const { speakNormal } = useSpeech();
   const [tipTranslated, setTipTranslated] = useState(false);
+  const activeCourse = progress.activeCourse || 'en-pt';
+  const activeCourseInfo = AVAILABLE_COURSES.find(course => course.id === activeCourse) || AVAILABLE_COURSES[0];
+  const alphabet = useMemo(() => getHangmanAlphabet(activeCourse), [activeCourse]);
+  const hintsUsedRef = useRef(0);
+  const translationUsedRef = useRef(false);
+  const gameStartedAtRef = useRef(0);
+  const completionHandledRef = useRef(false);
+  const startingSkillRef = useRef(null);
+  const startingMultiplierRef = useRef(1);
+  const hangmanRating = getHangmanSkillRating(progress.hangmanSkill, userLevel);
 
-  const startGame = useCallback((cat) => {
+  const startGame = useCallback((cat, selectedMode) => {
     setCategory(cat);
     addExploredCategory(cat.id);
-    const categoryWords = jogaveisDe(words, cat.id);
-    // Enviesado pelo nível do jogador em vez de sortear uniformemente da
-    // categoria inteira — ver levelSelection.js sobre o porquê.
-    const word = pickOneByLevel(categoryWords, userLevel, maxLevel);
+    const mode = getHangmanMode(selectedMode?.id, progress.hangmanSkill, userLevel);
+    const selection = selectHangmanWord({
+      words,
+      category: cat.id,
+      courseId: activeCourse,
+      targetDifficulty: mode.targetDifficulty,
+      recentWordKeys: progress.recentHangmanWordKeys,
+      hangmanStats: progress.hangmanStats,
+      reviewQueue: progress.hangmanReviewQueue,
+      completedGames: progress.gamesCompleted?.hangman || 0,
+    });
+    const word = selection.word;
+    rememberHangmanWords([word]);
     setCurrentWord(word);
-    setGuessedLetters([]);
+    const freeLetters = getUnrevealedHangmanLetters(word.en, [], activeCourse).slice(0, mode.freeLetters);
+    setGuessedLetters(freeLetters);
     setWrongCount(0);
-    setTipTranslated(false);
+    setDifficulty({ ...mode, wordDifficulty: selection.difficulty, selectionRole: selection.role });
+    setFinalResult(null);
+    setTipTranslated(mode.freeTranslation);
+    hintsUsedRef.current = 0;
+    translationUsedRef.current = false;
+    gameStartedAtRef.current = Date.now();
+    completionHandledRef.current = false;
+    startingSkillRef.current = progress.hangmanSkill;
+    startingMultiplierRef.current = (progress.multiplierGames || 0) > 0
+      ? Math.max(1, Number(progress.pointsMultiplier) || 1)
+      : 1;
     setGameState('playing');
-  }, [addExploredCategory, words, userLevel, maxLevel]);
+  }, [addExploredCategory, words, userLevel, activeCourse, progress.hangmanSkill, progress.recentHangmanWordKeys, progress.hangmanStats, progress.hangmanReviewQueue, progress.gamesCompleted?.hangman, progress.multiplierGames, progress.pointsMultiplier, rememberHangmanWords]);
+
+  const finishGame = useCallback((won, finalGuesses, finalWrongCount) => {
+    if (completionHandledRef.current) return;
+    completionHandledRef.current = true;
+    const wrongGuesses = finalGuesses.filter(letter =>
+      !doesHangmanGuessMatch(currentWord.en, letter, activeCourse));
+    const durationMs = Math.max(0, Date.now() - gameStartedAtRef.current);
+    const wordResult = buildHangmanWordResult({
+      word: currentWord,
+      won,
+      wrongGuesses,
+      wrongCount: finalWrongCount,
+      maxWrong: difficulty.maxWrong,
+      hintsUsed: hintsUsedRef.current,
+      translationUsed: translationUsedRef.current,
+      durationMs,
+    });
+    const result = createHangmanGameResult({
+      mode: difficulty.id,
+      won,
+      difficulty: difficulty.wordDifficulty || difficulty.targetDifficulty,
+      wrongCount: finalWrongCount,
+      maxWrong: difficulty.maxWrong,
+      hintsUsed: hintsUsedRef.current,
+      translationUsed: translationUsedRef.current,
+      durationMs,
+      letterCount: getHangmanWordTokens(currentWord.en, activeCourse).filter(token => token.isLetter).length,
+    });
+    result.fallbackRating = difficulty.hangmanRating;
+    const projectedSkill = updateHangmanSkill(startingSkillRef.current, result);
+    const previousRating = startingSkillRef.current?.attempts > 0
+      ? startingSkillRef.current.rating
+      : difficulty.hangmanRating;
+    const previousBest = startingSkillRef.current?.bestByMode?.[difficulty.id];
+    const projectedBest = projectedSkill.bestByMode?.[difficulty.id];
+    setFinalResult({
+      ...result,
+      awardedPoints: result.points * startingMultiplierRef.current,
+      skillBefore: previousRating,
+      skillAfter: projectedSkill.rating,
+      skillDelta: projectedSkill.rating - previousRating,
+      isPersonalBest: won && isBetterHangmanResult(projectedBest, previousBest),
+      reviewScheduled: wordResult.needsReview,
+      wrongGuesses,
+    });
+    completeHangmanGame(wordResult, result);
+    setGameState(won ? 'won' : 'lost');
+    if (won) playCorrect();
+    else playWrong();
+  }, [currentWord, difficulty, activeCourse, completeHangmanGame, playCorrect, playWrong]);
 
   const handleLetterGuess = useCallback((letter) => {
     if (guessedLetters.includes(letter) || gameState !== 'playing') return;
@@ -354,58 +446,49 @@ const HangmanGame = () => {
     const newGuessed = [...guessedLetters, letter];
     setGuessedLetters(newGuessed);
     
-    const wordUpper = currentWord.en.toUpperCase();
-    
-    if (!wordUpper.includes(letter)) {
+    if (!doesHangmanGuessMatch(currentWord.en, letter, activeCourse)) {
       const newWrong = wrongCount + 1;
       setWrongCount(newWrong);
       
-      if (newWrong >= MAX_WRONG) {
-        setGameState('lost');
-        handleWrongAnswer(currentWord.en);
-        playWrong();
+      if (newWrong >= difficulty.maxWrong) {
+        finishGame(false, newGuessed, newWrong);
       }
     } else {
-      // Check if word is complete (exempting non-alphabet characters like spaces/hyphens)
-      const allRevealed = wordUpper.split('').every(l => !/[A-Z]/.test(l) || newGuessed.includes(l));
+      const allRevealed = isHangmanWordSolved(currentWord.en, newGuessed, activeCourse);
       if (allRevealed) {
-        setGameState('won');
-        const isPerfect = wrongCount === 0;
-        const wordPoints = isPerfect ? GAME_REWARDS.hangman.perfect : GAME_REWARDS.hangman.imperfect;
-        handleCorrectAnswer(currentWord.en, isPerfect ? 1 : 2, false, wordPoints);
-        completeGame('hangman', GAME_REWARDS.hangman.completion);
-        playCorrect();
+        finishGame(true, newGuessed, wrongCount);
       }
     }
-  }, [guessedLetters, gameState, currentWord, wrongCount, playClick, speakNormal, playWrong, playCorrect, handleCorrectAnswer, handleWrongAnswer, completeGame]);
+  }, [guessedLetters, gameState, currentWord, wrongCount, difficulty, activeCourse, playClick, speakNormal, finishGame]);
 
   const handleUseExtraHint = useCallback(() => {
     if (!currentWord || gameState !== 'playing') return;
     if ((progress.hintsAvailable || 0) <= 0) return;
 
-    const unrevealed = currentWord.en.toUpperCase().split('').filter(l => /[A-Z]/.test(l) && !guessedLetters.includes(l));
+    const unrevealed = getUnrevealedHangmanLetters(currentWord.en, guessedLetters, activeCourse);
     if (unrevealed.length === 0) return;
 
     const letterToReveal = unrevealed[0];
     if (consumeHint()) {
+      hintsUsedRef.current += 1;
       handleLetterGuess(letterToReveal);
     }
-  }, [currentWord, gameState, guessedLetters, progress.hintsAvailable, consumeHint, handleLetterGuess]);
+  }, [currentWord, gameState, guessedLetters, activeCourse, progress.hintsAvailable, consumeHint, handleLetterGuess]);
 
   const renderWord = () => {
     if (!currentWord) return null;
-    return currentWord.en.toUpperCase().split('').map((letter, i) => {
-      const isLetter = /[A-Z]/.test(letter);
-      const isRevealed = !isLetter || guessedLetters.includes(letter) || gameState === 'lost';
+    return getHangmanWordTokens(currentWord.en, activeCourse).map((token, i) => {
+      const isRevealed = !token.isLetter || guessedLetters.includes(token.guessKey) || gameState === 'lost';
       return (
-        <span key={i} className={`hangman-letter ${isRevealed ? 'revealed' : ''}`}>
-          {isRevealed ? letter : '_'}
+        <span key={i} className={`hangman-letter ${isRevealed ? 'revealed' : ''} ${!token.isLetter ? 'hangman-letter--literal' : ''}`}>
+          {isRevealed ? token.character : '_'}
         </span>
       );
     });
   };
 
   const renderHangman = () => {
+    const drawingStage = Math.ceil((wrongCount / Math.max(1, difficulty?.maxWrong || 6)) * 6);
     return (
       <svg viewBox="0 0 200 250" className="hangman-svg">
         {/* Gallows */}
@@ -415,12 +498,12 @@ const HangmanGame = () => {
         <line x1="130" y1="20" x2="130" y2="50" stroke="var(--text-muted)" strokeWidth="3" />
         
         {/* Person parts */}
-        {wrongCount >= 1 && <circle cx="130" cy="65" r="15" stroke="var(--accent-red)" strokeWidth="3" fill="none" className="animate-fade-in" />}
-        {wrongCount >= 2 && <line x1="130" y1="80" x2="130" y2="150" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
-        {wrongCount >= 3 && <line x1="130" y1="100" x2="100" y2="130" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
-        {wrongCount >= 4 && <line x1="130" y1="100" x2="160" y2="130" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
-        {wrongCount >= 5 && <line x1="130" y1="150" x2="105" y2="200" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
-        {wrongCount >= 6 && <line x1="130" y1="150" x2="155" y2="200" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
+        {drawingStage >= 1 && <circle cx="130" cy="65" r="15" stroke="var(--accent-red)" strokeWidth="3" fill="none" className="animate-fade-in" />}
+        {drawingStage >= 2 && <line x1="130" y1="80" x2="130" y2="150" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
+        {drawingStage >= 3 && <line x1="130" y1="100" x2="100" y2="130" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
+        {drawingStage >= 4 && <line x1="130" y1="100" x2="160" y2="130" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
+        {drawingStage >= 5 && <line x1="130" y1="150" x2="105" y2="200" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
+        {drawingStage >= 6 && <line x1="130" y1="150" x2="155" y2="200" stroke="var(--accent-red)" strokeWidth="3" className="animate-fade-in" />}
       </svg>
     );
   };
@@ -436,11 +519,16 @@ const HangmanGame = () => {
             Jogo da Forca
           </h1>
           <p className="text-secondary" style={{ marginBottom: 'var(--space-2xl)' }}>
-            Escolha uma categoria e tente adivinhar a palavra em inglês!
+            Escolha uma categoria e uma dificuldade para adivinhar a palavra em {activeCourseInfo.targetName.toLowerCase()}!
           </p>
+          <div className="hangman-level-summary">
+            <span>🎯 Sua Forca</span>
+            <strong>Nível {hangmanRating}</strong>
+            <small>A dificuldade se adapta ao seu desempenho</small>
+          </div>
           <div className="category-grid">
             {hangmanCategories.map(cat => (
-              <button key={cat.id} className="glass-card category-card" onClick={() => startGame(cat)}
+              <button key={cat.id} className={`glass-card category-card ${category?.id === cat.id ? 'selected' : ''}`} onClick={() => setCategory(cat)}
                 style={{ borderColor: `${cat.color}30` }}>
                 <span style={{ fontSize: '2rem' }}>{cat.icon}</span>
                 <span className="cat-name">{cat.name}</span>
@@ -448,6 +536,21 @@ const HangmanGame = () => {
               </button>
             ))}
           </div>
+          {category && (
+            <div className="hangman-mode-section animate-fade-in-up">
+              <h2>Escolha a dificuldade</h2>
+              <div className="hangman-mode-grid">
+                {getAllHangmanModes(progress.hangmanSkill, userLevel).map(mode => (
+                  <button key={mode.id} className="glass-card hangman-mode-card" onClick={() => startGame(category, mode)}>
+                    <strong>{mode.label}</strong>
+                    <span>{mode.maxWrong} chances</span>
+                    <small>Palavras nível {mode.targetDifficulty}</small>
+                    <small>{mode.description}</small>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -466,12 +569,53 @@ const HangmanGame = () => {
                 ? `Você descobriu a palavra com ${wrongCount} erro${wrongCount !== 1 ? 's' : ''}!`
                 : 'Errar faz parte do aprendizado. Vamos aprender essa palavra!'}
             </p>
+            {finalResult && (
+              <>
+                <div className={`hangman-medal ${finalResult.medal.id}`}>
+                  <span>{finalResult.medal.icon}</span>
+                  <strong>{finalResult.medal.label}</strong>
+                  <small>{finalResult.won ? `+${finalResult.awardedPoints} moedas` : 'Continue praticando'}</small>
+                </div>
+                <div className="result-stats hangman-result-stats">
+                  <div className="result-stat">
+                    <span className="result-stat-value">{finalResult.performance}%</span>
+                    <span className="result-stat-label">Desempenho</span>
+                  </div>
+                  <div className="result-stat">
+                    <span className="result-stat-value">{finalResult.remainingAttempts}</span>
+                    <span className="result-stat-label">Chances restantes</span>
+                  </div>
+                  <div className="result-stat">
+                    <span className="result-stat-value">{finalResult.difficulty}</span>
+                    <span className="result-stat-label">Nível da palavra</span>
+                  </div>
+                  <div className="result-stat">
+                    <span className="result-stat-value">{finalResult.skillDelta >= 0 ? '+' : ''}{finalResult.skillDelta}</span>
+                    <span className="result-stat-label">Evolução da Forca</span>
+                  </div>
+                  <div className="result-stat">
+                    <span className="result-stat-value">{finalResult.skillAfter}</span>
+                    <span className="result-stat-label">Novo nível</span>
+                  </div>
+                  <div className="result-stat">
+                    <span className="result-stat-value">{finalResult.hintsUsed}</span>
+                    <span className="result-stat-label">Dicas utilizadas</span>
+                  </div>
+                </div>
+                {finalResult.isPersonalBest && (
+                  <p className="hangman-personal-best">🏆 Novo recorde pessoal no modo {difficulty.label}!</p>
+                )}
+                {finalResult.reviewScheduled && (
+                  <p className="hangman-review-status">🧠 Esta palavra voltará para revisão.</p>
+                )}
+              </>
+            )}
             <WordExplanation word={currentWord} />
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
-              <button className="btn btn-primary" onClick={() => startGame(category)}>
+              <button className="btn btn-primary" onClick={() => startGame(category, difficulty)}>
                 🔄 Jogar novamente
               </button>
-              <button className="btn btn-secondary" onClick={() => setGameState('select')}>
+              <button className="btn btn-secondary" onClick={() => { setCategory(null); setGameState('select'); }}>
                 Mudar categoria
               </button>
               <Link to="/games" className="btn btn-ghost">← Outros jogos</Link>
@@ -491,11 +635,22 @@ const HangmanGame = () => {
             <img src="/hangman-icon.webp" alt="" className="icon" style={{ width: '1.25rem', height: '1.25rem', borderRadius: 'var(--radius-sm)' }} />
             <h2>Forca</h2>
             <span className="badge badge-blue">{category.icon} {category.name}</span>
+            <span className="badge badge-purple">{difficulty.label}</span>
+            <span className="badge hangman-rating-badge">🎯 {difficulty.hangmanRating}</span>
+            <span className="badge hangman-word-badge">🔤 {difficulty.wordDifficulty}</span>
           </div>
           <div className="game-score">
             <div className="game-score-item">
               <span>❌</span>
-              <span className="value">{wrongCount}/{MAX_WRONG}</span>
+              <span className="value">{wrongCount}/{difficulty.maxWrong}</span>
+            </div>
+            <div className="game-score-item" title="Chances restantes">
+              <span>❤️</span>
+              <span className="value">{Math.max(0, difficulty.maxWrong - wrongCount)}</span>
+            </div>
+            <div className="game-score-item" title="Precisão atual">
+              <span>⚡</span>
+              <span className="value">{Math.round((1 - (wrongCount / difficulty.maxWrong)) * 100)}%</span>
             </div>
           </div>
         </div>
@@ -505,12 +660,16 @@ const HangmanGame = () => {
           <div style={{ flex: 1, lineHeight: 1.5 }}>
             <span>💡 Dica: {tipTranslated ? getTranslatedHint(currentWord) : currentWord.tip}</span>
           </div>
-          {!tipTranslated && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
-              {(progress.tipTranslationsAvailable || 0) > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
+              {!tipTranslated && (progress.tipTranslationsAvailable || 0) > 0 && (
                 <button
                   className="btn btn-secondary btn-sm"
-                  onClick={() => { if (consumeTipTranslation()) setTipTranslated(true); }}>
+                  onClick={() => {
+                    if (consumeTipTranslation()) {
+                      translationUsedRef.current = true;
+                      setTipTranslated(true);
+                    }
+                  }}>
                   🌐 Traduzir Dica ({progress.tipTranslationsAvailable} disp.)
                 </button>
               )}
@@ -523,8 +682,7 @@ const HangmanGame = () => {
                   🛒 Comprar Dicas na Loja
                 </Link>
               )}
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Hangman Drawing */}
@@ -539,10 +697,10 @@ const HangmanGame = () => {
 
         {/* Keyboard */}
         <div className="hangman-keyboard animate-fade-in-up">
-          {ALPHABET.map(letter => {
+          {alphabet.map(letter => {
             const isGuessed = guessedLetters.includes(letter);
-            const isCorrect = isGuessed && currentWord.en.toUpperCase().includes(letter);
-            const isWrong = isGuessed && !currentWord.en.toUpperCase().includes(letter);
+            const isCorrect = isGuessed && doesHangmanGuessMatch(currentWord.en, letter, activeCourse);
+            const isWrong = isGuessed && !doesHangmanGuessMatch(currentWord.en, letter, activeCourse);
             
             return (
               <button
